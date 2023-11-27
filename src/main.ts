@@ -18,6 +18,7 @@ startQiankun();
  * 即将开始监听 location 变化，触发路由规则
  */
 const router = new VueRouter({
+  base:process.env.NODE_ENV==='development'?'':'/micro-frondend-container',
   mode: "history",
   routes,
 });
