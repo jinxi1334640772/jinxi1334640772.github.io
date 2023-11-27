@@ -18,20 +18,20 @@ const apps = [
     name: "ReactMicroApp",
     entry: REACT_MICRO_APP,
     container: "#frame",
-    activeRule: "/react",
+    activeRule: "/react-admin-system",
   },
   {
     name: "VueMicroApp",
     entry: VUE_MICRO_APP,
     container: "#frame",
-    activeRule: "/vue",
+    activeRule: "/vue-admin-system",
   },
-  {
-    name: "StaticMicroApp",
-    entry: STATIC_MICRO_APP,
-    container: "#frame",
-    activeRule: "/static",
-  },
+  // {
+  //   name: "StaticMicroApp",
+  //   entry: STATIC_MICRO_APP,
+  //   container: "#frame",
+  //   activeRule: "/static",
+  // },
 ];
 
 export default apps;
