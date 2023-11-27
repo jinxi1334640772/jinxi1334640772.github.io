@@ -1,6 +1,4 @@
 import config from "@/config";
-
-console.log(config);
 const {
   REACT_MICRO_APP,
   VUE_MICRO_APP,
@@ -18,13 +16,13 @@ const apps = [
     name: "ReactMicroApp",
     entry: REACT_MICRO_APP,
     container: "#frame",
-    activeRule: "/react-admin-system",
+    activeRule: "/react",
   },
   {
     name: "VueMicroApp",
     entry: VUE_MICRO_APP,
     container: "#frame",
-    activeRule: "/vue-admin-system",
+    activeRule: "/vue",
   },
   // {
   //   name: "StaticMicroApp",

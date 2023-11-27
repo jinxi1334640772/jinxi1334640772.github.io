@@ -41,22 +41,22 @@ export default class App extends Vue {
     {
       key: "VueMicroApp",
       title: "Vue 主页",
-      path: "/vue-admin-system"
+      path: "/vue/vue-admin-system"
     },
     {
       key: "VueMicroAppdocumentation",
       title: "Vue 文档页",
-      path: "/vue-admin-system/documentation"
+      path: "/vue/vue-admin-system/documentation"
     },
     {
       key: "ReactMicroApp",
       title: "React 主页",
-      path: "/react-admin-system"
+      path: "/react/react-admin-system"
     },
     {
       key: "ReactMicroAppList",
       title: "React 列表页",
-      path: "/react-admin-system/list"
+      path: "/react/react-admin-system/list"
     },
     // {
     //   key: "StaticMicroApp",
