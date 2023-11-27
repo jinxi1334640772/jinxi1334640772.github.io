@@ -18,9 +18,9 @@ git commit -m 'deploy'
 git branch -M master
 # git remote add origin https://github.com/jinxi1334640772/vue-admin-system.git
 # git push -f "https://${access_token}@github.com/jinxi1334640772/vue-admin-system.git" master:deploy
-git push -f "https://github.com/jinxi1334640772/micro-frondend-container.git" master:deploy
+git push -f "https://github.com/jinxi1334640772/jinxi1334640772.github.io.git" master:deploy
 
 cd -
 
-echo https://github.com/jinxi1334640772/micro-frondend-container.git
+echo https://github.com/jinxi1334640772/jinxi1334640772.github.io.git
 echo "${access_token}"
