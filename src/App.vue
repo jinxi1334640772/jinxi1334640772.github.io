@@ -44,6 +44,16 @@ export default class App extends Vue {
       path: "/vue"
     },
     {
+      key: "VueMicroAppdocumentation",
+      title: "Vue 文档页",
+      path: "/vue/documentation"
+    },
+    {
+      key: "VueMicroAppguide",
+      title: "Vue 指导页",
+      path: "/vue/guide"
+    },
+    {
       key: "VueMicroAppList",
       title: "Vue 列表页",
       path: "/vue/list"

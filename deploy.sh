@@ -21,5 +21,4 @@ git branch -M master
 git push -f "https://github.com/jinxi1334640772/micro-frondend-container.git" master:deploy
 
 cd -
-
 echo https://github.com/jinxi1334640772/micro-frondend-container.git

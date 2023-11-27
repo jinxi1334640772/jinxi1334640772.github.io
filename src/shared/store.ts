@@ -11,14 +11,14 @@ type Action = {
 
 const reducer = (state: State = {}, action: Action): State => {
   switch (action.type) {
-    default:
-      return state;
     // 设置 Token
     case "SET_TOKEN":
       return {
         ...state,
         token: action.payload,
       };
+    default:
+      return state;
   }
 };
 
