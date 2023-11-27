@@ -16,13 +16,13 @@ const apps = [
     name: "ReactMicroApp",
     entry: REACT_MICRO_APP,
     container: "#frame",
-    activeRule: "/react",
+    activeRule: "/react/react-admin-system",
   },
   {
     name: "VueMicroApp",
     entry: VUE_MICRO_APP,
     container: "#frame",
-    activeRule: "/vue",
+    activeRule: "/vue/vue-admin-system",
   },
   // {
   //   name: "StaticMicroApp",
