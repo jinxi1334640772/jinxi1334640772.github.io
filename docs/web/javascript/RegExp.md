@@ -52,10 +52,11 @@ const regex2 = /foo/;
 console.log(regex2.hasIndices); // Output: false
 
 console.log(regex2.exec(str2).indices); // Output: undefined
+
 ```
 
-- test()  
-  test() 方法执行一个检索，用来查看正则表达式与指定的字符串是否匹配(类似于 String.prototype.search() 方法），差别在于 test 返回一个布尔值，而 search 返回索引（如果找到）或者 -1（如果没找到)。返回 true 或 false。如果正则表达式设置了全局标志，test() 的执行会改变正则表达式 lastIndex 属性。连续的执行 test()方法，后续的执行将会从 lastIndex 处开始匹配字符串，(exec() 同样改变正则本身的 lastIndex 属性值).
+- test()    
+方法执行一个检索，用来查看正则表达式与指定的字符串是否匹配(类似于 String.prototype.search() 方法），差别在于 test 返回一个布尔值，而 search 返回索引（如果找到）或者 -1（如果没找到)。返回 true 或 false。如果正则表达式设置了全局标志，test() 的执行会改变正则表达式 lastIndex 属性。连续的执行 test()方法，后续的执行将会从 lastIndex 处开始匹配字符串，(exec() 同样改变正则本身的 lastIndex 属性值).
 
 ```js
 const str = "table football";
@@ -162,17 +163,17 @@ console.log(sentence.match(regexpCurrencyOrPunctuation));
 |\D|非数字|
 |\w|字母数字下划线|
 |\W|非字母数字下划线|
-|\p|代表具有指定 Unicode 属性的字符，{、Unicode 属性和/或值、}|
+|\p|代表具有指定 Unicode 属性的字符，{Unicode 属性和/或值}|
 |\P|不具有指定 Unicode 类型的 Unicode 字符类转义|
 |\c|控制字符的字符转义，后跟从 A 到 Z 或从 a 到 z 的字母|
 |\f|分页符|
-|\k|具名反向应用，后跟 <、量词、>|
+|\k|具名反向应用，后跟 <量词>|
 |\n|换行符|
 |\r|回车符|
 |\t|水平制表符|
 |\v|垂直制表符|
 |\x|后跟 2 个十六进制数字，表示具有给定值的字符的字符转义|
-|\q|仅在 v 模式字符类中有效；表示要按字面匹配的字符串，后跟{、一个字符串、}|
+|\q|仅在 v 模式字符类中有效；表示要按字面匹配的字符串，后跟{一个字符串}|
 
 ## string 的正则方法
 本质上，会把参数解析为正则对象，然后调用正则的对应方法。例如String的match(value)方法。会把value包装成正则对象，然后调用正则对象的对应属性：`Reg[Symbol.match](string)`

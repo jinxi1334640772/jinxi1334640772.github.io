@@ -17,7 +17,7 @@ Jenkins 配置可以通过 Web 界面进行。以下是配置 Jenkins 的基本�
 
 2. 访问 Jenkins 网址：
 
-   通常是 http://localhost:8080。
+   通常是 `http://localhost:8080`。
 
 3. 进行初始化配置：
 
@@ -56,16 +56,18 @@ Jenkins 配置可以通过 Web 界面进行。以下是配置 Jenkins 的基本�
 可以通过 Jenkins 脚本控制台进行高级配置，或编辑作业配置文件 config.xml
 
 ## 创建新任务
-在Jenkins中新建任务是一个相对直观的过程，它主要依赖于Jenkins的Web界面，而不是通过编写代码来完成的。首先，您需要使用有效的用户名和密码登录到Jenkins的Web界面。访问您Jenkins服务器的URL（通常是http://`<your-jenkins-server-url>`），然后输入您的登录凭据。
-1. 新建Item  
+在Jenkins中新建任务是一个相对直观的过程，它主要依赖于Jenkins的Web界面，而不是通过编写代码来完成的。首先，您需要使用有效的用户名和密码登录到Jenkins的Web界面。访问您Jenkins服务器的URL，然后输入您的登录凭据。  
+
+1. 新建Item   
 登录后，在Jenkins的主页面上，您会看到一个侧边栏，其中包含了各种操作选项。在这个侧边栏中，找到并点击“新建任务”（在某些Jenkins版本中可能是“New Job”）按钮。
 ![alt text](image-8.png)
 2. 输入任务名称  
 在弹出的“新建任务”或“New Job”界面中，您需要首先输入任务的名称。这个名称应该是有意义的，以便于您和团队成员识别。
-3. 选择任务类型。Pipeline、freestyle project   
+3.  选择任务类型。Pipeline、freestyle project   
 接下来，您需要从“选择一个项目类型”下拉菜单中选择适合您需求的任务类型。Jenkins提供了多种任务类型，如“Freestyle project”（自由风格项目）、“Pipeline”（流水线）、“Maven project”（Maven项目）等。根据您的项目需求选择合适的类型。
 4. 选择自由式项目：freestyle project
-5. 配置任务详细参数  
+5. 配置任务详细参数   
+
   选择任务类型后，您将进入该类型任务的配置页面。在这里，您需要根据您的项目需求配置各种参数。以下是一些常见的配置项：
   ![alt text](image-9.png)
   - ‌源码管理‌：配置如何获取源代码，比如使用Git、SVN等版本控制系统。如果安装了 Git Parameter 插件 就会有 Git参数选项。
@@ -77,6 +79,7 @@ Jenkins 配置可以通过 Web 界面进行。以下是配置 Jenkins 的基本�
 
   - ‌构建后操作‌：定义构建完成后需要执行的操作，如发送通知、部署应用等。
   - 在流水线中输入Groovy语法  
+  
 ```sh
   pipeline {
     agent any
@@ -154,7 +157,7 @@ Jenkins 配置可以通过 Web 界面进行。以下是配置 Jenkins 的基本�
     }
 }
 ```
-6. 保存并应用配置  
+1. 保存并应用配置  
 配置完所有必要的参数后，滚动到页面底部，找到“保存”或“应用”按钮（具体名称可能因Jenkins版本而异），并点击它。这将保存您的配置，并创建新的Jenkins任务。
 
 由于这个过程主要是通过Jenkins的Web界面来完成的，而不是通过编写代码，因此不需要包含代码片段来佐证回答。不过，根据您的项目需求，在配置过程中可能需要编写脚本或命令，这些脚本或命令将作为构建步骤的一部分被Jenkins执行。但这些脚本或命令的编写和配置是在Jenkins的Web界面中完成的，而不是在外部环境中编写的。
@@ -392,5 +395,6 @@ json_data='{
 }'
 
 curl -X POST -H "Content-Type: application/json" -d "$json_data" https://open.feishu.cn/open-apis/bot/v2/hook/*******
+
 ```
 ![alt text](image-14.png)
