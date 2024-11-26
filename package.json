@@ -1,5 +1,5 @@
 {
-  "name": "vue-next-admin-doc",
+  "name": "vitepress-doc",
   "version": "1.0.6",
   "description": "基于vitepress + vite的项目开发文档，静态网站生成",
   "main": "index.js",
@@ -13,12 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://jinxi1334640772.github.io/vitepress"
+    "url": "git@github.com:jinxi1334640772/jinxi1334640772.github.io.git"
   },
   "keywords": [
     "项目文档doc",
-    "vue-next-admin",
-    "vue-next-admin-doc",
+    "vitepress",
+    "vite",
     "vue3"
   ],
   "author": "lyt_20201208",
