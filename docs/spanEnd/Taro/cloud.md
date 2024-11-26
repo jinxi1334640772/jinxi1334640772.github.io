@@ -1,0 +1,79 @@
+## CloudBase云开发
+云开发（CloudBase）是基于 Serverless 架构构建的一站式后端云服务，涵盖函数、数据库、存储、CDN 等服务，免后端运维，支持小程序、Web 和 APP 开发。 其中，小程序·云开发是微信和腾讯云联合推出的云端一体化解决方案，基于云开发可以免鉴权调用微信所有开放能力，在微信开发者工具中即可开通使用。
+```js
+├── client                                  小程序端目录
+│   ├── config                              配置目录
+│   │   ├── dev.js                          开发时配置
+│   │   ├── index.js                        默认配置
+│   │   └── prod.js                         打包时配置
+│   ├── dist                                编译结果目录
+│   ├── package.json
+│   ├── src                                 源码目录
+│   │   ├── app.scss                        项目总通用样式
+│   │   ├── app.js                          项目入口文件
+│   │   ├── components                      组件文件目录
+│   │   │   └── login                       login 组件目录
+│   │   │       └── index.weapp.js          login 组件逻辑
+│   │   └── pages                           页面文件目录
+│   │       └── index                       index 页面目录
+│   │           ├── index.scss              index 页面逻辑
+│   │           └── index.js                index 页面样式
+├── cloud                                   服务端目录
+│   └── functions                           云函数目录
+│       └── login                           login 云函数
+│           ├── index.js                    login 函数逻辑
+│           └── package.json
+└── project.config.json                     小程序项目配置
+```
+使用要点
+- 开发时，进入 client 目录，在此目录下运行相关编译预览或打包命令
+- 使用微信开发者工具调试项目，请将项目 整个文件夹 作为运行目录。 注意： 不是 client 中生成的 dist 文件夹
+## 独立分包
+Taro 支持使用微信小程序的独立分包功能，配置方法和微信小程序中一致
+```js
+├── config
+├── src
+|   ├── pages
+|   |   └── index
+|   ├── moduleA
+|   |   └── pages
+|   |       ├── rabbit
+|   |       └── squirrel
+|   ├── moduleB
+|   |   └── pages
+|   |       ├── pear
+|   |       └── pineapple
+|   ├── app.css
+|   ├── app.json
+|   └── app.js
+└── package.json
+```
+开发者通过在 app.json 的 subpackages 字段中，给对应的分包配置项中定义的 independent 字段声明对应分包为独立分包：
+```js
+{
+  "pages": [
+    "pages/index"
+  ],
+  "subpackages": [
+    {
+      "root": "moduleA",
+      "pages": [
+        "pages/rabbit",
+        "pages/squirrel"
+      ]
+    }, 
+    {
+      "root": "moduleB",
+      "pages": [
+        "pages/pear",
+        "pages/pineapple"
+      ],
+      "independent": true
+    }
+  ]
+}
+```
+## 鸿蒙 & OpenHarmony
+随着鸿蒙系统的日渐完善，众多应用厂商都期待着把自家应用移植到鸿蒙平台上。借助 Taro，可以实现快速开发鸿蒙应用、把小程序快速转换为鸿蒙应用等功能。
+鸿蒙应用程序包结构（Stage 模型）：
+![alt text](image-1.png)

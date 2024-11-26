@@ -1,0 +1,31 @@
+{
+  "name": "vue-next-admin-doc",
+  "version": "1.0.6",
+  "description": "基于vitepress + vite的项目开发文档，静态网站生成",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vitepress dev docs --port 9000",
+    "build": "vitepress build docs",
+    "serve": "vitepress serve docs",
+    "preview": "vitepress preview docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://jinxi1334640772.github.io/vitepress"
+  },
+  "keywords": [
+    "项目文档doc",
+    "vue-next-admin",
+    "vue-next-admin-doc",
+    "vue3"
+  ],
+  "author": "lyt_20201208",
+  "license": "MIT",
+  "dependencies": {
+    "markdown-it-anchor": "^9.2.0",
+    "markdown-it-custom-attrs": "^1.0.2",
+    "vitepress": "^1.5.0"
+  }
+}
