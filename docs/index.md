@@ -21,7 +21,7 @@ lastUpdated: true
 - 出生年月：1993.08
 - 工作经验：6年
 - 求职意向：前端开发工程师
-- 个人主页： https://jinxi1334640772.github.io/vitepress
+- 个人主页： https://jinxi1334640772.github.io
 - Github：https://github.com/jinxi1334640772
 - 掘金：https://juejin.cn/user/1451011080204040
 - 个人项目：https://jinxi1334640772.github.io/vue-admin-system
@@ -71,7 +71,7 @@ lastUpdated: true
     - 技术方案设计和评审 ，项目性能提升 ，用户产品体验优化 ，研发效率提升等建设
     - 结合业务需求 ，进行新技术调研 、研究和分享 ，参与商讨各项规范的制定
 
-- ***公司官方网站项目***
+- ***公司官网***
   - **项目简介**：公司官方网站，介绍公司业务、解决方案、技术支持、技术对接文档等等。系统使用微前端架构 ，使用qiankun微前端框架 ，把系统根据功能模块分成若干个子系统
   - **主要技术**：`qiankun微前端 + vue3 + vueRouter + pinia + element-plus + vite + antv + tailwind css`
   - **工作内容**：
