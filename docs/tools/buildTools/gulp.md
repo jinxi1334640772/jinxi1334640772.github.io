@@ -7,7 +7,12 @@ gulp 是基于流/node 的自动化构建工具，主要使用管道传输机制
 - gulp.dest 指定打包之后文件的输出路径
 - gulp.task 注册任务
 - gulp.series 串联执行多个任务
+- gulp.parallel 并行执行多个任务
 - gulp.watch 监控文件变动，然后执行操作
+- gulp.symlink 创建一个流（stream），用于连接 Vinyl 对象到文件系统。
+- gulp.lastRun 检索在当前运行进程中成功完成任务的最后一次时间.当与 src() 组合时，通过跳过自上次成功完成任务以来没有更 改的文件，使增量构建能够加快执行时间
+- gulp.tree 获取当前任务依赖关系树——在极少数情况下需要它。
+- gulp.registry 将自定义注册表插入到任务系统中，从而提供共享任务或增强功能
 
 ## Gulp 常用插件：
 
@@ -20,10 +25,13 @@ gulp 是基于流/node 的自动化构建工具，主要使用管道传输机制
 - gulp-less less 文件转换为 css 文件
 - gulp-clean-css 压缩 css 文件
 - gulp-imagemin 压缩图片
+- gulp-rename 修改输入文件名
+- gulp-if 根据条件处理文件
 
 ## Gulp 配置
-
+根目录下创建一个名为 gulpfile.js 的文件，项目根目录执行gulp命令，会获取并执行task：
 ```js
+//安装好 gulp 命令行工具 npm install --global gulp-cli
 const gulp = require("gulp");
 const htmlmin = require("gulp-htmlmin");
 const uglify = require("gulp-uglify"); // 压缩js
@@ -36,7 +44,11 @@ const connect = require("gulp-connect"); // gulp微服务
 
 let dir = "./distLWebProject/src/"; // 目标路径
 
-// 压缩 主页html文件
+/** 压缩 主页html文件
+ * 每个 gulp 任务（task）都是一个异步的 JavaScript 函数
+ * callback 返回 streams、promises、event emitters、child processes, 或 observables
+ * 当前callback返回stream
+ */
 gulp.task("html", function () {
   return gulp
     .src("./src/*.html")
@@ -197,4 +209,6 @@ gulp.task(
     }
   )
 );
+
+// or  exports.build= gulp.series()
 ```

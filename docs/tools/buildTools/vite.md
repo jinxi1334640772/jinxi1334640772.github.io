@@ -19,13 +19,10 @@ Vite 以 原生 ESM 方式提供源码。这实际上是让浏览器接管了打
 Vite 同时利用 HTTP 头来加速整个页面的重新加载（再次让浏览器为我们做更多事情）：源码模块的请求会根据 304 Not Modified 进行协商缓存，而依赖模块请求则会通过 Cache-Control: max-age=31536000,immutable 进行强缓存，因此一旦被缓存它们将不需要再次请求。
 
 ## 安装 vite
-
+create-vite 是一个快速生成主流框架基础模板的工具
 ```bash
-# 全局安装 vite
-npm install create-vite-app -g
-
-# 创建项目，xxx 为项目名称
-create-vite-app xxx
+# 全局安装 create-vite 按照提示操作即可！
+npm create vite@latest
 
 # 进入目录
 cd xxx

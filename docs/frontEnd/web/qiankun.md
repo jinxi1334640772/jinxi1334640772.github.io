@@ -110,10 +110,10 @@ actions.offGlobalStateChange();
 //可选，主应用可以拿到微应用的全局生命周期钩子
 const lifeCyle = {
   beforeLoad : Lifecycle | Array<Lifecycle>,
-beforeMount : Lifecycle | Array<Lifecycle>,
-afterMount : Lifecycle | Array<Lifecycle>,
-beforeUnmount : Lifecycle | Array<Lifecycle>,
-afterUnmount : Lifecycle | Array<Lifecycle>
+  beforeMount : Lifecycle | Array<Lifecycle>,
+  afterMount : Lifecycle | Array<Lifecycle>,
+  beforeUnmount : Lifecycle | Array<Lifecycle>,
+  afterUnmount : Lifecycle | Array<Lifecycle>
 }
 registerMicroApps([
   {
