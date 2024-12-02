@@ -50,7 +50,7 @@ source标签引入视频资源，可以设置多个，视频源匹配从上到�
 1. srclang ：告诉浏览器你是用什么语言来编写的 subtitles
 2. label： 帮助读者在查找时识别语言
 一个典型的web VTT文件如下：
-```vtt
+```txt
 WEBVTT
 
 1

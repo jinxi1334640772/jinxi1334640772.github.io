@@ -215,7 +215,7 @@ if (anAlwaysFalseCondition) {
 
 Tap 和 Spec 报告器将打印覆盖统计数据的摘要。还有一个 lcov 报告器，它将生成 lcov 文件，可用作深度覆盖报告
 
-```hash
+```sh
 node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info
 ```
 

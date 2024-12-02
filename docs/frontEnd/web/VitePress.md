@@ -173,30 +173,6 @@ export default {
 
 ## markdown 语法
 
-### 导入数据
-
-markdown 里可以使用 HTML 标签
-
-::: tip
-VitePress 带有内置的 Markdown 扩展。这里为提示 tip。获取页首定义的 title 变量 ：{{ $frontmatter.title }}
-:::
-
-```md
-<script setup>
-import { data } from '../../example.data.js'
-console.log(data) // {hello:'world'}
-</script>
-
-<pre>{{ data }}</pre>
-```
-
-<script setup>
-import { data } from '../../example.data.js'
-console.log(data) // {hello:'world'}
-</script>
-
-<pre>{{ data }}</pre>
-
 ### 标题
 
 ```md
@@ -574,10 +550,10 @@ const line4 = 'This is line 4'
 
 ```txt
 // @为源目录 #snippet代码指定部分 2为需要高亮的行数
-<<< @/index.md.origin{20}
+<<< @/home.md{20}
 ```
 
-<<< @/index.md.origin{20}
+<<< @/home.md{20}
 
 ### 包含 markdown 文件
 
@@ -585,7 +561,7 @@ const line4 = 'This is line 4'
 
 以下为导入的 markdown 文件输出的结果：
 
-<!--@include: @/index.md.origin{3,10}-->
+<!--@include: @/home.md{3,10}-->
 
 ### 代码组
 
@@ -616,36 +592,34 @@ export default config;
 
 ## 在 Markdown 使用 Vue
 
+::: tip
+VitePress 带有内置的 Markdown 扩展。这里为提示 tip。获取页首定义的 title 变量 ：{{ $frontmatter.title }}
+:::
+
 在 VitePress 中，每个 Markdown 文件都被编译成 HTML，而且将其作为 Vue 单文件组件处理。这意味着可以在 Markdown 中使用任何 Vue 功能，包括动态模板、使用 Vue 组件或通过添加 `<script>` 标签为页面的 Vue 组件添加逻辑。
 
-值得注意的是，VitePress 利用 Vue 的编译器自动检测和优化 Markdown 内容的纯静态部分。静态内容被优化为单个占位符节点，并从页面的 JavaScript 负载中删除以供初始访问。在客户端激活期间也会跳过它们。简而言之，只需注意任何给定页面上的动态部分。
+值得注意的是，VitePress 利用 Vue 的编译器自动检测和优化 Markdown 内容的纯静态部分。在客户端激活期间也会跳过它们。
 
-### 变量、指令、模板
-
-在 Markdown 中使用`<style scoped>` 需要为当前页面的每个元素添加特殊属性，这将显著增加页面的大小。当我们需要局部范围的样式时 `<style module>` 是首选。
-
-还可以访问 VitePress 的运行时 API，例如 useData 辅助函数，它提供了当前页面的元数据：
+>在 Markdown 中使用`<style scoped>` 需要为当前页面的每个元素添加特殊属性，这将显著增加页面的大小。当我们需要局部范围的样式时 `<style module>` 是首选。
 
 ```md
----
-hello: world
----
-
 <script setup>
+// 可以引入外部数据
+import { data } from '/example.data.js'
+//可以访问 VitePress 的运行时 API，例如 useData 辅助函数，它提供了当前页面的元数据：
 import { useData } from 'vitepress'
 import { ref } from 'vue'
-
-// 引入和使用vue组件
-// import CustomComponent from '../../components/CustomComponent.vue'
-
 const { page } = useData()
-const count = ref(0)
+const count = ref(1000)
 </script>
 
-<pre>{{ page }}The count is: {{ count }}</pre>
+<pre>导入定义的数据：{{ data }}</pre>
 
-<button :class="$style.button" @click="count++">Increment</button>
-<!-- <CustomComponent /> -->
+<pre>useData()获取的page数据：{{ page }}</pre>
+
+<pre :class="$style.button" >ref(1000)数据: {{ count }}</pre>
+
+<button :class="$style.button" @click="count++">点击：count++</button>
 
 <!-- 使用CSS module -->
 <style module>
@@ -656,10 +630,35 @@ const count = ref(0)
 </style>
 <!-- 使用CSS预处理器 -->
 <style lang="scss">
-.title
+.title {
   font-size: 20px
+}
 </style>
 ```
+<script setup>
+import { data } from '/example.data.js'
+import { useData } from 'vitepress'
+import { ref } from 'vue'
+const { page } = useData()
+const count = ref(1000)
+</script>
+
+<pre>导入定义的数据：{{ data }}</pre>
+
+<pre>useData()获取的page数据：{{ page }}</pre>
+
+<pre :class="$style.button">ref(1000)数据: {{ count }}</pre>
+
+<button :class="$style.button" @click="count++">点击：count++</button>
+<!-- <CustomComponent /> -->
+
+<!-- 使用CSS module -->
+<style module>
+.button {
+  color: red;
+  font-weight: bold;
+}
+</style>
 
 如果一个组件要在大多数页面上使用，可以通过自定义 Vue 实例来全局注册它们。
 

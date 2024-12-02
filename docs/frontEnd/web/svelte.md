@@ -443,7 +443,6 @@ import { flip } from 'svelte/animate';
 ```
 ## easing 
 Easing 函数可指定根据时间变化的速率，在使用Svelte的内置transition和animation以及tweened和spring程序时非常有用。 svelte/easing 包含31个导出命名，, 一个linear（线性）缓动使用in， out 和 inOut轻松生成10种不同的缓动函数：
-![alt text](image-5.png)
 
 ## Actions
 pannable.js:
