@@ -5,7 +5,9 @@ editLink: true
 
 ## Vitepress 简介
 
-🎉 💯 VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的站点而设计。简而言之，VitePress 获取用 Markdown 编写的内容，对其应用主题，并生成可以轻松部署到任何地方的静态 HTML 页面。[官方网站](https://vitejs.cn/vitepress/guide/what-is-vitepress)：https://vitejs.cn/vitepress/guide/what-is-vitepress
+🎉 💯 VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的站点而设计。简而言之，VitePress 获取用 Markdown 编写的内容，对其应用主题，并生成可以轻松部署到任何地方的静态 HTML 页面。  
+
+[官方网站](https://vitejs.cn/vitepress/guide/what-is-vitepress)：https://vitejs.cn/vitepress/guide/what-is-vitepress
 
 ### 使用场景
 

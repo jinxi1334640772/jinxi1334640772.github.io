@@ -1,19 +1,21 @@
-## Svelte框架介绍
+## Svelte 框架介绍
+
 velte 是一种全新的构建用户界面的方法。传统框架如 React 和 Vue 在浏览器中需要做大量的工作，而 Svelte 将这些工作放到构建应用程序的编译阶段来处理。
 
 与使用虚拟（virtual）DOM 差异对比不同。Svelte 编写的代码在应用程序的状态更改时就能像做外科手术一样更新 DOM。
+
 - 减少代码量  
-重复利用所掌握的编程语言：HTML、CSS、Javascript，构建的组件无需依赖模板文件。
-- 无虚拟DOM  
-Svelte将代码编译成体积小、不依赖框架的普通js代码，让应用程序无论启动或者运行都变得非常迅速。
+  重复利用所掌握的编程语言：HTML、CSS、Javascript，构建的组件无需依赖模板文件。
+- 无虚拟 DOM  
+  Svelte 将代码编译成体积小、不依赖框架的普通 js 代码，让应用程序无论启动或者运行都变得非常迅速。
 - 真正的反应能力  
-无需复杂的状态管理库，Svelte为JavaScript自身添加反应能力。
+  无需复杂的状态管理库，Svelte 为 JavaScript 自身添加反应能力。
 
-
-- Svelte组件建立在HTML之上，然后只需添加数据即可。
-- css默认限定在组件作用域内，不再有样式冲突或者优先级的问题。还可以使用CSS-in-JS库。
+- Svelte 组件建立在 HTML 之上，然后只需添加数据即可。
+- css 默认限定在组件作用域内，不再有样式冲突或者优先级的问题。还可以使用 CSS-in-JS 库。
 - 通过给局部变量赋值就能触发高效、细粒度的更新。剩余的事情交给编译器处理。
-- 使用一个内置于框架中的、强大的、性能卓越的动画引擎来构建漂亮的UI。
+- 使用一个内置于框架中的、强大的、性能卓越的动画引擎来构建漂亮的 UI。
+
 ```js
 <script>
   //引入组件直接使用
@@ -23,7 +25,7 @@ Svelte将代码编译成体积小、不依赖框架的普通js代码，让应用
   // 内置常用动画
 	import { fade, draw, fly } from 'svelte/transition';
   // 引入生命周期函数
-  import { 
+  import {
     onMount,
     onDestroy,
     beforeUpdate,
@@ -80,7 +82,7 @@ Svelte将代码编译成体积小、不依赖框架的普通js代码，让应用
 <p>使用@html直接渲染HTML元素而不是文本{@html '<div></div>'}</p>
 
 <button on:click|once={handleClick}>
-	绑定click事件触发器，并添加修饰符，和vue相同： 
+	绑定click事件触发器，并添加修饰符，和vue相同：
   {count} {count === 1 ? 'time' : 'times'}
 </button>
 <div on:mousemove="{e => m = { x: e.clientX, y: e.clientY }}">
@@ -121,7 +123,7 @@ Svelte将代码编译成体积小、不依赖框架的普通js代码，让应用
 			<span
 				in:fade="{{delay: 1000 + i * 150, duration: 800}}"
 			>{char}</span>
-		{/each}  
+		{/each}
 	</div>
 {/if}
 
@@ -146,45 +148,53 @@ Svelte将代码编译成体积小、不依赖框架的普通js代码，让应用
 	bind:innerHTML={html}
 ></div>
 ```
-## 客户端 component API
-客户端 component 使用 generate: 'dom' (或 generate 选项不指定)编译的component是JavaScript类。
-```js
-const component = new Component(options)
 
-import App from './App.svelte';
+## 客户端 component API
+
+客户端 component 使用 generate: 'dom' (或 generate 选项不指定)编译的 component 是 JavaScript 类。
+
+```js
+const component = new Component(options);
+
+import App from "./App.svelte";
 
 const app = new App({
-	target: document.body,
-	props: {
-		answer: 42
-	}
+  target: document.body,
+  props: {
+    answer: 42,
+  },
 });
 
 //以编程方式在实例上设置 prop
-app.$set(props)
+app.$set(props);
 
 //返回一个函数，该函数在调用时将删除事件侦听器。
-app.$on(event, callback)
+app.$on(event, callback);
 
 //从DOM中删除component并触发所有 onDestroy 处理程序
-app.$destroy()
+app.$destroy();
 ```
 
 ## 反应性能力
+
 由于 Svelte 的反应性是由赋值语句触发的，因此使用数组的诸如 push 和 splice 之类的方法就不会触发自动更新。解决该问题的一种方法是添加一个多余的赋值语句：
+
 ```js
 function addNumber() {
-	numbers.push(numbers.length + 1);
-	numbers = numbers;//添加赋值语句，触发响应式
+  numbers.push(numbers.length + 1);
+  numbers = numbers; //添加赋值语句，触发响应式
 }
 
 //赋值给数组和对象的 属性（properties） （例如，obj.foo += 1 或 array[i] = x）与对值本身进行赋值的方式相同。
 numbers[numbers.length] = numbers.length + 1;
 ```
+
 ## 事件调度
+
 与 DOM 事件不同， 组件事件不会 冒泡（bubble） ，如果你想要在某个深层嵌套的组件上监听事件，则中间组件必须 转发（forward） 该事件
 
-为此，组件内必须创建一个相同事件并在外部进行分配。createEventDispatcher 必须在首次实例化组件时调用它，—组件本身不支持如 setTimeout 之类的事件回调。 定义一个dispatch进行连接，进而把组件实例化。
+为此，组件内必须创建一个相同事件并在外部进行分配。createEventDispatcher 必须在首次实例化组件时调用它，—组件本身不支持如 setTimeout 之类的事件回调。 定义一个 dispatch 进行连接，进而把组件实例化。
+
 ```js
 <script>
   import Inner from './Inner.svelte';
@@ -204,6 +214,7 @@ numbers[numbers.length] = numbers.length + 1;
 {/* 简写属性 on:message。 message 没有赋予特定的值得情况下意味着转发所有massage事件： */}
 <Inner on:message/>
 ```
+
 ## store
 
 ```js
@@ -244,7 +255,7 @@ count.set(0);
 // 源于一个或多个其他 store的store，只要这些依赖项发生变更，就会执行回调
 derived(a, callback: (a: any) => any)
 derived(
-  [a, ...b], 
+  [a, ...b],
   callback: ([a: any, ...b: any[]], set: (value: any) => void) => void | () => void, initial_value: any)
 
 const doubled = derived(time, ($time,set) => $time * 2);
@@ -264,8 +275,11 @@ function createCount() {
 	};
 }
 ```
+
 ## 运动
-svelte/motion模块导出两个函数： tweened 和 spring。用于创建writable（可写）store，其值会在set 和 update之后更新，而不是立即更新。
+
+svelte/motion 模块导出两个函数： tweened 和 spring。用于创建 writable（可写）store，其值会在 set 和 update 之后更新，而不是立即更新。
+
 ```js
 <script>
 	import { tweened,spring } from 'svelte/motion';
@@ -295,13 +309,15 @@ svelte/motion模块导出两个函数： tweened 和 spring。用于创建writab
 ```
 
 ## 过渡
+
 - `fade` 淡入淡出 参数： delay duration
 - `blur` 模糊处理 参数：delay、duration、easing、opacity、amount
-- `fly`  移动 delay、duration、easing、x、y、opacity
+- `fly` 移动 delay、duration、easing、x、y、opacity
 - `slide` 滑动 delay duration easing
 - `scale` 缩放 delay duration easing start opacity
-- `draw` 对SVG标签进行路径绘制动画 delay speed duration easing 
+- `draw` 对 SVG 标签进行路径绘制动画 delay speed duration easing
 - `crossfade`
+
 ```js
 <script>
 	import { fade,fly,slide,scale,draw,blur,crossfade} from 'svelte/transition';
@@ -352,7 +368,7 @@ function fade(node, {
 	{item}
 </div>
 
-//crossfade函数创建一对称名为 send 和receive. 当一个标签被 'sent'时， 它会寻找一个被'received'的标签，并赋予一个过渡效果，反之同理。如果没有对应的接收方，过渡效果将会设置为fallback 
+//crossfade函数创建一对称名为 send 和receive. 当一个标签被 'sent'时， 它会寻找一个被'received'的标签，并赋予一个过渡效果，反之同理。如果没有对应的接收方，过渡效果将会设置为fallback
 const [send, receive] = crossfade({
   duration: d => Math.sqrt(d * 200),
   fallback(node, params) {
@@ -381,8 +397,11 @@ const [send, receive] = crossfade({
 	out:send="{{key: todo.id}}"
 >
 ```
+
 ## 动画
-- flip 函数计算标签的开始和结束位置并在它们之间进行动画效果，并翻转x 和 y的值，
+
+- flip 函数计算标签的开始和结束位置并在它们之间进行动画效果，并翻转 x 和 y 的值，
+
 ```js
 
 animate:name={params}
@@ -441,68 +460,80 @@ import { flip } from 'svelte/animate';
 	animate:flip="{{duration: 200}}"
 >
 ```
-## easing 
-Easing 函数可指定根据时间变化的速率，在使用Svelte的内置transition和animation以及tweened和spring程序时非常有用。 svelte/easing 包含31个导出命名，, 一个linear（线性）缓动使用in， out 和 inOut轻松生成10种不同的缓动函数：
+
+## easing
+
+Easing 函数可指定根据时间变化的速率，在使用 Svelte 的内置 transition 和 animation 以及 tweened 和 spring 程序时非常有用。 svelte/easing 包含 31 个导出命名，, 一个 linear（线性）缓动使用 in， out 和 inOut 轻松生成 10 种不同的缓动函数：
 
 ## Actions
+
 pannable.js:
+
 ```js
 // action本身是个函数，接受node节点对象
-export function pannable(node,...args) {
-	let x;
-	let y;
+export function pannable(node, ...args) {
+  let x;
+  let y;
 
-	function handleMousedown(event) {
-		x = event.clientX;
-		y = event.clientY;
-    
+  function handleMousedown(event) {
+    x = event.clientX;
+    y = event.clientY;
+
     // 当触发mousedown事件时，触发dom上的panstart事件
-		node.dispatchEvent(new CustomEvent('panstart', {
-			detail: { x, y }
-		}));
+    node.dispatchEvent(
+      new CustomEvent("panstart", {
+        detail: { x, y },
+      })
+    );
 
     // 并监听mousemove和mouseup事件
-		window.addEventListener('mousemove', handleMousemove);
-		window.addEventListener('mouseup', handleMouseup);
-	}
+    window.addEventListener("mousemove", handleMousemove);
+    window.addEventListener("mouseup", handleMouseup);
+  }
 
-	function handleMousemove(event) {
-		const dx = event.clientX - x;
-		const dy = event.clientY - y;
-		x = event.clientX;
-		y = event.clientY;
+  function handleMousemove(event) {
+    const dx = event.clientX - x;
+    const dy = event.clientY - y;
+    x = event.clientX;
+    y = event.clientY;
 
-		node.dispatchEvent(new CustomEvent('panmove', {
-			detail: { x, y, dx, dy }
-		}));
-	}
+    node.dispatchEvent(
+      new CustomEvent("panmove", {
+        detail: { x, y, dx, dy },
+      })
+    );
+  }
 
-	function handleMouseup(event) {
-		x = event.clientX;
-		y = event.clientY;
+  function handleMouseup(event) {
+    x = event.clientX;
+    y = event.clientY;
 
-		node.dispatchEvent(new CustomEvent('panend', {
-			detail: { x, y }
-		}));
+    node.dispatchEvent(
+      new CustomEvent("panend", {
+        detail: { x, y },
+      })
+    );
 
-		window.removeEventListener('mousemove', handleMousemove);
-		window.removeEventListener('mouseup', handleMouseup);
-	}
+    window.removeEventListener("mousemove", handleMousemove);
+    window.removeEventListener("mouseup", handleMouseup);
+  }
 
-	node.addEventListener('mousedown', handleMousedown);
+  node.addEventListener("mousedown", handleMousedown);
 
-	return {
-		destroy() {
+  return {
+    destroy() {
       // 销毁时触发
-			node.removeEventListener('mousedown', handleMousedown);
-		},
-    update(newDuration){
+      node.removeEventListener("mousedown", handleMousedown);
+    },
+    update(newDuration) {
       // 参数改变时触发该方法
-    }
-	};
+    },
+  };
 }
 ```
+
 app.svelte
+
 ```js
 <script>
 	import { spring } from 'svelte/motion';
@@ -557,18 +588,23 @@ app.svelte
 		rotate({$coords.x * 0.2}deg)"
 ></div>
 ```
+
 ## Classes
+
 ```js
 <button
-	class="{current === 'foo' ? 'selected' : ''}"
+  class="{current === 'foo' ? 'selected' : ''}"
   class:selected="{current === 'foo'}"
   class:big={big}
   class:big // 简写
-	on:click="{() => current = 'foo'}"
->foo</button>
+  on:click="{() => current = 'foo'}">
+  foo
+</button>
 ```
+
 ## 组件
-像vue一样，支持slot插槽，命名插槽，插槽默认值
+
+像 vue 一样，支持 slot 插槽，命名插槽，插槽默认值
 
 ```js
 // 定义组件
@@ -599,27 +635,31 @@ app.svelte
 	<span slot="comments" let:item={var}>获取具名插槽传递来的数据</span>
 </ContactCard>
 ```
+
 ## 上下文
+
 ```js
 // 父级组件，通过setContext暴露上下文给子级组件
-import { onMount, setContext } from 'svelte';
-import { mapbox, key } from './mapbox.js';
+import { onMount, setContext } from "svelte";
+import { mapbox, key } from "./mapbox.js";
 
 setContext(key, {
-	getMap: () => map
+  getMap: () => map,
 });
 
-
 // 子级组件通过getContext获取上下文传递的数据
-import { getContext } from 'svelte';
-import { mapbox, key } from './mapbox.js';
+import { getContext } from "svelte";
+import { mapbox, key } from "./mapbox.js";
 
 const { getMap } = getContext(key);
 const map = getMap();
 ```
+
 ## 特殊标签
+
 `<svelte:self>`标签允许递归自己。例如：目录
-`<svelte:component>` 和vue的component组件一样
+`<svelte:component>` 和 vue 的 component 组件一样
+
 ```js
 {#if file.type === 'folder'}
 	<svelte:self {...file}/>
@@ -699,13 +739,17 @@ const map = getMap();
 	></audio>
 </article>
 ```
+
 ## 调试
+
 ```txt
 // 调试user
 {@debug user}
 <h1>Hello {user.firstname}!</h1>
 ```
+
 祝贺动画：
+
 ```js
 <script>
 	import { onMount } from 'svelte';
@@ -757,6 +801,7 @@ const map = getMap();
 	<span style="left: {c.x}%; top: {c.y}%; transform: scale({c.r})">{c.character}</span>
 {/each}
 ```
+
 ![alt text](image-4.png)
 参考：https://www.svelte.cn/
 

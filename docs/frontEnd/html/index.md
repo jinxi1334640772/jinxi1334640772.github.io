@@ -53,7 +53,7 @@ HTML 文档的语言设置好了，那么你的 HTML 文档就会被搜索引擎
 
 ## HTML 标签
 
-- blockquote 块级应用
+- blockquote 块级引用
 - q 行内引用
 - abbr 缩略语
 - address 包含联系方式

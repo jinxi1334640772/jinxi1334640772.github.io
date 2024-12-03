@@ -83,7 +83,7 @@ export default defineConfig({
   // 基础baseUrl 类似publicPath
   base: "/",
   // 是否显示更新时间，是否使用 Git 获取每个页面的最后更新时间戳。时间戳将包含在每个页面的页面数据中，可通过 useData 访问。
-  lastUpdated: true,
+  lastUpdated: false,
   // 自定义更新text
   lastUpdatedText: "上次更新",
   // 当设置为 true 时，VitePress 将从 URL 中删除 .html 后缀。需要服务端支持
@@ -473,6 +473,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: "jQuery框架", link: "/frontEnd/web/jQuery" },
+            { text: "Vue 框架", link: "/frontEnd/web/vue" },
             { text: "TypeScript", link: "/frontEnd/web/TypeScript" },
             { text: "qiankun微前端", link: "/frontEnd/web/qiankun" },
             { text: "Svelte框架", link: "/frontEnd/web/svelte" },
