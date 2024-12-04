@@ -170,6 +170,7 @@ export default defineConfig({
           { text: "TypeScript", link: "/frontEnd/web/TypeScript" },
           { text: "qiankun微前端", link: "/frontEnd/web/qiankun" },
           { text: "Svelte框架", link: "/frontEnd/web/svelte" },
+          { text: "Vue框架", link: "/frontEnd/web/vue" },
           { text: "Amis低代码", link: "/frontEnd/web/lessCode" },
           { text: "VitePress生成站点", link: "/frontEnd/web/VitePress" },
           { text: "Nuxt SSR服务端渲染", link: "/frontEnd/web/nuxt" },
@@ -183,6 +184,14 @@ export default defineConfig({
           { text: "express", link: "/afterEnd/express/server" },
           { text: "数据库", link: "/afterEnd/database/mongoose" },
           { text: "Nginx服务器", link: "/afterEnd/nginx/nginx" },
+        ],
+      },
+      {
+        text: "测试技术",
+        items: [
+          { text: "test 测试模块", link: "/afterEnd/node/test" },
+          { text: "assert 断言模块", link: "/afterEnd/node/assert" },
+          { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
         ],
       },
       {
@@ -209,7 +218,7 @@ export default defineConfig({
           { text: "开发规范", link: "/tools/stardard/eslint" },
           { text: "问题锦集", link: "/tools/questions/handwrite" },
           {
-            text: "构建工具",
+            text: "构建工具&CI/CD",
             items: [
               { text: "Webpack", link: "/tools/buildTools/webpack" },
               { text: "Gulp", link: "/tools/buildTools/gulp" },
@@ -278,10 +287,11 @@ export default defineConfig({
             { text: "tasksfile函数任务", link: "/tools/package/tasksfile" },
             { text: "fuse.js模糊匹配", link: "/tools/package/fuse" },
             { text: "day.js日期时间格式化", link: "/tools/package/dayjs" },
+            { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
           ],
         },
         {
-          text: "构建工具",
+          text: "构建工具&CI/CD",
           collapsed: false,
           items: [
             { text: "Vite", link: "/tools/buildTools/vite" },
