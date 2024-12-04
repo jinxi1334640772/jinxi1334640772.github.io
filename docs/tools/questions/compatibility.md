@@ -9,9 +9,7 @@
 
 同一浏览器，版本越老，存在 bug 越多，相对于版本越新的浏览器，对新属性和标签、新特性支持越少。
 
-不同浏览器，核心技术(内核)不同，标准不同，实现方式也有差异，最终呈现出来在大众面前的效果也是会有差异。
-
-浏览器兼容性问题可分为以下三类：
+不同浏览器，核心技术(内核)不同，标准不同，实现方式也有差异，最终呈现出来在大众面前的效果也是会有差异。浏览器兼容性问题可分为以下三类
 
 - 渲染相关：和 样式 相关的问题，即体现在布局效果上的问题。
 - 脚本相关：和 脚本 相关的问题，包括 JavaScript 和 DOM、BOM 方面的问题。对于某些浏览器的功能方面的特性，也属于这一类。
@@ -19,11 +17,11 @@
 
 ## 解决兼容性问题思路
 
-（1）渐进增强：针对低版本浏览器进行构建页面，保证最基本的功能，然后再针对高级浏览器进行效果、交互等改进和追加功能达到更好的用户体验。
+- 渐进增强：针对低版本浏览器进行构建页面，保证最基本的功能，然后再针对高级浏览器进行效果、交互等改进和追加功能达到更好的用户体验。
 
-（2）优雅降级：一开始就构建完整的功能，然后再针对低版本浏览器进行兼容。
+- 优雅降级：一开始就构建完整的功能，然后再针对低版本浏览器进行兼容。
 
-解决方案：
+解决方案
 
 - 选择通用技术框架/库(如 jquery Vue React)：再内部已经解决了大部分兼容性问题。
 - 选择兼容工具： html5shiv 、 Respond.js 、 CSS Reset 、 normalize.css 、 Modernizr.js 、 postcss 。
@@ -89,8 +87,8 @@ obj.onselectstart = function {return false;} // IE
 
 ## CSS 兼容性问题
 
-- 使用 normalize.css 抹平差异，同时可以定制自己的 reset.css 全局重置样式
-- CSS3 兼容前缀表示:可以使用 Autoprefixer 是一个用于自动添加 CSS 浏览器前缀的 postcss 插件，可以根据 Can I Use 数据库来确定需要添加哪些前缀，以满足特定的浏览器兼容性要求。配置.browserslistrc 文件，定义需要兼容的浏览器。
+- 使用 `normalize.css`抹平差异，同时可以定制自己的 `reset.css` 全局重置样式
+- CSS3 兼容前缀表示:可以使用 Autoprefixer 是一个用于自动添加 CSS 浏览器前缀的 postcss 插件，可以根据 Can I Use 数据库来确定需要添加哪些前缀，以满足特定的浏览器兼容性要求。配置`.browserslistrc` 文件，定义需要兼容的浏览器。
 - 图片加 a 标签在 IE9 中会有边框：边框设置为 0 `img{border：none}`
 - IE9 以下浏览器不能使用 opacity
 
@@ -99,9 +97,9 @@ opacity: 0.7; /*FF chrome safari opera*/
 filter: alpha(opacity: 70); /*用了ie滤镜,可以兼容ie*/
 ```
 
-- 鼠标指针 cursor 兼容问题：统一使用 {cursor：pointer}
-- a 标签 css 状态的顺序：按照 link–visited–hover–active 的顺序编写
-- 在 Chrome 中字体不能小于 12px：
+- 鼠标指针 cursor 兼容问题：统一使用 `{cursor：pointer}`
+- a 标签 css 状态的顺序：按照 `link–visited–hover–active` 的顺序编写
+- 在 Chrome 中字体不能小于 12px
 
 ```css
 p {
