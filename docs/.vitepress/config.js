@@ -304,6 +304,7 @@ export default defineConfig({
             { text: "内容输出问题", link: "/tools/questions/print" },
             { text: "发布npm包", link: "/tools/questions/npmPublish" },
             { text: "promise", link: "/tools/questions/promise" },
+            { text: "兼容性问题", link: "/tools/questions/compatibility" },
           ],
         },
       ],
@@ -532,6 +533,10 @@ export default defineConfig({
             {
               text: "资源预获取和预加载",
               link: "/performace/codePerformace/prefetch",
+            },
+            {
+              text: "优化 SEO",
+              link: "/performace/codePerformace/seo",
             },
           ],
         },
