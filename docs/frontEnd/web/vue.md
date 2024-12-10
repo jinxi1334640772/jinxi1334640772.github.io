@@ -402,6 +402,377 @@ export default {
 };
 ```
 
+## 虚拟 dom
+
+用对象描述真实的 dom 结构：
+
+```ts
+export interface VNode {
+  sel: string | undefined; // selector
+  data: VNodeData | undefined;
+  children: Array<VNode | string> | undefined; // 子节点
+  elm: Node | undefined; // element, 存储 HTMLELement
+  text: string | undefined; // 文本节点
+  key: Key | undefined; // 节点 key
+}
+
+export interface VNodeData {
+  props?: Props; // 节点属性
+  attrs?: Attrs; // 节点 attribute 属性
+  class?: Classes; // class 类名
+  style?: VNodeStyle; // style 样式
+  dataset?: Dataset; // html 自定义属性 data-
+  on?: On; // 事件
+  attachData?: AttachData;
+  hook?: Hooks; // 钩子
+  key?: Key;
+  ns?: string; // for SVGs
+  fn?: () => VNode; // for thunks
+  args?: any[]; // for thunks
+  is?: string; // for custom elements v1
+  [key: string]: any; // for any other 3rd party module
+}
+
+//h 渲染函数实际上只用于创建 vnode
+export function h(sel: string): VNode;
+export function h(sel: string, data: VNodeData | null): VNode;
+export function h(sel: string, children: VNodeChildren): VNode;
+export function h(
+  sel: string,
+  data: VNodeData | null,
+  children: VNodeChildren
+): VNode;
+export function h(sel: any, b?: any, c?: any): VNode {
+  let data: VNodeData = {};
+  let children: any;
+  let text: any;
+  let i: number;
+  // 参数格式化
+  if (c !== undefined) {
+    if (b !== null) {
+      data = b;
+    }
+    if (is.array(c)) {
+      children = c;
+    } else if (is.primitive(c)) {
+      text = c;
+    } else if (c && c.sel) {
+      children = [c];
+    }
+  } else if (b !== undefined && b !== null) {
+    if (is.array(b)) {
+      children = b;
+    } else if (is.primitive(b)) {
+      text = b;
+    } else if (b && b.sel) {
+      children = [b];
+    } else {
+      data = b;
+    }
+  }
+  // 如果存在 children，将不是 vnode 的项转成 vnode
+  if (children !== undefined) {
+    for (i = 0; i < children.length; ++i) {
+      if (is.primitive(children[i]))
+        children[i] = vnode(
+          undefined,
+          undefined,
+          undefined,
+          children[i],
+          undefined
+        );
+    }
+  }
+  // svg 元素添加 namespace
+  if (
+    sel[0] === "s" &&
+    sel[1] === "v" &&
+    sel[2] === "g" &&
+    (sel.length === 3 || sel[3] === "." || sel[3] === "#")
+  ) {
+    addNS(data, children, sel);
+  }
+  // 返回 vnode
+  return vnode(sel, data, children, text, undefined);
+}
+
+// 判断 vnode 节点是否为相同
+function sameVnode(vnode1: VNode, vnode2: VNode): boolean {
+  // key 和 sel 都相等
+  // 如果 key 没有传入 => undefined === undefined // true
+  // 不传 key 情况分析：不在循环体里面，像直接定义的情况，直接通过 tag/sel 来比较
+  const isSameKey = vnode1.key === vnode2.key;
+  const isSameIs = vnode1.data?.is === vnode2.data?.is;
+  const isSameSel = vnode1.sel === vnode2.sel;
+
+  return isSameSel && isSameKey && isSameIs;
+}
+
+// 根据Vnode创建真实的 DOM 节点 vnode.elm
+function createElm(vnode: VNode, insertedVnodeQueue: VNodeQueue): Node {
+  let i: any;
+  let data = vnode.data;
+  if (data !== undefined) {
+    // 调用 init hook
+    const init = data.hook?.init;
+    if (isDef(init)) {
+      init(vnode);
+      data = vnode.data;
+    }
+  }
+  const children = vnode.children;
+  const sel = vnode.sel;
+  // 注释节点
+  if (sel === "!") {
+    if (isUndef(vnode.text)) {
+      vnode.text = "";
+    }
+    // 创建注释节点
+    vnode.elm = api.createComment(vnode.text!);
+  } else if (sel !== undefined) {
+    // Parse selector
+    const hashIdx = sel.indexOf("#");
+    const dotIdx = sel.indexOf(".", hashIdx);
+    const hash = hashIdx > 0 ? hashIdx : sel.length;
+    const dot = dotIdx > 0 ? dotIdx : sel.length;
+    const tag =
+      hashIdx !== -1 || dotIdx !== -1 ? sel.slice(0, Math.min(hash, dot)) : sel;
+    const elm = (vnode.elm =
+      isDef(data) && isDef((i = data.ns))
+        ? api.createElementNS(i, tag, data)
+        : api.createElement(tag, data));
+
+    if (hash < dot) elm.setAttribute("id", sel.slice(hash + 1, dot));
+    if (dotIdx > 0)
+      elm.setAttribute("class", sel.slice(dot + 1).replace(/\./g, " "));
+
+    // 调用 create hook
+    for (i = 0; i < cbs.create.length; ++i) cbs.create[i](emptyNode, vnode);
+
+    // 挂载子节点（递归创建节点）
+    if (is.array(children)) {
+      for (i = 0; i < children.length; ++i) {
+        const ch = children[i];
+        if (ch != null) {
+          api.appendChild(elm, createElm(ch as VNode, insertedVnodeQueue));
+        }
+      }
+    } else if (is.primitive(vnode.text)) {
+      api.appendChild(elm, api.createTextNode(vnode.text));
+    }
+    const hook = vnode.data!.hook;
+    if (isDef(hook)) {
+      // 调用 create hook
+      hook.create?.(emptyNode, vnode);
+      if (hook.insert) {
+        // insert hook 存储起来 等 dom 插入后才会调用，这里用个数组来保存能避免调用时再次对 vnode 树做遍历
+        insertedVnodeQueue.push(vnode);
+      }
+    }
+  } else {
+    // 文本节点
+    vnode.elm = api.createTextNode(vnode.text!);
+  }
+  return vnode.elm;
+}
+
+// 更新节点
+function patchVnode(
+  oldVnode: VNode,
+  vnode: VNode,
+  insertedVnodeQueue: VNodeQueue
+) {
+  // 执行 prepatch hook
+  const hook = vnode.data?.hook;
+  hook?.prepatch?.(oldVnode, vnode);
+  // 设置 vnode.elm
+  const elm = (vnode.elm = oldVnode.elm)!;
+  // 旧 children
+  const oldCh = oldVnode.children as VNode[];
+  // 新 children
+  const ch = vnode.children as VNode[];
+  // 如果 oldVnode 和 vnode 是完全相同，说明无需更新，直接返回。
+  // 极少这种情况，除非人为测试
+  if (oldVnode === vnode) return;
+  // hook 相关
+  if (vnode.data !== undefined) {
+    // 调用 update hook
+    for (let i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode);
+
+    // 调用 vnode update hook
+    vnode.data.hook?.update?.(oldVnode, vnode);
+  }
+  // 新test(vnode.text) === undefined (vnode.children != undefined) / (vnode.children 一般有值)
+  // text 与 children 不可能共存，但是都为 undefined 成立
+  if (isUndef(vnode.text)) {
+    // 新旧都有 children
+    if (isDef(oldCh) && isDef(ch)) {
+      // 新旧节点都存在 children 就执行 updateChildren
+      if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue);
+    }
+    // 存在新 children，不存在旧 children（有可能存在旧 text）
+    else if (isDef(ch)) {
+      // 如果旧 text 存在值，先置空
+      if (isDef(oldVnode.text)) api.setTextContent(elm, "");
+      // 添加 children
+      addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue);
+    }
+    // 存在旧 children，不存在新 children（有可能存在旧 text）
+    else if (isDef(oldCh)) {
+      // 移除旧节点的 children
+      removeVnodes(elm, oldCh, 0, oldCh.length - 1);
+    } else if (isDef(oldVnode.text)) {
+      // 旧节点存在 text 置空
+      api.setTextContent(elm, "");
+    }
+  }
+  // else: vnode.text !== undefined (vnode.children 无值)
+  else if (oldVnode.text !== vnode.text) {
+    // 移除旧 children
+    if (isDef(oldCh)) {
+      // 新节点删除了 children ,删除老的 DOM 元素
+      removeVnodes(elm, oldCh, 0, oldCh.length - 1);
+    }
+    // 文本节点更新
+    api.setTextContent(elm, vnode.text!);
+  }
+  // 调用 postpatch hook
+  hook?.postpatch?.(oldVnode, vnode);
+}
+
+// diff算法核心，比较子节点
+function updateChildren(
+  parentElm: Node,
+  oldCh: VNode[],
+  newCh: VNode[],
+  insertedVnodeQueue: VNodeQueue
+) {
+  let oldStartIdx = 0;
+  let newStartIdx = 0;
+  let oldEndIdx = oldCh.length - 1;
+  let oldStartVnode = oldCh[0];
+  let oldEndVnode = oldCh[oldEndIdx];
+  let newEndIdx = newCh.length - 1;
+  let newStartVnode = newCh[0];
+  let newEndVnode = newCh[newEndIdx];
+  let oldKeyToIdx: KeyToIndexMap | undefined;
+  let idxInOld: number;
+  let elmToMove: VNode;
+  let before: any;
+
+  // 遍历 oldCh newCh，对节点进行比较和更新
+  // 每轮比较最多处理一个节点，算法复杂度 O(n)
+  while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+    if (oldStartVnode == null) {
+      oldStartVnode = oldCh[++oldStartIdx]; // Vnode might have been moved left
+    } else if (oldEndVnode == null) {
+      oldEndVnode = oldCh[--oldEndIdx];
+    } else if (newStartVnode == null) {
+      newStartVnode = newCh[++newStartIdx];
+    } else if (newEndVnode == null) {
+      newEndVnode = newCh[--newEndIdx];
+    }
+    // 以旧 vnode 首节点和新 vnode 首节点对比
+    else if (sameVnode(oldStartVnode, newStartVnode)) {
+      patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue);
+      oldStartVnode = oldCh[++oldStartIdx];
+      newStartVnode = newCh[++newStartIdx];
+    }
+    // 以旧 vnode 尾节点和新 vnode 尾节点对比
+    else if (sameVnode(oldEndVnode, newEndVnode)) {
+      patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue);
+      oldEndVnode = oldCh[--oldEndIdx];
+      newEndVnode = newCh[--newEndIdx];
+    }
+    // 以旧 vnode 首节点和新 vnode 尾节点对比
+    else if (sameVnode(oldStartVnode, newEndVnode)) {
+      // Vnode moved right
+      patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue);
+      api.insertBefore(
+        parentElm,
+        oldStartVnode.elm!,
+        api.nextSibling(oldEndVnode.elm!)
+      );
+      oldStartVnode = oldCh[++oldStartIdx];
+      newEndVnode = newCh[--newEndIdx];
+    }
+    // 以旧 vnode 尾节点和新 vnode 新节点对比
+    else if (sameVnode(oldEndVnode, newStartVnode)) {
+      // Vnode moved left
+      patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue);
+      api.insertBefore(parentElm, oldEndVnode.elm!, oldStartVnode.elm!);
+      oldEndVnode = oldCh[--oldEndIdx];
+      newStartVnode = newCh[++newStartIdx];
+    }
+    // 以上4中都未命中
+    else {
+      if (oldKeyToIdx === undefined) {
+        oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx);
+      }
+      // 拿新节点 key ， 能否对应上 oldCh 中的某个节点的 key
+      idxInOld = oldKeyToIdx[newStartVnode.key as string];
+
+      // 对应不上
+      if (isUndef(idxInOld)) {
+        // New element
+        api.insertBefore(
+          parentElm,
+          createElm(newStartVnode, insertedVnodeQueue),
+          oldStartVnode.elm!
+        );
+      }
+      // 对应上了
+      else {
+        // 拿到对应上 key 的节点
+        elmToMove = oldCh[idxInOld];
+        // sel 是否相等（sameVnode 条件）
+        // sel 不相等，key相等
+        if (elmToMove.sel !== newStartVnode.sel) {
+          // New element
+          api.insertBefore(
+            parentElm,
+            createElm(newStartVnode, insertedVnodeQueue),
+            oldStartVnode.elm!
+          );
+        }
+        // sel 相等，key 相等
+        else {
+          patchVnode(elmToMove, newStartVnode, insertedVnodeQueue);
+          oldCh[idxInOld] = undefined as any;
+          api.insertBefore(parentElm, elmToMove.elm!, oldStartVnode.elm!);
+        }
+      }
+      // 更新之后，调整指针
+      newStartVnode = newCh[++newStartIdx];
+    }
+  }
+  // oldCh 已经全部处理完成，而 newCh 还有新的节点，需要对剩下的每个项都创建新的 dom
+  if (oldStartIdx <= oldEndIdx || newStartIdx <= newEndIdx) {
+    if (oldStartIdx > oldEndIdx) {
+      before = newCh[newEndIdx + 1] == null ? null : newCh[newEndIdx + 1].elm;
+      addVnodes(
+        parentElm,
+        before,
+        newCh,
+        newStartIdx,
+        newEndIdx,
+        insertedVnodeQueue
+      );
+    } else {
+      // newCh 已经全部处理完成，而 oldCh 还有旧的节点，需要将多余的节点移除
+      removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx);
+    }
+  }
+}
+```
+
+createElm 函数流程图：
+
+![alt text](image-7.png)
+
+patchVnode 函数更新节点：
+![alt text](image-8.png)
+
 ## hooks 组合式函数
 
 用来取代 mixins ，因为 mixins 有三个主要的短板：
@@ -692,16 +1063,21 @@ createApp().mount("#app");
 - Quasar 是一个基于 Vue 的完整解决方案，它可以让你用同一套代码库构建不同目标的应用，如 SPA、SSR、PWA、移动端应用、桌面端应用以及浏览器插件。除此之外，它还提供了一整套 Material Design 风格的组件库。
 
 ## 渲染机制
+
 - 编译：Vue 模板被编译为渲染函数：即用来返回虚拟 DOM 树的函数。这一步骤可以通过构建步骤提前完成，也可以通过使用运行时编译器即时完成。
 
 - 挂载：运行时渲染器调用渲染函数，遍历返回的虚拟 DOM 树，并基于它创建实际的 DOM 节点。这一步会作为响应式副作用执行，因此它会追踪其中所用到的所有响应式依赖。
 
 - 更新：当一个依赖发生变化后，副作用会重新运行，这时候会创建一个更新后的虚拟 DOM 树。运行时渲染器遍历这棵新树，将它与旧树进行比较，然后将必要的更新应用到真实 DOM 上去。
-![alt text](image-6.png)
+  ![alt text](image-6.png)
+
 ### 带编译时信息的虚拟 DOM
+
 在 Vue 中，框架同时控制着编译器和运行时，可以为紧密耦合的模板渲染器应用许多编译时优化。编译器可以静态分析模板并在生成的代码中留下标记，使得运行时尽可能地走捷径。与此同时，我们仍旧保留了边界情况时用户想要使用底层渲染函数的能力。我们称这种混合解决方案为带编译时信息的虚拟 DOM。
+
 - 静态提升：Vue 编译器自动地会提升静态部分的 vnode 创建函数到这个模板的渲染函数之外，并在每次渲染时都使用这份相同的 vnode，并完全跳过对它们的差异比对。此外，当有足够多连续的静态元素时，它们还会再被压缩为一个“静态 vnode”，其中包含的是这些节点相应的纯 HTML 字符串。这些静态节点会直接通过 innerHTML 来挂载。同时还会在初次挂载后缓存相应的 DOM 节点。如果这部分内容在应用中其他地方被重用，那么将会使用原生的 cloneNode() 方法来克隆新的 DOM 节点，这会非常高效
 - 动态标记类型
+
 ```js
 <!-- 仅含 class 绑定 -->
 <div :class="{ active }"></div>
@@ -726,43 +1102,46 @@ if (vnode.patchFlag & PatchFlags.CLASS /* 2 */) {
   // 更新节点的 CSS class
 }
 ```
-- 树结构打平：每一个块都会追踪其所有带更新类型标记的后代节点 (不只是直接子节点)。编译的结果会被打平为一个数组，仅包含所有动态的后代节点。当这个组件需要重渲染时，只需要遍历这个打平的树而非整棵树，大大减少diff时需要遍历的节点数量。模板中任何的静态部分都会被高效地略过。
+
+- 树结构打平：每一个块都会追踪其所有带更新类型标记的后代节点 (不只是直接子节点)。编译的结果会被打平为一个数组，仅包含所有动态的后代节点。当这个组件需要重渲染时，只需要遍历这个打平的树而非整棵树，大大减少 diff 时需要遍历的节点数量。模板中任何的静态部分都会被高效地略过。
 
 ### Vnodes
+
 Vue 提供了一个 h() 函数用于创建 vnodes
+
 ```js
-import { h } from 'vue'
+import { h } from "vue";
 
 // 除了类型必填以外，其他的参数都是可选的
-h('div')
-h('div', { id: 'foo' })
+h("div");
+h("div", { id: "foo" });
 
 // attribute 和 property 都能在 prop 中书写
 // Vue 会自动将它们分配到正确的位置
-h('div', { class: 'bar', innerHTML: 'hello' })
+h("div", { class: "bar", innerHTML: "hello" });
 
 // 像 `.prop` 和 `.attr` 这样的的属性修饰符
 // 可以分别通过 `.` 和 `^` 前缀来添加
-h('div', { '.name': 'some-name', '^width': '100' })
+h("div", { ".name": "some-name", "^width": "100" });
 
 // 类与样式可以像在模板中一样
 // 用数组或对象的形式书写
-h('div', { class: [foo, { bar }], style: { color: 'red' } })
+h("div", { class: [foo, { bar }], style: { color: "red" } });
 
 // 事件监听器应以 onXxx 的形式书写
-h('div', { onClick: () => {} })
+h("div", { onClick: () => {} });
 
 // children 可以是一个字符串
-h('div', { id: 'foo' }, 'hello')
+h("div", { id: "foo" }, "hello");
 
 // 没有 props 时可以省略不写
-h('div', 'hello')
-h('div', [h('span', 'hello')])
+h("div", "hello");
+h("div", [h("span", "hello")]);
 
 // children 数组可以同时包含 vnodes 与字符串
-h('div', ['hello', h('span', 'hello')])
+h("div", ["hello", h("span", "hello")]);
 
-h('input', {
+h("input", {
   onClickCapture() {
     /* 捕捉模式中的监听器 */
   },
@@ -772,27 +1151,30 @@ h('input', {
   onMouseoverOnceCapture() {
     /* 单次 + 捕捉 */
   },
-// 对于事件和按键修饰符，可以使用 withModifiers 函数：
-  onClick: withModifiers(() => {}, ['self'])
-})
+  // 对于事件和按键修饰符，可以使用 withModifiers 函数：
+  onClick: withModifiers(() => {}, ["self"]),
+});
 
 // 渲染插槽slot。vue3插槽改为函数的形式了
-h('div', slots.default({text:props.message}))
+h("div", slots.default({ text: props.message }));
 
 const vnode = h(
-  'div', // type
-  { id: 'foo', class: 'bar' }, // props
+  "div", // type
+  { id: "foo", class: "bar" }, // props
   [
     /* children */
   ]
-)
-vnode.type // 'div'
-vnode.props // { id: 'foo',class: 'bar' }
-vnode.children // []
-vnode.key // null
+);
+vnode.type; // 'div'
+vnode.props; // { id: 'foo',class: 'bar' }
+vnode.children; // []
+vnode.key; // null
 ```
+
 ### JSX / TSX
+
 JSX 是 JavaScript 的一个类似 XML 的扩展，使用起来比渲染函数方便多了。有了它，我们可以用以下的方式来书写代码：
+
 ```js
 const vnode = <div id={dynamicId}>hello, {userName}</div>
 
@@ -824,6 +1206,7 @@ h(
   })}
 </ul>
 ```
+
 Vue 的类型定义也提供了 TSX 语法的类型推导支持。当使用 TSX 语法时，确保在 tsconfig.json 中配置了 "jsx": "preserve"，这样的 TypeScript 就能保证 Vue JSX 语法转换过程中的完整性。
 
 与 React JSX 语法的一些明显区别包括：
@@ -832,17 +1215,19 @@ Vue 的类型定义也提供了 TSX 语法的类型推导支持。当使用 TSX 
 - 传递子元素给组件 (比如 slots) 的方式不同。
 
 ### 函数式组件
+
 函数式组件是一种定义自身没有任何状态的组件的方式。它们很像纯函数：接收 props，返回 vnodes。函数式组件在渲染过程中不会创建组件实例 (也就是说，没有 this)，也不会触发常规的组件生命周期钩子。
 
 我们用一个普通的函数而不是一个选项对象来创建函数式组件。该函数实际上就是该组件的渲染函数。
 
 函数式组件的签名与 setup() 钩子相同：
+
 ```js
 function MyComponent(props, { slots, emit, attrs }) {
   // ...
 }
 
-MyComponent.props = ['value']
-MyComponent.emits = ['click']
-MyComponent.inheritAttrs = false
+MyComponent.props = ["value"];
+MyComponent.emits = ["click"];
+MyComponent.inheritAttrs = false;
 ```

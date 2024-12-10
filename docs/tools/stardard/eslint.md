@@ -19,6 +19,7 @@ npm install --save-dev  eslint
 
 ```bash
 npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser
+
 npm install --save-dev eslint-plugin-vue vue-eslint-parser
 ```
 

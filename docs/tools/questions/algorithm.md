@@ -1,4 +1,7 @@
-## 算法
+## 数据结构和算法
+
+- 数据结构：数组、链表、栈、队列、散列表、二叉树、堆、跳表、图、Trie 树；
+- 算法：递归、排序、二分查找、搜索、哈希算法、贪心算法、分治算法、回溯算法、动态规划、字符串匹配算法。
 
 算法思想：
 
@@ -7,990 +10,1029 @@
 3. 滑动窗口
 4. 翻牌标记
 
-## 寻找两个数组的中位数
+## 排序算法
+
+### 冒泡排序
+
+思想
+
+- 冒泡排序只会操作相邻的两个数据。
+- 每次冒泡操作都会对相邻的两个元素进行比较，看是否满足大小关系要求。如果不满足就让它俩互换。
+- 一次冒泡会让至少一个元素移动到它应该在的位置，重复 n 次，就完成了 n 个数据的排序工作。
+
+特点
+
+- 优点：排序算法的基础，简单实用易于理解。
+- 缺点：比较次数多，效率较低。
 
 ```js
-function find(arr, arr2) {
-  let arr = [...arr, ...arr2].sort((a, b) => a - b);
-  // 先对数组合并后排序
+function bubbleSort(arr) {
+  console.time("冒泡排序耗时");
+  if (!Array.isArray(arr)) return;
 
-  let middleNum = Math.floor(arr.length / 2);
-  // 取中位数
+  const { length = 0 } = arr;
+  if (length <= 1) return;
 
-  if (arr.length % 2 === 0) return (arr[middleNum - 1] + arr[middleNum]) / 2;
-  // 如果能被2整除，则返回最中间两个数的平均数
-
-  return arr[middleNum];
-  // 不能被整除，返回最中间那个数
-}
-```
-
-## 整数倒序输出
-
-用 JavaScript 写一个函数，输入 int 型，返回整数逆序后的字符串。如：输入整型 1234，返回字符串“4321”。
-
-要求必须使用递归函数调用，不能用全局变量，输入函数必须只有一个参数传入，必须返回字符串。
-
-```js
-// 小于10只有一个数组，直接返回
-// 大于等于10，把最后数字放最前面，并拼接，剩余部分递归调用的返回值
-function getReverse(num) {
-  return num < 10
-    ? num.toString()
-    : `${num % 10}${getReverse(Math.floor(num / 10))}`;
-}
-```
-
-## 控制执行顺序和延误时间的类
-
-```js
-// 先延迟2s，打印1，延迟1s，打印2，在延迟1s，打印3
-new O().print(1).wait(1).print(2).wait(1).print(3).firstWait(2);
-
-class O {
-  constructor() {
-    this.callbackList = []; // 任务中心
-
-    // setTimeout延迟自动执行，保证任务都已加入任务中心
-    setTimeout(() => {
-      next();
-    });
-  }
-  next() {
-    // 取出任务中心最前面一个任务，如果存在就执行
-    let nextCallback = this.callbackList.shift();
-    if (nextCallback) {
-      nextCallback();
+  for (let i = 0; i < length - 1; i++) {
+    //最后一个值不需要对比了
+    for (let j = 0; j < length - i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        // 比下一个值大，就交换位置
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+      }
     }
   }
-  print(value) {
-    const that = this; // 保存this的引用
-
-    // 用自执行函数把任务函数包起来，保持对参数value的引用
-    const fun = (function (param) {
-      return function () {
-        console.log(param);
-        that.next(); //当任务执行时，在打印之后立即执行下一个任务
-      };
-    })(value);
-    this.callbackList.push(fun);
-    //把当前打印的任务，推送到任务中心
-
-    return this; //返回当前实例，可以链式调用实例的方法
-  }
-  wait(time) {
-    const that = this;
-    const fun = (function (param) {
-      return function () {
-        console.log("输出等待时间：", param);
-        that.next();
-        setTimeout(() => {
-          that.next(); // 等待time时间后，再执行下一个任务
-        }, param * 1000);
-      };
-    })(time);
-    this.callbackList.push(fun);
-    return this;
-  }
-  firstWait(time) {
-    const that = this;
-    const fun = (function (param) {
-      return function () {
-        console.log("输出首先等待时间：", param);
-        that.next();
-        setTimeout(() => {
-          that.next();
-        }, param * 1000);
-      };
-    })(time);
-    this.callbackList.unshift(fun);
-    // 推送到任务中心首位，会先等待再执行下一个任务
-    return this;
-  }
+  console.timeEnd("冒泡排序耗时");
+  return arr;
 }
+
+function bubbleSortOptimize(arr) {
+  console.time("优化-冒泡排序耗时");
+
+  if (!Array.isArray(arr)) return;
+
+  const { length } = arr;
+  if (length <= 1) return;
+
+  for (let i = 0; i < length - 1; i++) {
+    let changeState = false;
+    for (let j = 0; j < length - i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+        changeState = true;
+      }
+    }
+    // 如果走过一轮之后，发现始终都是后面比前面数值大，
+    // 说明已经排序好了，可以提前结束遍历了。
+    if (!changeState) break;
+  }
+  console.timeEnd("优化-冒泡排序耗时");
+  return arr;
+}
+
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = bubbleSort(array);
+console.log(`bubbleSort排序之后newArr: ${newArr}`);
+
+console.log("----------------------------");
+
+const array2 = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array2}`);
+const newArr2 = bubbleSortOptimize(array2);
+console.log(`bubbleSortOptimize排序之后newArr: ${newArr2}`);
 ```
 
-## 整数数组分组
+### 快速排序
+
+思想
+
+- 先找到一个基准点（一般指数组的中部），然后数组被该基准点分为两部分，依次与该基准点数据比较，如果比它小，放左边；反之，放右边。
+- 左右分别用一个空数组去存储比较后的数据。
+- 最后递归执行上述操作，直到数组长度 <= 1;
+
+特点：
+
+- 优点：快速，常用。
+- 缺点：需要另外声明两个数组，浪费了内存空间资源。
 
 ```js
-let array = [2, 10, 3, 4, 5, 11, 10, 11, 20];
-// 转成： [[2, 3, 4, 5], [10, 11], [20]]
-function formatArray(array) {
-  let result = [];
-  array
-    .sort((a, b) => a - b)
-    .forEach(item => {
-      let remainder = Math.floor(item / 10);
-      (result[remainder] || (result[remainder] = [])).push(item);
-    });
-  return result.filter(item => item);
+function quickSort(arr) {
+  if (!Array.isArray(arr)) return;
+
+  const { length } = arr;
+
+  if (length <= 1) return arr;
+
+  // 设置中间index，以及对应的值，和左右两个数组
+  const pivotIndex = length >> 1;
+  const pivot = arr.splice(pivotIndex, 1)[0];
+  const left = [];
+  const right = [];
+
+  // 遍历数组，小于中间值的元素放左边，否则放右边
+  for (let item of arr) {
+    item <= pivot ? left.push(item) : right.push(item);
+  }
+  // 左右两边分别递归此操作，然后合并数组
+  return quickSort(left).concat(pivot, quickSort(right));
 }
-formatArray(array);
+
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = quickSort(array);
+console.log(`quickSort排序之后newArr: ${newArr}`);
 ```
 
-## 字符串大小写转化
+### 插入排序
+
+思想：每步将一个待排序的记录，按其关键码值的大小插入前面已经排序的文件中适当位置上，直到全部插入完为止。
 
 ```js
-// AbC to aBc
-function transformChar(string) {
-  let char = "";
-  for (let index = 0; index < string.length; index++) {
-    let code = string.charCodeAt(index);
-    let thransCode = code + (code > 90 ? -32 : 32);
-    // 小写比大写字母code 码大32：a-z=32
-    char += String.fromCharCode(thransCode);
+function insertionSort(arr) {
+  console.time("插入排序耗时");
+  if (!Array.isArray(arr)) return;
+
+  const { length } = arr;
+
+  if (length <= 1) return arr;
+
+  //第一个元素不需要遍历
+  for (let i = 1; i < length; i++) {
+    // 需要和当前元素之前的所有元素进行对比
+    for (let j = i; j > 0; j--) {
+      // 当前元素比前面的元素小，就往前移动
+      if (arr[j] < arr[j - 1]) {
+        [arr[j], arr[j - 1]] = [arr[j - 1], arr[j]];
+      }
+    }
   }
-  return char;
+  console.timeEnd("插入排序耗时");
+  return arr;
 }
-console.log(transformChar("AbC"));
+
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = insertionSort(array);
+console.log(`insertionSort排序之后newArr: ${newArr}`);
 ```
 
-## 数组每个值移动 n 个位置
+### 希尔排序
+
+思想
+
+- 希尔排序将序列分割成若干小序列（逻辑上分组），然后对每一个小序列进行插入排序，此时每一个小序列数据量小，插入排序的效率也提高了。
 
 ```js
-function reverseArray(array, n) {
-  let length = array.length;
-  let result = [];
-  for (let index = 0; index < length; index++) {
-    const element = array[index];
-    let aferIndex = (index + n) % length;
-    // 索引相加后取模，既是移动之后的位置
-    result[aferIndex] = element;
+function shellSort(arr) {
+  console.time("希尔排序耗时");
+
+  if (!Array.isArray(arr)) return;
+
+  const { length } = arr;
+  let temp,
+    log,
+    step = 1,
+    gap = length;
+
+  //数组分组： (gap = Math.trunc(gap/2)) == (gap >>= 1)
+  while (gap > 0 && (gap >>= 1)) {
+    console.log(`Gap is ${gap}`);
+    for (let i = gap; i < length; i++) {
+      temp = arr[i]; //缓存当前元素
+      let j = i - gap; //前一组对应元素的指针
+      // 比前一组的对应元素小，则把元素放到当前位置
+      while (j >= 0 && arr[j] > temp) {
+        arr[j + gap] = arr[j];
+        //比上一组元素小，则和上上一组元素比较大小
+        j -= gap;
+      }
+      // 把当前元素放置在比他小的位置上
+      arr[j + gap] = temp;
+
+      log = "";
+      arr.forEach((v, i) => {
+        log += `${v}\t${(i + 1) % gap === 0 ? "\n" : ""}`;
+      });
+      console.log(`Step ${step++}: \n${log}`);
+    }
   }
+  console.timeEnd("希尔排序耗时");
+  return arr;
+}
+
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = shellSort(array);
+console.log(`shellSort排序之后newArr: ${newArr}`);
+```
+
+### 选择排序
+
+思想
+
+- 选择排序算法的实现思路有点类似插入排序，也分已排序区间和未排序区间。但是选择排序每次会从未排序区间中找到最小的元素，将其放到已排序区间的末尾。
+
+特点
+
+- 优点：上手比较简单，比较符合人的正常思路逻辑。
+- 缺点：时间复杂度 O(n^2)，运算速度很慢，当数组元素个数比较多时，时间增速惊人。
+
+```js
+const selectionSort = arr => {
+  console.time("选择排序耗时");
+
+  if (!Array.isArray(arr)) return;
+
+  const { length } = arr;
+
+  for (let i = 0; i < length - 1; i++) {
+    let min = arr[i],
+      minIndex = i,
+      step = 0;
+    // 从当前元素及以后的元素中找出最小值元素和对应的index
+    for (let j = i + 1; j < length; j++) {
+      step++;
+      if (min > arr[j]) {
+        min = arr[j];
+        minIndex = j;
+      }
+    }
+    console.log(
+      `Step${i + 1}: ${arr}, min: ${min}, minIndex: ${minIndex}, step: ${step}`
+    );
+
+    // 最小值元素和当前元素交换位置
+    [arr[i], arr[minIndex]] = [min, arr[i]];
+  }
+  console.timeEnd("选择排序耗时");
+  return arr;
+};
+
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = selectionSort(array);
+console.log(`selectionSort排序之后newArr: ${newArr}`);
+```
+
+### 计数排序
+
+思想
+
+- 统计每个元素与最小元素的差，作为另一个数组的索引，重复出现的次数作为值
+- 依次填充数组 ，其实是利用了数组索引的顺序
+
+特点
+
+- 优点：计数排序是所有排序算法中最简单的，也是最符合直觉的算法。
+- 缺点：用在待排序数据范围不大的场景，若数据范围 k 比要排序的数据 n 大很多，浪费空间。
+
+```js
+function countingSort(arr) {
+  console.time("计数排序耗时");
+
+  if (!Array.isArray(arr)) return;
+  const { length } = arr;
+  if (length <= 1) return arr;
+  let counts = [],
+    result = [];
+  let min = Math.min(...arr);
+  for (let v of arr) {
+    //把元素和最小值的差最为数组的index，value为重复次数
+    counts[v - min] = (counts[v - min] ?? 0) + 1;
+  }
+  for (let i = 0; i < counts.length; i++) {
+    let count = counts[i];
+    // 对应index有值，则index+最小值恢复为原始值，推动数组里
+    while (count > 0) {
+      result.push(i + min);
+      count--;
+    }
+  }
+  console.timeEnd("计数排序耗时");
   return result;
 }
-console.log(reverseArray([1, 2, 3, 4, 5, 6, 7], 8));
+
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = countingSort(array);
+console.log(`countingSort排序之后newArr: ${newArr}`);
+
+console.log("----------------------------");
+
+// TODO: k远大于n，代码执行久,如下
+const array1 = [1, 100000001, 9, 1000, 3000];
+console.log(`原始array: ${array1}`);
+const newArr1 = countingSort(array1);
+console.log(`countingSort排序之后newArr: ${newArr1}`);
+// 原始array: 1,100000001,9,1000,3000
+// 计数排序耗时: 4.344s
+// countingSort排序之后newArr: 1,9,1000,3000,100000001
 ```
 
-## 找出 1000 内对称的数
+### 基数排序
 
-把数字反转后依然相等，就是对称的数。
+思想
+
+- 基数排序是基于数据位数的一种排序算法。
+- 先拿出个位的数字进行排序，再拿出十位上的数字进行排序，依次递归
+- 最后结果：位数越多越靠后，相同位数数字越大越靠后，完美
 
 ```js
-[...Array(1000).keys()].filter(item => {
-  return (
-    item > 10 && item === Number(item.toString().split("").reverse().join(""))
-  );
-});
+function radixSort(arr) {
+  console.time("基数排序耗时");
+
+  if (!Array.isArray(arr)) return;
+
+  let maxLength = 0; //获取最长位数
+  for (let v of arr) {
+    const { length } = String(v);
+    if (length > maxLength) {
+      maxLength = length;
+    }
+  }
+
+  // 遍历每个位数
+  for (i = 0; i < maxLength; i++) {
+    arr = sort(arr, i); //同位时每次按数字大小排序
+  }
+
+  function sort(arr, index) {
+    //初始化10个数组元素的数组，因为数字0-9，利用了数组索引顺序
+    let buckets = [];
+    for (let i = 0; i < 10; i++) {
+      buckets.push([]);
+    }
+    for (let v of arr) {
+      //不够最大长度的数字前，填充‘0’
+      let pad = String(v).padStart(maxLength, "0");
+      //从后面开始，依次获取每个数字，指定位数上的数字
+      let num = pad[maxLength - 1 - index];
+      //把数字推送到指定num索引上的数组里，方便利用索引大小排序
+      buckets[num].push(v);
+    }
+    let result = [];
+    for (let bucket of buckets) {
+      // 把根据指定位数的数字大小排序，生成新的数组
+      result.push(...bucket);
+    }
+    return result;
+  }
+  console.timeEnd("基数排序耗时");
+  return arr;
+}
+
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = radixSort(array);
+console.log(`radixSort排序之后newArr: ${newArr}`);
 ```
 
-## 数组中 0 移动到最后面
+### 归并排序
 
-要求：只在 array 上更改
+思想
+
+- "归并" 二字就是"递归"加"合并"。它是典型的分而治之算法。分治思想
+- 把数组一分为二，然后递归地排序好每部分，最后合并。二分法
 
 ```js
-let array = [0, 1, 0, 3, 0, 12, 0];
-let length = array.length;
-let moveNum = 0; //记录移动的个数
-for (let index = 0; index < length - moveNum; ) {
-  //仅需遍历index前length - moveNum的数字，后面都是移动后的0了
+// 明确函数作用是对一个数组进行排序操作
+function mergeSort(arr) {
+  if (!Array.isArray(arr)) return;
+  const { length } = arr;
+  if (length < 2) return arr;
 
-  if (array[index] === 0) {
-    array.push(array.splice(index, 1)[0]);
-    // 把=0的数，截取到数组最后面
+  // 数组一分为二，递归对两部分分别进行排序
+  const m = length >> 1,
+    left = mergeSort(arr.slice(0, m)),
+    right = mergeSort(arr.slice(m));
 
-    // 数字被截取，需要继续遍历当前index的值
-    moveNum++;
+  let result = [];
+  let i = 0,
+    j = 0;
+  // 当两部分数据都没有取完时
+  while (i < left.length && j < right.length) {
+    if (left[i] <= right[j]) {
+      // 把较小值推到结果数组里，指针右移
+      result.push(left[i++]);
+    } else {
+      result.push(right[j++]);
+    }
+  }
+  // 某一部分数据已经取完，则把另一部分全部推到数组里
+  if (i < left.length) {
+    result.push(...left.slice(i));
   } else {
-    index++;
-  }
-}
-console.log(array);
-```
-
-## 实现 add 函数
-
-满足以下功能。
-
-```js
-add(1); // 1
-add(1)(2); // 3
-add(1)(2)(3); // 6
-add(1)(2, 3); // 6
-add(1, 2)(3); // 6
-add(1, 2, 3); // 6
-console.log(add(1, 2, 3));
-
-function add(...a) {
-  let sum = a.reduce((p, n) => p + n);
-  function next(...b) {
-    let _sum = b.reduce((p, n) => p + n);
-    sum = sum + _sum;
-    return next;
-  }
-  next.toString = function () {
-    return sum;
-  };
-  return next;
-}
-```
-
-## 树结构找出父级 id 数组
-
-1121 => [1,11,112,1121]
-
-```js
-function findParents(array, params) {
-  let length = params.length;
-  let findArray = array;
-  let result = [];
-  for (let index = 0; index < length; index++) {
-    const element = params.slice(0, index + 1);
-    // 每次截取前index-1的字符：这是当前父级的id
-
-    const parent = findArray.find(item => item.id === element);
-    // 根据父级id找出当前父级
-
-    if (!parent) return [];
-    // 找不到父级，宣告失败，直接返回空数组
-
-    result.push(element);
-    // 找到了父级，把父级id添加到结果数组里
-
-    if (index === length - 1) {
-      return result;
-      // 当前已经是最后一位了，返回结果
-    } else {
-      if (parent?.children?.length) {
-        findArray = parent.children;
-        // 当前父级若存在子项，则从子项里寻找下一个父级id
-      } else {
-        return [];
-        // 当前父级没有子项，无法寻找下一个父级id，则宣告失败
-      }
-    }
-  }
-}
-```
-
-## 每次走 1 或者 2 步阶梯，n 阶梯有多少种走法？
-
-```js
-// 方法一
-function getNumber(n) {
-  if (n <= 2) return n;
-  return getNumber(n - 1) + getNumber(n - 2);
-}
-
-// 方法二 时间复杂度低
-function getNumber(n, map = new Map()) {
-  if (n <= 2) return n;
-  if (map.get(n) !== null) return map.get(n);
-  let result = getNumber(n - 1, map) + getNumber(n - 2, map);
-  map.set(n, result);
-  return result;
-}
-```
-
-## 斐波那契函数，输入 n,求其数列的第 n 项
-
-```js
-function getNumber(n) {
-  if (n <= 2) return 1;
-  return getNumber(n - 1) + getNumber(n - 2);
-}
-// methods two 时间复杂度低
-function getNumber(n, map = new Map()) {
-  if (n <= 2) return 1;
-  if (map.get(n)) return map.get(n);
-  let result = getNumber(n - 1, map) + getNumber(n - 2, map);
-  map.set(n, result);
-  return result;
-}
-```
-
-## leetcode 1
-
-整数数组中，求两个数之和为 target 的两个数的索引 o(n~2)
-
-```js
-// 双指针思想
-function getIndex(array, target) {
-  for (let i = 0; i < array.length; i++) {
-    for (let j = i + 1; j < array.length; j++) {
-      if (array[i] + array[j] == target) return [i, j];
-    }
-  }
-}
-
-// 使用map缓存遍历过的数值o(n)
-function getIndex(array, target) {
-  let map = new Map();
-  for (let i = 0; i < array.length; i++) {
-    let another = target - array[i];
-    if (map.has(another)) return [map.get(another), i];
-    map.set(array[i], i);
-  }
-}
-```
-
-## 数组合并相关
-
-两个整数升序数组 num1,num2,元素个数分别为 m,n,把 num2 数组有序合并到 num1 中，
-
-```js
-// 方法一 填充到另一个数组后，排序
-function combine(num1, num2, m, n) {
-  for (let i = 0; i < n; i++) {
-    num1[m + i] = num2[i];
-  }
-  return num1.sort();
-}
-
-// 方法二 双指针思想 o(m+n)
-function combine(num1, num2, m, n) {
-  let total = m + n;
-  let tem = [];
-  for (let index = 0, num1Index = 0, num2Index = 0; index < total; index++) {
-    if (num1Index >= m) {
-      // num1 先取完了
-      tem[index] = num2[num2Index++];
-    } else if (num2Index >= n) {
-      // num2 先取完了
-      tem[index] = num1[num1Index++];
-    } else if (num1[num1Index] <= num2[num2Index]) {
-      tem[index] = num1[num1Index++];
-      // 把比较小的数先放到要输出的数组里，并把较小值的index++
-    } else {
-      tem[index] = num2[num2Index++];
-    }
-    num1 = tem;
-  }
-  return num1;
-}
-// 方法三 也是双指针思想，倒着计算,少一个tem变量 o(m+n)
-// num1或者num2的长度，肯定都小于他们两的长度之和m+n。
-// 把比较的结果放在>=他们最大index的地方，不影响各自原本的元素
-function combine(num1, num2, m, n) {
-  let total = m + n;
-  for (
-    let index = total - 1, num1Index = m - 1, num2Index = n - 1;
-    index < 0;
-    index--
-  ) {
-    if (num1Index < 0) {
-      num1[index] = num2[num2Index--];
-    } else if (num2Index < 0) {
-      break;
-    } else if (num1[num1Index] > num2[num2Index]) {
-      num1[index] = num1[num1Index--];
-    } else {
-      num1[index] = num2[num2Index--];
-    }
-  }
-  return num1;
-}
-```
-
-## leecode 448
-
-在 n 个整数数组 array 中，求不在区间[1,n]中的数值组成的数组
-
-```js
-// 方法一
-function getNumberArray(array, n) {
-  let result = [...Array(n + 1).keys()].shift();
-  // 拿到[1,n]这个区间
-
-  return result.filter(item => !array.includes(item));
-  // 从区间里筛选中不在array数组里的元素
-}
-getNumberArray([1, 2, 3, 4, 7, 8, 3, 2]);
-
-// 方法二 翻牌思想：把匹配的打个标记，后续用作区分
-function getNumberArray(array, n) {
-  for (let iterator of array) {
-    if (iterator < 1 || iterator > n) array[index] += n;
-    // 不在[1,n]之间的，都翻牌加n：最后在区间的元素都<=n
-  }
-  return array.filter(item => item <= n);
-  // 筛选数组中所有<=n的元素
-}
-getNumberArray([1, 2, 3, 4, 7, 8, 3, 2]);
-```
-
-## leetcode 20
-
-有效符号(){}[] 返回 true [(})] 返回 false
-
-```js
-function isValidChar(string) {
-  let result = [];
-  for (let char of string) {
-    if (char === "(" || char === "[" || char === "{") {
-      result.push(char); // 左括号入栈
-    } else {
-      let pre = result[result.length - 1];
-      if (
-        (pre === "(" && char === ")") ||
-        (pre === "[" && char === "]") ||
-        (pre === "{" && char === "}")
-      ) {
-        result.pop();
-        // 否则，判断与栈顶元素能否匹配。匹配就把栈顶元素出栈
-      } else {
-        return false; // 不匹配，说明元字符传存在不对称，返回false
-      }
-    }
-  }
-  return result.length === 0;
-  // 栈内不存在元素，说明全部都匹配到了
-}
-console.log(isValidChar("()[]{}"));
-console.log(isValidChar("[(})]"));
-```
-
-## 相邻字符问题
-
-```js
-// leetcode 1047 去除字符串中相邻重复字符
-// 方法一
-function delRepeat(string) {
-  for (let i = 0; i < string.length; ) {
-    if (string[i] === string[i + 1]) {
-      string = string.slice(0, i) + string.slice(i + 2);
-      // 当前元素和下一个元素相等，就截掉这两个元素。继续从当前index判断
-    } else {
-      i++; //否则从下一个位置开始遍历
-    }
-  }
-  return string;
-}
-// 方法二
-function delRepeat(string) {
-  let result = [];
-  for (const iterator of string) {
-    let pre = result.pop();
-    if (iterator !== pre) {
-      result.push(pre, iterator);
-      // 栈顶元素和当前元素不同，把当前元素也入栈。否则去除栈顶元素
-    }
-  }
-  return result.join("");
-}
-console.log(delRepeat("qqwerttr"));
-
-// leetcode 3 找出字符中无重复的最长子串:滑动窗口思想
-function maxLength(string) {
-  let length = string.length;
-  let leftIndex = 0; // 滑动窗口左指针
-  let maxLength = 0; //最长长度
-  let maxChar = ""; //最长的字符
-
-  // 字符改变时更改滑动窗口，并计算最多字符和长度
-  function getChar(index) {
-    let preCharLength = index - leftIndex;
-    // 获取当前滑动窗口长度
-    if (preCharLength > maxLength) {
-      maxLength = preCharLength;
-      maxChar = string[leftIndex];
-    }
-    leftIndex = index;
-    // 把滑动窗口重置为当前字符index
-  }
-
-  for (let index = 0; index < length; index++) {
-    let char = string[index];
-    if (index === length - 1) {
-      getChar(char === string[leftIndex] ? index + 1 : index);
-      // 最后一个元素，无论是否相等都需要计算。相同计算长度要包含自身
-    } else {
-      char !== string[leftIndex] && getChar(index);
-      // 不是最后一个元素时，只有当前字符不属于滑动窗口字符时需要计算
-    }
-  }
-  return [maxLength, maxChar];
-}
-```
-
-## leetcode 71 简化路径
-
-类似 node path 模块的 path.parse()，拼接路径字符串
-
-```js
-function getPath(path) {
-  let result = [];
-  path.split("/").forEach(item => {
-    if (item === "..") {
-      result.pop();
-      // 存在‘往上一级’，则去掉栈顶元素
-    } else if (item && item !== ".") {
-      result.push(item);
-      // 元素不等于‘.’，推送到栈顶
-    }
-  });
-  return result.length ? "/" + result.join("/") : "/";
-}
-console.log(getPath("/home/../ab/cd/")); // /ab/cd
-```
-
-## 验证是否是回文字符串
-
-回文字符串：去除空格和无效字符后左右对称
-
-```js
-// 双指针思想
-function isPalindrome(s) {
-  s = s.toLowerCase();
-  function isValid(char) {
-    return (char >= "a" && char <= "z") || (char >= "0" && char <= "9");
-  }
-  let leftIndex = 0;
-  let rightIndex = s.length - 1;
-  let leftChar = "";
-  let rightChar = "";
-  while (leftIndex <= rightIndex) {
-    leftChar = s[leftIndex];
-    rightChar = s[rightIndex];
-    if (!isValid(leftChar)) {
-      leftIndex++;
-    } else if (!isValid(rightChar)) {
-      rightIndex--; //  左/右指针无效时略过
-    } else if (leftChar !== rightChar) {
-      return false; // 最左字符!==最右字符，不是回文字符
-    } else {
-      leftIndex++; // 左右相等，同时往里移动指针
-      rightIndex--;
-    }
-  }
-  return true;
-}
-```
-
-## 信号灯问题
-
-```js
-// 实现 红灯10s，黄灯3s，绿灯5s
-let sig = new Signal({
-  init: "red",
-  colors: ["red", "yellow", "green"],
-  times: [10, 3, 5],
-});
-console.log(sig);
-
-class Signal {
-  constructor(options) {
-    this.signal = options.init; //当前信号灯
-    this.colors = options.colors; //自定义颜色数组
-    this.times = options.times; // 时间数组，和颜色一一对应
-    this.eventMap = new Map();
-    // 事件中心：对外提供事件，用于监听信号灯
-
-    this.eventMap.set("change", new Set());
-    // 监听红绿灯切换事件
-
-    this.eventMap.set("tick", new Set());
-    // 每1s时间 tick 通知外界
-
-    this.setTime(); //初始化当前灯开始和结束时间
-    this.exchange(); // 定时1s查询剩余时间
-  }
-  get next() {
-    //获取下一个灯的颜色
-    return this.colors[
-      (this.colors.indexOf(this.signal) + 1) % this.colors.length
-    ];
-  }
-  get remain() {
-    //获取当前灯亮的剩余时间
-    let diff = this.end - Date.now();
-    if (diff < 0) {
-      diff = 0;
-    }
-    return diff;
-  }
-  on(event, handler) {
-    this.eventMap.get(event).add(handler);
-  }
-  off(event, handler) {
-    this.eventMap.get(event).delete(handler);
-  }
-  emit(event) {
-    this.eventMap.get(event).forEach(handler => {
-      handler.call(this, this);
-    });
-  }
-  async exchange() {
-    await 1;
-    if (this.remain > 0) {
-      this.emit("tick");
-      await sleep(1000); //沉睡1s
-    } else {
-      this.signal = this.next; //切换到下一个灯
-      this.setTime(); //设置灯的开始和结束时间
-      this.emit("change"); //通知灯的change事件
-      console.log("切换了：", this.signal);
-    }
-    this.exchange();
-  }
-  setTime() {
-    //灯亮时，设置当前灯的开始和结束时间
-    this.start = Date.now();
-    this.end = this.start + this.times[this.colors.indexOf(this.signal)] * 1000;
-  }
-}
-```
-
-## 根据数字按键得到所有字母组合
-
-```js
-// 根据数字按键得到所有字母组合
-function getKeybordMap(digits) {
-  let map = [, , "abc", "def", "ghi", "jkl", "mno", "pqps", "tuv", "wxyz"];
-  // 获取每个数字键（即数组index），对应的字母
-  let result = [];
-  for (let digit of digits) {
-    result = compose(result, map[digit].split(""));
-    // 把当前按键对应的字母，分别和结果数组里的元素混合，混合结果组成新数组
-  }
-  function compose(arr1, charts) {
-    if (arr1.length === 0) return charts;
-    if (charts.length === 0) return arr1;
-    const composeResult = [];
-    for (let item of arr1) {
-      for (let chart of charts) {
-        composeResult.push(item + chart);
-      }
-    }
-    return composeResult;
-  }
-  return result;
-}
-console.log(getKeybordMap("234"));
-```
-
-## 快速排序算法
-
-快速排序算法：找出基准值，大于和小于基准值的数放入不同数组里，两个数组递归该操作
-
-```js
-function quickSort(array) {
-  if (array.length <= 1) return array; // 终止条件
-  let baseValue = array[Math.floor(array.length / 2)];
-  //数组中间值作为基准值
-
-  let left = [];
-  let right = [];
-  for (let element of array) {
-    if (element < baseValue) {
-      left.push(element);
-    } else {
-      right.push(element);
-    }
-  }
-  return quickSort(left).concat(quickSort(right));
-}
-```
-
-## 小孩报数去除报 3 问题
-
-小孩子围成一个圈，从 1 开始报数，报数为 3 的小孩子不在计数，然后又从 1 开始报数。找出剩下的最后一个孩子的索引 index
-
-```js
-/** 翻牌思想，报3的孩子索引设为-1，不在参数计数
- * @param {Number} num 孩子总数
- * @param {Number} count 要去除的报数
- */
-function destroyThree(num, count) {
-  let pool = [...Array(num).keys()];
-  // 创建[0,num-1]的池子
-  let index = 0; //报数孩子的index
-  let counter = 0; //要报的数字
-  let exitCount = 0; //出局孩子的个数
-  while (num - exitCount > 1) {
-    // 剩余孩子个数超过1，需要继续报数
-
-    if (pool[index] !== -1) {
-      //当前孩子没有出局时，报数比上个孩子报数+1，
-      if (counter++ === count) {
-        pool[index] = -1;
-        exitCount++;
-        counter = 0;
-        // 如果正好=3，翻牌，另出局数+1，计数重置为0
-      }
-    }
-    index++ === num && (index = 0);
-    // 指针移到下一个孩子。如果超过最大索引，重置为0
-  }
-  return pool.findIndex(item => item !== -1);
-  // 返回最后一个没有被翻牌的孩子的index
-}
-```
-
-## 最多的元素和次数
-
-```js
-//查找文章中出现次数最多的单词和次数
-function mostWord(article) {
-  if (!article) return;
-  article = article.trim().toLowerCase();
-  // 大小写都按同一个单词处理，并去除首尾空格
-
-  let wordList = [...new Set(article.match(/[a-z]+/g))];
-  // 文章以空格分隔成单词数组后，去重减少遍历次数
-
-  let maxWord = ""; // 最多次的单词
-  let maxNum = 0; // 单词出现最多次数
-  wordList.forEach(word => {
-    let reg = new RegExp(" " + word + " ", "g");
-    let wordnum = article.match(reg).length;
-    // 拿到匹配到的每个单词，组成的数组的长度（即出现次数）
-
-    if (wordnum > maxNum) {
-      maxNum = wordnum;
-      maxWord = word;
-    }
-  });
-  return `次数最多的单词是：${maxWord},次数是：${maxNum}`;
-}
-
-// leetcode 1207 求字符串中出现次数最多的字符和次数
-function getTimes(string) {
-  let maxNum = 0;
-  let maxChar = "";
-  let map = new Map();
-  for (const iterator of string) {
-    map.set(iterator, (map.get(iterator) || 0) + 1);
-  }
-  for (const [key, value] of map) {
-    if (value > maxNum) {
-      maxNum = value;
-      maxChar = key;
-    }
-  }
-  return [maxChar, maxNum];
-}
-```
-
-## 求数组全排列
-
-```js
-//释放注释为求字符全排列
-function getArray(params) {
-  const res = []; // 结果集数组
-  let path = []; // 字符组合数组
-  function backTracking(array, used) {
-    // 参数1：需要全排的数组 参数2：used数组记录当前元素是否已被使用
-    let arrayLength = array.length;
-    if (path.length === arrayLength) return res.push(path); // 当获取的元素个数等于传入数组长度时（此时说明找到了一组结果）
-    for (let i = 0; i < arrayLength; i++) {
-      if (used[i]) continue; // 当前元素已被使用，结束此次循环
-      path.push(array[i]); // 将符合条件的元素存进path数组
-      // path = path + array[i]; // 将符合条件的元素存进path字符串
-      used[i] = true; // 并将该元素标为true，表示已使用同支
-      backTracking(array, used);
-      path = path.slice(0, path.length - 1);
-      used[i] = false;
-    }
-  }
-  // backTracking(Array.from(params), []); // 当为
-  backTracking(params, []);
-  return res;
-}
-console.log(getArray([1, 2, 3, 4]));
-```
-
-## 找出最少硬币组合
-
-```js
-const rninCoinChange = new MinCoinChange([1, 5, 10, 25]);
-console.log(rninCoinChange.makeChange(36)); // [1, 10, 25]
-
-function MinCoinChange(coins) {
-  var cache = {};
-  this.makeChange = function (amount) {
-    if (!amount) return [];
-    const _this = this;
-    if (cache[amount]) return cache[amount];
-    let min = [];
-    let newMin;
-    let newAmount;
-    for (let i = 0; i < coins.length; i++) {
-      const coin = coins[i];
-      newAmount = amount - coin;
-      if (newAmount >= 0) {
-        newMin = _this.makeChange(newAmount);
-      }
-      if (
-        newAmount >= 0 &&
-        (newMin.length < min.length - 1 || !min.length) &&
-        (newMin.length || !newAmount)
-      ) {
-        // 这里设定了边界条件，当传给递归函数的 newAmount 为 coin 时开始回溯
-        min = [coin].concat(newMin);
-        console.log("new min " + min + " for " + amount);
-      }
-    }
-    return (cache[amount] = min);
-  };
-}
-```
-
-## 实现两个大整数相加
-
-实现超出整数存储范围的两个大整数相加 function add(a,b)。注意 a 和 b 以及函数的返回值都是字符串。
-
-```js
-function add(a, b) {
-  let maxLength = Math.max(a.length, b.length);
-  let padA = a.padStart(maxLength, "0");
-  let padB = b.padStart(maxLength, "0");
-  // 为了计算时个位数对齐，填充长度至两者长度的最大值
-
-  let carryNum = 0; // 是否进1
-  let result = [];
-  for (let index = maxLength - 1; index >= 0; index--) {
-    // 从个数开始计算，也就是倒着算。
-
-    let tem = Number(padA[index]) + Number(padB[index]) + carryNum;
-    if (tem >= 10) {
-      carryNum = 1; // 超10进1
-      result.unshift(tem % 10);
-      index === 0 && result.unshift(carryNum);
-      // 遍历到最后一位时，如果超10，往最前位进1
-    } else {
-      carryNum = 0; // 不超10，进0，
-      result.unshift(tem);
-    }
-  }
-  return result.join("");
-}
-console.log(add("333333333333333333333333333333", "33333333333333333333333"));
-```
-
-## 求数组交集
-
-```js
-function getjiaoji(arr1, arr2) {
-  return arr1.filter(item => {
-    let index = arr2.findIndex(v => v == item);
-    if (index !== -1) {
-      arr2.splice(index, 1);
-      // 把当前元素删除，防止重复使用
-      return true;
-    }
-  });
-}
-```
-
-## 数组指定值
-
-```js
-// 整数数组中某两个数等于某个值的所有可能性，用过的元素不在使用
-//二分法+双指针思想实现
-const arr = [13, 2, 534, 2, 12, 232, 23, 12, 12, 2, 131, 1, 31, 21];
-function getSum(arr, num) {
-  arr.sort((a, b) => a - b);
-  const result = [];
-  let left = 0,
-   let right = arr.length - 1;
-  while (left < right) {
-    if (arr[left] + arr[right] < num) {
-      left++;
-    } else if (arr[left] + arr[right] > num) {
-      right--;
-    } else {
-      result.push([arr[left], arr[right]]);
-      left++;
-      right--;
-    }
+    result.push(...right.slice(j));
   }
   return result;
 }
 
-// 双循环+双指针思想
-function getSum(array, num) {
-  const length = array.length;
-  const result = [];
-  for (let index = 0; index < length - 1; index++) {
-    for (let innerIndex = index + 1; innerIndex < length; innerIndex++) {
-      // 遍历外层循环指针后面的元素
-      if (array[index] + array[innerIndex] === num) {
-        result.push([array[index], array.splice(innerIndex, 1)[0]]);
-         //后面用过的元素删掉，并保存结果
-      }
-    }
-  }
-  return result;
-}
-console.log(getSum(arr, 14));
-
-// 二分法查找指定值在整数有序数组中的位置
-function binarySearch(arr, target) {
-  let low = 0; // 范围的最小值索引
-  let high = arr.length - 1; // 范围的最大值索引
-  let midIndex = 0; // 范围中间值索引
-  let midElement = 0; // 范围中间值索引对应的中间值
-  while (low <= high) {
-    midIndex = Math.floor((low + high) / 2);
-    midElement = arr[midIndex];
-    if (target > midElement) {
-      low = midIndex + 1;
-    } else if (target < midElement) {
-      high = midIndex - 1;
-    } else {
-      return midIndex;
-    }
-  }
-  return -1; // 最终找不到等于target的值，则返回-1
-}
-console.log(binarySearch([3, 4, 7, 10, 34], 7));
-
-// leetcode 1207 数组元素是否都独一无二出现
-function isNoRepeat(array) {
-  let map = new Map();
-  for (const iterator of array) {
-    map.set(iterator, (map.get(iterator) || 0) + 1);
-  }
-  let set = new Set();
-  for (const [key, value] of map) {
-    set.add(key); // 利用了Set自动去重的特性
-  }
-  return set.size === map.size;
-  // return array.length === [...new Set(array)].size;
-}
+const array = Array.from(new Array(10), () => ~~(Math.random() * 100));
+console.log(`原始array: ${array}`);
+const newArr = mergeSort(array);
+console.log(`mergeSort排序之后newArr: ${newArr}`);
 ```
 
-## 单链表
+## 栈
+
+后进先出（Last In First Out）的数据结构。
+
+### 链栈
+
+栈的链接存储结构成为链栈，利用链表实现，链表中的每一个元素由两部分信息组成，一部分是存储其本身的信息（数据域），一部分是存储一个指示其直接后继的信息，即直接后继的存储位置（指针域）
+
+对于链式栈，无栈满的问题，空间可以扩充，插入与删除仅在栈顶处执行，链式栈的栈顶在链头。
+
+入栈操作：插入一个新元素 node，只能在链接在栈顶处，指针域指向原栈顶元素(node.next = top;)，栈顶指针 top 再指向这个新元素(top = node)
+出栈操作：只能删除栈顶元素，删除时，栈顶指针指向原来栈顶元素的指针域。node = top; top = top.next; return node.data;
 
 ```js
-// 单链表节点：保存这节点值和指向下一个节点的指针
+// 定义节点
 class Node {
-  constructor(value) {
-    this.value = value;
+  constructor(element) {
+    this.element = element;
     this.next = null;
   }
 }
 
-// 单链表定义
-class LinkedList {
+/**
+ * 属性：
+ * length:栈的长度
+ * top:栈顶指针
+ *
+ * 方法：
+ * push:入栈
+ * pop:出栈
+ * peek:读栈顶数据元素
+ * toSting:遍历栈将每个节点值转换为字符串，并返回结果
+ * isEmpty:判断栈是否为空
+ * size:栈的数据元素个数
+ * clear:清除栈数据
+ */
+class LinkStack {
   constructor() {
-    this.length = 0; // 链表长度
-    this.head = null; // 头节点
+    this.length = 0;
+    this.top = null; // 栈顶指针
   }
-  append(value) {
-    // 新增节点放到链表最后一个
-    let node = new Node(value);
-    if (this.head === null) {
-      this.head = node;
+
+  push(element) {
+    let curNode;
+    let node = new Node(element);
+    //如果栈顶是null则新元素节点直接作为栈顶
+    if (!this.top) {
+      this.top = node;
     } else {
-      let current = this.head;
-      while (current.next) {
-        current = current.next;
-      }
-      current.next = node;
+      // 将新元素节点取代栈顶，并且指向的节点是原来栈顶元素节点
+      curNode = this.top;
+      node.next = curNode;
+      this.top = node; // 插入的新元素为栈顶
     }
     this.length++;
   }
+  pop() {
+    let curNode = this.top;
+    if (this.top === null) {
+      return null;
+    }
+    let element = curNode.element;
+    this.top = curNode.next; // 栈顶指针指向原来栈顶元素的指针域
+    this.length--;
+    return element;
+  }
+  peek() {
+    if (this.top === null) {
+      return null;
+    }
+    return this.top.element;
+  }
+  toString() {
+    let str = "";
+    let curNode = this.top;
+    while (curNode) {
+      str += curNode.element + ",";
+      curNode = curNode.next;
+    }
+    str = str.slice(0, str.length - 1);
+    return str;
+  }
+  isEmpty() {
+    return this.top === null;
+  }
+  size() {
+    return this.length;
+  }
+  clear() {
+    this.top = null;
+    this.length = 0;
+  }
+}
+
+const linkStack = new LinkStack();
+
+let size = linkStack.size();
+console.log("size:", size);
+
+let isEmpty = linkStack.isEmpty();
+console.log("isEmpty:", isEmpty);
+
+let peek = linkStack.peek();
+console.log("读取栈顶:", peek);
+
+let pop = linkStack.pop();
+console.log(pop, "出栈");
+
+let toString = linkStack.toString();
+console.log("toString:", toString);
+
+linkStack.push("A");
+linkStack.push("B");
+linkStack.push("C");
+linkStack.push("D");
+
+toString = linkStack.toString();
+console.log("toString:", toString);
+
+pop = linkStack.pop();
+console.log(pop, "出栈");
+pop = linkStack.pop();
+console.log(pop, "出栈");
+pop = linkStack.pop();
+console.log(pop, "出栈");
+
+toString = linkStack.toString();
+console.log("toString:", toString);
+
+peek = linkStack.peek();
+console.log("读取栈顶:", peek);
+
+size = linkStack.size();
+console.log("size:", size);
+```
+
+### 顺序栈
+
+栈，又叫堆栈，比列表高效，因为栈内的元素只能通过列表的一端访问，称为栈顶，数据只能在栈顶添加或删除，遵循先入后出(LIFO，last-in-first-out) 的原则
+
+顺序栈：利用一组地址连续的存储单元一次存放自栈底到栈顶的数据元素，把数组中下标为 0 的一端作为栈底。对栈的操作主要有两种，一是将一个元素压入栈，push 方法，另一个就是将栈顶元素出栈，pop 方法。
+
+```js
+/**
+ 属性：
+ stackArray:存储栈数据
+ 方法：
+ pop:出栈，删除栈顶元素,并且返回该值
+ push:入栈，在栈顶将新元素入栈
+ peek:查看当前栈顶元素,仅仅是查看，并不删除
+ isEmpty:判断是否为空
+ size:查看当前栈元素的总数
+ clear:清空栈内元素
+ toString:遍历栈查看所有元素
+ */
+
+class ArraySatck {
+  constructor() {
+    this.datas = [];
+  }
+  isEmpty() {
+    return this.datas.length === 0;
+  }
+  size() {
+    return this.datas.length;
+  }
+  push(item) {
+    this.datas.push(item);
+  }
+  pop() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.datas.pop(); // 原生js数组pop方法删除最后一个元素并且返回
+  }
+  peek() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.datas[this.size() - 1];
+  }
+  clear() {
+    this.datas = [];
+  }
+  toString() {
+    return this.datas.toString();
+  }
+}
+
+const arraySatck = new ArraySatck();
+
+let isEmp = arraySatck.isEmpty();
+console.log("是否为空", isEmp);
+
+length = arraySatck.size();
+console.log("栈长度", length);
+
+let pop = arraySatck.pop();
+console.log(pop + "出栈");
+
+let peek = arraySatck.peek();
+console.log("查看栈顶", peek);
+
+let str = arraySatck.toString();
+console.log("toSting", str);
+
+arraySatck.push("A");
+arraySatck.push("B");
+arraySatck.push("C");
+arraySatck.push("D");
+arraySatck.push("E");
+
+isEmp = arraySatck.isEmpty();
+console.log("是否为空", isEmp);
+
+length = arraySatck.size();
+console.log(length);
+
+pop = arraySatck.pop();
+console.log(pop + "出栈");
+
+pop = arraySatck.pop();
+console.log(pop + "出栈");
+
+peek = arraySatck.peek();
+console.log("查看栈顶", peek);
+
+str = arraySatck.toString();
+console.log("toSting", str);
+
+arraySatck.clear();
+
+str = arraySatck.toString();
+console.log("after clear toSting", str);
+
+let arr = arraySatck.datas;
+console.log("datas", arr);
+```
+
+## 队列
+
+先进先出（First In First Out）的数据结构。和栈一样，队列是一种操作受限制的线性表，只允许在表的前端（front：队头）进行删除操作，而在表的后端（rear：队尾）进行插入操作，
+
+### 链队列
+
+链式队列不存在假溢出问题。
+
+- 空的链队条件：头指针 front 和尾指针 rear 均指向头节点，即 front == rear
+- 入队操作：将新 rear.next 指向新元素节点，然后将 rear.next 设置为 rear
+- 出队操作：修改队头 front 指向，front.next = front.next.next
+
+```js
+// 定义节点
+class Node {
+  constructor(element) {
+    this.element = element;
+    this.next = null;
+  }
+}
+
+class LinkQueue {
+  constructor() {
+    this.head = new Node(null);
+    this.front = this.head;
+    this.rear = this.head;
+    this.length = 0;
+  }
+
+  isEmpty() {
+    return this.front.next === null;
+  }
+
+  enqueue(element) {
+    let node = new Node(element);
+    this.rear.next = node; // 在这里front与rear都是指向head,对rear操作其属性是对引用数据类型操作，他们都会改变
+    this.rear = node; // 在这里rear整个被重新赋值为node，引用数据类型指向node，此时之后对rear其属性操作不会改变front
+    this.length++;
+  }
+
+  dequeue() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    let element = this.front.next.element;
+    this.front.next = this.front.next.next;
+    this.length--;
+    if (this.front.next == null) {
+      this.rear = this.front;
+    }
+    return element;
+  }
+
+  getFront() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.front.next.element;
+  }
+
+  toString() {
+    let str = "";
+    let node = this.front.next;
+    while (node !== null) {
+      str += node.element + ",";
+      node = node.next;
+    }
+    str = "[" + str.slice(0, -1) + "]";
+    return str;
+  }
+
+  size() {
+    return this.length;
+  }
+
+  /**
+   * 使头指针和尾指针均指向头节点
+   */
+  clear() {
+    this.front = this.head;
+    this.rear = this.head;
+    this.length = 0;
+  }
+}
+
+linkQueue = new LinkQueue();
+
+console.log("getFront", linkQueue.getFront());
+console.log("toString", linkQueue.toString());
+console.log("size", linkQueue.size());
+
+console.log("------------------------");
+linkQueue.enqueue("A");
+linkQueue.enqueue("B");
+linkQueue.enqueue("C");
+linkQueue.enqueue("D");
+linkQueue.enqueue("E");
+
+console.log("getFront", linkQueue.getFront());
+console.log("toString", linkQueue.toString());
+console.log("size", linkQueue.size());
+console.log("------------------------");
+
+console.log(linkQueue.dequeue(), "出队列");
+console.log(linkQueue.dequeue(), "出队列");
+console.log(linkQueue.dequeue(), "出队列");
+console.log(linkQueue.dequeue(), "出队列");
+
+console.log("getFront", linkQueue.getFront());
+console.log("toString", linkQueue.toString());
+console.log("size", linkQueue.size());
+
+console.log("------------------------");
+linkQueue.clear();
+console.log("getFront", linkQueue.getFront());
+console.log("toString", linkQueue.toString());
+console.log("size", linkQueue.size());
+
+console.log("------------------------");
+linkQueue.enqueue("F");
+linkQueue.enqueue("G");
+console.log("getFront", linkQueue.getFront());
+console.log("toString", linkQueue.toString());
+console.log("size", linkQueue.size());
+```
+
+### 顺序队列
+
+用一组地址连续的存储单元依次存放从队列头到队列尾的元素的队列。如果数组长度限制，那么顺序队列会存在假溢满问题，这样子可能需要进行数据迁移，这样是非常消耗性能的，由于 js 数组没有最大长度限制（除非内存溢出），所以 js 版本的顺序队列没有溢出问题。队列的基本操作：
+
+- 入队：将新元素追加到队列尾
+- 出队：删除队列头元素，并且返回元素值
+- 获取头元素：仅仅返回头元素的值
+- 求队列长度:求出队列中数据元素的个数
+- 判断空:判断当前队列是否为空
+- 输出队列：返回队列中所有的元素
+- 销毁:清空队列
+
+```js
+class ArrayQueue {
+  constructor() {
+    this.datas = [];
+  }
+
+  enqueue(item) {
+    this.datas.push(item);
+  }
+
+  dequeue() {
+    return this.datas.shift();
+  }
+
+  front() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.datas[0];
+  }
+
+  isEmpty() {
+    return this.datas.length === 0;
+  }
+
+  size() {
+    return this.datas.length;
+  }
+
+  toString() {
+    return "[" + this.datas.toString() + "]";
+  }
+}
+
+const queue = new ArrayQueue();
+
+console.log("isEmpty", queue.isEmpty());
+console.log("size", queue.size());
+console.log("front", queue.front());
+console.log("toString", queue.toString());
+console.log("----------------------------------");
+
+queue.enqueue("A");
+queue.enqueue("B");
+queue.enqueue("C");
+queue.enqueue("D");
+queue.enqueue("E");
+
+console.log("isEmpty", queue.isEmpty());
+console.log("size", queue.size());
+console.log("front", queue.front());
+console.log("toString", queue.toString());
+console.log("----------------------------------");
+
+let item = null;
+item = queue.dequeue();
+for (let i = 0; i < 3; i++) {
+  console.log(item, "出队列");
+  item = queue.dequeue();
+}
+console.log("isEmpty", queue.isEmpty());
+console.log("size", queue.size());
+console.log("front", queue.front());
+console.log("toString", queue.toString());
+```
+
+### 循环队列
+
+使用限制数组长度实现的循环队列，循环队列的优点是不存在队列假溢满问题，不需要进行数据迁移
+
+```js
+class SequenceQueue {
+  constructor(length) {
+    // 约定少用一个数组存储空间来判断队列是否满，为了满足用户需要length个数据，将length+1处理
+    this.length = length + 1;
+    this.datas = [];
+    this.front = 0;
+    this.rear = 0;
+  }
+
+  isEmpty() {
+    return this.rear === this.front;
+  }
+
+  isFull() {
+    return (this.rear + 1) % this.length === this.front;
+  }
+
+  /**
+   * 入队的时候将队尾指针rear+1，再将元素按rear指示位置加入
+   * @param item
+   * @returns {boolean}
+   */
+  enqueue(item) {
+    if (this.isFull()) {
+      return false;
+    }
+    this.rear = (this.rear + 1) % this.length;
+    this.datas[this.rear] = item;
+  }
+
+  /**
+   * 先将队头指针front+1,再将front所指示的元素取出
+   * @returns {*}
+   */
+  dequeue() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    this.front = (this.front + 1) % this.length;
+    let result = this.datas[this.front];
+    delete this.datas[this.front];
+    return result;
+  }
+
+  /**
+   * 取出队列头元素
+   * @returns {*}
+   */
+  getFront() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.datas[(this.front + 1) % this.length];
+  }
+
+  /**
+   * 队列中数据元素个数
+   * @returns {number}
+   */
+  size() {
+    return (this.rear - this.front + this.length) % this.length;
+  }
+
+  /**
+   *
+   * @returns {string}
+   * 注意这里toString不能简单地见this.datas元素直接遍历输出，要根据队列实际有效数据输出
+   */
+  toString() {
+    let i,
+      j = this.front;
+    let str = "";
+    for (i = 0; i < this.size(); i++) {
+      j = (j + 1) % this.length;
+      str += this.datas[j] + ",";
+    }
+    str = str.slice(0, -1);
+    return str;
+  }
+
+  clear() {
+    this.front = this.rear = 0;
+    this.datas = [];
+  }
+}
+
+const sequenceQueue = new SequenceQueue(5);
+
+console.log("isEmpty", sequenceQueue.isEmpty());
+console.log("isFull", sequenceQueue.isFull());
+
+let front = sequenceQueue.getFront();
+console.log("front", front);
+
+let size = sequenceQueue.size();
+console.log("size", size);
+
+let toStr = sequenceQueue.toString();
+console.log("toStr", toStr);
+console.log("---------1------------");
+
+sequenceQueue.enqueue("A");
+sequenceQueue.enqueue("B");
+sequenceQueue.enqueue("C");
+sequenceQueue.enqueue("D");
+sequenceQueue.enqueue("E");
+sequenceQueue.enqueue("F");
+
+console.log("isEmpty", sequenceQueue.isEmpty());
+console.log("isFull", sequenceQueue.isFull());
+
+size = sequenceQueue.size();
+console.log("size", size);
+
+front = sequenceQueue.getFront();
+console.log("front", front);
+
+toStr = sequenceQueue.toString();
+console.log("toStr", toStr);
+console.log("--------2-------------");
+
+let item = sequenceQueue.dequeue();
+console.log(item, "出队列");
+item = sequenceQueue.dequeue();
+console.log(item, "出队列");
+item = sequenceQueue.dequeue();
+console.log(item, "出队列");
+
+front = sequenceQueue.getFront();
+console.log(item, "出队列之后front", front);
+
+toStr = sequenceQueue.toString();
+console.log("toStr", toStr);
+console.log("---------3------------");
+
+console.log("队列数组真实元素", sequenceQueue.datas);
+
+console.log("---------4------------");
+sequenceQueue.clear();
+toStr = sequenceQueue.toString();
+console.log("after clear toStr", toStr);
+console.log("----------5-----------");
+console.log("after clear  队列数组真实元素", sequenceQueue.datas);
+```
+
+## 链表
+
+### 单向列表
+
+```js
+class Node {
+  constructor(element) {
+    this.element = element;
+    this.next = null;
+  }
+}
+
+class LinkedList {
+  constructor() {
+    this.size = 0;
+    this.head = null;
+  }
+  // 删除某节点
   delete(node) {
-    // 删除某节点节点
     let nextNode = node.next;
     node.value = nextNode.value;
     node.next = nextNode.next;
     // 把指针指向下下个节点，既是删除
   }
+  // 删除重复链表
   deleteDuplicates() {
-    // 删除重复链表
     if (!this.head) return head;
     let current = head;
     let next = current.next;
@@ -1004,8 +1046,8 @@ class LinkedList {
     }
     return this.head;
   }
+  // 新增节点放到链表指定值对应的一个节点后面
   insert(refValue, insertValue) {
-    // 新增节点放到链表指定值对应的一个节点后面
     let node = new Node(insertValue);
     if (this.head === null) {
       this.head = node;
@@ -1017,15 +1059,15 @@ class LinkedList {
           let next = current.next;
           current.next = node;
           node.next = next;
-          return ++this.length;
+          return ++this.size;
         }
         current = current.next;
       }
       throw new Error(`没有找到值为${refValue}的node`);
     }
   }
+  // 反转链表
   reverse() {
-    // 反转链表
     let current = this.head;
     let previousNode = null;
     let nextNode = null;
@@ -1037,8 +1079,8 @@ class LinkedList {
     }
     this.head = previousNode;
   }
+  // 链表转成字符串，节点值用‘，’拼接
   toString() {
-    // 链表转成字符串，节点值用‘，’拼接
     let current = this.head;
     let string = "";
     while (current) {
@@ -1047,38 +1089,289 @@ class LinkedList {
     }
     return string;
   }
-}
-let lL = new LinkedList();
-lL.append("0");
-L.append("1");
-lL.append("2");
-lL.insert("1", "5");
-lL.reverse();
-console.log(lL.toString()); // 2,5,1,0
-```
-
-## leetcode 933
-
-统计最近 3000 毫秒内的请求次数,很少遇到
-
-```js
-class RecentCounter {
-  result = [];
-  ping(t) {
-    this.result.push(t);
-    while (t - this.result[0] >= 3000) {
-      this.result.shift();
+  /**
+   * @method 尾部追加数据
+   * @param {any} element 追加数据
+   */
+  append(element) {
+    let node = new Node(element);
+    if (this.head === null) {
+      this.head = node;
+    } else {
+      let current = this.getNode(this.size - 1);
+      current.next = node;
     }
-    return this.result.length;
+    this.size++;
+  }
+
+  /**
+   * @method 指定位置追加数据
+   * @param {Number} position 位置
+   * @param {any} element 追加数据
+   */
+  appendAt(position, element) {
+    if (position < 0 || position > this.size) {
+      throw new Error("position out range");
+    }
+    let node = new Node(element);
+    if (position === 0) {
+      node.next = this.head;
+      this.head = node;
+    } else {
+      let pre = this.getNode(position - 1);
+      node.next = pre.next;
+      pre.next = node;
+    }
+    this.size++;
+  }
+
+  /**
+   * @method 删除指定位置数据
+   * @param {Number} position 位置
+   */
+  removeAt(position) {
+    if (position < 0 || position >= this.size) {
+      throw new Error("position out range");
+    }
+    let current = this.head;
+    if (position === 0) {
+      this.head = current.next;
+    } else {
+      let pre = this.getNode(position - 1);
+      current = pre.next;
+      pre.next = current.next;
+    }
+    this.size--;
+  }
+
+  /**
+   * @method 修改指定位置数据
+   * @param {Number} position 位置
+   * @param {any} element 追加数据
+   */
+  update(position, element) {
+    if (position < 0 || position >= this.size) {
+      throw new Error("position out range");
+    }
+    let pre = this.getNode(position);
+    pre.element = element;
+  }
+
+  /**
+   * @method 查找指定位置数据
+   * @param {Number} position 位置
+   * @return {any} 返回数据
+   */
+  getData(position) {
+    if (position < 0 || position >= this.size) {
+      throw new Error("position out range");
+    }
+    let pre = this.getNode(position);
+    return pre.element;
+  }
+
+  /**
+   * @method 查找指定数据索引
+   * @param {any} element
+   * @return {Number} 索引
+   */
+  indexOf(element) {
+    let current = this.head;
+    for (let i = 0; i < this.size; i++) {
+      if (current.element === element) {
+        return i;
+      }
+      current = current.next;
+    }
+    return -1;
+  }
+
+  /**
+   * @method 返回链表长度
+   * @return {Number} 链表长度
+   */
+  get length() {
+    return this.size;
+  }
+
+  getNode(index) {
+    if (index < 0 || index >= this.size) {
+      throw new Error("out range");
+    }
+    let current = this.head;
+    for (let i = 0; i < index; i++) {
+      current = current.next;
+    }
+    return current;
   }
 }
-let obj = new RecentCounter();
-console.log(obj.ping(3000));
-console.log(obj.ping(4000));
-console.log(obj.ping(5000));
+
+let ll = new LinkedList();
 ```
 
-## 是否环形链表
+### 双向链表
+
+```js
+class DoublyNode {
+  constructor(element) {
+    this.element = element;
+    this.prev = null;
+    this.next = null;
+  }
+}
+
+class DoublyLinkedList {
+  constructor() {
+    this.size = 0;
+    this.head = null;
+    this.tail = null;
+  }
+
+  /**
+   * @method 尾部追加数据
+   * @param {any} element 追加数据
+   */
+  append(element) {
+    let node = new DoublyNode(element);
+    if (this.head === null) {
+      this.head = node;
+      this.tail = node;
+    } else {
+      this.tail.next = node;
+      node.prev = this.tail;
+      this.tail = node;
+    }
+    this.size++;
+  }
+
+  /**
+   * @method 指定位置追加数据
+   * @param {*} position 位置
+   * @param {*} element 追加数据
+   */
+  appendAt(position, element) {
+    if (position < 0 || position > this.size) {
+      throw new Error("position out range");
+    }
+    let node = new DoublyNode(element);
+    if (position === 0) {
+      if (this.head === null) {
+        this.head = node;
+        this.tail = node;
+      } else {
+        node.next = this.head;
+        this.head.perv = node;
+        this.head = node;
+      }
+    } else if (position === this.size) {
+      this.tail.next = node;
+      node.prev = this.tail;
+      this.tail = node;
+    } else {
+      let pre = this.getNode(position - 1);
+      pre.next = node;
+      node.prev = pre;
+      node.next = pre.next;
+      pre.prev = node;
+    }
+    this.size++;
+  }
+
+  /**
+   * @method 删除指定位置数据
+   * @param {*} position 位置
+   */
+  removeAt(position) {
+    if (position < 0 || position >= this.size) {
+      throw new Error("position out range");
+    }
+    let current = this.head;
+    if (position === 0) {
+      if (this.size === 1) {
+        this.head = null;
+        this.tail = null;
+      } else {
+        this.head = current.next;
+        this.head.prev = null;
+      }
+    } else if (position === this.size - 1) {
+      this.tail.prev.next = null;
+      this.tail = this.tail.prev;
+    } else {
+      let pre = this.getNode(position - 1);
+      current = pre.next;
+      pre.next = current.next;
+    }
+    this.size--;
+  }
+
+  /**
+   * @method 修改指定位置数据
+   * @param {Number} position 位置
+   * @param {any} element 追加数据
+   */
+  update(position, element) {
+    if (position < 0 || position >= this.size) {
+      throw new Error("position out range");
+    }
+    let pre = this.getNode(position);
+    pre.element = element;
+  }
+
+  /**
+   * @method 查找指定位置数据
+   * @param {Number} position 位置
+   * @return {any} 返回数据
+   */
+  getData(position) {
+    if (position < 0 || position >= this.size) {
+      throw new Error("position out range");
+    }
+    let pre = this.getNode(position);
+    return pre.element;
+  }
+
+  /**
+   * @method 查找指定数据索引
+   * @param {Number} element
+   * @return {Number} 索引
+   */
+  indexOf(element) {
+    let current = this.head;
+    for (let i = 0; i < this.size; i++) {
+      if (current.element === element) {
+        return i;
+      }
+      current = current.next;
+    }
+    return -1;
+  }
+
+  /**
+   * @method 返回链表长度
+   * @return {Number} 链表长度
+   */
+  get length() {
+    return this.size;
+  }
+
+  getNode(index) {
+    if (index < 0 || index >= this.size) {
+      throw new Error("out range");
+    }
+    let current = this.head;
+    for (let i = 0; i < index; i++) {
+      current = current.next;
+    }
+    return current;
+  }
+}
+
+let ll = new DoublyLinkedList();
+ll.append(1);
+```
+
+### 是否环形链表
 
 快慢两个指针，快指针循环一圈还能找到慢指针，说明存在循环
 
@@ -1096,22 +1389,247 @@ var hasCycle = function (head) {
 };
 ```
 
-## 数组中是否有重复元素
+## 树
+
+### 二叉树
+
+经典的遍历方法有三种，前序遍历、中序遍历和后序遍历。
+其中，前、中、后序，表示的是节点与它的左右子树节点遍历打印的先后顺序。
+前序遍历是指，对于树中的任意节点来说，先打印这个节点，然后再打印它的左子树，最后打印它的右子树。
+中序遍历是指，对于树中的任意节点来说，先打印它的左子树，然后再打印它本身，最后打印它的右子树。
+后序遍历是指，对于树中的任意节点来说，先打印它的左子树，然后再打印它的右子树，最后打印这个节点本身。
 
 ```js
-function hasRepeat(array) {
-  let set = new Set();
-  for (const iterator of array) {
-    if (set.has(iterator)) return true;
-    // 后面的元素存在缓存过的，就有重复
-    set.add(iterator);
-    //元素没有缓存就加入Set缓存
+/**
+ * 二叉搜索树满足以下的几个性质：
+ *
+ * 若任意节点的左子树不空，则左子树上所有节点的值均小于它的根节点的值；
+ * 若任意节点的右子树不空，则右子树上所有节点的值均大于它的根节点的值；
+ * 任意节点的左、右子树也需要满足左边小右边大的性质
+ *
+ * 二叉搜索树操作:
+ * insert(key):向二叉树中插入一个新的健
+ * search(key):在二叉树中查找一个健，如果节点存在，则返回true,如果不存在，则返回false
+ * inOrder:通过中序遍历方式遍历所有节点
+ * preOrder:通过先序遍历方式遍历所有的节点
+ * postOrder:通过后序遍历方式遍历所有节点
+ * min:返回树中最小的值/健
+ * max:返回树中最大的值/健
+ * search(key):查找某个key是否存在
+ * remove(key):从树中移除某个键
+ *
+ * 注意：如果insert的数据是Stirng类型，会自动转码再比较。
+ */
+
+class Node {
+  constructor(key) {
+    this.key = key;
+    this.left = null;
+    this.right = null;
   }
-  return false;
 }
+
+class BinarySearchTree {
+  constructor() {
+    this.root = null;
+  }
+
+  // insert
+  insert(key) {
+    let newNode = new Node(key);
+    if (this.root === null) {
+      this.root = newNode;
+    } else {
+      this._insert(this.root, newNode);
+    }
+  }
+  _insert(node, newNode) {
+    if (newNode.key < node.key) {
+      // 向左查找
+      if (node.left === null) {
+        node.left = newNode;
+      } else {
+        this._insert(node.left, newNode);
+      }
+    } else {
+      // 向右查找
+      if (node.right === null) {
+        node.right = newNode;
+      } else {
+        this._insert(node.right, newNode);
+      }
+    }
+  }
+
+  // 先序遍历
+  preOrder(handler) {
+    this._preOrder(this.root, handler);
+  }
+  // 对某个节点遍历,每一个节点都会遍历左右节点，从左到右
+  _preOrder(node, handler) {
+    if (node !== null) {
+      // 处理节点
+      handler(node.key);
+      // 处理经过的左节点
+      this._preOrder(node.left, handler);
+      // 处理经过的右节点
+      this._preOrder(node.right, handler);
+    }
+  }
+
+  // 中序遍历
+  inOrder(handler) {
+    this._inOrder(this.root, handler);
+  }
+  _inOrder(node, handler) {
+    if (node !== null) {
+      // 处理左子树中节点
+      this._inOrder(node.left, handler);
+      // 处理节点
+      handler(node.key);
+      // 处理右子树中的节点
+      this._inOrder(node.right, handler);
+    }
+  }
+
+  // 后序遍历
+  postOrder(handler) {
+    this._postOrder(this.root, handler);
+  }
+  _postOrder(node, handler) {
+    if (node !== null) {
+      // 处理左子树中的节点
+      this._postOrder(node.left, handler);
+      // 处理右子树中节点
+      this._postOrder(node.right, handler);
+      // 处理节点
+      handler(node.key);
+    }
+  }
+
+  // 返回min值
+  min() {
+    let node = this.root;
+    let key = null;
+    while (node !== null) {
+      key = node.key;
+      node = node.left;
+    }
+    return key;
+  }
+
+  // 返回max值
+  max() {
+    let node = this.root;
+    let key = null;
+    while (node !== null) {
+      key = node.key;
+      node = node.right;
+    }
+    return key;
+  }
+
+  // 搜索某一个key
+  search(key) {
+    let node = this.root;
+    // 循环搜索key
+    while (node !== null) {
+      if (key < node.key) {
+        node = node.left;
+      } else if (key > node.key) {
+        node = node.right;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * remove
+   * 1.先找到要删除的节点
+   * 2.情况一：删除叶子点
+   * 3.情况二：删除只有一个子节点的节点
+   */
+  remove(key) {
+    let curNode = this.root;
+    let parent = null;
+    let isLeftChild = true;
+    // 1.寻找需要删除的节点和其父节点
+    while (curNode !== key) {
+      parent = curNode;
+      if (key < curNode.key) {
+        isLeftChild = true;
+        curNode = curNode.left;
+      } else {
+        isLeftChild = false;
+        curNode = curNode.right;
+      }
+      //遍历到最后节点，没找到
+      if (curNode === null) {
+        return false;
+      }
+    }
+
+    // 根据对应的情况进行删除操作
+    // 1.删除的节点是叶子节点
+    if (curNode.left === null && curNode.right === null) {
+      if (curNode === this.root) {
+        this.root = null;
+      } else if (isLeftChild) {
+        parent.left = null;
+      } else {
+        parent.right = null;
+      }
+    }
+    // 2.删除的节点有一个子节点
+    else if (curNode.right === null) {
+      if (curNode === this.root) {
+        this.root = curNode;
+      } else if (isLeftChild) {
+        parent.left = curNode.left;
+      } else {
+        parent.right = curNode.left;
+      }
+      n;
+    } else if (curNode.left === null) {
+      if (curNode === this.root) {
+        this.root = curNode;
+      } else if (isLeftChild) {
+        parent.left = curNode.right;
+      } else {
+        parent.right = curNode.right;
+      }
+    }
+
+    // 3.删除的节点有两个子节点
+  }
+}
+
+const bst2 = new BinarySearchTree();
+
+bst2.insert("安琪拉");
+bst2.insert("亚瑟");
+bst2.insert("王昭君");
+bst2.insert("貂蝉");
+bst2.insert("甄姬");
+bst2.insert("娜可露露");
+bst2.insert("典韦");
+bst2.insert("凯");
+bst2.insert("鲁班七号");
+
+resultOrder = "";
+
+// 测试先序遍历
+bst2.inOrder(key => {
+  resultOrder += key + ",";
+});
+console.log("min", bst2.min());
+console.log("max", bst2.max());
+console.log("search 鲁班", bst2.search("鲁班"));
 ```
 
-## 二叉树相关
+### 二叉树相关
 
 ```js
 // 二叉树：深度优先算法
@@ -1130,58 +1648,6 @@ function guandu(root) {
     current.children?.forEach(item => result.push(item));
     // 把子节点依次推入栈内，方便依次执行
   }
-}
-
-// 二叉树：前序遍历 & 先序遍历 递归实现
-function preIterator(root) {
-  const arr = [];
-  const func = function (node) {
-    if (node) {
-      arr.push(node.value);
-      func(node.left);
-      func(node.right);
-    }
-  };
-  func(root);
-  return arr;
-}
-// 通过栈结构实现
-function preIterator(root) {
-  const result = [];
-  const stack = [root];
-  while (stack.length) {
-    let top = stack.pop();
-    result.push(top.value);
-    top.right && stack.push(top.right);
-    top.left && stack.push(top.left);
-  }
-  return result;
-}
-
-// 二叉树：中序遍历,递归实现
-function inOrderIterator(root) {
-  const result = [];
-  function fn(node) {
-    if (!node) return;
-    fn(node.left);
-    result.push(node.value);
-    fn(node.right);
-  }
-  fn(root);
-  return result;
-}
-
-// 二叉树：后序遍历,递归实现
-function afterOrderIterator(root) {
-  const result = [];
-  function fn(node) {
-    if (!node) return;
-    fn(node.left);
-    fn(node.right);
-    result.push(node.value);
-  }
-  fn(root);
-  return result;
 }
 
 // leetcode 111, 二叉树最小深度
@@ -1234,27 +1700,154 @@ function isSomeTree(node1, node2) {
 }
 ```
 
-## 寻找质数
-
-找出某范围内的所有质数
+## 哈希表
 
 ```js
-function getPrime(params) {
-  if (params <= 1)
-    throw "注意 1 不是质数，质数是大于 1 的且只能被 1 和自身整除的自然数";
-  let result = []; // 质数结果集合
-  let innerIndex = 0;
-  // 内循环索引，定义在外层方便外层循环可以拿到内循环的index
-
-  for (let index = 2; index < params; index++) {
-    for (innerIndex = 2; innerIndex < index; innerIndex++) {
-      if (index % innerIndex === 0) break;
-      // 2 <= innerIndex < index范围内存在被整除的数，是非质数
-    }
-    innerIndex === index && result.push(index);
-    // 内层循环走到了最后都没找到被整除的数，是质数
+class HasTable {
+  constructor() {
+    this.storage = [];
+    this.count = 0;
+    this.limit = 7;
   }
-  return result;
+
+  /** 哈希函数
+   * 将字符串转换成比较大的数字，这个数字称为 hashCode
+   * 将大的数字压缩到数组(size) 范围之内既 index
+   * size为哈希表的长度
+   */
+  hasFunc(str, size = 7) {
+    // PRIME_NUMBER 为质数，且小于数组的容量
+    const PRIME_NUMBER = 37;
+    // 定义 hasCode 变量
+    let hasCode = 0;
+    // 计算hasCode的值
+    for (let i = 0; i < str.length; i++) {
+      hasCode = PRIME_NUMBER * hasCode + str.charCodeAt(i);
+    }
+    // 取余操作
+    return hasCode % size;
+  }
+
+  // 插入修改操作
+  put(key, value) {
+    // 根据Key获取index
+    let index = this.hasFunc(key, this.limit);
+    // 根据index取出对应的bucket
+    let bucket = this.storage[index];
+    // 判断bucket是否为null
+    if (bucket == null) {
+      bucket = [];
+      this.storage[index] = bucket;
+    }
+    // 判断是否修改数据
+    for (let i = 0; i < bucket.length; i++) {
+      let tuple = bucket[i];
+      if (tuple[0] === key) {
+        tuple[1] = value;
+        return;
+      }
+    }
+    // 添加操作
+    bucket.push([key, value]);
+    this.count++;
+  }
+
+  // 获取操作
+  get(key) {
+    // 根据key获取index
+    const index = this.hasFunc(key, this.limit);
+    // 根据index获取对应的bucket
+    const bucket = this.storage[index];
+    // 判断bucket是否空
+    if (bucket === null) {
+      return null;
+    }
+    // 有bucket那么进行线性查找
+    for (let i = 0; i < bucket.length; i++) {
+      let tuple = bucket[i];
+      if (tuple[0] === key) {
+        return tuple[1];
+      }
+    }
+    // 没有找到，那么返回Null
+    return null;
+  }
+
+  // 删除操作
+  remove(key) {
+    // 根据key获取index
+    const index = this.hasFunc(key, this.limit);
+    // 根据index获取对应的bucket
+    const bucket = this.storage[index];
+    // 判断bucket是否空
+    if (bucket === null) {
+      return null;
+    }
+    // 有bucket那么进行线性查找,并且删除
+    for (let i = 0; i < bucket.length; i++) {
+      let tuple = bucket[i];
+      if (tuple[0] === key) {
+        bucket.splice(i, 1);
+        this.count--;
+        return tuple[1];
+      }
+    }
+    // 没有找到，那么返回Null
+    return null;
+  }
+
+  // 判断哈希表是否为空
+  isEmpty() {
+    return this.count === 0;
+  }
+
+  // 获取哈希表元素个数
+  size() {
+    return this.count;
+  }
 }
-console.log(getPrime(10)); // [ 2, 3, 5, 7 ]
+```
+
+## 字典
+
+一种以键-值对形式存储数据的数据结构。如：名字-电话号码，通过名字就能找到对应的电话号码，名字就是键(key)，电话号就是值(value)。字典中的键，是值在字典中的索引。
+
+```js
+class Dictionary {
+  constructor() {
+    this.items = {};
+  }
+
+  // 添加一个存储键值对
+  set(key, value) {
+    this.items[key] = value;
+  }
+
+  // 根据key返回一个item
+  get(key) {
+    return this.items.hasOwnProperty(key) ? this.items[key] : undefined;
+  }
+
+  // 删除一个存储键值对
+  remove(key) {
+    if (this.items.hasOwnProperty(key)) {
+      delete this.items[key];
+    }
+  }
+
+  // 返回字典中 key
+  get keys() {
+    return Object.keys(this.items);
+  }
+
+  // 返回字典中 value
+  get values() {
+    return Object.keys(this.items).reduce((r, c, i) => {
+      r.push(this.items[c]);
+      return r;
+    }, []);
+  }
+}
+const dictionary = new Dictionary();
+dictionary.set("zhangjinxi", "zhangjinxi@email.com");
 ```

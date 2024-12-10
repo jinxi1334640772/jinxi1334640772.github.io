@@ -1,16 +1,13 @@
-# Performance
-
 ## Performance 简介
 
-Performance API 是一组用于衡量 web 应用性能的标准。衡量和分析各种性能指标对于确保 web 应用的速度非常重要。Performance API 提供了重要的内置指标，并能够将你自己的测量结果添加到浏览器的性能时间线（performance timeline）中。性能时间线使用高精度的时间戳，且可以在开发者工具中显示。你还可以将相关数据发送到用于分析的端点，以根据时间记录性能指标。
+Performance API 是一组用于衡量 web 应用性能的标准。衡量和分析各种性能指标对于确保 web 应用的速度非常重要。Performance API 提供了重要的内置指标，并能够将你自己的测量结果添加到浏览器的性能时间线（performance timeline）中。性能时间线使用高精度的时间戳，且可以在开发者工具中显示。你还可以将相关数据发送到用于分析的端点，以根据时间记录性能指标。时间下如下图：
 
+![alt text](performance渲染图.jpg)
 每一个性能指标都使用一个性能条目（PerformanceEntry）表示。性能条目有名称（name）、持续时间（duration）、开始时间（startTime）和类型（type）。每一个性能指标都继承了 PerformanceEntry 接口，并对其进行限定。
 
 大部分性能条目都在不需要任何额外操作的情况下进行记录，并可以通过 Performance.getEntries() 或（最好）通过 PerformanceObserver 访问。例如，PerformanceEventTiming 条目用于记录花费的时间超过设定阈值的事件。而 Performance API 也允许你使用 PerformanceMark 和 PerformanceMeasure 接口定义和记录自定义事件。
 
 Performance 主接口在 Window 和 Worker 全局作用域下都可用，并允许你增加自定义性能条目、清除性能条目，以及查询性能条目。
-
-PerformanceObserver 接口允许你监听记录的不同类型的性能条目。
 ![preformance](diagram.svg)
 Performance 属性和方法：
 
@@ -65,9 +62,7 @@ function use_PerformanceEntry_methods() {
 
 ## PerformanceObserver
 
-监测性能度量事件，在浏览器的性能时间轴记录新的 performance entry 的时候将会被通知。
-
-属性和方法：
+监测性能度量事件，在浏览器的性能时间轴记录新的 performance entry 的时候将会被通知。其属性和方法：
 
 - `supportedEntryTypes` 静态属性，返回支持的 entryTypes 列表
 - `disconnect()` 阻止性能观察者接收任何 性能条目 事件。

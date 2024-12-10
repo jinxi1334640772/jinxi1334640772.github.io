@@ -254,13 +254,11 @@
 - `单页网站`：单页网站可以通过使用动态页面渲染技术来实现快速的页面加载，从而提高用户体验。
 
 - `构建工具`：Vite 和 Webpack 将继续流行。
-- `低代码平台`：低代码平台可以更加轻松地创建和管理应用程序。目前比较流行的低代码平台包括百度Amis、Google G Suite 等。
+- `低代码平台`：低代码平台可以更加轻松地创建和管理应用程序。目前比较流行的低代码平台包括百度 Amis、Google G Suite 等。
 - `serverLess&云服务&微前端`：随着云计算和容器化技术的不断发展，这些技术可以让开发者更加高效地构建和维护应用程序，并且能够更好地应对不断增长的数据处理需求。
 - `人工智能、虚拟现实、增强现实、自然语言处理和机器学习`：新兴技术都需要前端开发人员进行相应的开发和优化。
 - `WebAssembly`：将成为处理高性能计算和游戏开发的重要工具
 - `PWA(渐进式 web 应用)`：将越来越受欢迎，因为它们提供了类似原生应用的体验
-
-总之：前端会越来越：1.规范化 2.模块化 3.工程化 4.自动化
 
 ## web 重要性能指标
 
@@ -269,7 +267,112 @@
 - `Cumulative Layout Shift (CLS)`:累计布局偏移，从页面开始加载到其生命周期状态更改为隐藏期间发生的所有意外布局偏移的累计得分。不超过 0.1s
 - `Interaction to Next Paint (INP)`:距离下次绘制的交互时间，包括输入延迟、处理器处理时间、页面渲染时间。输入延迟：与网页进行的每次点按、点击或键盘互动的延迟时间。 根据互动次数，此指标选择网页的最差互动延迟时间作为单个代表性值，以描述网页的整体响应能力。不超过 200ms
 - `Total Blocking Time (TBT)`:总阻塞时间，从 FCP 到可交互时间 (TTI) 之间的总时长，其中主线程处于阻塞状态的时间足够长，足以阻止输入响应能力。
-- `首字节时间 (TTFB)`:网络使用资源的第一个字节响应用户请求所需的时间
+- `Speed Index (SI)`:速度指标, lighthouse 面板中的六大指标之一，用于衡量页面加载期间内容的绘制速度，值越小约好。
+- `Time To Interactive (TTI)`:可交互时间， lighthouse 面板中的六大指标之一, 用于测量页面从开始加载到主要资源完成渲染，并能够快速、可靠地响应用户输入所需的时间
 
+- `首字节时间 (TTFB)`:网络使用资s源的第一个字节响应用户请求所需的时间
 - `可交互时间`:从网页开始加载到网页可以响应用户操作所用的时间
 - `加载时间`:从网页开始加载到网页完全呈现给用户所用的时间
+- `First Paint FP`:页面开始首次绘制的时间点
+- `First Input Delay FID`:首次输入延迟，测量从用户第一次与页面交互（例如当他们单击链接、点按按钮或使用由 JavaScript 驱动的自定义控件）直到浏览器对交互作出响应，并实际能够开始处理事件处理程序所经过的时间，已被 INP 替代。
+
+## 前端工程化
+
+前端工程化是指将前端开发到部署过程中的一系列流程和工具进行规范和自动化，包括但不限于代码编写、测试、构建、部署等环节，从而提高开发效率、减少重复劳动、降低出错率。前端工程化的目标是让前端开发更高效、更优质。
+
+核心概念包括规范化、模块化、打包构建、自动化部署、自动化测试和持续集成等。
+![alt text](image-10.png)
+
+以下是一些常见的前端工程化工具：
+
+- 代码规范：Eslint、Stylelint、commitlint
+- 模块化：CommonJS、AMD、ES6 模块化等
+- 包管理工具：npm、Yarn、pnpm
+- 构建工具：Webpack、Rollup、Vite、Gulp
+- 自动化测试工具：Jest、Mocha、Karma、Cypress、Puppeteer
+- 集成工具 CI\CD：Jenkins、GitLab CI/CD、GitHub Actions
+- 缺陷控制工具：钉钉 Teambition、飞书 Ones、腾讯 tapd、禅道
+- 文档工具：石墨、语雀
+- 接口管理：swagger、yapi
+
+![alt text](image-11.png)
+
+## Linux
+
+角色：
+
+- 文件创建者(u)
+- 文件创建者同组(g)
+- 其它人(o)
+
+操作权限：
+
+- r 读权限，用数字 4 表示
+- w 写权限，用数字 2 表示
+- x 执行权限，用数字 1 表示
+
+### 目录操作
+
+- 创建目录 mkdir <目录名称>
+- 删除目录 rm <目录名称>
+- 定位目录 cd <目录名称>
+- 查看目录文件 ls ll
+- 修改目录名 mv <目录名称> <新目录名称>
+- 拷贝目录 cp <目录名称> <新目录名称>
+  修改文件权限 chomd 777 test.txt
+
+### 文件操作
+
+- 创建文件 touch <文件名称> vi <文件名称> tail <文件名称>
+- 删除文件 rm <文件名称>
+- 修改文件名 mv <文件名称> <新文件名称>
+- 拷贝文件 cp <文件名称> <新文件名称>
+
+- ls -a （all 的意思，包括以.开头的隐藏文件）
+- ls xxx 查看文件夹（平铺展开）
+- ll 查看文件夹（列表）
+- ll xxx （查看 xxx 文件夹下的文件）
+- mkdir xxx （创建 xxx 文件夹）
+- rm -rf xxx （把 xxx 及其所有子文件全部删除）
+- cd xxx （进入 xxx 目录）
+- mv abc xxx （把 abc 文件重命名为 xxx 文件）
+- mv xxx sss 路径 （把 xxx 文件移到 sss 路径目录）
+- cp a.js a1.js （拷贝、复制 a.js 为 a1.js）
+- rm a1.js （直接删除单个文件）
+- touch d.js （新建文件 d.js）
+- cat xxx （查看 xxx 文件所有内容但不进入）
+- head xxx （查看 xxx 文件前面几行也不进入）
+- grep "babel" xxx （在 xxx 文件里查找 babel 内容）
+- vi d.js （新建或进入一个文件 d.js 并且进入编辑）。Vim 编辑器操作：
+  - 按 i 开始编辑
+  - Esc 可退出编辑模式
+  - :w 保存写入
+  - :q 退出
+  - :wq （保存后退出）
+  - :q! （强制退出，不保存）
+
+### 防火墙
+
+1. 查看防火墙状态
+   `systemctl status firewalld.service`
+2. 开启防火墙
+   `systemctl start firewalld.service`
+3. 关闭防火墙
+   `systemctl stop firewalld.service`
+4. 禁用防火墙
+   `systemctl disable firewalld.service`
+5. 防火墙开放端口，比如：
+
+```bash
+$ firewall-cmd --permanent --zone=public --add-port=80/tcp
+# 防火墙中开启80端口，如果有另行配置，就开启你配置的端口
+# success
+
+$ firewall-cmd --reload
+# 重新加载防火墙配置
+# success
+
+$ firewall-cmd --zone=public --query-port=80/tcp
+# 查看是否生效
+# yes
+```

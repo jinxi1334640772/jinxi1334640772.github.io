@@ -110,6 +110,8 @@ p {
 
 ## 移动端兼容性问题
 
+### IOS
+
 - iOS 弹出各种操作窗口：-webkit-touch-callout:none
 - 禁止 iOS 和 Android 用户选中文字：-webkit-user-select:none
 - IOS 输入英文首字母默认大写：
@@ -119,7 +121,259 @@ p {
 ```
 
 - IOS 日期格式不支持-分割：统一用/分割 1202/12/12
-- Android webview 组件弹出输入法内容不会向上滚动：js 判断 Android 设备时，弹出输入法时，手动时内容滚动输入法的高度。
+- overflow: scroll 或 auto；在 iOS 上滑动卡顿的问题
+
+```css
+-webkit-overflow-scrolling: touch;
+```
+
+- 上拉边界下拉出现空白
+
+```js
+document.body.addEventListener(
+  "touchmove",
+  function (e) {
+    if (e._isScroller) return;
+    // 阻止默认事件
+    e.preventDefault();
+  },
+  {
+    passive: false,
+  }
+);
+```
+
+- 弹出键盘，弹出层被顶上去，光标还停留在原处
+
+```js
+$("input.van-field__control, textarea.van-field__control").blur(function () {
+  setTimeout(function () {
+    var currentPosition =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    window.scrollTo(0, currentPosition); //页面向上滚动
+  }, 200);
+});
+
+//多个Input/textarea
+$(function () {
+  var setTimerTop = 0;
+  $(document)
+    .on(
+      "blur",
+      "input.van-field__control, textarea.van-field__control",
+      function () {
+        event.preventDefault();
+        setTimerTop = setTimeout(function () {
+          window.scrollBy(0, 5); // 页面向上滚动
+          window.scrollBy(0, -5);
+        }, 500);
+      }
+    )
+    .on(
+      "focus",
+      "input.van-field__control, textarea.van-field__control",
+      function () {
+        clearTimeout(setTimerTop);
+      }
+    );
+});
+
+//iframe情况
+$(function () {
+  var setTimerTop = 0;
+  $(document)
+    .on(
+      "blur",
+      "input.van-field__control, textarea.van-field__control",
+      function () {
+        event.preventDefault();
+        setTimerTop = setTimeout(function () {
+          parent.scrollBy(0, 5); // 页面向上滚动
+          parent.scrollBy(0, -5);
+          $("#hide-area-cb").focus();
+        }, 500);
+      }
+    )
+    .on(
+      "focus",
+      "input.van-field__control, textarea.van-field__control",
+      function () {
+        clearTimeout(setTimerTop);
+      }
+    )
+    .on("focus", "input.van-field__control[disabled]", function () {
+      setTimerTop = setTimeout(function () {
+        parent.scrollBy(0, 5); // 页面向上滚动
+        parent.scrollBy(0, -5);
+      }, 500);
+    });
+});
+```
+
+- 软键盘唤起，页面 fixed 元素失效
+
+```html
+<style>
+  .warper {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    /* <!-- 不让页面滚动，而是让主体部分自己滚动 --> */
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+  .bottom {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+</style>
+<div class="warper">
+  <div class="main"></div>
+  <div class="bottom"></div>
+</div>
+```
+
+- iOS 闪屏问题
+
+```css
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+```
+
+### Android
+
+- 视频没有播放的情况下，双击进度条快进导致 video 无法播放：添加蒙层
+- chrome video 属性返回 Infinity：设置 currentTime 大于实际的 duration
+
+```vue
+<template>
+  <div class="video_box">
+    <!-- 解决方法：添加一个蒙层，点击蒙层就播放视频 -->
+    <div class="cover" @click.stop.prevent="play" v-if="!played"></div>
+
+    <!-- 
+      preload="auto" /* 这个属性规定页面加载完成后载入视频*/
+      controls /* 设置是否显示播放器控件(如播放/暂停等) */
+      loop="loop" /* 设置或返回视频是否应在结束时再次播放 */
+      webkit-playsinline="true"  /* 针对ios9不全屏播放 */
+      playsinline="true"  /* 针对ios10、11不全屏播放 */
+      /* 启用X5内核同层渲染:视频全屏的时候，div可以呈现在视频层上 */
+      x5-video-player-type="h5-page"
+      /* 播放器方向，landscape横屏，portraint竖屏，默认值为竖屏 */
+      x5-video-orientation="portraint" 
+      /* 全屏设置，设置为 true 是防止横屏 */
+      x5-video-player-fullscreen="true" 
+       /* 设置X5内核为行内播放模式，不能和`x5-video-player-type同时设置会覆盖 */
+      x5-playsinline="true" 
+      x-webkit-airplay="true" /* 默认不全屏播放 */
+     -->
+
+    <video
+      :src="src"
+      :poster="poster"
+      :id="`videoElement`"
+      controls
+      playsinline
+      webkit-playsinline
+      webkit-inline
+      x5-video-ignore-metadata="true" />
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    src: {
+      type: String,
+      default: "",
+    },
+    poster: {
+      type: String,
+      default: "",
+    },
+  },
+  data() {
+    return {
+      played: false,
+      video: null,
+    };
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.video = document.getElementById(`videoElement`);
+      this.video.addEventListener("loadedmetadata", () => {
+        if (this.video.duration === Infinity) {
+          // 设置currentTime大于实际的duration，就可以获取video属性了
+          this.video.currentTime = 1e101;
+          this.video.addEventListener(
+            "timeupdate",
+            () => {
+              console.log("after workaround:", this.video.duration);
+              this.video.currentTime = 0;
+            },
+            { once: true }
+          );
+        }
+      });
+
+      // 获取总时长
+      this.video.addEventListener("durationchange", event => {
+        console.log(this.video.duration);
+        // Infinity
+      });
+
+      // 监听缓存进度
+      var videoCanskip = 0;
+      // 对延迟比较高要求的，可以通过监控 progress 来达到效果
+      this.video.addEventListener("progress", function (event) {
+        // 返回表示音频/视频已缓冲部分的 TimeRanges 对象。
+        var startBuffered = this.video.buffered.start(0);
+        var endBuffered = this.video.buffered.end(0);
+        videoCanskip = parseInt(endBuffered - startBuffered);
+        console.log("video_可快进时长", videoCanskip);
+        // 设置currentTime 值 来播放最新内容。注意要控制好频率与快进时长，要不然会导致一直loading加载新的TS片段
+        player.currentTime = videoCanskip;
+      });
+    });
+  },
+  methods: {
+    play() {
+      this.video.play();
+      this.played = true;
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.video_box {
+  position: relative;
+  width: 100%;
+  height: 194px;
+  .cover {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+  }
+  video {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>
+```
+
 - Android 下取消输入语音按钮
 
 ```css
@@ -128,17 +382,4 @@ input::-webkit-input-speech-button {
 }
 ```
 
-- 滚动条和点击高亮效果不统一
-
-```css
-* {
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-```
-
 - 在 Android 上 placeholder 文字设置行高会偏上：input 有 placeholder 情况下不要设置行高
-- overflow: scroll 或 auto；在 iOS 上滑动卡顿的问题
-
-```css
--webkit-overflow-scrolling: touch;
-```

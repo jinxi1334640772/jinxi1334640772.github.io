@@ -1,13 +1,17 @@
-## Nginx服务器介绍
-Nginx是一款轻量级的Web 服务器/反向代理服务器及电子邮件（IMAP/POP3）代理服务器，在BSD-like 协议下发行。其特点是占有内存少，并发能力强，事实上nginx的并发能力在同类型的网页服务器中表现较好。Nginx代码完全用C语言从头写成，已经移植到许多体系结构和操作系统
+## Nginx 服务器介绍
 
-Nginx作为负载均衡服务：Nginx 既可以在内部直接支持 Rails 和 PHP 程序对外进行服务，也可以支持作为 HTTP代理服务对外进行服务。Nginx采用C进行编写，不论是系统资源开销还是CPU使用效率都比 Perlbal 要好很多。
+Nginx 是一款轻量级的 Web 服务器/反向代理服务器及电子邮件（IMAP/POP3）代理服务器，在 BSD-like 协议下发行。其特点是占有内存少，并发能力强，事实上 nginx 的并发能力在同类型的网页服务器中表现较好。Nginx 代码完全用 C 语言从头写成，已经移植到许多体系结构和操作系统
+
+Nginx 作为负载均衡服务：Nginx 既可以在内部直接支持 Rails 和 PHP 程序对外进行服务，也可以支持作为 HTTP 代理服务对外进行服务。Nginx 采用 C 进行编写，不论是系统资源开销还是 CPU 使用效率都比 Perlbal 要好很多。
+
 - 处理静态文件，索引文件以及自动索引;打开文件描述符缓冲。
 - 无缓存的反向代理加速，简单的负载均衡和容错。
 - FastCGI，简单的负载均衡和容错。
-- 模块化的结构。包括 gzipping, byte ranges, chunked responses,以及 SSI-filter 等 filter。如果由 FastCG或其它代理服务器处理单页中存在的多个 SSI，则这项处理可以并行运行，而不需要相互等待。
+- 模块化的结构。包括 gzipping, byte ranges, chunked responses,以及 SSI-filter 等 filter。如果由 FastCG 或其它代理服务器处理单页中存在的多个 SSI，则这项处理可以并行运行，而不需要相互等待。
 - 支持 SSL 和 TLSSNI。
-## Nginx服务器处理请求过程
+
+## Nginx 服务器处理请求过程
+
 ![alt text](image.png)
 
 - Read Request Headers：解析请求头。
@@ -17,8 +21,11 @@ Nginx作为负载均衡服务：Nginx 既可以在内部直接支持 Rails 和 P
 - Generate Content：生成返回给用户的响应。为了生成这个响应，做反向代理的时候可能会和上游服务（Upstream Services）进行通信，然后这个过程中还可能会有些子请求或者重定向，那么还会走一下这个过程（Internal redirects and subrequests）。
 - Response Filters：过滤返回给用户的响应。比如压缩响应，或者对图片进行处理。
 - Log：记录日志。
-## 处理请求11个阶段
+
+## 处理请求 11 个阶段
+
 ![alt text](image-1.png)
+
 - POST_READ：在 read 完请求的头部之后，在没有对头部做任何处理之前，想要获取到一些原始的值，就应该在这个阶段进行处理。这里面会涉及到一个 realip 模块。
 - SERVER_REWRITE：和下面的 REWRITE 阶段一样，都只有一个模块叫 rewrite 模块，一般没有第三方模块会处理这个阶段。
 - FIND_CONFIG：做 location 的匹配，暂时没有模块会用到。
@@ -45,16 +52,20 @@ Nginx作为负载均衡服务：Nginx 既可以在内部直接支持 Rails 和 P
 ![alt text](image-2.png)
 
 ## postread 阶段
+
 这个阶段刚刚获取到了请求的头部，还没有进行任何处理，我们可以拿到一些原始的信息。例如，拿到用户的真实 IP 地址
 ![alt text](image-3.png)
 HTTP 协议中，有两个头部可以用来获取用户 IP：
 
 - X-Forwardex-For 是用来传递 IP 的，这个头部会把经过的节点 IP 都记录下来
-- X-Real-IP：可以记录用户真实的 IP 地址，只能有一个。非标准的，nginx服务器支持
-例如 binary_remote_addr、remote_addr 这样的变量，其值就是真实的 IP，这样做连接限制也就是 limit_conn 模块才有意义，这也说明了，limit_conn 模块只能在 preaccess 阶段，而不能在 postread 阶段生效。
-### realip模块
-定义如何从头部获取用户IP地址。默认不会编译进 Nginx，需要通过 --with-http_realip_module 启用功能。如果还想要使用原来的 TCP 连接中的地址和端口，需要通过这两个变量保存realip_remote_addr和
+- X-Real-IP：可以记录用户真实的 IP 地址，只能有一个。非标准的，nginx 服务器支持
+  例如 binary_remote_addr、remote_addr 这样的变量，其值就是真实的 IP，这样做连接限制也就是 limit_conn 模块才有意义，这也说明了，limit_conn 模块只能在 preaccess 阶段，而不能在 postread 阶段生效。
+
+### realip 模块
+
+定义如何从头部获取用户 IP 地址。默认不会编译进 Nginx，需要通过 --with-http_realip_module 启用功能。如果还想要使用原来的 TCP 连接中的地址和端口，需要通过这两个变量保存 realip_remote_addr 和
 realip_remote_port
+
 ```bash
 #指定可信的地址，只有从该地址建立的连接，获取的 realip 才是可信的
 Syntax: set_real_ip_from address | CIDR | unix:;
@@ -62,13 +73,14 @@ Default: —
 Context: http, server, location
 #指定从哪个头部取真实的 IP 地址，默认从 X-Real-IP 中取，如果设置从 X-Forwarded-For 中取，会先从最后一个 IP 开始取
 Syntax: real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol;
-Default: real_ip_header X-Real-IP; 
+Default: real_ip_header X-Real-IP;
 Context: http, server, location
 #环回地址，默认关闭，打开的时候，如果 X-Forwarded-For 最后一个地址与客户端地址相同，会过滤掉该地址
 Syntax: real_ip_recursive on | off;
-Default: real_ip_recursive off; 
+Default: real_ip_recursive off;
 Context: http, server, location
 ```
+
 ```bash
 # 在 example 目录下建立 realip.conf，set_real_ip_from 可以设置为自己的本机 IP
 server {
@@ -88,7 +100,7 @@ server {
     rewrite_log on;#启动复写时的日志记录
 
     location / {
-        error_page 404 = @fallback; 
+        error_page 404 = @fallback;
         return 200 "Client real ip: $remote_addr\n";
     }
     location /first {
@@ -99,16 +111,21 @@ server {
         rewrite /redirect3(.*) http://rewrite.ziyang.com$1;
     }
     if ($http_user_agent ~ MSIE) { # 与变量 http_user_agent 匹配
-      rewrite ^(.*)$ /msie/$1 break; 
-    } 
+      rewrite ^(.*)$ /msie/$1 break;
+    }
 }
 ```
+
 ## rewrite 阶段
+
 首先 rewrite 阶段分为两个，一个是 server_rewrite 阶段，一个是 rewrite，这两个阶段都涉及到一个 rewrite 模块，而在 rewrite 模块中，有一个 return 指令，遇到该指令就不会再向下执行，直接返回响应。
+
 ### rewrite 模块
+
 它的功能主要有下面几点：
+
 - 将 regex 指定的 URL 替换成 replacement 这个新的 URL
-可以使用正则表达式及变量提取
+  可以使用正则表达式及变量提取
 - 当 replacement 以 http:// 或者 https:// 或者 $schema 开头，则直接返回 302 重定向
 - 替换后的 URL 根据 flag 指定的方式进行处理
   - last：用 replacement 这个 URL 进行新的 location 匹配
@@ -122,11 +139,12 @@ server {
 - 将变量与字符串做匹配，使用 = 或 !=
 - 将变量与正则表达式做匹配
 - 大小写敏感，~ 或者 !~
-- 大小写不敏感，* 或者 !*
+- 大小写不敏感，_ 或者 !_
 - 检查文件是否存在，使用 -f 或者 !-f
 - 检查目录是否存在，使用 -d 或者 !-d
 - 检查文件、目录、软链接是否存在，使用 -e 或者 !-e
 - 检查是否为可执行文件，使用 -x 或者 !-x
+
 ```bash
 # code:状态码 text:返回的内容 URL:直接返回URL
 Syntax: return code [text];
@@ -142,7 +160,7 @@ Context: server, location, if
 
 #rewrite 行为记录日志
 Syntax: rewrite_log on | off;
-Default: rewrite_log off; 
+Default: rewrite_log off;
 Context: http, server, location, if
 
 #if 指令也是在 rewrite 阶段生效的，它的语法如下所示：
@@ -155,7 +173,9 @@ Syntax: error_page code ... [=[response]] uri;
 Default: —
 Context: http, server, location, if in location
 ```
+
 ## find_config 阶段
+
 当经过 rewrite 模块，匹配到 URL 之后，就会进入 find_config 阶段，开始寻找 URL 对应的 location 配置。
 
 location 的匹配规则是仅匹配 URI，忽略参数，有下面三种大的情况：
@@ -166,12 +186,13 @@ location 的匹配规则是仅匹配 URI，忽略参数，有下面三种大的�
   - ^~：以~开头，优先级正则表达式匹配
 - 正则表达式
   - ~：大小写敏感的正则匹配
-  - ~*：大小写不敏感
+  - ~\*：大小写不敏感
 - 用户内部跳转的命名 location
   - @
 
-location匹配算法：
+location 匹配算法：
 ![alt text](image-4.png)
+
 ```bash
 
 Syntax: location [ = | ~ | ~* | ^~ ] uri { ... }
@@ -181,9 +202,8 @@ Context: server, location
 
 #加入 URL 中有两个重复的 /，那么会合并
 Syntax: merge_slashes on | off;
-Default: merge_slashes on; 
+Default: merge_slashes on;
 Context: http, server
-
 
 server {
     listen 80;
@@ -213,10 +233,13 @@ server {
     }
 }
 ```
+
 ## preaccess 阶段
+
 如何限制每个客户端的并发连接数？如何限制访问频率
 
 ### limit_conn 模块
+
 限制每个客户端的并发连接数
 
 - 生效阶段：NGX_HTTP_PREACCESS_PHASE 阶段
@@ -228,6 +251,7 @@ server {
   - 限制的有效性取决于 key 的设计：依赖 postread 阶段的 realip 模块取到真实 IP
 
 ### limit_req 模块
+
 如何限制访问频率
 
 - 生效阶段：NGX_HTTP_PREACCESS_PHASE 阶段
@@ -237,6 +261,7 @@ server {
 - 生效范围
   - 全部 worker 进程（基于共享内存）
   - 进入 preaccess 阶段前不生效
+
 ```bash
 #定义共享内存（包括大小），以及 key 关键字
 Syntax: limit_conn_zone key zone=name:size;
@@ -250,12 +275,12 @@ Context: http, server, location
 
 #限制发生时的日志级别
 Syntax: limit_conn_log_level info | notice | warn | error;
-Default: limit_conn_log_level error; 
+Default: limit_conn_log_level error;
 Context: http, server, location
 
 #限制发生时向客户端返回的错误码
 Syntax: limit_conn_status code;
-Default: limit_conn_status 503; 
+Default: limit_conn_status 503;
 Context: http, server, location
 
 
@@ -264,19 +289,19 @@ Syntax: limit_req_zone key zone=name:size rate=rate ;
 Default: —
 Context: http
 
-#限制并发连接数。如果设置了nodelay，超过请求会立刻返回错误
+#限制限制访问频率。如果设置了nodelay，超过请求会立刻返回错误
 Syntax: limit_req zone=name [burst=number] [nodelay];
 Default: —
 Context: http, server, location
 
 #限制发生时的日志级别
 Syntax: limit_req_log_level info | notice | warn | error;
-Default: limit_req_log_level error; 
+Default: limit_req_log_level error;
 Context: http, server, location
 
 #限制发生时向客户端返回的错误码
 Syntax: limit_req_status code;
-Default: limit_req_status 503; 
+Default: limit_req_status 503;
 Context: http, server, location
 
 
@@ -299,10 +324,12 @@ server {
     }
 }
 ```
+
 ## access 阶段
+
 经过 preaccess 阶段对用户的限流之后，就到了 access 阶段
 
-### access模块
+### access 模块
 
 - 生效阶段：NGX_HTTP_ACCESS_PHASE 阶段
 - 模块：http_access_module
@@ -310,7 +337,8 @@ server {
 - 生效范围：进入 access 阶段前不生效
 
 ### auth_basic 模块
-auth_basic 模块是用作用户认证的，当开启了这个模块之后，我们通过浏览器访问网站时，就会返回一个 401 Unauthorized，当然这个 401 用户不会看见，浏览器会弹出一个对话框要求输入用户名和密码。
+
+auth_basic 模块是用作用户认证的，当开启了这个模块之后，通过浏览器访问网站时，就会返回一个 401 Unauthorized，当然这个 401 用户不会看见，浏览器会弹出一个对话框要求输入用户名和密码。
 
 - 基于 HTTP Basic Authutication 协议进行用户密码的认证
 - 默认编译进 Nginx
@@ -329,7 +357,7 @@ Context: http, server, location, limit_except
 
 #需要basic认证
 Syntax: auth_basic string | off;
-Default: auth_basic off; 
+Default: auth_basic off;
 Context: http, server, location, limit_except
 #认证的文件，保存着账户密码。。。
 Syntax: auth_basic_user_file file;
@@ -338,7 +366,7 @@ Context: http, server, location, limit_except
 
 #向上游服务转发请求
 Syntax: auth_request uri | off;
-Default: auth_request off; 
+Default: auth_request off;
 Context: http, server, location
 
 Syntax: auth_request_set $variable value;
@@ -347,20 +375,19 @@ Context: http, server, location
 
 #限制所有 access 阶段模块的 satisfy 指令
 Syntax: satisfy all | any; #满足全部或者任意一条
-Default: satisfy all; 
+Default: satisfy all;
 Context: http, server, location
-
 
 server {
     server_name access.ziyang.com;
     listen 80;
     error_log  logs/error.log  debug;
     default_type text/plain;
-    
-    location / { 
-        deny 192.168.1.1; 
-        allow 192.168.1.0/24; 
-        allow 10.1.1.0/16; 
+
+    location / {
+        deny 192.168.1.1;
+        allow 192.168.1.0/24;
+        allow 10.1.1.0/16;
         allow 2001:0db8::/32; #允许访问
         deny all; #拒绝访问
     }
@@ -383,17 +410,22 @@ server {
     }
 }
 ```
+
 ### auth_request 模块
+
 - 功能：向上游的服务转发请求，若上游服务返回的响应码是 2xx，则继续执行，若上游服务返回的响应码是 2xx，则继续执行，若上游服务返回的是 401 或者 403，则将响应返回给客户端
 - 原理：收到请求后，生成子请求，通过反向代理技术把请求传递给上游服务
 - 默认未编译进 Nginx，需要通过 --with-http_auth_request_module 编译进去
 
 ## precontent 阶段
+
 这个阶段只有 try_files 这一个指令。
 
 ### try_files 模块
+
 - 模块：ngx_http_try_files_module 模块
 - 依次试图访问多个 URL 对应的文件（由 root 或者 alias 指令指定），当文件存在时，直接返回文件内容，如果所有文件都不存在，则按照最后一个 URL 结果或者 code 返回
+
 ```bash
 Syntax: try_files file ... uri;
         try_files file ... =code;
@@ -419,8 +451,11 @@ server {
     }
 }
 ```
+
 ### mirror 模块
+
 mirror 模块可以实时拷贝流量，这对于需要同时访问多个环境的请求是非常有用的。
+
 - 模块：ngx_http_mirror_module 模块，默认编译进 Nginx
   - 通过 --without-http_mirror_module 移除模块
 - 功能：处理请求时，生成子请求访问其他服务，对子请求的返回值不做处理
@@ -428,11 +463,11 @@ mirror 模块可以实时拷贝流量，这对于需要同时访问多个环境�
 ```bash
 #映射到其他服务
 Syntax: mirror uri | off;
-Default: mirror off; 
+Default: mirror off;
 Context: http, server, location
 #是否处理子请求返回值
 Syntax: mirror_request_body on | off;
-Default: mirror_request_body on; 
+Default: mirror_request_body on;
 Context: http, server, location
 
 server {
@@ -452,12 +487,16 @@ server {
     }
 }
 ```
+
 ## content 阶段
 
 ### static 模块
+
 先来一下 root 和 alias 这两个指令，这两个指令都是用来映射文件路径的。
+
 - 功能：将 URL 映射为文件路径，以返回静态文件内容
 - 差别：root 会将完整 URL 映射进文件路径中，alias 只会将 location 后的 URL 映射到文件路径
+
 ```bash
 #path就是文件路径，不添加publicPath
 Syntax: alias path;
@@ -466,43 +505,43 @@ Context: location
 
 # 项目根目录，类似publicPath
 Syntax: root path;
-Default: root html; 
+Default: root html;
 Context: http, server, location, if in location
 
 #静态文件返回时的 Content-Type
 Syntax: types { ... }
-Default: types { text/html html; image/gif gif; image/jpeg jpg; } 
+Default: types { text/html html; image/gif gif; image/jpeg jpg; }
 Context: http, server, location
 
 #默认的文件类型
 Syntax: default_type mime-type;
-Default: default_type text/plain; 
+Default: default_type text/plain;
 Context: http, server, location
 
 Syntax: types_hash_bucket_size size;
-Default: types_hash_bucket_size 64; 
+Default: types_hash_bucket_size 64;
 Context: http, server, location
 
 Syntax: types_hash_max_size size;
-Default: types_hash_max_size 1024; 
+Default: types_hash_max_size 1024;
 Context: http, server, location
 
 #未找到文件时的错误日志
 Syntax: log_not_found on | off;
-Default: log_not_found on; 
+Default: log_not_found on;
 Context: http, server, location
 
 # 重定向时，响应头的location字符，是否显示域名
 Syntax: server_name_in_redirect on | off;
-Default: server_name_in_redirect off; 
+Default: server_name_in_redirect off;
 Context: http, server, location
 # 重定向时是否显示端口
 Syntax: port_in_redirect on | off;
-Default: port_in_redirect on; 
+Default: port_in_redirect on;
 Context: http, server, location
 # 该指令决定是否填充域名，也就是返回绝对路径
 Syntax: absolute_redirect on | off;
-Default: absolute_redirect on; 
+Default: absolute_redirect on;
 Context: http, server, location
 
 server {
@@ -513,7 +552,7 @@ server {
     absolute_redirect off;
 
     error_log  logs/myerror.log  info;
-    location /root { 
+    location /root {
         root html; #访问/html/root
     }
     location /alias {
@@ -534,37 +573,42 @@ server {
     }
 }
 ```
+
 ### index 模块
+
 这个模块，当我们访问以 / 结尾的目录时，会去找 root 或 alias 指令的文件夹下的 index.html，如果有这个文件，就会把文件内容返回，也可以指定其他文件。
+
 - 模块：ngx_http_index_module
 - 功能：指定 / 结尾的目录访问时，返回 index 文件内容
 - 先于 autoindex 模块执行
 
 ### autoindex 模块
+
 模块：ngx_http_autoindex_module，默认编译进 Nginx，使用 --without-http_autoindex_module 取消
 
 功能：当 URL 以 / 结尾时，尝试以 html/xml/json/jsonp 等格式返回 root/alias 中指向目录的目录结构
+
 ```bash
 # /结尾时的默认文件名
 Syntax: index file ...;
-Default: index index.html; 
+Default: index index.html;
 Context: http, server, location
 
 # 开启或关闭。/结尾时的默认文件扩展名
 Syntax: autoindex on | off;
-Default: autoindex off; 
+Default: autoindex off;
 Context: http, server, location
 # 当以 HTML 格式输出时，控制是否转换为 KB/MB/GB
 Syntax: autoindex_exact_size on | off;
-Default: autoindex_exact_size on; 
+Default: autoindex_exact_size on;
 Context: http, server, location
 # 控制以哪种格式输出
 Syntax: autoindex_format html | xml | json | jsonp;
-Default: autoindex_format html; 
+Default: autoindex_format html;
 Context: http, server, location
 # 控制是否以本地时间格式显示还是 UTC 格式
 Syntax: autoindex_localtime on | off;
-Default: autoindex_localtime off; 
+Default: autoindex_localtime off;
 Context: http, server, location
 
 
@@ -581,33 +625,38 @@ server {
     }
 }
 ```
+
 ## log 阶段
+
 记录请求访问日志的 log 模块。
+
 - 功能：将 HTTP 请求相关信息记录到日志
 - 模块：ngx_http_log_module，无法禁用
+
 ```bash
 #配置日志格式
 Syntax: log_format name [escape=default|json|none] string ...;
-Default: log_format combined "..."; 
+Default: log_format combined "...";
 Context: http
 
 #默认的 combined 日志格式：
-log_format combined '$remote_addr - $remote_user [$time_local] ' 
-'"$request" $status $body_bytes_sent ' '"$http_referer" 
+log_format combined '$remote_addr - $remote_user [$time_local] '
+'"$request" $status $body_bytes_sent ' '"$http_referer"
 "$http_user_agent"';
 
 #配置日志文件路径
 Syntax: access_log path [format [buffer=size] [gzip[=level]] [flush=time] [if=condition]];
 access_log off;
-Default: access_log logs/access.log combined; 
+Default: access_log logs/access.log combined;
 Context: http, server, location, if in location, limit_except
 
 #对日志文件名包含变量时的优化
 Syntax: open_log_file_cache max=N [inactive=time] [min_uses=N] [valid=time];
 open_log_file_cache off;
-Default: open_log_file_cache off; 
+Default: open_log_file_cache off;
 Context: http, server, location
 ```
+
 - max：缓存内的最大文件句柄数，超出后用 LRU 算法淘汰
 - inactive：文件访问完后在这段时间内不会被关闭。默认 10 秒
 - min_uses：在 inactive 时间内使用次数超过 min_uses 才会继续存在内存中。默认 1

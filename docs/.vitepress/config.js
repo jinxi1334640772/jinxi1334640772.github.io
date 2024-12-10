@@ -180,10 +180,11 @@ export default defineConfig({
         text: "后端技术",
         activeMatch: "/afterEnd/",
         items: [
-          { text: "node", link: "/afterEnd/node/module" },
-          { text: "express", link: "/afterEnd/express/server" },
+          { text: "Node", link: "/afterEnd/node/module" },
+          { text: "Express", link: "/afterEnd/express/server" },
+          { text: "Koa", link: "/afterEnd/express/koa" },
           { text: "数据库", link: "/afterEnd/database/mongoose" },
-          { text: "Nginx服务器", link: "/afterEnd/nginx/nginx" },
+          { text: "服务器", link: "/afterEnd/server/nginx" },
         ],
       },
       {
@@ -192,6 +193,7 @@ export default defineConfig({
           { text: "test 测试模块", link: "/afterEnd/node/test" },
           { text: "assert 断言模块", link: "/afterEnd/node/assert" },
           { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
+          { text: "Storybook组件测试", link: "/tools/package/Storybook" },
         ],
       },
       {
@@ -208,6 +210,7 @@ export default defineConfig({
         activeMatch: "/network/",
         items: [
           { text: "HTTP协议", link: "/network/http" },
+          { text: "HTTP安全", link: "/network/httpSecure/contentSecurity" },
           { text: "HTTP请求工具", link: "/network/ajaxAndFetch/fetch" },
         ],
       },
@@ -233,7 +236,6 @@ export default defineConfig({
           { text: "架构设计", link: "/tools/questions/system" },
           { text: "设计模式", link: "/tools/questions/designMode" },
           { text: "Git版本管理", link: "/tools/stardard/git" },
-          { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
           { text: "Lodash工具库", link: "/tools/package/lodash" },
           { text: "Vue-I18n国际化", link: "/tools/package/vueI18n" },
           { text: "Whistle网络调试", link: "/tools/package/whistle" },
@@ -262,10 +264,26 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: "学习文档", link: "/tools/study" },
-            { text: "eslint", link: "/tools/stardard/eslint" },
-            { text: "prettier", link: "/tools/stardard/prettier" },
-            { text: "vsCode配置", link: "/tools/stardard/vscode" },
-            { text: "git版本管理", link: "/tools/stardard/git" },
+            { text: "Eslint 代码风格", link: "/tools/stardard/eslint" },
+            { text: "Prettier 格式化", link: "/tools/stardard/prettier" },
+            { text: "VsCode 配置", link: "/tools/stardard/vscode" },
+            { text: "Git 版本管理", link: "/tools/stardard/git" },
+            { text: "命名规范", link: "/tools/stardard/naming" },
+          ],
+        },
+        {
+          text: "构建工具&CI/CD",
+          collapsed: false,
+          items: [
+            { text: "Vite", link: "/tools/buildTools/vite" },
+            { text: "Webpack", link: "/tools/buildTools/Webpack" },
+            { text: "Gulp", link: "/tools/buildTools/gulp" },
+            { text: "Rollup", link: "/tools/buildTools/rollup" },
+            { text: "Docker", link: "/tools/buildTools/docker" },
+            { text: "Jenkins", link: "/tools/buildTools/Jenkins" },
+            { text: "脚手架开发", link: "/tools/buildTools/scaffolder" },
+            { text: "Lerna多包管理", link: "/tools/buildTools/lerna" },
+
           ],
         },
         {
@@ -287,34 +305,27 @@ export default defineConfig({
             { text: "tasksfile函数任务", link: "/tools/package/tasksfile" },
             { text: "fuse.js模糊匹配", link: "/tools/package/fuse" },
             { text: "day.js日期时间格式化", link: "/tools/package/dayjs" },
-            { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
-          ],
-        },
-        {
-          text: "构建工具&CI/CD",
-          collapsed: false,
-          items: [
-            { text: "Vite", link: "/tools/buildTools/vite" },
-            { text: "Webpack", link: "/tools/buildTools/Webpack" },
-            { text: "Gulp", link: "/tools/buildTools/gulp" },
-            { text: "Rollup", link: "/tools/buildTools/rollup" },
-            { text: "Docker", link: "/tools/buildTools/docker" },
-            { text: "Jenkins", link: "/tools/buildTools/Jenkins" },
-            { text: "脚手架开发", link: "/tools/buildTools/scaffolder" },
+            { text: "Cypress测试框架", link: "/tools/package/test/Cypress" },
+            { text: "sodajs模板引擎", link: "/tools/package/sodajs" },
+            { text: "Sentry错误监控", link: "/tools/package/sentry" },
+            { text: "Storybook组件测试", link: "/tools/package/Storybook" },
           ],
         },
         {
           text: "常见问题",
           collapsed: false,
           items: [
-            { text: "数据结构与算法", link: "/tools/questions/algorithm" },
             { text: "架构设计", link: "/tools/questions/system" },
             { text: "设计模式", link: "/tools/questions/designMode" },
+            { text: "数据结构与算法", link: "/tools/questions/algorithm" },
+            { text: "LeetCode", link: "/tools/questions/leetCode" },
             { text: "手写日常", link: "/tools/questions/handwrite" },
             { text: "内容输出问题", link: "/tools/questions/print" },
             { text: "发布npm包", link: "/tools/questions/npmPublish" },
             { text: "promise", link: "/tools/questions/promise" },
             { text: "兼容性问题", link: "/tools/questions/compatibility" },
+            { text: "问题锦集", link: "/tools/questions/questions" },
+            { text: "npm私服搭建", link: "/tools/questions/npmHub" },
           ],
         },
       ],
@@ -330,9 +341,20 @@ export default defineConfig({
             { text: "MIME类型", link: "/network/http/mime" },
             { text: "HTTP范围请求", link: "/network/http/range" },
             { text: "内容协商", link: "/network/http/accept" },
-            { text: "权限策略", link: "/network/http/premission" },
-            { text: "内容安全策略", link: "/network/http/contentSecurity" },
-            { text: "CORS跨域资源共享", link: "/network/http/cors" },
+          ],
+        },
+        {
+          text: "HTTP 安全",
+          collapsed: false,
+          items: [
+            { text: "权限策略", link: "/network/httpSecure/premission" },
+            {
+              text: "内容安全策略",
+              link: "/network/httpSecure/contentSecurity",
+            },
+            { text: "跨域策略", link: "/network/httpSecure/crossOrigin" },
+            { text: "HTTPS 协议", link: "/network/httpSecure/https" },
+            { text: "常见安全问题", link: "/network/httpSecure/secure" },
           ],
         },
         {
@@ -401,9 +423,12 @@ export default defineConfig({
           ],
         },
         {
-          text: "express",
+          text: "Node 框架",
           collapsed: false,
-          items: [{ text: "创建服务器", link: "/afterEnd/express/server" }],
+          items: [
+            { text: "Express", link: "/afterEnd/express/server" },
+            { text: "Koa", link: "/afterEnd/express/koa" },
+          ],
         },
         {
           text: "数据库",
@@ -413,7 +438,10 @@ export default defineConfig({
         {
           text: "服务器",
           collapsed: false,
-          items: [{ text: "Nginx服务器", link: "/afterEnd/nginx/nginx" }],
+          items: [
+            { text: "Nginx服务器", link: "/afterEnd/server/nginx" },
+            { text: "Nitro服务器", link: "/afterEnd/server/nitro" },
+          ],
         },
       ],
       "/frontEnd/": [
@@ -464,7 +492,6 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: "javascript简介", link: "/frontEnd/javascript/" },
-            { text: "问题锦集", link: "/frontEnd/javascript/questions" },
             { text: "Error错误对象", link: "/frontEnd/javascript/Error" },
             { text: "RegExp正则", link: "/frontEnd/javascript/RegExp" },
             { text: "基本数据类型", link: "/frontEnd/javascript/object" },

@@ -487,44 +487,6 @@ function urlToObj(url) {
   return map;
 }
 ```
-
-## 实现发布订阅模式
-
-```js
-class Event {
-  // 事件仓库，大概是这样的形式：
-  // handlers:{eventName:[handler1,handler2,handler3...]}
-  handlers = {};
-
-  // 添加事件
-  on(type, handler) {
-    (this.handlers[type] || (this.handler[type] = [])).push(handler);
-  }
-  // 派发事件
-  emit(type, ...params) {
-    if (!this.handlers[type]) throw new Error("该事件不存在");
-    this.handlers[type].forEach(handler => {
-      handler(...params);
-    });
-  }
-  // 移除事件
-  off(type, handler) {
-    if (!this.handlers[type]) throw new Error("该事件不存在");
-    if (!handler) {
-      delete this.handlers[type];
-    } else {
-      const currentIndex = this.handlers[type].findIndex(
-        item => item === handler
-      );
-      if (currentIndex >= 0) {
-        this.handlers[type].splice(currentIndex, 1);
-        this.handlers[type].length === 0 && delete this.handlers[type];
-      }
-    }
-  }
-}
-```
-
 ## 实现简单路由功能
 
 ```js

@@ -167,3 +167,61 @@ function promisify(func) {
 const readFile = promisify(fs.readFile);
 readFile(path, "utf-8").then(data => console.log(data));
 ```
+
+## promise 限制并发
+
+```js
+class LimitPromise {
+  constructor(max) {
+    // 异步任务“并发”上限
+    this._max = max;
+    // 当前正在执行的任务数量
+    this._count = 0;
+    // 等待执行的任务队列
+    this._taskQueue = [];
+  }
+
+  /** 调用器：把真正的执行函数和参数传入，异步任务被调度时，创建返回一个新的Promise：创建一个任务，判断任务是执行还是入队。
+   * @param caller 异步任务函数，它必须是async函数或者返回Promise的函数
+   * @param args 异步任务函数的参数列表
+   * @returns {Promise<unknown>} 返回一个新的Promise
+   */
+  call(caller, ...args) {
+    return new Promise((resolve, reject) => {
+      const task = this._createTask(caller, args, resolve, reject);
+      if (this._count >= this._max) {
+        // 超过最大并发限制则入队
+        this._taskQueue.push(task);
+      } else {
+        task();
+      }
+    });
+  }
+
+  /** 创建一个任务(包装函数)：包装真正执行的函数。
+   * @param caller 实际执行的函数
+   * @param args 执行函数的参数
+   * @param resolve
+   * @param reject
+   * @returns {Function} 返回一个任务函数
+   * @private
+   */
+  _createTask(caller, args, resolve, reject) {
+    return () => {
+      // 调用包装函数时，令执行数加一，执行实际的异步任务
+      this._count++;
+      caller(...args)
+        .then(resolve)
+        .catch(reject)
+        .finally(() => {
+          // 任务执行后，取出并执行下一个栈顶任务
+          this._count--;
+          if (this._taskQueue.length) {
+            let task = this._taskQueue.shift();
+            task();
+          }
+        });
+    };
+  }
+}
+```

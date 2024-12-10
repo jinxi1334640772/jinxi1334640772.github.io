@@ -31,7 +31,6 @@
 
 - 用来向服务器询问该请求是否有访问权限
 - 服务器支持的请求方式以及支持的请求头部
-  ![alt text](image-6.png)
 
 ## 附带身份凭证的请求
 
@@ -90,21 +89,42 @@ XHR.getResponseHeader('age'); // 23
 ```
 
 ## 常见请求头
+
 ![alt text](image-8.png)
+
 ## 常见响应头
 
 ![alt text](image-9.png)
 
-## 跨域资源策略 （CORP）
-跨域资源策略是由 Cross-Origin-Resource-Policy HTTP 标头设置的策略，它允许网站和应用程序选择保护来自其他源的某些请求（例如，script和 img等元素发出的请求）
+## COEP 跨域嵌入策略
+
+跨域嵌入策略（Cross-Origin-Embedder-Policy, COEP）。限制嵌入的跨域资源的网站的能力。例如，不能访问强大功能如 SharedArrayBuffer 和通过 Performance.now() API 的不受限计时器，因为这些功能可能被利用来推断跨域资源的敏感信息。如果一个网站需要访问这些功能，它必须向浏览器表示其只打算与不含证明信息的资源（credentialless）或明确允许其他来源访问的资源（通过 Cross-Origin-Resource-Policy 头）交互。
+
+## CORP 跨域资源策略
+
+跨域资源策略是由 Cross-Origin-Resource-Policy HTTP 标头，控制允许哪些源可以访问当前资源。
 
 CORP 是默认同源策略之外的附加保护层。跨域资源策略是对跨域读取阻止 （CORB） 的补充，CORB 是一种默认情况下防止某些跨域读取的机制。
->该策略仅对 no-CORS 请求有效。由于此策略是通过响应标头表示的，因此不会阻止实际请求，而是浏览器通过剥离响应正文来防止结果泄露。
+
+> 该策略仅对 no-CORS 请求有效。由于此策略是通过响应标头表示的，因此不会阻止实际请求，而是浏览器通过剥离响应正文来防止结果泄露。
+
 ```http
 Cross-Origin-Resource-Policy: same-site | same-origin | cross-origin
 ```
+
 - `same-site` 只有来自同一站点的请求才能读取资源。
 - `same-origin` 只有来自同一来源（即 scheme + host + port）的请求才能读取资源。
 - `cross-origin` 来自任何源（同站点和跨站点）的请求都可以读取资源。这在使用 COEP 时很有用
 
 在文档上使用 Cross-Origin-Embedder-Policy HTTP 响应标头时，可用于要求子资源与文档同源，或者附带 Cross-Origin-Resource-Policy HTTP 响应标头，以表明它们可以嵌入
+
+## COOP 跨域打开策略
+
+跨域打开策略（Cross-Origin-Opener-Policy, COOP），有助于控制其他网页如何打开和引用受保护页面。
+
+- unsafe-none 明确禁用，这也是缺少头时的默认行为。
+- same-origin 值允许来自同源页面的引用，
+- same-origin-allow-popups 还允许窗口或标签页的引用。
+
+类似于跨域嵌入策略，COOP 必须配置为 same-origin 才能解锁强大功能如 SharedArrayBuffer 和 Performance.now()。
+

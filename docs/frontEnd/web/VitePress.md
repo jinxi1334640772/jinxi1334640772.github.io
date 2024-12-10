@@ -292,6 +292,12 @@ export default {
 
 ![引入静态资源](https://gips2.baidu.com/it/u=1651586290,17201034&fm=3028&app=3028&f=JPEG&fmt=auto&q=100&size=f600_800)
 
+
+## 视频
+
+```txt
+<iframe width="100%" height="500" src="./storybook.mp4" title="markdown video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+```
 ### 数学公式
 
 1. 行内公式

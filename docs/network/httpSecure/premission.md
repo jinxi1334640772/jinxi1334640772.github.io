@@ -94,26 +94,36 @@ Permissions-Policy: geolocation=(self https://example.com)
 Permissions-Policy: camera=*
 ```
 
-## iframe 语法
+## 限制 iframe
+
+### 权限策略
 
 对于一个`<iframe>` 来说，**_其允许的源也必须在父页面的允许列表中_**。由于这种继承行为，最好在 HTTP 头中指定最广泛的可接受的特性支持，然后在每个 `<iframe>` 中指定你需要的支持子集。
 
-```http
+```html
 <iframe src="<origin>" allow="<directive> <allowlist>"></iframe>
 
-//要阻止对地理位置信息的访问
+<!-- 阻止对地理位置信息的访问 -->
 <iframe src="https://example.com" allow="geolocation 'none'"></iframe>
 
-//将一种策略运用到当前的源和其他的源中
+<!-- 允许当前的源和指定源访问地理位置 -->
 <iframe
   src="https://example.com"
   allow="geolocation 'self' https://a.example.com https://b.example.com"></iframe>
 
-
-// 通过在 allow 属性中包含一个分号分隔的策略指令列表，可以同时控制多个特性。
+<!-- 分号分隔的策略指令列表，可以同时控制多个特性。 -->
 <iframe
   src="https://example.com"
   allow="geolocation 'self' https://a.example.com https://b.example.com; fullscreen 'none'"></iframe>
+```
+
+### 限制操作
+
+一个恶意的 `<iframe>` 可以伤害用户，比如启动弹出窗口或将顶级页面重定向到恶意域。通过 sandbox 属性，可以遏制这些风险，可以将加载的内容限制在由属性定义的规则内，用以防止嵌入的内容滥用功能。当值为空字符串时，策略是最严格的。
+
+```html
+<!-- 允许嵌入的网页运行脚本： -->
+<iframe src="https://example.com" sandbox="allow-scripts"></iframe>
 ```
 
 ## 权限策略指令集合
