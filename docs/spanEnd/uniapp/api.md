@@ -1,66 +1,94 @@
-## 全局api
-- getApp() 函数用于获取当前应用实例，可通过应用实例调用 App.uvue methods 中定义的方法
-- getCurrentPages() 获取当前页面栈实例
-  - getPageStyle()
-  - setPageStyle()
-  - getParentPage()
-  - getDialogPages()
-  - getElementById()
-- requestAnimationFrame(callback)
-- cancelAnimationFrame(taskId)
+## 全局 api
+
+- `getApp()` 函数用于获取当前应用实例
+- `getCurrentPages()` 获取当前页面栈实例
+  - `getPageStyle()`
+  - `setPageStyle()`
+  - `getParentPage()`
+  - `getDialogPages()`
+  - `getElementById()`
+- `requestAnimationFrame(callback)`
+- `cancelAnimationFrame(taskId)`
+
 ## 基础
+
 - 条件渲染和环境变量
-```js
+
+```vue
 <template>
   <!-- #ifdef APP -->
-  <text>操作日志</text><button size="mini" @click="log=''">清空日志</button>
-  <text style="margin: 2px; padding: 2px; border: 1px solid #000000;">{{ log }}</text>
+  <text>操作日志</text>
+  <button size="mini" @click="log = ''">清空日志{{ log }}</button>
   <scroll-view style="flex: 1;">
-  <!-- #endif -->
-    <!-- #ifdef APP -->
-    <button class="btnstyle" type="primary" @tap="geAbsPath(sandboxPath)"
-      id="btn-path">应用外置沙盒目录uni.env.SANDBOX_PATH</button>
-    <button class="btnstyle" type="primary" @tap="geAbsPath(cachePath)" id="btn-path">缓存文件目录uni.env.CACHE_PATH</button>
-    <button class="btnstyle" type="primary" @tap="geAbsPath(userPath)"
-      id="btn-path">用户文件目录uni.env.USER_DATA_PATH</button>
-    <button class="btnstyle" type="primary" @tap="geAbsPath(internalSandboxPath)"
-      id="btn-path">应用内置沙盒目录uni.env.ANDROID_INTERNAL_SANDBOX_PATH</button>
     <!-- #endif -->
-  <!-- #ifdef APP -->
+
+    <!-- #ifdef APP -->
+    <button
+      class="btnstyle"
+      type="primary"
+      @tap="geAbsPath(sandboxPath)"
+      id="btn-path">
+      应用外置沙盒目录uni.env.SANDBOX_PATH
+    </button>
+    <button
+      class="btnstyle"
+      type="primary"
+      @tap="geAbsPath(cachePath)"
+      id="btn-path">
+      缓存文件目录uni.env.CACHE_PATH
+    </button>
+    <button
+      class="btnstyle"
+      type="primary"
+      @tap="geAbsPath(userPath)"
+      id="btn-path">
+      用户文件目录uni.env.USER_DATA_PATH
+    </button>
+    <button
+      class="btnstyle"
+      type="primary"
+      @tap="geAbsPath(internalSandboxPath)"
+      id="btn-path">
+      应用内置沙盒目录uni.env.ANDROID_INTERNAL_SANDBOX_PATH
+    </button>
+    <!-- #endif -->
+
+    <!-- #ifdef APP -->
   </scroll-view>
   <!-- #endif -->
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        log: "",
-        userPath: uni.env.USER_DATA_PATH,
-        sandboxPath: uni.env.SANDBOX_PATH,
-        cachePath: uni.env.CACHE_PATH,
-        internalSandboxPath: uni.env.ANDROID_INTERNAL_SANDBOX_PATH,
-      }
-    },
-    onLoad() {},
-    methods: {
-      geAbsPath(path ?: any) {
-        // #ifdef APP-ANDROID
-        this.log += UTSAndroid.convert2AbsFullPath(path as string) + '\n'
-        // #endif
-      }
+export default {
+  data() {
+    return {
+      log: "",
+      userPath: uni.env.USER_DATA_PATH,
+      sandboxPath: uni.env.SANDBOX_PATH,
+      cachePath: uni.env.CACHE_PATH,
+      internalSandboxPath: uni.env.ANDROID_INTERNAL_SANDBOX_PATH,
+    }
+  },
+  onLoad() {},
+  methods: {
+    geAbsPath(path ?: any) {
+      // #ifdef APP-ANDROID
+      this.log += UTSAndroid.convert2AbsFullPath(path as string) + '\n'
+      // #endif
     }
   }
+}
 </script>
 
 <style>
-  .btnstyle {
-    margin: 4px;
-  }
+.btnstyle {
+  margin: 4px;
+}
 </style>
 ```
-- 事件总线  
-发布订阅模式
+
+- 事件总线：发布订阅模式
+
 ```js
 // 绑定事件和事件监听器
 uni.$on(eventName,callback)
@@ -114,6 +142,7 @@ const navigateToInterceptor = {
     console.log('拦截 navigateTo 接口 complete 返回参数为：', res)
   }
 } as AddInterceptorOptions
+
 // 添加路由拦截器
 addInterceptor() {
       uni.addInterceptor('navigateTo', navigateToInterceptor)
@@ -122,7 +151,8 @@ addInterceptor() {
       })
       this.msg = "，路由被劫持到测试页面2"
     },
-    //移除路由拦截器
+
+//移除路由拦截器
 removeInterceptor() {
   uni.removeInterceptor('navigateTo', navigateToInterceptor)
   uni.showToast({
@@ -141,7 +171,7 @@ uni.getEnterOptionsSync()
 uni.exit(options?)
 
 
-// 获取服务提供商信息同一个功能的不同的SDK，都被称为该功能的 provider，即供应商。比如对于支付模块，有 支付宝 和 微信 这2个 provider 供应商
+// 获取provider即服务提供商信息。比如对于支付模块，有 支付宝 和 微信 这2个 provider 
 uni.getProviderSync()
 
 //返回一个Performance对象实例
@@ -157,7 +187,9 @@ uni.resetPrivacyAuthorization()
 uni.onPrivacyAuthorizationChange()
 uni.offPrivacyAuthorizationChange()
 ```
+
 ## 页面和路由
+
 ```js
 /** 保留当前页面，跳转到应用内的某个页面
  * url
@@ -247,48 +279,62 @@ uni.onTabBarMidButtonTap(options)
 // 返回一个SelectorQuery对象实例。createSelectorQuery是小程序的API，因小程序未开放DOM，且视图层和逻辑层分离，于是提供了一个异步的API，可以在逻辑层有限的获取一些DOM能力。
 uni.createSelectorQuery(selector)
 ```
+
 ## 界面
+
 ```js
 //创建并返回一个 IntersectionObserver 对象实例
-uni.createIntersectionObserver(component, options)
+uni.createIntersectionObserver(component, options);
 
 // 从底部向上弹出操作菜单
-uni.showActionSheet({title,alertText,itemList,itemColor,popover})
+uni.showActionSheet({ title, alertText, itemList, itemColor, popover });
 
-// 显示模态弹窗，可以只有一个确定按钮，也可以同时有确定和取消按钮。类似于一个API整合了 html 中：alert、confirm
-uni.showModal({title,content,showCancel,cancelText,cancelColor,confirmText,confirmColor,editable,placeholderText})
+// 显示模态弹窗，类似于一个API整合了 html 中：alert、confirm
+uni.showModal({
+  title,
+  content,
+  showCancel,
+  cancelText,
+  cancelColor,
+  confirmText,
+  confirmColor,
+  editable,
+  placeholderText,
+});
 
 //显示 loading 提示框, 需主动调用 uni.hideLoading 才能关闭提示框
-uni.showLoading({title,mask})
-uni.hideLoading()
+uni.showLoading({ title, mask });
+uni.hideLoading();
 
 //显示消息提示框
-uni.showToast({title,icon,image,mask,duration,position})
-uni.hideToast()
+uni.showToast({ title, icon, image, mask, duration, position });
+uni.hideToast();
 
 //动态加载网络字体
-uni.loadFontFace(options)
+uni.loadFontFace(options);
 
 //将rpx单位值转换成px
-uni.rpx2px(number)
+uni.rpx2px(number);
 
 //设置应用主题.根据theme.json，设置pages.json的亮/暗主题,触发uni.onAppThemeChange，开发者和组件作者均可监听这个事件，自行响应将页面设置为对应的亮/暗风格
-uni.setAppTheme({theme:light|dark|auto})
+uni.setAppTheme({ theme: light | dark | auto });
 
-uni.getLocale() // 获取当前设置的语言
+uni.getLocale(); // 获取当前设置的语言
 
-uni.setLocale(locale) // 设置当前语言
+uni.setLocale(locale); // 设置当前语言
 
 //开启监听应用主题变化
-uni.onAppThemeChange(callback)
+uni.onAppThemeChange(callback);
 
 //开启监听系统主题变化
-uni.onOsThemeChange(callback)
+uni.onOsThemeChange(callback);
 
 // 监听语言改变事件
-uni.onLocaleChange(callback) 
+uni.onLocaleChange(callback);
 ```
+
 ## 网络
+
 ```js
 let task = uni.request({
   url,
@@ -297,10 +343,10 @@ let task = uni.request({
   header,
   timeout,
   withCredentials,
-  firstIpv4
-  })
+  firstIpv4,
+});
 
-task.abort() // 中断网络请求
+task.abort(); // 中断网络请求
 
 //将本地资源上传到开发者服务器
 let task = uni.uploadFile({
@@ -310,38 +356,39 @@ let task = uni.uploadFile({
   files,
   header,
   formData,
-  timeout
-  })
+  timeout,
+});
 
-task.onProgressUpdate(callback)
+task.onProgressUpdate(callback);
 
-task.abort()
+task.abort();
 
 //下载文件资源到本地，客户端直接发起一个 HTTP GET 请求，返回文件的本地临时路径
-let task = uni.downloadFile({url,header,filePath,timeout})
-task.onProgressUpdate(callback)
-task.abort()
+let task = uni.downloadFile({ url, header, filePath, timeout });
+task.onProgressUpdate(callback);
+task.abort();
 
 // 获取网络类型
-uni.getNetworkType(options)
+uni.getNetworkType(options);
 
 //创建一个 WebSocket 连接
-let socket = uni.connectSocket({url,header,protocols})
+let socket = uni.connectSocket({ url, header, protocols });
 
-socket.onOpen(callback)
-socket.onClose(callback)
-socket.onEror(callback)
-socket.onMessage(callback)
+socket.onOpen(callback);
+socket.onClose(callback);
+socket.onEror(callback);
+socket.onMessage(callback);
 
 //通过 WebSocket 连接发送数据
-socket.send({data})
+socket.send({ data });
 
 //关闭 WebSocket 连接
-socket.close({code,reason})
+socket.close({ code, reason });
 
 //监听WebSocket连接打开事件
-uni.onSocketOpen(options)
+uni.onSocketOpen(options);
 ```
+
 ## 设备
 
 ```js
@@ -406,7 +453,9 @@ listener.stop()
 // 扫码
 uni.scanCode({onlyFromCamera,scanType}?)
 ```
+
 ![alt text](image-2.png)
+
 ## 媒体
 
 ```js
@@ -480,6 +529,7 @@ innerAudioContext.seek(position:number)
 innerAudioContext.destroy()
 innerAudioContext.onCanplay(callback)
 ```
+
 ## 画布
 
 ```js
@@ -502,6 +552,7 @@ context.createImage(): Image
 //canvas元素的绘图2D渲染上下文, 它用于绘制形状、文本、图像和其他对象
 uni.CanvasRenderingContext2D
 ```
+
 ## 位置
 
 ```js
@@ -512,8 +563,8 @@ uni.getLocation({
   altitude,
   geocode,
   highAccuracyExpireTime,
-  isHighAccuracy
-})
+  isHighAccuracy,
+});
 
 //使用地图查看位置
 uni.openLocation({
@@ -521,25 +572,28 @@ uni.openLocation({
   longitude,
   scale,
   name,
-  address
-})
+  address,
+});
 
 //调用本API会打开一个新窗体，在地图中选择一个位置，在success回调中返回选择的位置名称和坐标.本功能依赖地图组件。App和Web需在manifest.json中正确配置地图模块以及相关的key信息。依赖三方地图SDK
 uni.chooseLocation({
   latitude,
   longitude,
   keyword,
-  payload
-})
+  payload,
+});
 ```
+
 ## 数据储存
-app、小程序、web，均提供了方便的key-value模式的本地数据存储，通过键值对的方式存取数据。
 
-uni-app的Storage在不同端的实现不同：
+app、小程序、web，均提供了方便的 key-value 模式的本地数据存储，通过键值对的方式存取数据。
 
-H5端为localStorage，浏览器限制5M大小，是缓存概念，可能会被清理
-App端为原生storage，无大小限制，不是缓存，是持久化的
-各个小程序端为其自带的storage api，数据存储生命周期跟小程序本身一致，即除用户主动删除或超过一定时间被自动清理，否则数据都一直可用
+uni-app 的 Storage 在不同端的实现不同：
+
+H5 端为 localStorage，浏览器限制 5M 大小，是缓存概念，可能会被清理
+App 端为原生 storage，无大小限制，不是缓存，是持久化的
+各个小程序端为其自带的 storage api，数据存储生命周期跟小程序本身一致，即除用户主动删除或超过一定时间被自动清理，否则数据都一直可用
+
 ```js
 uni.setStorage({key,data})
 uni.setStorageSync(key, data)
@@ -557,6 +611,7 @@ uni.removeStorageSync(key)
 uni.clearStorage(option?)
 uni.clearStorageSync()
 ```
+
 ## 文件系统
 
 ```js
@@ -652,20 +707,25 @@ fileSystemManager.appendFile(options : {filePath,encoding,data}) : void;
 // 在文件结尾追加内容
 fileSystemManager.appendFileSync(filePath : string, data : any, encoding ?: string) : void;
 ```
+
 ## 登录与认证
-App一键登陆，封装了个推的一键登陆sdk，其内部再次封装了中国三大电信运营商提供的sdk。通过运营商提供的服务，可以在手机sim卡信号正常的情况下，通过云端接口获取到当前用户的手机号。
+
+App 一键登陆，封装了个推的一键登陆 sdk，其内部再次封装了中国三大电信运营商提供的 sdk。通过运营商提供的服务，可以在手机 sim 卡信号正常的情况下，通过云端接口获取到当前用户的手机号。
 
 使用一键登陆可以点一下直接以当前手机号登录。不再需要短信验证码，而且费用比短信验证码便宜。
 
-App一键登陆的优势：
+App 一键登陆的优势：
 
 对比短信验证码登录
+
 - 对开发者而言每条短信费用更贵、短信模板审核慢、短信发送成功可能几十秒；
-- 对用户而言，输入手机号耗时、等待耗时、输入验证码耗时，等待体验差。  
+- 对用户而言，输入手机号耗时、等待耗时、输入验证码耗时，等待体验差。
 
 对比微信登录
+
 - 中国法律要求开发者了解客户的真实信息。与其微信登录后再次要求用户输入短信验证码，不如直接一键登陆。
-- 在iOS上，一旦使用微信登录，就必须同时加入Apple登录。Apple登录的用户无法再次有效触达，只能再次要求用户输入短信验证码绑定手机号，体验非常差。不如直接一键登陆。使用一键登陆时Appstore不会要求必须同时使用Apple登录。
+- 在 iOS 上，一旦使用微信登录，就必须同时加入 Apple 登录。Apple 登录的用户无法再次有效触达，只能再次要求用户输入短信验证码绑定手机号，体验非常差。不如直接一键登陆。使用一键登陆时 Appstore 不会要求必须同时使用 Apple 登录。
+
 ```js
 // 获取一键登录管理对象
 let manager = uni.getUniverifyManager()
@@ -698,18 +758,21 @@ manager.close() : void
 // 预登录是否有效
 manager.isPreLoginValid() : boolean
 ```
+
 ## 支付
-uni.requestPayment是一个统一各平台的客户端支付API，客户端均使用本API调用支付。
 
-本API运行在各端时，会自动转换为各端的原生支付调用API。
+uni.requestPayment 是一个统一各平台的客户端支付 API，客户端均使用本 API 调用支付。
 
-注意支付不仅仅需要客户端的开发，还需要服务端开发。虽然客户端API统一了，但各平台的支付申请开通、配置回填仍然需要看各个平台本身的支付文档。
+本 API 运行在各端时，会自动转换为各端的原生支付调用 API。
 
-比如微信有App支付的申请入口和使用流程，对应到uni-app，在App端要申请微信的App支付。
+注意支付不仅仅需要客户端的开发，还需要服务端开发。虽然客户端 API 统一了，但各平台的支付申请开通、配置回填仍然需要看各个平台本身的支付文档。
 
-如果服务端使用uniCloud，那么官方提供了uniPay云端统一支付服务，把App、微信小程序、支付宝小程序里的服务端支付开发进行了统一的封装。
+比如微信有 App 支付的申请入口和使用流程，对应到 uni-app，在 App 端要申请微信的 App 支付。
 
-前端统一的uni.requestPayment和云端统一的uniPay搭配，可以极大提升支付业务的开发效率
+如果服务端使用 uniCloud，那么官方提供了 uniPay 云端统一支付服务，把 App、微信小程序、支付宝小程序里的服务端支付开发进行了统一的封装。
+
+前端统一的 uni.requestPayment 和云端统一的 uniPay 搭配，可以极大提升支付业务的开发效率
+
 ```js
 uni.requestPayment({
   provider,
@@ -921,46 +984,50 @@ uni.requestPayment({
   }
 </script>
 ```
+
 ## 分享
 
 ```js
 //使用系统分享。仅支持本地路径
 uni.shareWithSystem({
-  type:'text'|'image'|'video'|'audio'|'file',
-  summary:'分享的文字内容',
+  type: "text" | "image" | "video" | "audio" | "file",
+  summary: "分享的文字内容",
   href, // 分享连接
   imageUrl, // 分享单个图片
   imagePaths,
   videoPaths,
   audioPaths,
   filePaths,
-})
+});
 
-const path1 : string = "/static/test-audio/ForElise.mp3";
-const path2 : string = "/static/test-audio/ForElise.mp3";
+const path1: string = "/static/test-audio/ForElise.mp3";
+const path2: string = "/static/test-audio/ForElise.mp3";
 
 uni.shareWithSystem({
   audioPaths: [path1, path2],
-  type:'audio',
+  type: "audio",
   success(res) {
-    console.log('Shared-----success')
+    console.log("Shared-----success");
   },
   fail(res) {
     uni.showToast({
       icon: "error",
       title: "errorCode=" + res.errCode,
-      content:res.errMsg
-    })
+      content: res.errMsg,
+    });
   },
-  complete(res) {}
-})
+  complete(res) {},
+});
 ```
+
 ## 推送
-uni-push是DCloud与合作伙伴个推共同推出的统一推送服务。用于从服务器端推送消息到客户端。
 
-它包括在线推送、离线推送，聚合了Apple、华为、小米、OPPO、VIVO、魅族、荣耀(3.99+)、Google等多个手机厂商的推送通道。
+uni-push 是 DCloud 与合作伙伴个推共同推出的统一推送服务。用于从服务器端推送消息到客户端。
 
-若不使用服务器推送，仅想创建手机通知栏本地消息，也需要使用本模块的API。
+它包括在线推送、离线推送，聚合了 Apple、华为、小米、OPPO、VIVO、魅族、荣耀(3.99+)、Google 等多个手机厂商的推送通道。
+
+若不使用服务器推送，仅想创建手机通知栏本地消息，也需要使用本模块的 API。
+
 ```js
 //获取客户端唯一的推送标识
 uni.getPushClientId(options)
@@ -1005,6 +1072,7 @@ manager.getAllChannels(): Array<string>;
 //设置应用图标上显示的角标数字
 uni.setAppBadgeNumber(num, {title,content}?)
 ```
+
 ## 统计
 
 ```js
@@ -1012,19 +1080,20 @@ uni.setAppBadgeNumber(num, {title,content}?)
 uni.report({
   name, // 自定义事件名
   options, // 额外参数
-})
+});
 
 // 参数支持对象
 uni.report({
-  name:'购买',
-  options:{
-  id:'1000',
-  name:'上衣',
-  price:'998',
-  msg:'购买成功'
-  }
-})
+  name: "购买",
+  options: {
+    id: "1000",
+    name: "上衣",
+    price: "998",
+    msg: "购买成功",
+  },
+});
 ```
+
 ## 组件上下文对象
 
 ```js
@@ -1032,7 +1101,7 @@ uni.report({
 let context = uni.createWebviewContext(webviewId, component?)
 
 //获取id为wx1的web-view组件的context
-let context = uni.createWebviewContext("wv1", this) 
+let context = uni.createWebviewContext("wv1", this)
 
 //也可以直接使用DOM API操作。UniWebViewElement比webviewContext有更多属性和方法
 let context = uni.getElementById("wv1") as UniWebViewElement
@@ -1084,8 +1153,10 @@ map.includePoints(options : MapContextIncludePointsOptions) : void;
 //添加 marker
 map.addMarkers(options : MapContextAddMarkersOptions) : void;
 ```
+
 ## uniCloud
-uniCloud是基于serverless的云开发服务，它大幅降低开发者的开发成本和运维成本。
+
+uniCloud 是基于 serverless 的云开发服务，它大幅降低开发者的开发成本和运维成本。
 
 ```js
 type UniCloudInitOptions = {
@@ -1128,14 +1199,14 @@ uniCloud.callFunction<CallFunctionResult>(
 }).catch(function (err : any | null) {
   console.error(err)
 })
-  
+
 //引用云对象：语法
 let cloudObject = importObject(objectName, {
   customUI:false, //是否移除自动展示的ui
   loadingOptions:{title,mask},
   errorOptions:{type:'toast'|'modal',retry:true}
 }?)
-  
+
 // 云对象todo代码
 'use strict';
 module.exports = {
@@ -1158,7 +1229,7 @@ type CallObjectResult = {
 const todo = uniCloud.importObject('todo')
 todo.add<CallObjectResult>('todo title', 'todo content').then((res) => {
   // res类型为CallObjectResult，可直接通过.detail访问其中detail属性
-  const detail = res.detail 
+  const detail = res.detail
 }).catch((err : any | null) => {
   console.error(err)
 })
@@ -1172,22 +1243,23 @@ collection.where(condition: any): UniCloudDBFilter;
 collection.doc(docId: string): UniCloudDBFilter
 
 let query = collection.field(filed: string): UniCloudDBQuery
+
 query.get(arg?: UTSJSONObject | null): Promise<UniCloudDBGetResult>;
+query.add(data: UTSJSONObject): Promise<UniCloudDBAddResult>
 query.count(): Promise<UniCloudDBCountResult>
-query.get(arg?: UTSJSONObject | null): Promise<UniCloudDBGetResult>;
+
 query.getTemp(): UTSJSONObject
 query.field(filed: string): UniCloudDBQuery
 query.skip(num: number): UniCloudDBQuery;
 query.limit(num: number): UniCloudDBQuery
+
 query.orderBy(order: string): UniCloudDBQuery;
 query.groupBy(field: string): UniCloudDBQuery
 query.groupField(field: string): UniCloudDBQuery
+
 query.distinct(field: string): UniCloudDBQuery;
 query.geoNear(options: UTSJSONObject): UniCloudDBQuery
 query.doc(docId: string): UniCloudDBFilter
 query.aggregate(): UniCloudDBFilter
 query.foreignKey(foreignKey: string): UniCloudDBFilter
-query.add(data: UTSJSONObject): Promise<UniCloudDBAddResult>
-query.get(arg?: UTSJSONObject | null): Promise<UniCloudDBGetResult>
-query.count(): Promise<UniCloudDBCountResult>
 ```

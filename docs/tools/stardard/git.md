@@ -164,3 +164,18 @@ commit 规范示例：
 ```bash
 git commit -m feat:Add workflow, homepage, etc.
 ```
+
+## 添加 tree
+
+下载 tree：
+
+http://gnuwin32.sourceforge.net/packages/tree.htm
+http://downloads.sourceforge.net/gnuwin32/tree-1.5.2.2-bin.zip
+
+将下载文件的 bin/ 目录下的 tree.exe 复制到 git/user/bin 目录中。
+
+![alt text](image-2.png)
+
+运行`tree -I "node_modules"`命令，生成项目 tree
+
+![alt text](image-3.png)

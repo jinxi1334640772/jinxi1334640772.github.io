@@ -144,16 +144,28 @@ window.onunhandledrejection = function (e) {
 
 Sentry 的管理后台是基于 Python Django 开发的。这个管理后台由背后的 Postgres 数据库（管理后台默认的数据库）、ClickHouse（存数据特征的数据库）、relay、kafka、redis 等一些基础服务或由 Sentry 官方维护的总共 23 个服务支撑运行。可见的是，如果独立的部署和维护这 23 个服务将是异常复杂和困难的。幸运的是，官方提供了基于 docker 镜像的一键部署实现。具体落地方案可将 sentry 应用单机单节点部署在某一台独立服务器上，保证各环境数据上报网络通畅即可，具体环境和项目可以通过设置合理规范的前缀名区分，重要项目数据需要设置定时备份策略。
 
-1. 安装 docker。Docker 19.03.6+
-2. 安装 docker-compose
+1. 安装 docker。
+2. 使用 docker-compose 一键部署
 3. 安装 sentry
+
+```bash
+$ git clone https://github.com/getsentry/onpremise.git
+$ cd ./onpremise
+$ chmod u+x ./install.sh
+$ ./install.sh
+# or
+$ sudo ./install.sh
+```
+
 4. Sentry 环境配置
    1. 配置 Root URL：异常上报接口的公网根地址
    2. Outbound email：这部分内容为邮件服务配置
    3. 设置语言和时区
    4. 选取平台语言创建团队和项目
    5. 获取项目绑定的 DSN（客户端秘钥）
-   6. 报警配置等.....
+   6. 报警配置
+      1. Password：指的是 开启 SMTP 时的授权码
+   7. 等.....
 
 ## 前端接入 Sentry
 
@@ -165,7 +177,7 @@ npm install --save @sentry/vue @sentry/tracing
 
 2. 创建初始化 Sentry 配置文件
 
-```js
+```ts
 import * as Sentry from "@sentry/vue";
 import { Integrations } from "@sentry/tracing";
 // 调用sentryInit函数进行Sentry的初始化配置
@@ -179,7 +191,7 @@ Sentry.init({
   dsn: "http://61a3c1c2ac124286ae2a13e0bd0f3824@10.84.4.231:9000/3",
   // 配置集成，这里添加了两个集成：BrowserTracing和Replay
   integrations: [
-    // BrowserTracing集成用于跟踪浏览器中的性能问题，如页面加载时间等
+    // 跟踪浏览器中的性能问题，如页面加载时间\接口响应时间等
     new Integrations.BrowserTracing({
       // 通过vueRouterInstrumentation对Vue路由进行追踪
       routingInstrumentation: Sentry.vueRouterInstrumentation(router),
@@ -233,6 +245,14 @@ Sentry.init({
   username: xxx.userName,
   // 是否将错误记录到控制台，这里设置为true
   logErrors: true,
+    // 添加用户崩溃反馈弹窗
+  beforeSend(event, hint) {
+    // Check if it is an exception, and if so, show the report dialog
+    if (event.exception) {
+      Sentry.showReportDialog({ eventId: event.event_id });
+    }
+    return event;
+  },
 });
 
  export function configSentryPlugin() {
@@ -266,6 +286,30 @@ Sentry.init({
          }
      })
  }
+
+
+export type ISentry = typeof Sentry;
+// 主动上报错误：是个错误，但是sentry没这么认为，所以需要主动上报
+class TrackError {
+  public sentry?: ISentry;
+
+  constructor(sentry?: ISentry) {
+    this.sentry = sentry;
+  }
+
+  captureException(exception: any) {
+    if (!this.sentry || !exception) return;
+  // 这会触发系统内部钩子（webhooks）
+    this.sentry.captureException(exception);
+  }
+  captureMessage(exception: any) {
+    if (!this.sentry || !exception) return;
+  // 可以理解为埋点，不会触发系统内部钩子（webhooks），level: info
+    this.sentry.captureMessage(exception);
+  }
+}
+
+export default TrackError;
 ```
 
 3. 在项目入口文件 main.js 中，引入 Sentry 配置文件
@@ -307,4 +351,53 @@ module.exports = {
 
 ```
 
-参考文档：https://blog.csdn.net/weixin_43860603/article/details/136038871
+## SourceMap
+
+官网有三种做法如下：
+
+1. sentry 提供 webpack-plugin (链接)
+2. 脚手架工具 sentry-cli
+3. 直接调用 sentry API（有点麻烦，参数配置有点多）
+
+这里介绍 @sentry/webpack-plugin 方式（方便接入现有 CI/CD）
+
+.sentryclirc:
+
+```conf
+[auth]
+token=42b21a34ca654530af08			授权令牌，认证凭证token(Settings/Auth Tokens)
+
+[defaults]
+url = https://sentry.io/				上报 sentry 地址
+org = ws-ap 										组织名称(Organization)
+project = qv-h5									项目名称
+```
+
+vue.config.js:
+
+```js
+const SentryCliPlugin = require("@sentry/webpack-plugin");
+
+module.exports = {
+  // 开启 source map
+  productionSourceMap: true,
+  configureWebpack: config => {
+    config.plugins.push(
+      new SentryCliPlugin({
+        include: "./dist/",
+        configFile: "sentry.properties",
+        // 版本(如果没有指定，sentry会自动创建 string 类型版本号)，记得跟 init 版本一致sourceMap才会生效
+        release: process.env.VUE_APP_PROJECT_RELEASE,
+        ignore: ["node_modules"],
+        urlPrefix: `${process.env.VUE_APP_COS_URL}/`,
+      })
+    );
+  },
+};
+```
+
+参考文档：
+
+https://blog.csdn.net/weixin_43860603/article/details/136038871
+
+https://www.yuque.com/wuchendi/fe/fdcdnq

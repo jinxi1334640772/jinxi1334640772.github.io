@@ -662,3 +662,89 @@ Context: http, server, location
 - min_uses：在 inactive 时间内使用次数超过 min_uses 才会继续存在内存中。默认 1
 - valid：超出 valid 时间后，将对缓存的日志文件检查是否存在。默认 60 秒
 - off：关闭缓存功能
+
+## Nginx 配置
+
+```conf
+# nginx.conf
+
+#user  nobody;
+worker_processes  1;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server {
+        listen       8080;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+
+        location / {
+            root   html/static;
+            index  index.html index.htm;
+            try_files $uri $uri/ /index.html;
+            error_page 404 /index.html;
+        }
+
+        error_page  404              /404.html;
+        error_page   500 502 503 504  /50x.html;
+
+        location = /50x.html {
+            root   html;
+        }
+    }
+
+    server {
+        listen       10001;
+        server_name  localhost;
+
+        location / {
+            root   html/vueDist;
+            index  index.html index.htm;
+            try_files $uri $uri/ /index.html;
+            error_page 404 /index.html;
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Credentials' 'true';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+        }
+
+        error_page  404              /404.html;
+        error_page   500 502 503 504  /50x.html;
+
+        location = /50x.html {
+            root   html;
+        }
+    }
+}
+```
