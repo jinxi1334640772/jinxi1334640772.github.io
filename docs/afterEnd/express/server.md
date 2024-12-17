@@ -40,10 +40,10 @@ express --view=pug myapp
 ├── routes
 │   ├── index.js
 │   └── users.js
-└── views
+└── views       模板目录
     ├── error.pug
-    ├── index.pug
-    └── layout.pug
+    ├── index.jade
+    └── layout.ejs
 ```
 
 ## 使用 Express
@@ -51,8 +51,18 @@ express --view=pug myapp
 ```js
 // 用于连接 mongooseDB 数据库
 const mongoose = require("mongoose");
-// 从req.body中解析参数
+// 连接mongooseDB数据库
+mongoose
+  .connect("mongodb://todo-database:27017/", { useNewUrlParser: true })
+  .then(() => console.log(`Mongodb Connected`))
+  .catch(error => console.log(error));
+
+// 从req.body中解析参数：内部使用JSON编码处理，url编码处理以及对于文件的上传处理
 const bodyParse = require("body-parser");
+// req.cookies
+var cookieParser = require("cookie-parser");
+// 保存登录信息。 当客户访问其他页面时，可以判断客户的登录状态
+var session = require("express-session");
 // 保存文件时自动刷新页面
 const livereload = require("livereload");
 // 连接livereload
@@ -62,6 +72,20 @@ const app = require("express")();
 // moment时间日期格式化包
 const moment = require("moment");
 const path = require("path");
+
+// mysql 数据库的使用
+var mysql = require("mysql");
+var connection = mysql.createConnection({
+  host: "localhost",
+  user: "dbuser",
+  password: "s3kreee7",
+});
+connection.connect();
+connection.query("SELECT 1 + 1 AS solution", function (err, rows, fields) {
+  if (err) throw err;
+  console.log("The solution is: ", rows[0].solution);
+});
+connection.end();
 
 // 定义路由器
 const router = express.Router();
@@ -83,6 +107,17 @@ const Todo = mongoose.model(
 );
 // 定义首页路由 匹配get方法
 router.get("/", async (req, res) => {
+  res.download(); //提示下载文件。
+  res.end(); //终结响应处理流程。
+  res.json(); //发送一个 JSON 格式的响应。
+  res.jsonp(); //发送一个支持 JSONP 的 JSON 格式的响应。
+  res.redirect(); //重定向请求。
+  res.render(); //渲染视图模板。
+  res.send(); //发送各种类型的响应。
+  res.sendFile(); //以八位字节流的形式发送文件。
+  //设置响应状态代码，并将其以字符串形式作为响应体的一部分发送
+  res.sendStatus();
+
   // mongooseDB 查找数据
   const todos = await Todo.find();
   // 使用渲染引擎，渲染todos模板，并传递变量给模板
@@ -116,19 +151,21 @@ liveReloadServer.server.once("connection", () => {
   setTimeout(() => liveReloadServer.refresh("/"), 100);
 });
 
-// 设置ejs模板引擎
+// 设置ejs&jade&pug模板引擎
 app.set("view engine", "ejs");
+app.set("view engine", "jade");
+app.set("view engine", "pug");
+
+// 设置模板文件的目录，默认 views
+app.set("views", "./views");
+
 // 使用中间件
 app.use(router);
 app.use(connectLiveReload());
 app.use(bodyParse.urlencoded({ extended: false }));
 // 注册全局变量
 app.locals.moment = moment;
-// 连接mongooseDB数据库
-mongoose
-  .connect("mongodb://todo-database:27017/", { useNewUrlParser: true })
-  .then(() => console.log(`Mongodb Connected`))
-  .catch(error => console.log(error));
+
 
 //匹配路由/detail 返回list.html 文件，状态码设置200
 server.use("/detail", (req, res) => {

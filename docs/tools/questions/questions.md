@@ -173,16 +173,18 @@ function chunk(array, fn, count, delay) {
 }
 ```
 
-## encodeURI
+## URL 编码问题
 
-encodeURI() 函数通过将特定字符的每个实例替换为一个、两个、三或四转义序列来对统一资源标识符 (URI) 进行编码（只有由两个“代理”字符组成的字符会被编码为四个转义序列）。会替换所有的字符，但不包括以下字符，即使它们具有适当的 UTF-8 转义序列：
+1.  encodeURI & decodeURI
+
+encodeURI() 函数通过将特定字符的每个实例替换为 1-4 个转义序列来对统一资源标识符 (URI) 进行编码（由两个“代理”字符组成的字符才会被编码为四个转义序列）。会替换所有的字符，但不包括以下字符：
 |类型|包含|
 |----|----|
 |保留字符|`; , / ? : @ & = + $`|
 |非转义字符|`字母 数字 - _ . ! ~ * ' ( )`|
 |数字符号|`#`|
 
-> encodeURI 自身无法产生能适用于 HTTP GET 或 POST 请求的 URI，例如对于 XMLHTTPRequests，因为 "&", "+", 和 "=" 不会被编码，然而在 GET 和 POST 请求中它们是特殊字符。然而 encodeURIComponent 这个方法会对这些字符编码。
+> encodeURI 自身无法产生能适用于 GET 或 POST 请求的 URI，例如 "&", "+", 和 "=" 不会被编码，然而在 GET 和 POST 请求中它们是特殊字符。需要使用 encodeURIComponent 这个方法会对这些字符编码。
 
 ```js
 // 编码高 - 低位完整字符 ok
@@ -198,61 +200,39 @@ console.log(encodeURI("\uDFFF"));
 function fixedEncodeURI(str) {
   return encodeURI(str).replace(/%5B/g, "[").replace(/%5D/g, "]");
 }
-```
 
-## decodeURI()
-
-解码由 encodeURI 编码过后的 URI
-
-```js
 const uri = "https://mozilla.org/?x=шеллы";
 const encoded = encodeURI(uri);
 console.log(encoded);
-// Expected output: "https://mozilla.org/?x=%D1%88%D0%B5%D0%BB%D0%BB%D1%8B"
+//"https://mozilla.org/?x=%D1%88%D0%B5%D0%BB%D0%BB%D1%8B"
 
 try {
+  // decodeURI() 解码由 encodeURI 编码过后的 URI
   console.log(decodeURI(encoded));
-  // Expected output: "https://mozilla.org/?x=шеллы"
 } catch (e) {
-  // Catches a malformed URI
   console.error(e);
 }
 ```
 
-## encodeURIComponent()
+2.  encodeURIComponent & decodeURIComponent
 
-将特定字符的每个实例替换成代表字符的 UTF-8 编码的一个、两个、三个或四个转义序列来编码 URI（只有由两个“代理”字符组成的字符会被编码为四个转义序列）。与 encodeURI() 相比，此函数会编码更多的字符，包括 URI 语法的一部分。
+将特定字符的每个实例替换成代表字符的 UTF-8 编码的 1-4 个转义序列来编码 URI（由两个“代理”字符组成的字符才会被编码为四个转义序列）。与 encodeURI() 相比，此函数会编码更多的字符，包括 URI 语法的一部分。
 
-> 转义除了如下所示外的所有字符：**A-Z a-z 0-9 - \_ . ! ~ \* ' ( )**
+> 转义除了所示外的所有字符：`A-Z a-z 0-9 - _ . ! ~ * ' ( )`
 
 encodeURIComponent() 和 encodeURI 有以下几个不同点：
 
 ```js
 var set1 = ";,/?:@&=+$"; // 保留字符
-var set2 = "-_.!~*'()"; // 不转义字符
 var set3 = "#"; // 数字标志
-var set4 = "ABC abc 123"; // 字母数字字符和空格
 
 console.log(encodeURI(set1)); // ;,/?:@&=+$
-console.log(encodeURI(set2)); // -_.!~*'()
 console.log(encodeURI(set3)); // #
-console.log(encodeURI(set4)); // ABC%20abc%20123 (空格被编码为 %20)
 
 console.log(encodeURIComponent(set1)); // %3B%2C%2F%3F%3A%40%26%3D%2B%24
-console.log(encodeURIComponent(set2)); // -_.!~*'()
 console.log(encodeURIComponent(set3)); // %23
-console.log(encodeURIComponent(set4)); // ABC%20abc%20123 (空格被编码为 %20)
-```
 
-为了避免服务器收到不可预知的请求，对任何用户输入的作为 URI 部分的内容你都需要用 encodeURIComponent 进行转义。比如，一个用户可能会输入"Thyme &time=again"作为 comment 变量的一部分。如果不使用 encodeURIComponent 对此内容进行转义，服务器得到的将是 comment=Thyme%20&time=again。请注意，"&"符号和"="符号产生了一个新的键值对，所以服务器得到两个键值对（一个键值对是 comment=Thyme，另一个则是 time=again），而不是一个键值对
-
-对于 application/x-www-form-urlencoded (POST) 这种数据方式，空格需要被替换成 '+'，所以通常使用 encodeURIComponent 的时候还会把 "%20" 替换为 "+"。
-
-## decodeURIComponent()
-
-解码由 encodeURIComponent 方法或者其他类似方法编码过后的 URI
-
-```js
+// decodeURIComponent解码由 encodeURIComponent 编码后的 URI
 decodeURIComponent("JavaScript_%D1%88%D0%B5%D0%BB%D0%BB%D1%8B");
 // "JavaScript_шеллы"
 
@@ -261,155 +241,11 @@ try {
   var a = decodeURIComponent("%E0%A4%A");
 } catch (e) {
   console.error(e);
-}
-// URIError: malformed URI sequence
-```
-
-## ios 光标错位
-
-H5(ios)-在点击输入框，出现键盘后，弹出层被顶上去，而光标还停留在原处，即出现错位情况
-
-```js
-{
-  // 单个input(textarea)
-  $("input.van-field__control, textarea.van-field__control").blur(function () {
-    setTimeout(function () {
-      var currentPosition =
-        document.documentElement.scrollTop || document.body.scrollTop;
-      window.scrollTo(0, currentPosition); //页面向上滚动
-    }, 200);
-  });
-
-  // 多个input(textarea)
-  $(function () {
-    var setTimerTop = 0;
-    $(document)
-      .on(
-        "blur",
-        "input.van-field__control, textarea.van-field__control",
-        function () {
-          event.preventDefault();
-          setTimerTop = setTimeout(function () {
-            window.scrollBy(0, 5); // 页面向上滚动
-            window.scrollBy(0, -5);
-          }, 500);
-        }
-      )
-      .on(
-        "focus",
-        "input.van-field__control, textarea.van-field__control",
-        function () {
-          clearTimeout(setTimerTop);
-        }
-      );
-  });
-
-  // 多个input(textarea)-iframe情况
-  $(function () {
-    var setTimerTop = 0;
-    $(document)
-      .on(
-        "blur",
-        "input.van-field__control, textarea.van-field__control",
-        function () {
-          event.preventDefault();
-          setTimerTop = setTimeout(function () {
-            parent.scrollBy(0, 5); // 页面向上滚动
-            parent.scrollBy(0, -5);
-            $("#hide-area-cb").focus();
-          }, 500);
-        }
-      )
-      .on(
-        "focus",
-        "input.van-field__control, textarea.van-field__control",
-        function () {
-          clearTimeout(setTimerTop);
-        }
-      )
-      .on("focus", "input.van-field__control[disabled]", function () {
-        setTimerTop = setTimeout(function () {
-          parent.scrollBy(0, 5); // 页面向上滚动
-          parent.scrollBy(0, -5);
-        }, 500);
-      });
-  });
+  // URIError: malformed URI sequence
 }
 ```
 
-## 防抖
-
-```js
-{
-  // 简单 函数防抖
-  function debounce(method, wait) {
-    let timeout;
-    // args为返回函数调用时传入的参数，传给method
-    return function (...args) {
-      let context = this;
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      timeout = setTimeout(() => {
-        // args是一个数组，所以使用fn.apply
-        // 也可写作method.call(context, ...args)
-        method.apply(context, args);
-      }, wait);
-    };
-  }
-
-  // 完整 函数防抖
-  function debounce(method, wait, immediate) {
-    let timeout;
-    // debounced函数为返回值
-    // 使用Async/Await处理异步，如果函数异步执行，等待setTimeout执行完，拿到原函数返回值后将其返回
-    // args为返回函数调用时传入的参数，传给method
-    let debounced = function (...args) {
-      return new Promise(resolve => {
-        // 用于记录原函数执行结果
-        let result;
-        // 将method执行时this的指向设为debounce返回的函数被调用时的this指向
-        let context = this;
-        // 如果存在定时器则将其清除
-        if (timeout) {
-          clearTimeout(timeout);
-        }
-        // 立即执行需要两个条件，一是immediate为true，二是timeout未被赋值或被置为null
-        if (immediate) {
-          // 如果定时器不存在，则立即执行，并设置一个定时器，wait毫秒后将定时器置为null
-          // 这样确保立即执行后wait毫秒内不会被再次触发
-          let callNow = !timeout;
-          timeout = setTimeout(() => {
-            timeout = null;
-          }, wait);
-          // 如果满足上述两个条件，则立即执行并记录其执行结果
-          if (callNow) {
-            result = method.apply(context, args);
-            resolve(result);
-          }
-        } else {
-          // 如果immediate为false，则等待函数执行并记录其执行结果
-          // 并将Promise状态置为fullfilled，以使函数继续执行
-          timeout = setTimeout(() => {
-            // args是一个数组，所以使用fn.apply
-            // 也可写作method.call(context, ...args)
-            result = method.apply(context, args);
-            resolve(result);
-          }, wait);
-        }
-      });
-    };
-
-    // 在返回的debounced函数上添加取消方法
-    debounced.cancel = function () {
-      clearTimeout(timeout);
-      timeout = null;
-    };
-
-    return debounced;
-  }
-}
-```
+为了避免服务器收到不可预知的请求，对任何用户输入的作为 URI 部分的内容都需要用 encodeURIComponent 进行转义。比如，一个用户可能会输入"Thyme &time=again"作为 comment 变量的一部分。如果不使用 encodeURIComponent 对此内容进行转义，服务器得到的将是 comment=Thyme%20&time=again 两个键值对。因为输入的 "&"符号和"="符号产生了一个新的键值对
 
 ## 数字转中文
 
@@ -706,3 +542,98 @@ isGeneratorFunction(fn){
   return fn.constructor.name === 'GeneratorFunction'
 }
 ```
+
+## 实现一个抽奖程序
+
+实现一个前端抽奖程序，可以按照以下步骤进行：
+
+1. 准备奖品数据：
+
+- 创建一个奖品数组，其中包含所有可能的奖品信息，如奖品名称、图片、描述等。
+- 可以将这些奖品数据存储在 JavaScript 对象中，或者通过 Ajax 请求从服务器获取。
+
+2. 设计抽奖界面：
+
+使用 HTML、CSS 和 JavaScript 来设计和实现一个用户友好的界面，包括抽奖按钮、奖品展示区域、抽奖结果展示区域等。
+
+3. 实现抽奖逻辑：
+
+- 当用户点击抽奖按钮时，触发抽奖函数。
+- 在抽奖函数中，使用随机数生成器（如 Math.random()）来从奖品数组中随机选择一个奖品。
+- 将选中的奖品信息显示在抽奖结果展示区域。
+
+```js
+// 奖品列表 probability:中奖时的 randomValue 范围
+let prizeList = [
+  { name: "手机", title: "一等奖:概率10%", probability: [0, 0.1] },
+  { name: "电视", title: "二等奖:概率20%", probability: [0.1, 0.3] },
+  { name: "空调", title: "三等奖:概率30%", probability: [0.3, 0.6] },
+  { name: "没中奖", title: "谢谢惠顾:概率40%", probability: [0.6, 1] },
+];
+
+// 更新奖品列表
+function updatePrizeList() {
+  const list = document.getElementById("prizeList");
+  list.innerHTML = "";
+  prizeList.forEach((name, index) => {
+    const li = document.createElement("li");
+    li.textContent = `${index + 1}. ${name}`;
+    list.appendChild(li);
+  });
+}
+
+// 开始抽奖
+function startLottery() {
+  if (prizeList.length === 0) {
+    alert("请先添加奖品！");
+    return;
+  }
+
+  // 中奖区域
+  const result = document.getElementById("result");
+  result.textContent = "抽奖中...";
+  // 动态滚动效果
+  let currentIndex = 0;
+  rollingInterval = setInterval(() => {
+    result.textContent = `当前选中: ${prizeList[currentIndex]}`;
+    currentIndex = (currentIndex + 1) % prizeList.length;
+  }, 100);
+
+  // 停止滚动并选出赢家
+  setTimeout(() => {
+    clearInterval(rollingInterval);
+    // 中奖概率随机
+    // const currentIndex = Math.floor(Math.random() * prizeList.length);
+
+    // 中奖概率不随机：根据 randomValue 的范围确定奖品概率
+    let randomValue = Math.random();
+    let currentIndex = prizeList.findIndex(prize => {
+      let [min, max] = prize.proprobability;
+      return min <= randomValue < max;
+    });
+    result.innerHTML = `奖品：${prizeList[currentIndex]}！`;
+  }, 3000);
+}
+```
+
+4. 添加动画和音效：
+
+- 为了增强用户体验，可以在抽奖过程中添加动画效果，如旋转的轮盘、闪烁的灯光等。
+- 同时，可以播放一些音效来营造氛围，如点击按钮时的声音、中奖时的欢庆音乐等。
+
+5. 处理多次抽奖：
+
+- 如果需要支持多次抽奖，可以在用户点击抽奖按钮后，更新奖品数组，以确保每次抽奖的公平性。
+- 同时，需要处理好抽奖次数的限制，防止用户无限制地抽奖。
+
+6. 优化和测试：
+
+- 对抽奖程序进行优化，确保其在各种设备和浏览器上都能正常运行。
+- 进行充分的测试，包括功能测试、性能测试和安全测试，以确保抽奖程序的稳定性和安全性。
+
+7. 反馈和统计：
+
+- 可以添加一些用户反馈机制，如中奖后的分享功能，以便用户将中奖信息分享到社交媒体。
+- 同时，可以记录每次抽奖的结果，以便后续进行数据统计和分析。
+
+在实际应用中，前端抽奖程序通常与后端服务相结合，以确保抽奖的公平性和安全性。例如，可以在后端生成随机数来选择奖品，然后通过 API 将结果返回给前端展示。这样可以防止前端作弊，并确保每次抽奖都是公正的。

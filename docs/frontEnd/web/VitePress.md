@@ -1,13 +1,14 @@
 ---
-title: Docs with VitePress
+title: 配置页面显示:页面title
 editLink: true
+custom: 自定义变量:在{{ $frontmatter.custom }}中引用任何变量
 ---
 
 ## Vitepress 简介
 
-🎉 💯 VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的站点而设计。简而言之，VitePress 获取用 Markdown 编写的内容，对其应用主题，并生成可以轻松部署到任何地方的静态 HTML 页面。  
+🎉 💯 VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的站点而设计。简而言之，VitePress 获取用 Markdown 编写的内容，对其应用主题，并生成可以轻松部署到任何地方的静态 HTML 页面。
 
-[官方网站](https://vitejs.cn/vitepress/guide/what-is-vitepress)：https://vitejs.cn/vitepress/guide/what-is-vitepress
+官方网站：https://vitejs.cn/vitepress/guide/what-is-vitepress
 
 ### 使用场景
 
@@ -61,7 +62,7 @@ guide/getting-started.md  -->  /guide/getting-started.html
 
 当从命令行运行 vitepress dev 或 vitepress build 时，VitePress 将使用当前工作目录作为项目根目录。要将子目录指定为根目录，需要将相对路径传递给命令。例如，如果 VitePress 项目位于 ./docs，应该运行 vitepress dev docs：
 
-```ts
+```bash
 .
 ├─ docs                    # 项目根目录
 │  ├─ .vitepress           # 配置目录
@@ -79,9 +80,7 @@ docs/getting-started.md  -->  /getting-started.html
 
 ### 源目录
 
-源目录是 Markdown 源文件所在的位置。默认情况下，它与项目根目录相同。但是，可以通过 srcDir 配置选项对其进行配置。
-
-srcDir 选项是相对于项目根目录解析的。例如，对于 srcDir: 'src'，文件结构将如下所示：
+源目录是 Markdown 源文件相对于项目根目录所在的位置。默认情况下，它与项目根目录相同。但是，可以通过 srcDir 配置选项对其进行配置。例如，对于 srcDir: 'src'，文件结构将如下所示：
 
 ```
 .                          # 项目根目录
@@ -102,24 +101,13 @@ src/getting-started.md  -->  /getting-started.html
 
 在页面之间链接时，可以使用绝对路径和相对路径。请注意，虽然 .md 和 .html 扩展名都可以使用，但最佳做法是省略文件扩展名，以便 VitePress 可以根据配置生成最终的 URL。
 
-```md
-<!-- Do -->
-
+```bash
+# 连接到内部页面 推荐写法:不添加.md .html后缀
 [Getting Started](./getting-started)
 [Getting Started](../guide/getting-started)
 
-<!-- Don't -->
-
-[Getting Started](./getting-started.md)
-[Getting Started](./getting-started.html)
-```
-
-### 链接到非 VitePress 页面
-
-如果想链接到站点中不是由 VitePress 生成的页面，需要使用完整的 URL（在新选项卡中打开）或明确指定 target：
-
-```md
-[Link to pure.html](http://baidu.com){target="\_self"}
+# 连接到外部页面
+[Link to pure.html](http://baidu.com){target="_self"}
 ```
 
 ### 动态路由参数
@@ -169,7 +157,7 @@ export default {
 
 然后，使用以下特殊语法将内容呈现为 Markdown 文件本身的一部分：
 
-```js
+```md
 <!-- @content -->
 ```
 
@@ -193,33 +181,23 @@ export default {
 
 ### 列表
 
-#### 无序列表
-
 ```md
-- 列表项 1
-- 列表项 2
-- 列表项 3
-
-* 列表项 1
-* 列表项 2
-* 列表项 3
-```
+<!-- 无序列表 也可以使用* + 符号 -->
 
 - 列表项 1
 - 列表项 2
 - 列表项 3
 
-* 列表项 1
-* 列表项 2
-* 列表项 3
+<!-- 有序列表 -->
 
-#### 有序列表
-
-```md
 1. item1
 2. item2
 3. item3
 ```
+
+- 列表项 1
+- 列表项 2
+- 列表项 3
 
 1. item1
 2. item2
@@ -227,9 +205,9 @@ export default {
 
 ### 文字效果
 
+- `*斜体Ctrl + I*` 或者 `_斜体Ctrl + I_` _斜体 Ctrl + I_
 - `**加粗Ctrl + B**` **加粗 Ctrl + B**
-- `*斜体Ctrl + I*` _斜体 Ctrl + I_ 或者 `_斜体Ctrl + I_` _斜体 Ctrl + I_
-- `***加粗&斜体***` **_加粗&斜体_** 或 `**_加粗&斜体_**` **_加粗&斜体_**
+- `***加粗&斜体***` 或 `**_加粗&斜体_**` **_加粗&斜体_**
 
 - `~~删除线 ~~` ~~删除线 ~~
 - \`\<style\>原样输出\` `<style>原样输出`
@@ -252,52 +230,110 @@ export default {
 ---
 ```
 
-分割线效果：
+也可以用多个`*****`或者`_____`实现分割线效果：
 
 ---
 
 ### 缩进
 
 ```md
-&nbsp;&nbsp;段首缩进 空格+回车换行
-
+段首缩进 空格+回车换行  
+&nbsp;&nbsp;段首缩进 空格+回车换行  
 &emsp;&emsp;段首缩进 空格+回车换行
-
-&emsp;&emsp;段首缩进
-
-> 段首缩进
 ```
 
-&nbsp;&nbsp;段首缩进 空格+回车换行
-
+段首缩进 空格+回车换行  
+&nbsp;&nbsp;段首缩进 空格+回车换行  
 &emsp;&emsp;段首缩进 空格+回车换行
 
-&emsp;&emsp;段首缩进
+### 表格
 
-> 段首缩进
+```md
+| 默认左对齐    |   居中对齐    | 右对齐 |
+| ------------- | :-----------: | -----: |
+| col 3 is      | right-aligned |  $1600 |
+| col 2 is      |   centered    |    $12 |
+| zebra stripes |   are neat    |     $1 |
+```
+
+| 默认左对齐    |   居中对齐    | 右对齐 |
+| ------------- | :-----------: | -----: |
+| col 3 is      | right-aligned |  $1600 |
+| col 2 is      |   centered    |    $12 |
+| zebra stripes |   are neat    |     $1 |
+
+### Emoji 🎉
+
+```md
+🎉 💯 :tada: :100:
+```
+
+🎉 💯 :tada: :100:
 
 ### 链接
 
 ```md
-[百度首页](http://baidu.com)
+行内连接：[百度首页](http://baidu.com)
+
+直接连接（必须协议开头）：<http://cnblogs.com/> http://cnblogs.com/
+
+参考连接： [Google][1] than from [Yahoo][2] or [MSN][3].
+
+[1]: http://google.com/ "Google Alt"
+[2]: http://search.yahoo.com/ "Yahoo Alt"
+[3]: http://search.msn.com/ "MSN Alt"
 ```
 
-[百度首页](http://baidu.com)
+行内连接：[百度首页](http://baidu.com)
+
+直接连接（必须协议开头）：<http://cnblogs.com/> http://cnblogs.com/
+
+参考连接： [Google][1] than from [Yahoo][2] or [MSN][3].
+
+[1]: http://google.com/ "Google Alt"
+[2]: http://search.yahoo.com/ "Yahoo Alt"
+[3]: http://search.msn.com/ "MSN Alt"
 
 ### 图片
 
 ```md
-![引入静态资源](https://doc.houdunren.com/xj.png)
+![行内形式](https://gips2.baidu.com/it/u=1651586290,17201034&fm=3028&app=3028&f=JPEG&fmt=auto&q=100&size=f300_400)
+
+![参考形式][id]
+
+[id]: https://gips2.baidu.com/it/u=1651586290,17201034&fm=3028&app=3028&f=JPEG&fmt=auto&q=100&size=f300_400 "Title 信息"
 ```
 
-![引入静态资源](https://gips2.baidu.com/it/u=1651586290,17201034&fm=3028&app=3028&f=JPEG&fmt=auto&q=100&size=f600_800)
+![行内形式](https://gips2.baidu.com/it/u=1651586290,17201034&fm=3028&app=3028&f=JPEG&fmt=auto&q=100&size=f300_400)
 
+![参考形式][id]
 
-## 视频
+[id]: https://gips2.baidu.com/it/u=1651586290,17201034&fm=3028&app=3028&f=JPEG&fmt=auto&q=100&size=f300_400 "Title 信息"
 
-```txt
-<iframe width="100%" height="500" src="./storybook.mp4" title="markdown video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+### 视频
+
+```md
+<iframe 
+width="100%" 
+height="500" 
+src="../../tools/package/storybook.mp4" 
+title="markdown video player" 
+frameborder="0" 
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+allowfullscreen>
+</iframe>
 ```
+
+<iframe 
+width="100%" 
+height="500" 
+src="../../tools/package/storybook.mp4" 
+title="markdown video player" 
+frameborder="0" 
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+allowfullscreen>
+</iframe>
+
 ### 数学公式
 
 1. 行内公式
@@ -388,30 +424,6 @@ and \quad \bigcup_{i=1}^{2} \Bbb{R}
 \quad and \quad \bigcap_{i=1}^3 X_i \tag{6}
 $$
 
-### 表格
-
-```md
-| 默认左侧对齐  |   两端对齐    | 靠右对齐 |
-| ------------- | :-----------: | -------: |
-| col 3 is      | right-aligned |    $1600 |
-| col 2 is      |   centered    |      $12 |
-| zebra stripes |   are neat    |       $1 |
-```
-
-| 默认左侧对齐  |   两端对齐    | 靠右对齐 |
-| ------------- | :-----------: | -------: |
-| col 3 is      | right-aligned |    $1600 |
-| col 2 is      |   centered    |      $12 |
-| zebra stripes |   are neat    |       $1 |
-
-### Emoji 🎉
-
-```md
-🎉 💯 :tada: :100:
-```
-
-🎉 💯 :tada: :100:
-
 ### 自定义容器
 
 自定义容器可以通过它们的类型、标题和内容来定义。
@@ -463,92 +475,55 @@ This is a details block.
 
 ## 代码效果
 
-### 代码高亮
-
-<pre>
-```js{1,4,6-8}
-export default { // Highlighted
-  data () {
-    return {
-      msg: `Highlighted!
-      This line isn't highlighted,
-      but this and the next 2 are.`,
-      motd: 'VitePress is awesome',
-      lorem: 'ipsum',
-    }
-  }
-}
-```
-</pre>
-
-```js{1,4,6-8}
-export default { // Highlighted
-  data () {
-    return {
-      msg: `Highlighted!
-      This line isn't highlighted,
-      but this and the next 2 are.`,
-      motd: 'VitePress is awesome',
-      lorem: 'ipsum',
-    }
-  }
-}
-```
-
 ### 代码块行样式
 
+高亮指定行:
+
 <pre>
-```js
-export default { // Highlighted
+```js{1-2,4}
+export default {
   data () {
     return {
-      msg: `Highlighted!
-      This line isn't highlighted,
-      but this and the next 2 are.`,
-      motd: 'VitePress is awesome',// [!code highlight]
-      lorem: 'ipsum',// [!code focus]
-      q: 'ipsum',// [!code --]
-      w: 'ipsum',// [!code ++]
-      r: 'ipsum',
-      msg: 'Error', // [!code error]
-      msg: 'Warning' // [!code warning]
+      msg: `由js{1-2,4}高亮此行!`,
+      motd: '由注释:[!code highlight]高亮此行',// [!code highlight]
+      lorem: '聚焦此行',// [!code focus]
+      q: '显示-号',// [!code --]
+      w: '显示+号',// [!code ++]
+      Error: 'Error背景色', // [!code error]
+      Warning: 'Warning背景色' // [!code warning]
     }
   }
 }
 ```
 </pre>
 
-```js
+```js{1-2,4}
 export default {
-  // Highlighted
-  data() {
+  data () {
     return {
-      msg: `Highlighted!
-      This line isn't highlighted,
-      but this and the next 2 are.`,
-      motd: "VitePress is awesome", // [!code highlight]
-      lorem: "ipsum", // [!code focus]
-      q: "ipsum", // [!code --]
-      w: "ipsum", // [!code ++]
-      r: "ipsum",
-      msg: "Error", // [!code error]
-      msg: "Warning", // [!code warning]
-    };
-  },
-};
+      msg: `由js{1-2,4}高亮此行!`,
+      motd: '由注释:[!code highlight]高亮此行',// [!code highlight]
+      lorem: '聚焦此行',// [!code focus]
+      q: '显示-号',// [!code --]
+      w: '显示+号',// [!code ++]
+      Error: 'Error背景色', // [!code error]
+      Warning: 'Warning背景色' // [!code warning]
+    }
+  }
+}
 ```
 
 ### 启用和禁用行号
 
 <pre>
-```ts:line-numbers=2 {1}
+```ts:line-numbers=2
 // 行号已启用，并从 2 开始
 const line3 = 'This is line 3'
 const line4 = 'This is line 4'
 ```
 </pre>
 
-```ts:line-numbers=2 {1}
+```ts:line-numbers=2
 // 行号已启用，并从 2 开始
 const line3 = 'This is line 3'
 const line4 = 'This is line 4'
@@ -557,19 +532,19 @@ const line4 = 'This is line 4'
 ### 导入代码片段
 
 ```txt
-// @为源目录 #snippet代码指定部分 2为需要高亮的行数
-<<< @/home.md{20}
+// @为源目录 #snippet代码指定部分 5-10为需要高亮的行
+<<< @/home.md{5-10}
 ```
 
-<<< @/home.md{20}
+<<< @/home.md{5-10}
 
 ### 包含 markdown 文件
 
-![alt text](image-1.png)
-
 以下为导入的 markdown 文件输出的结果：
 
+```md:line-numbers=3
 <!--@include: @/home.md{3,10}-->
+```
 
 ### 代码组
 
@@ -586,7 +561,7 @@ const config = {
 export default config;
 ```
 
-```ts [config.ts]
+```ts [index.ts]
 import type { UserConfig } from "vitepress";
 
 const config: UserConfig = {
@@ -601,14 +576,14 @@ export default config;
 ## 在 Markdown 使用 Vue
 
 ::: tip
-VitePress 带有内置的 Markdown 扩展。这里为提示 tip。获取页首定义的 title 变量 ：{{ $frontmatter.title }}
+VitePress 带有内置的 Markdown 扩展。这里为提示 tip。获取页首定义的 custom 变量 ：{{ $frontmatter.custom }}
 :::
 
 在 VitePress 中，每个 Markdown 文件都被编译成 HTML，而且将其作为 Vue 单文件组件处理。这意味着可以在 Markdown 中使用任何 Vue 功能，包括动态模板、使用 Vue 组件或通过添加 `<script>` 标签为页面的 Vue 组件添加逻辑。
 
 值得注意的是，VitePress 利用 Vue 的编译器自动检测和优化 Markdown 内容的纯静态部分。在客户端激活期间也会跳过它们。
 
->在 Markdown 中使用`<style scoped>` 需要为当前页面的每个元素添加特殊属性，这将显著增加页面的大小。当我们需要局部范围的样式时 `<style module>` 是首选。
+> 在 Markdown 中使用`<style scoped>` 需要为当前页面的每个元素添加特殊属性，这将显著增加页面的大小。当我们需要局部范围的样式时 `<style module>` 是首选。
 
 ```md
 <script setup>
@@ -643,6 +618,7 @@ const count = ref(1000)
 }
 </style>
 ```
+
 <script setup>
 import { data } from '/example.data.js'
 import { useData } from 'vitepress'
@@ -658,6 +634,7 @@ const count = ref(1000)
 <pre :class="$style.button">ref(1000)数据: {{ count }}</pre>
 
 <button :class="$style.button" @click="count++">点击：count++</button>
+
 <!-- <CustomComponent /> -->
 
 <!-- 使用CSS module -->

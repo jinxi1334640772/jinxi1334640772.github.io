@@ -8,7 +8,7 @@ export default defineConfig({
   // 应用级别配置选项
   // 往head里添加标签
   head: [
-    ["link", { rel: "icon", href: "/vitepress/images/favicon.ico" }],
+    ["link", { rel: "icon", href: "/favicon.ico" }],
     [
       "meta",
       {
@@ -118,18 +118,18 @@ export default defineConfig({
   themeConfig: {
     // 左上角是否显示logo
     logo: "/images/mogu.jpg",
-    // search: {
-    //   provider: 'local'
-    // },
     search: {
-      provider: "algolia",
-      options: {
-        apiKey: "ef1d5913298c3b377842ab406af9cbf6",
-        appId: "VZD7WV0OU8",
-        indexName: "vue-next-admin-doc-preview",
-        placeholder: "请输入内容...",
-      },
+      provider: "local",
     },
+    // search: {
+    //   provider: "algolia",
+    //   options: {
+    //     apiKey: "ef1d5913298c3b377842ab406af9cbf6",
+    //     appId: "VZD7WV0OU8",
+    //     indexName: "vue-next-admin-doc-preview",
+    //     placeholder: "请输入内容...",
+    //   },
+    // },
     // 自定义右侧大纲标题
     outlineTitle: "大纲",
     // 开启大纲深层导航：1，1.1，1.2.1
@@ -310,6 +310,8 @@ export default defineConfig({
             { text: "sodajs 模板引擎", link: "/tools/package/sodajs" },
             { text: "Sentry 错误监控", link: "/tools/package/sentry" },
             { text: "Storybook 组件测试", link: "/tools/package/Storybook" },
+            { text: "animate.css动画库", link: "/tools/package/animate" },
+            { text: "Hybrid 混合开发", link: "/tools/package/hybrid" },
           ],
         },
         {
@@ -423,6 +425,7 @@ export default defineConfig({
             { text: "process 模块", link: "/afterEnd/node/process" },
             { text: "readline 模块", link: "/afterEnd/node/readline" },
             { text: "querystring 模块", link: "/afterEnd/node/querystring" },
+            { text: "node 爬虫", link: "/afterEnd/node/reptile" },
           ],
         },
         {
@@ -431,13 +434,14 @@ export default defineConfig({
           items: [
             { text: "Express", link: "/afterEnd/express/server" },
             { text: "Koa", link: "/afterEnd/express/koa" },
+            { text: "Egg", link: "/afterEnd/express/egg" },
           ],
         },
         {
           text: "数据库",
           collapsed: false,
           items: [
-            { text: "MongooseDB", link: "/afterEnd/database/mongoose" },
+            { text: "MongoDB", link: "/afterEnd/database/mongoose" },
             { text: "MySQL", link: "/afterEnd/database/mysql" },
           ],
         },

@@ -476,7 +476,7 @@ pnpm config 命令可用于更新和编辑 用户和全局 .npmrc 文件的内�
 
 所有 .npmrc 文件都遵循 INI-formatted 列表，包含 key = value 参数。
 
-```conf
+```bash
 # 默认镜像源配置
 registry=https://example.com/packages/npm/
 
@@ -495,7 +495,7 @@ registry=https://example.com/packages/npm/
 
 把发布包时被忽略的文件，添加进来。例如：
 
-```conf
+```bash
 node_modules
 ```
 
@@ -554,7 +554,7 @@ build:
 
 Jenkins 可以使用 pnpm 来安装和缓存你的依赖项：
 
-```conf
+```bash
 pipeline {
     agent {
         docker {

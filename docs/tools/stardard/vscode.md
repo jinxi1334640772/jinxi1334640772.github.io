@@ -6,53 +6,17 @@ VSCode IDE，轻量，性能好，占用内存小，广泛用于前端开发中�
 
 官网地址：[https://code.visualstudio.com/](https://code.visualstudio.com/)
 
-## VSCode 插件安装
-
-点击左侧导航的扩展图标，进入插件市场，复制粘贴以下插件进行安装（可批量搜索，空格隔开）
-
-- Vue Language Features (Volar) vue3 版本插件
-- Auto Close Tag
-- Auto Rename Tag
-- background-cover
-- Bracket Pair Colorizer
-- Chinese (Simplified) Language Pack for Visual Studio Code
-- Color Info
-- CSS Peek
-- Debugger for Chrome
-- DotENV
-- ESLint
-- filesize
-- GitLens — Git supercharged
-- HTML Boilerplate
-- HTML CSS Support
-- HTML Snippets
-- Icon Fonts
-- Iconify IntelliSense
-- JavaScript (ES6) code snippets
-- Jest
-- language-postcss
-- Less IntelliSense
-- markdownlint
-- Material Icon Theme
-- open in browser
-- Path Intellisense
-- Prettier - Code formatter
-- SCSS IntelliSense
-- Tailwind CSS IntelliSense
-- vscode-fileheader
-- vscode-icons
-- bookmarks 代码添加标签，从而快速定位
-- path intellisence 自动补全路径名称
-- project manager 项目管理，方便项目切换
-- Git Graph
-- vetur vue2 版本代码高亮代码
+快捷键集合：
+![alt text](image-1.png)
 
 ## VSCode 配置
 
 > VSCode 配置分为用户配置和项目配置。
 
 - 用户配置被所有项目使用，其配置文件保存在用户目录里。
-- 项目配置被单个项目使用，并且优先级更高，其配置文件保存在项目根目录下的.vscode 文件夹下。我的 VSCode 配置如下：
+- 项目配置被单个项目使用，并且优先级更高，其配置文件保存在项目根目录下的.vscode/settings.json。
+
+我的 VSCode 配置如下：
 
 ```json
 {
@@ -144,6 +108,107 @@ VSCode IDE，轻量，性能好，占用内存小，广泛用于前端开发中�
   "editor.renderLineHighlight": "all",
   "editor.snippetSuggestions": "top",
   "bracketPairColorizer.depreciation-notice": false
+}
+```
+
+## VSCode 插件推荐
+利用插件可以实现很多功能，智能提示、SSH连接远程、postman接口测试、预览markdown、使用docker命令、语法高亮、代码片段、git等。。。。。
+
+点击左侧导航的扩展图标，进入插件市场，复制粘贴以下插件进行安装（可批量搜索，空格隔开）
+
+- Vue Language Features (Volar) vue3 版本插件
+- Auto Close Tag
+- Auto Rename Tag
+- background-cover
+- Bracket Pair Colorizer
+- Chinese (Simplified) Language Pack for Visual Studio Code
+- Color Info
+- CSS Peek
+- Debugger for Chrome
+- DotENV
+- ESLint
+- filesize
+- GitLens — Git supercharged
+- HTML Boilerplate
+- HTML CSS Support
+- HTML Snippets
+- Icon Fonts
+- Iconify IntelliSense
+- JavaScript (ES6) code snippets
+- Jest
+- language-postcss
+- Less IntelliSense
+- markdownlint
+- Material Icon Theme
+- open in browser
+- Path Intellisense
+- Prettier - Code formatter
+- SCSS IntelliSense
+- Tailwind CSS IntelliSense
+- vscode-fileheader
+- vscode-icons
+- bookmarks 代码添加标签，从而快速定位
+- path intellisence 自动补全路径名称
+- project manager 项目管理，方便项目切换
+- Git Graph
+- vetur vue2 版本代码高亮代码
+
+导出插件列表可以在终端执行命令： `code --list-extensions`
+
+.vscode/extensions.json recommendations 列表，会提示安装列表插件。
+
+```json
+{
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "astro-build.astro-vscode",
+    "bierner.color-info",
+    "bradlc.vscode-tailwindcss",
+    "ChakrounAnas.turbo-console-log",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "DavidAnson.vscode-markdownlint",
+    "dbaeumer.vscode-eslint",
+    "donjayamanne.githistory",
+    "dsznajder.es7-react-js-snippets",
+    "eamodio.gitlens",
+    "ecmel.vscode-html-css",
+    "EditorConfig.EditorConfig",
+    "esbenp.prettier-vscode",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.code-runner",
+    "IronGeek.vscode-env",
+    "jock.svg",
+    "kisstkondoros.vscode-gutter-preview",
+    "lokalise.i18n-ally",
+    "mkxml.vscode-filesize",
+    "ms-azuretools.vscode-docker",
+    "MS-CEINTL.vscode-language-pack-zh-hans",
+    "ms-vscode-remote.remote-containers",
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-ssh-edit",
+    "ms-vscode-remote.remote-wsl",
+    "ms-vscode-remote.vscode-remote-extensionpack",
+    "ms-vscode.remote-explorer",
+    "ms-vscode.remote-server",
+    "octref.vetur",
+    "PKief.material-icon-theme",
+    "quicktype.quicktype",
+    "ritwickdey.LiveServer",
+    "steoates.autoimport",
+    "streetsidesoftware.code-spell-checker",
+    "stylelint.vscode-stylelint",
+    "TabNine.tabnine-vscode",
+    "techer.open-in-browser",
+    "usernamehw.errorlens",
+    "Vue.volar",
+    "WakaTime.vscode-wakatime",
+    "WallabyJs.quokka-vscode",
+    "wix.vscode-import-cost",
+    "xabikos.JavaScriptSnippets",
+    "yzhang.markdown-all-in-one"
+  ]
 }
 ```
 

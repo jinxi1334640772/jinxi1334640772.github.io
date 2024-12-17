@@ -2,6 +2,9 @@
 
 提供有关当前 node 进程信息并对其进行控制，是 EventEmitter 的实例。
 
+process是一个全局对象，即global对象的属性，可以在任何地方直接访问到它而无需引入额外模块
+
+![alt text](image.png)
 ```js
 const process = require('node:process');
 
@@ -93,12 +96,28 @@ process.report
 
 // 返回连接到 stderr (文件描述符 2) 的流,它是一个 net.Socket
 process.stderr
+process.stderr.write('输出一行标准错误流，效果跟stdout没差');
 
-// 返回连接到 stdin (文件描述符 0) 的流,它是一个 net.Socket
+// 指向标准输入流(stdin)的可读流(Readable Stream).必须要调用process.stdin.resume()来恢复(resume)接收
 process.stdin
+process.stdin.resume();
+var a,b;
+process.stdout.write('请输入a的值: ');
+process.stdin.on('data',function(data){
+    if(a == undefined){
+        a = Number(data);
+        process.stdout.write('请输入b的值: ');
+    }else{    
+        b = Number(data);
+        process.stdout.write('结果是: ' + (a+b));
+        process.exit();
+    }
+
+})
 
 // 返回连接到 stdout (文件描述符 1) 的流。它是一个 net.Socket
 process.stdout
+process.stdout.write('这是一行数据\n这是第二行数据');
 
 // 返回进程的 PID。
 process.pid
@@ -109,6 +128,10 @@ process.ppid
 // 返回用于标识编译 Node.js 二进制文件的操作系统平台的字符串
 process.platform
 
+//包含 Node.js 版本字符串
+process.version
+//列出了 Node.js 的版本字符串及其依赖
+process.versions
 // 包含与当前版本相关的元数据
 process.release
 
@@ -125,54 +148,66 @@ process.permission
 // Check if the process has permission to read the README file
 process.permission.has('fs.read', './README.md');
 
-process.abort()
 //返回当前 Node.js 进程已经运行的秒数。
 process.uptime()
-//包含 Node.js 版本字符串
-process.version
-//列出了 Node.js 的版本字符串及其依赖
-process.versions
 
+// 触发node的abort事件，退出当前进程
 process.abort()
-//当前进程的资源使用情况
-process.resourceUsage()
+
 //向父进程发送消息
 process.send(message[, sendHandle[, options]][, callback])
+
+// 返回当前进程的工作目录
+process.cmd()
 //更改 Node.js 进程的当前工作目录
 process.chdir(directory)
+
+//当前进程的资源使用情况
+process.resourceUsage()
+
 //获取进程可用的内存量
 process.constrainedMemory()
+
 //获取进程仍可用的空闲内存量（以字节为单位）。
 process.availableMemory()
+
 //返回当前进程的用户和系统 CPU 时间使用情况
 process.cpuUsage([previousValue])
+
 //返回 Node.js 进程的当前工作目录。
 process.disconnect()
+
 //允许动态加载共享对象
 process.dlopen(module, filename[, flags])
+
 //触发自定义或特定于应用的进程警告
 process.emitWarning(warning[, options])
 process.emitWarning('Something happened!', {
   code: 'MY_WARNING',
   detail: 'This is some additional information',
 });
+
 //以 code 的退出状态同步终止进程
 process.exit([code])
+
 //包含当前保持事件循环活动的活动资源的类型的字符串
 process.getActiveResourcesInfo()
+
 //在全局可用函数中加载内置模块
 process.getBuiltinModule(id)
+
 //返回进程的数字用户标识
 process.getuid()
+
 //将 signal 发送到由 pid 标识的进程。
 process.kill(pid[, signal])
-//将 .env 文件加载到 process.env 中
-process.loadEnvFile(path)
-//memoryUsage()
+
+//Node进程的内存使用情况，其单位是bytes
 process.memoryUsage()
+
 //将 callback 添加到 "下一个滴答队列"
 process.nextTick(callback[, ...args])
+
 //将 .env 文件加载到 process.env 中
 process.loadEnvFile(path)
-console.log('This message is displayed first.');
 ```

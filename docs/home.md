@@ -1,6 +1,5 @@
 ---
 layout: page
-
 hero:
   name: 💖:VitePress
   text: 🚧:VitePress模板

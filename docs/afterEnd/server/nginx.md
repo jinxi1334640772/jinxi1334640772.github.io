@@ -665,7 +665,7 @@ Context: http, server, location
 
 ## Nginx 配置
 
-```conf
+```bash
 # nginx.conf
 
 #user  nobody;

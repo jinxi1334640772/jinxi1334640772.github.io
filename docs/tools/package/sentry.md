@@ -363,7 +363,7 @@ module.exports = {
 
 .sentryclirc:
 
-```conf
+```bash
 [auth]
 token=42b21a34ca654530af08			授权令牌，认证凭证token(Settings/Auth Tokens)
 
