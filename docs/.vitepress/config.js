@@ -269,6 +269,8 @@ export default defineConfig({
             { text: "VsCode 配置", link: "/tools/stardard/vscode" },
             { text: "Git 版本管理", link: "/tools/stardard/git" },
             { text: "命名规范", link: "/tools/stardard/naming" },
+            { text: "代码质量把控", link: "/tools/stardard/quality" },
+            
           ],
         },
         {
@@ -291,6 +293,10 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: "我的Webpack插件", link: "/tools/package/myplugin" },
+            { text: "animate css动画库", link: "/tools/package/animate" },
+            { text: "Anime js动画库", link: "/tools/package/anime" },
+            { text: "Lottie js动画库", link: "/tools/package/Lottie" },
+            { text: "Velocity js动画库", link: "/tools/package/Velocity" },
             { text: "Echarts 图表库", link: "/tools/package/echarts" },
             { text: "AntV 图表库", link: "/tools/package/antv" },
             { text: "D3.js 数据可视化", link: "/tools/package/D3" },
@@ -307,10 +313,9 @@ export default defineConfig({
             { text: "fuse.js 模糊匹配", link: "/tools/package/fuse" },
             { text: "day.js 日期时间格式化", link: "/tools/package/dayjs" },
             { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
+            { text: "Storybook 组件测试", link: "/tools/package/Storybook" },
             { text: "sodajs 模板引擎", link: "/tools/package/sodajs" },
             { text: "Sentry 错误监控", link: "/tools/package/sentry" },
-            { text: "Storybook 组件测试", link: "/tools/package/Storybook" },
-            { text: "animate.css动画库", link: "/tools/package/animate" },
             { text: "Hybrid 混合开发", link: "/tools/package/hybrid" },
           ],
         },

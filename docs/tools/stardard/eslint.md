@@ -140,9 +140,11 @@ module.exports = {
     "plugin:vue/essential",
     "@vue/standard",
     "@vue/typescript/recommended",
+    "plugin:prettier/recommended",
   ],
   // eslint所处的环境：使用对应环境的api时，不会报错
   env: { browser: true, node: true, commonjs: true, es6: true },
+  plugins: ["prettier"],
   // 声明所处位置为根目录，不会再往上级查找eslint配置文件了
   root: true,
   // 各种规则的具体配置在这里，包括插件提供的rules

@@ -2,6 +2,7 @@
 node_modules
 docs/.vitepress/dist
 docs/.vitepress/cache
+out/
 # local env files
 .env.local
 .env.*.local

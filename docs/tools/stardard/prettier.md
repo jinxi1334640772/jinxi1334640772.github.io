@@ -10,6 +10,7 @@ prettier 插件用来格式化代码，使代码符合 Eslint 规范。使用 VS
 
 ```bash
 npm install --save-dev prettier
+npm install --save-dev eslint-config-prettier
 ```
 
 ## 根目录新建 .prettierrc.js
@@ -62,6 +63,17 @@ module.exports = {
 };
 ```
 
+在 VSCode 中安装 ESLint 和 Prettier 插件，以便在代码编写过程中实时检查和格式化代码。并配置 VSCode 插件，使代码在保存时自动格式化：
+
+```json
+{
+  "editor.formatOnSave ": true,
+  "editor.codeActionsOnSave ": {
+    "source.fixAll.eslint ": true
+  }
+}
+```
+
 ## 格式化方式
 
 - 命令行执行格式化 ‌：使用命令行工具手动格式化代码。例如，`npx prettier --write .`会格式化项目中的所有文件 ‌
@@ -76,25 +88,55 @@ module.exports = {
 
 ## 解决与 ESLint 的冲突 ‌
 
-安装`eslint-config-prettier`插件来关闭 ESLint 中可能导致冲突的规则，确保 Prettier 和 ESLint 可以兼容使用 ‌。通过合理配置和使用 Prettier，可以有效地提升代码的可读性和一致性。
+安装`eslint-config-prettier` 并添加到.eslintrc.js 文件的 extends 数组中，来关闭 ESLint 中可能导致冲突的规则，确保 Prettier 和 ESLint 可以兼容使用 ‌。
 
 ## commit 前格式化
 
-可以设置在 git 提交之前执行一次格式化( pre-commit hook )，这样我们仓库里的代码就都是格式化好的了。
+添加 scripts 脚本到 package.json 文件中，以便在构建过程中运行 ESLint 和 Prettier：
 
-需要安装 husky 和 lint-staged 这两个依赖才能实现，其中 husky 是帮助添加 git hooks 的工具，而 lint-staged 则是筛选那些 staged 的 git 文件执行 lint。
+添加 husky、lint-staged 设置，配置 prettier 到 lint-staged 中，在 git 提交之前执行一次格式化( pre-commit hook )， 实现自动格式化编码风格。
 
-只需要在 package.json 里面加入一些配置。
+- husky 是帮助添加 git hooks 的工具
+- lint-staged 筛选哪些 staged 的 git 文件执行需要 lint。
 
 ```json
 {
+  "scripts": {
+    "lint": "eslint .",
+    "prettier": "prettier --write .",
+    "format": "npm run prettier",
+    "lint:ci": "npm run lint && npm run prettier"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "linters": {
+      "*.{js,jsx,ts,tsx}": [
+        "eslint --fix",
+        "prettier --write --ignore-unknown",
+        "git add"
+        // "git commit --amend --no-edit"
+        // "npm run lint:ci"
+        // "npm run lint"
+        // "npm run format"
+      ],
+      "*.vue": ["eslint --fix", "prettier --write --ignore-unknown", "git add"],
+      "**/*.{css,less,sass,scss}": [
+        "stylelint --fix",
+        "prettier --write --ignore-unknown",
+        "git add"
+      ],
+      "ignore": [
+        "/dist/**",
+        "/node_modules/**",
+        "/public/**",
+        "/static/**",
+        "/src/assets/**"
+      ]
+    }
   }
 }
 ```
