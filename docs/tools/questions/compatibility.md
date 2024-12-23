@@ -85,6 +85,9 @@ user-select: none;
 obj.onselectstart = function {return false;} // IE
 ```
 
+- 图片变化 base64 格式之后，再添加查询字符串，会报错
+- 移动端更改同名图片无法清除缓存。所以，还是要在图片命名上做文章
+
 ## CSS 兼容性问题
 
 - 使用 `normalize.css`抹平差异，同时可以定制自己的 `reset.css` 全局重置样式
@@ -112,19 +115,42 @@ p {
 
 ### IOS
 
-- iOS 弹出各种操作窗口：-webkit-touch-callout:none
-- 禁止 iOS 和 Android 用户选中文字：-webkit-user-select:none
-- IOS 输入英文首字母默认大写：
+- 部分设备切换横竖屏时，会缩放字体
+
+```css
+/* iOS 禁止弹出各种操作窗口 */
+-webkit-touch-callout:none
+
+/* 禁止 iOS 和 Android 用户选中文字： */
+-webkit-user-select:none
+
+/* 部分手机上，切换横竖屏时，会缩放字体。禁止文字缩放 */
+-webkit-text-size-adjust:100%;
+
+/* 可以用来控制字体的像素显示是否平滑 */
+/* 关闭抗锯齿，字体边缘犀利。 */
+-webkit-font-smoothing:none
+/* 字体像素级平滑，在深色背景上会让文字看起来更细了 */
+-webkit-font-smoothing:antialiased
+/* 字体亚像素级平滑，主要为了在非视网膜设备下更好的显示 */
+-webkit-font-smoothing:subpixel-antialiased;
+```
+
+- IOS 输入英文首字母默认大写，并且默认自动保存：
 
 ```html
-<input autocapitalize="off" autocorrect="off" />
+<!-- 通过设置autocapitalize="off"关闭首字母大写 -->
+<!-- 使用autocomplete="off"属性关闭自动保存 -->
+<input autocapitalize="off" autocomplete="off" autocorrect="off" />
 ```
 
 - IOS 日期格式不支持-分割：统一用/分割 1202/12/12
 - overflow: scroll 或 auto；在 iOS 上滑动卡顿的问题
 
 ```css
+/* 使用具有回弹效果的滚动, 当手指从触摸屏上移开，内容会继续保持一段时间的滚动效果。继续滚动的速度和持续的时间和滚动手势的强烈程度成正比。同时也会创建一个新的堆栈上下文 */
 -webkit-overflow-scrolling: touch;
+/* auto 使用普通滚动, 当手指从触摸屏上移开，滚动会立即停止 */
 ```
 
 - 上拉边界下拉出现空白
@@ -244,6 +270,19 @@ $(function () {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 ```
+
+- input 获取焦点时会放大
+- IOS9+系统下，使用 Viewport 元标记"width=device-width"会导致页面缩小以适应溢出视口边界的内容。可以通过添加"shrink-to-fit=no"到 meta 标签来覆盖此行为，增加的值将阻止页面缩放以适应视口
+
+```html
+<!-- meta设置user-scalable=no，可取消放大效果.仍然无法阻止页面整体的缩放 -->
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, user-scalable=no, shrink-to-fit=no" />
+```
+
+- input 域只显示底边框时，会出现两个底部底边圆角效果。设置 border-radius:0 即可
+- 设置 height:100%，如果父级的 flex 值为 1，而没有设置具体高度，则 100%高度设置无效:在父级通过计算来设置具体高度 height，如 height: calc(100% - 100px)
 
 ### Android
 
@@ -380,6 +419,111 @@ export default {
 input::-webkit-input-speech-button {
   display: none;
 }
+
+/* 设置placeholder的颜色 */
+::placeholder {
+  color: #fff;
+}
+
+/* 清除按钮圆角 */
+input,
+button {
+  -webkit-appearance: none;
+  border-radius: 0;
+}
 ```
 
 - 在 Android 上 placeholder 文字设置行高会偏上：input 有 placeholder 情况下不要设置行高
+- input 域处于焦点状态时，默认会有一圈淡黄色的轮廓 outline 效果：通过设置 outline:none 可将其去除
+- 1 像素边框问题：由于 retina 屏的原因，1px 的 border 会显示成两个物理像素
+
+```css
+/* CSS3 渐变背景:可以通过渐变背景实现 1px 的 border，实现原理是设置 1px 的渐变背景，50% 有颜色，50% 是透明的 */
+@mixin commonStyle() {
+  background-size: 100% 1px, 1px 100%, 100% 1px, 1px 100%;
+  background-repeat: no-repeat;
+  background-position: top, right top, bottom, left top;
+}
+@mixin border($border-color) {
+  @include commonStyle();
+  background-image: linear-gradient(
+      180deg,
+      $border-color,
+      $border-color 50%,
+      transparent 50%
+    ), linear-gradient(
+      270deg,
+      $border-color,
+      $border-color 50%,
+      transparent 50%
+    ), linear-gradient(0deg, $border-color, $border-color 50%, transparent 50%),
+    linear-gradient(90deg, $border-color, $border-color 50%, transparent 50%);
+}
+
+/* 伪类 + transform:实现原理是用伪元素高度设置为1px，然后用 transform缩小到原来的一半 */
+div {
+  position: relative;
+  &::after {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    transform: scaleY(0.5);
+    content: "";
+  }
+}
+```
+
+## HTML 识别规则
+
+```html
+<a href="tel:0755-10086">打电话给:0755-10086</a>
+<a href="sms:10086">发短信给: 10086</a>
+<a href="mailto:peun@foxmail.com">peun@foxmail.com</a>
+
+<a
+  href="iosamap://viewMap?sourceApplication=yukapril&poiname=国宏宾馆&lat=39.905592&lon=116.33604&dev=0"
+  >跳转高德地图</a
+>
+<a
+  href="androidamap://viewMap?sourceApplication=yukapril&poiname=国宏宾馆&lat=39.905592&lon=116.33604&dev=0"
+  >跳转高德地图</a
+>
+
+<!-- 禁止识别电话号码、邮箱、地址 -->
+<meta name="format-detection" content="telephone=no,email=no,address=no" />
+
+<!-- 网页会被搜索引擎忽略 -->
+<meta name="robots" content="none" />
+robots(网页搜索引擎索引方式)：对应一组使用逗号(,)分割的值，通常取值：
+none：搜索引擎将忽略此网页，等同于noindex，nofollow；
+noindex：搜索引擎不索引此网页；nofollow：搜索引擎不继续通过此网页的链接索引搜索其它的网页；
+all：搜索引擎将索引此网页与继续通过此网页的链接索引，等同于index，follow；
+index：搜索引擎索引此网页；follow：搜索引擎继续通过此网页的链接索引搜索其它的网页；
+
+<!-- 在IOS下，在head元素底部，使用下列代码可以实现添加到主屏幕的功能 -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="apple-mobile-web-app-title" content="Weather PWA" />
+<link rel="apple-touch-icon" href="images/icons/icon-152x152.png" />
+
+<!-- 【QQ浏览器】 -->
+// 全屏模式
+<meta name="x5-fullscreen" content="true">
+// 强制竖屏
+<meta name="x5-orientation" content="portrait">
+// 强制横屏
+<meta name="x5-orientation" content="landscape">
+// 应用模式
+<meta name="x5-page-mode" content="app">
+
+<!-- 【UC浏览器】 -->
+// 全屏模式
+<meta name="full-screen" content="yes">
+// 强制竖屏
+<meta name="screen-orientation" content="portrait">
+// 强制横屏
+<meta name="screen-orientation" content="landscape">
+// 应用模式
+<meta name="browsermode" content="application">
+```

@@ -81,37 +81,120 @@ Default: real_ip_recursive off;
 Context: http, server, location
 ```
 
+服务器配置：
+
 ```bash
+# 负载均衡配置
+upstream backend {
+    # ip_hash;
+    server s1.barretlee.com;
+    server s2.barretlee.com;
+}
+
+# gzip压缩配置
+gzip on;
+gzip_disable "msie6";
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+gzip_http_version 1.1;
+gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
 # 在 example 目录下建立 realip.conf，set_real_ip_from 可以设置为自己的本机 IP
 server {
-    server_name ziyang.realip.com;#定义服务器域名
+    server_name ziyang.realip.com; #定义服务器域名
     listen 80; #定义服务器的端口号
+    listen 80 http2; #定义端口号，开启HTTP2
     root html/; #服务器根目录
+    alias /home/www/blog/; # alias别名
+    index /html/index.html; # 首页设置
 
     error_page 404 /404.html notice; #定义错误页面
     error_page 500 502 503 504 /50x.html;
 
     set_real_ip_from 192.168.0.108; #指定可信地址
     #real_ip_header X-Real-IP;
-    real_ip_header X-Forwarded-For;#从哪个字段获取realip
+    real_ip_header X-Forwarded-For; #从哪个字段获取realip
     # real_ip_recursive on;
-    real_ip_recursive off;#是否启用环回地址
+    real_ip_recursive off; #是否启用环回地址
 
-    rewrite_log on;#启动复写时的日志记录
+    rewrite_log on; #启动复写时的日志记录
 
-    location / {
-        error_page 404 = @fallback;
-        return 200 "Client real ip: $remote_addr\n";
+    # 路径配置：nginx使用location指令来实现URI匹配
+
+    try_files $uri $uri.html $uri/index.html @other;
+    location @other {
+        # 尝试寻找匹配 uri 的文件，失败了就会转到上游处理
+        # 负载均衡
+        proxy_pass http://backend;
     }
-    location /first {
+
+    location = /first { # 精确匹配 /first
         rewrite /first(.*) /second$1 last;
         return 200 'first!\n';
     }
-    location /redirect3 {
-        rewrite /redirect3(.*) http://rewrite.ziyang.com$1;
+    location ~ /second { # 大小写敏感匹配 /second
+        rewrite /third(.*) http://rewrite.com$1;
     }
-    if ($http_user_agent ~ MSIE) { # 与变量 http_user_agent 匹配
+    location ^~ /second { # 匹配以。。开头 /second
+        error_page  404 @fallback;
+    }
+    location ~* /third { # 忽略大小写匹配 301重定向
+        return 301 https://api.cc$request_uri;
+    }
+    location /fourth { # 包含匹配 /fourth
+        rewrite /redirect3(.*) http://rewrite.com$1;
+    }
+    location  ~* \.(gif|jpg|png)$ { # 正则匹配
+        rewrite /redirect3(.*) http://rewrite.com$1;
+    }
+
+    location @fallback {
+        # 将请求反向代理到上游服务器处理
+        proxy_pass http://localhost:9000;
+
+        ### 下面都是次要关注项
+        proxy_set_header Host $host;
+        proxy_method POST;
+        # 指定不转发的头部字段
+        proxy_hide_header Cache-Control;
+        proxy_hide_header Other-Header;
+        # 指定转发的头部字段
+        proxy_pass_header Server-IP;
+        proxy_pass_header Server-Name;
+        # 是否转发包体
+        proxy_pass_request_body on | off;
+        # 是否转发头部
+        proxy_pass_request_headers on | off;
+        # 显形/隐形 URI，上游发生重定向时，Nginx 是否同步更改 uri
+        proxy_redirect on | off;
+    }
+    # 默认匹配：如果以上都未匹配，会进入这里
+    location / {
+        # 缓存配置:自动添加expires和cache-control字段
+        # 协商缓存Etag和Last-Modified，nginx默认开启，无需配置
+        expires 7d;
+        return 200 "Client real ip: $remote_addr\n";
+    }
+        # 与变量 http_user_agent 匹配
+    if ($http_user_agent ~ MSIE) {
       rewrite ^(.*)$ /msie/$1 break;
+    }
+}
+# HTTPS配置
+server {
+    listen 443;
+    server_name api.xiaohuochai.cc;
+    ssl on;
+    ssl_certificate /home/www/blog/crt/api.cc.crt;
+    ssl_certificate_key /home/www/blog/crt/api.cc.key;
+    ssl_session_timeout 5m;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    if ($ssl_protocol = "") {
+        rewrite ^(.*)https://$host$1 permanent;
     }
 }
 ```

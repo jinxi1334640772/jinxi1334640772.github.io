@@ -571,45 +571,6 @@ function main() {
 }
 ```
 
-## 窗口控件覆盖 API
-
-Window Controls Overlay API 使安装在桌面操作系统上的渐进式 Web 应用程序能够隐藏默认窗口标题栏并显示其自己的内容 在应用程序窗口的整个外围应用区域上，将控制按钮（Maximize、Minimize 和 Close）转换为叠加层。
-
-使用此功能前，必须满足以下条件：
-
-- Web App Manifest 的 display_override 属性设置为 .window-controls-overlay
-- 渐进式 Web 应用程序必须安装在桌面操作系统上。
-
-渐进式 Web 应用程序可以使用 `titlebar-area-x titlebar-area-y titlebar-area-width titlebar-area-height` CSS 环境变量将其 Web 内容放置在标题栏通常占据的区域。
-
-WindowControlsOverlay 接口公开有关几何图形的信息 的标题栏区域，以及每当更改时要了解的事件。此接口可从 Navigator.windowControlsOverlay 访问。
-
-- `visible` 一个布尔值，指示窗口控件叠加是否可见。
-- `getTitlebarAreaRect()` 返回标题栏的大小和位置。
-- `ongeometrychange` 当标题栏区域的几何图形发生更改时触发。
-
-```js
-// 特性检测
-if ("windowControlsOverlay" in navigator) {
-  navigator.windowControlsOverlay.addEventListener("geometrychange", event => {
-    if (event.visible) {
-      const { x, y, width, height } = event.titlebarAreaRect;
-      console.log(
-        `The titlebar area coordinates are x:${x}, y:${y}, width:${width}, height:${height}`
-      );
-    }
-  });
-  if (navigator.windowControlsOverlay.visible) {
-    // Execute code if the controls overlay is visible.
-    let titlebarAreaRect =
-      navigator.windowControlsOverlay.getTitlebarAreaRect();
-    console.log(titlebarAreaRect);
-  } else {
-    // Do something else when it isn't visible.
-  }
-}
-```
-
 ## 窗口管理 API
 
 窗口管理 API 允许您获取有关连接到设备的显示器的详细信息，并更轻松地将窗口放置在特定屏幕上，从而为更有效的多屏幕应用程序铺平道路。

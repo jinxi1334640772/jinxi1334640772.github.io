@@ -272,9 +272,10 @@ if ("serviceWorker" in navigator) {
 
 一旦成功地注册了 service worker，为了节省内存和处理器，状态空闲时被终止。激活状态的 service worker 为了响应事件可以自动重启。
 
-> 在 service worker 中，同步请求是被禁止的 - 只有异步请求，如方法 fetch() 才被允许。
+> 在 service worker 中，同步请求是被禁止的 - 只有异步请求
 
-- `clients` 包含关联 serviceWorder 的 Clients 对象
+- `self`: 表示 Service Worker 作用域, 也是全局变量
+- `clients` 包含关联 serviceWorder 的 Clients 对象，表示 Service Worker 接管的页面
 - `registration` 包含 ServiceWorderRegistration 对象
 - `caches` 包含关联的 serviceWorker 的 CacheStorage 对象
 - `skipWaiting()` 允许当前 serviceWorker registration 由 waiting 过渡到 active 状态。
@@ -487,4 +488,62 @@ self.addEventListener("sync", event => {
     event.waitUntil(sendOutboxMessages());
   }
 });
+```
+
+## 添加到屏幕
+
+没人愿意多此一举地在移动设备键盘上输入长长的网址。通过添加到屏幕的功能，用户可以像从应用商店安装本机应用那样，选择为其设备添加一个快捷链接，并且过程要顺畅得多。
+
+使用 manifest.json 文件来实现添加到屏幕的功能:
+
+```json
+{
+  "name": "应用名称",
+  "short_name": " 应用展示的名字",
+  // 定义桌面启动的 URL
+  "start_url": "/",
+  "description": "应用描述",
+  // 应用显示方向，竖屏、横屏
+  "orientation": "portrait",
+  //显示方式：应用standalone、全屏fullscreen、比应用多一些系统导航控制元素minimal-ui、浏览器browser
+  "display": "standalone",
+  // 应用模式下的路径范围，超出范围会以浏览器方式显示
+  "scope": "/",
+  // 是否设置对应移动应用，默认为 false
+  "prefer_related_applications": false,
+  // 获取移动应用的方式
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=cheeaun.hackerweb"
+    }
+  ],
+  // 应用默认的主题色
+  "theme_color": "#fff",
+  // 应用加载之前的背景色，用于应用启动时的过渡
+  "background_color": "#d8d8d8",
+  // 文字方向 ltr、rtl、auto
+  "dir": "auto",
+  // 语言
+  "lang": "zh-CN",
+  // 应用图标配置:类型最好是png，，且存在144px的尺寸
+  "icons": [
+    { "src": "./logo_32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "./logo_48.png", "sizes": "48x48", "type": "image/png" },
+    { "src": "./logo_96.png", "sizes": "96x96", "type": "image/png" },
+    { "src": "./logo_144.png", "sizes": "144x144", "type": "image/png" },
+    { "src": "./logo_192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./logo_256.png", "sizes": "256x256", "type": "image/png" }
+  ]
+}
+```
+
+在 HTML 文档中通过 link 标签来引用 manifest.json 文件
+
+```html
+<link rel="manifest" href="/manifest.json" />
+<!-- 文件位于static目录下 -->
+<link rel="manifest" href="/static/manifest.json" />
+<!-- 为了更好地SEO，需要通过meta标签设置theme-color -->
+<meta name="theme-color" content="#fff" />
 ```

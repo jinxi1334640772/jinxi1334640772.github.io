@@ -173,6 +173,18 @@ function chunk(array, fn, count, delay) {
 }
 ```
 
+## clientHeight offsetHeight scrollHeight 区别
+
+clientHeight：元素内容高度，包含 padding，不包含 border 和滚动条。clientLeft 属性返回左边框的宽度，clientTop 属性返回上边框的宽度。
+
+![alt text](image-28.png)
+
+offsetHeight：元素内容高度，包含 padding 和 border，但不包含滚动条。
+
+![alt text](image-27.png)
+
+scrollHeight：元素总高度，包括由于溢出而无法展示在网页的不可见部分，包含 padding、border、滚动条。
+
 ## URL 编码问题
 
 1.  encodeURI & decodeURI

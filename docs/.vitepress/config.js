@@ -248,7 +248,7 @@ export default defineConfig({
       },
       {
         text: "性能优化",
-        link: "/performace/codePerformace/dnsPrefetch",
+        link: "/performace/dnsPrefetch",
         activeMatch: "/performace/",
       },
     ],
@@ -270,7 +270,6 @@ export default defineConfig({
             { text: "Git 版本管理", link: "/tools/stardard/git" },
             { text: "命名规范", link: "/tools/stardard/naming" },
             { text: "代码质量把控", link: "/tools/stardard/quality" },
-            
           ],
         },
         {
@@ -317,6 +316,7 @@ export default defineConfig({
             { text: "sodajs 模板引擎", link: "/tools/package/sodajs" },
             { text: "Sentry 错误监控", link: "/tools/package/sentry" },
             { text: "Hybrid 混合开发", link: "/tools/package/hybrid" },
+            { text: "Bootstrap", link: "/tools/package/bootstrap" },
           ],
         },
         {
@@ -336,6 +336,8 @@ export default defineConfig({
             { text: "npm私服搭建", link: "/tools/questions/npmHub" },
             { text: "移动端适配", link: "/tools/questions/mobileFit" },
             { text: "dev-tools 调试", link: "/tools/questions/debugging" },
+            { text: "Robots爬虫协议", link: "/tools/questions/robots" },
+            { text: "微信支付", link: "/tools/questions/wechatPay" },
           ],
         },
       ],
@@ -579,16 +581,24 @@ export default defineConfig({
           collapsed: false,
           items: [
             {
+              text: "性能优化手段",
+              link: "/performace/performace",
+            },
+            {
               text: "DNS预解析和预连接",
-              link: "/performace/codePerformace/dnsPrefetch",
+              link: "/performace/dnsPrefetch",
             },
             {
               text: "资源预获取和预加载",
-              link: "/performace/codePerformace/prefetch",
+              link: "/performace/prefetch",
+            },
+            {
+              text: "图片优化",
+              link: "/performace/image",
             },
             {
               text: "优化 SEO",
-              link: "/performace/codePerformace/seo",
+              link: "/performace/seo",
             },
           ],
         },

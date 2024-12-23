@@ -42,6 +42,8 @@ https://debugmm.qq.com/?forcex5=true
 
 ## 移动端调试
 
+1. 使用 vConsole 和 eruda 工具，在移动端显示 dev-tool 调试工具
+
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.3.4/vconsole.min.js"></script>
 <script>
@@ -62,3 +64,17 @@ https://debugmm.qq.com/?forcex5=true
   eruda.init();
 </script>
 ```
+
+2. browser-sync 真机调试
+
+```bash
+# 安装依赖包
+npm install -g browser-sync
+
+# BrowserSync监听文件变动：files 路径是相对于运行该命令的项目
+# 如果需要监听多个类型的文件，需要用逗号隔开，检测到文件变动后，会自动刷新浏览器
+browser-sync start --server --files "css/*.css, *.html"
+```
+
+移动端设置：移动端设备和桌面端设备处于同一局域网(一般地，都连入一个路由器即可)。移动端无法访问 localhost，需要查找电脑的内网 ip。通过在命令行中输入 ipconfig，查看 ip 地址为 192.168.1.100。所以手机端访问的地址为http://192.168.1.100:3000
+![alt text](image-26.png)

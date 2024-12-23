@@ -828,40 +828,46 @@ with webdriver.Firefox() as driver:
 
 ## windowControlsOverlay
 
-返回 WindowControlsOverlay 接口，该接口提供有关使用了窗口控件叠加层 API 的桌面渐进式 Web 应用程序的标题栏几何图形的信息。
+Window Controls Overlay API 使安装在桌面操作系统上的渐进式 Web 应用程序能够隐藏默认窗口标题栏并显示其自己的内容 在应用程序窗口的整个外围应用区域上，将控制按钮（Maximize、Minimize 和 Close）转换为叠加层。使用此功能前，必须满足以下条件：
 
-安装在桌面操作系统上的渐进式 Web 应用程序可以通过在 Web 应用程序清单成员 display_override 中使用 window-controls-overlay 值来选择加入窗口控件叠加层特性。
+- Web App Manifest 的 display_override 属性设置为 .window-controls-overlay
+- 渐进式 Web 应用程序必须安装在桌面操作系统上。
 
-这样做会隐藏默认的窗口标题栏，并使应用程序可以访问应用程序窗口的整个区域。
+渐进式 Web 应用程序可以使用 `titlebar-area-x titlebar-area-y titlebar-area-width titlebar-area-height` CSS 环境变量将其 Web 内容放置在标题栏通常占据的区域。
 
-- `visible`
-- `getTitlebarAreaRect()`
-- `ongeometrychange`
+WindowControlsOverlay 接口公开有关几何图形的信息 的标题栏区域，以及每当更改时要了解的事件。
+
+- `visible` 一个布尔值，指示窗口控件叠加是否可见。
+- `getTitlebarAreaRect()` 返回标题栏的大小和位置。
+- `ongeometrychange` 当标题栏区域的几何图形发生更改时触发。
 
 ```js
+// 特性检测
 if ("windowControlsOverlay" in navigator) {
-  // 对标题栏矩形区域做一些处理。
-   const rect = navigator.windowControlsOverlay.getTitlebarAreaRect();
-    {
-        "x": 0,
-        "y": 0,
-        "width": 0,
-        "height": 0,
-        "top": 0,
-        "right": 0,
-        "bottom": 0,
-        "left": 0
+  navigator.windowControlsOverlay.addEventListener("geometrychange", event => {
+    if (event.visible) {
+      const { x, y, width, height } = event.titlebarAreaRect;
+      console.log(
+        `The titlebar area coordinates are x:${x}, y:${y}, width:${width}, height:${height}`
+      );
     }
-  navigator.windowControlsOverlay.addEventListener(
-    "geometrychange",
-    (event) => {
-      if (event.visible) {
-        const rect = event.titlebarAreaRect;
-        // Do something with the coordinates of the title bar area.
-      }
-    },
-  );
-}else{
-  // 窗口控件叠加层特性不可用。
+  });
+  if (navigator.windowControlsOverlay.visible) {
+    // 对标题栏矩形区域做一些处理。
+    const rect = navigator.windowControlsOverlay.getTitlebarAreaRect();
+
+    // {
+    //     "x": 0,
+    //     "y": 0,
+    //     "width": 0,
+    //     "height": 0,
+    //     "top": 0,
+    //     "right": 0,
+    //     "bottom": 0,
+    //     "left": 0
+    // }
+  } else {
+    // Do something else when it isn't visible.
+  }
 }
 ```
