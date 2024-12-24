@@ -19,8 +19,8 @@ git branch -M master
 # git remote add origin https://github.com/jinxi1334640772/vue-admin-system.git
 # git push -f "https://${access_token}@github.com/jinxi1334640772/vue-admin-system.git" master:deploy
 git push -f "https://gitee.com/myPrettyCode/vitepress.git" master:deploy
-git push -f "https://github.com/jinxi1334640772/vitepress.git" master:deploy
+# git push -f "https://github.com/jinxi1334640772/vitepress.git" master:deploy
 
 cd -
 
-echo https://gitee.com/myPrettyCode/vue-next-admin-doc.git
+echo built successfully!

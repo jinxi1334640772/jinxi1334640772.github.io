@@ -17,7 +17,7 @@ $ docker pull verdaccio/verdaccio
 $ docker run --name verdaccio-test -p 4873:4873 -d verdaccio/verdaccio
 ```
 
-会启动一个后台服务：http://localhost:4873/
+会启动一个后台服务：`http://localhost:4873/`
 ![alt text](image-12.png)
 
 登录和管理包：

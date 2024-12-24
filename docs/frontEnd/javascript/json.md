@@ -25,7 +25,16 @@ JSON.parse(jsonString, callback(key, value));
 
 ### JSON.stringify()
 
-向服务器发送数据时一般是字符串。可以使用 JSON.stringify() 方法将 JavaScript 对象转换为字符串。
+向服务器发送数据时一般是字符串。可以使用 JSON.stringify() 方法将 JavaScript 对象转换为字符串。不过 JSON.stringify 存在一些问题：
+
+- 转换值如果有 toJSON() 方法，那么由 toJson() 定义什么值将被序列化
+- 非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中
+- 布尔值、数字、字符串的包装对象在序列化过程中会自动转换成对应的原始值
+- undefined、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 null（出现在数组中时）;函数、undefined 被单独转换时，会返回 undefined，如 JSON.stringify(function(){}) or JSON.stringify(undefined)
+- 所有以 symbol 为属性键的属性都会被完全忽略掉，即便 replacer 参数中强制指定包含了它们
+- Date 日期调用了 toJSON() 将其转换为了 string 字符串（同 Date.toISOString()），因此会被当做字符串处理
+- NaN 和 Infinity 格式的数值及 null 都会被当做 null
+- 其他类型的对象，包括 Map/Set/WeakMap/WeakSet，仅会序列化可枚举的属性
 
 ```js
 let object = { name: "runoob", alexa: 10000, site: "www.runoob.com" };
@@ -56,4 +65,55 @@ console.log(JSON.rawJSON('"hello world"'));
 
 ```js
 JSON.isRawJSON(JSON.rawJSON('"hello world"')); // true
+```
+
+## JSON 中保存函数
+
+```js
+const stringify = obj => {
+  try {
+    // 函数转成字符串，并添加标志位FUNCTION_FLAG
+    return JSON.stringify(obj, (k, v) => {
+      if (typeof v === "function") {
+        return `FUNCTION_FLAG ${v}`;
+      } else {
+        return v;
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return "出错了";
+  }
+};
+
+const parse = jsonStr => {
+  try {
+    // 函数字符串去除标志位，并转成函数
+    return JSON.parse(jsonStr, (key, value) => {
+      if (value && typeof value === "string") {
+        return value.indexOf("FUNCTION_FLAG") > -1
+          ? new Function(`return ${value.replace("FUNCTION_FLAG", "")}`)()
+          : value;
+      }
+      return value;
+    });
+  } catch (error) {
+    console.log(error);
+    return "出错了";
+  }
+};
+
+// 测试代码
+let obj = {
+  arr: [1, 2, "11", "22"],
+  fn: function filterNumber() {
+    return this.arr.filter(item => {
+      return typeof item === "number";
+    });
+  },
+};
+
+let str = stringify(obj);
+let result = parse(str);
+console.log(result.fn()); // [1,2]
 ```

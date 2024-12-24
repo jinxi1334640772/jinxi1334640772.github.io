@@ -338,6 +338,7 @@ export default defineConfig({
             { text: "dev-tools 调试", link: "/tools/questions/debugging" },
             { text: "Robots爬虫协议", link: "/tools/questions/robots" },
             { text: "微信支付", link: "/tools/questions/wechatPay" },
+            { text: "Grafana数据监控", link: "/tools/questions/Grafana" },
           ],
         },
       ],
