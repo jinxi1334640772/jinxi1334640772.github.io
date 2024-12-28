@@ -29,8 +29,8 @@ Git 与 SVN 区别点：
 ```bash
 # git配置
 git config --list 显示当前的Git配置
-git config --globel user.name zhangjinxi 配置git全局用户名
-git config --globel use.email zhangjinxi@gaodun.com 配置git全局邮箱
+git config --global user.name zhangjinxi 配置git全局用户名
+git config --global use.email zhangjinxi@gaodun.com 配置git全局邮箱
 
 # ssh加密，生成公钥和私钥，存在~/.ssh目录内，把公钥id_rsa.pub内容复制到远端仓库中
 ssh-keygen -t rsa
