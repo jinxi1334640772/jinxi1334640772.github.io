@@ -2,7 +2,6 @@
 import { defineConfig } from "vitepress";
 // 解析markdown转为HTML文件时，给特定标签添加特定属性和属性值
 import mdItCustomAttrs from "markdown-it-custom-attrs";
-import markdownItAnchor from "markdown-it-anchor";
 // 页面配置
 export default defineConfig({
   // 应用级别配置选项
@@ -162,8 +161,7 @@ export default defineConfig({
         text: "前端技术",
         activeMatch: "/web/",
         items: [
-          { text: "HTML", link: "/frontEnd/html/" },
-          { text: "CSS", link: "/frontEnd/css/" },
+          { text: "HTML & CSS", link: "/frontEnd/css/dom" },
           { text: "JavaScript", link: "/frontEnd/javascript/" },
           { text: "Window", link: "/frontEnd/window/" },
           { text: "jQuery框架", link: "/frontEnd/web/jQuery" },
@@ -464,45 +462,23 @@ export default defineConfig({
       ],
       "/frontEnd/": [
         {
-          text: "html",
+          text: "HTML & CSS",
           collapsed: true,
           items: [
-            { text: "HTML简介", link: "/frontEnd/html/" },
-            { text: "多媒体与嵌入", link: "/frontEnd/html/media" },
-            { text: "DOM对象", link: "/frontEnd/html/dom" },
-          ],
-        },
-        {
-          text: "css",
-          collapsed: true,
-          items: [
-            { text: "CSS简介", link: "/frontEnd/css/" },
-            { text: "滚动条设置", link: "/frontEnd/css/setScrollBar" },
+            { text: "HTML元素", link: "/frontEnd/css/html" },
+            { text: "DOM 对象", link: "/frontEnd/css/dom" },
+            { text: "CSS 样式", link: "/frontEnd/css/index" },
             { text: "常见布局", link: "/frontEnd/css/layout" },
-            { text: "响应式布局", link: "/frontEnd/css/responseDesign" },
-            {
-              text: "float&position&上下文",
-              link: "/frontEnd/css/floatAndPosition",
-            },
-            { text: "flex布局", link: "/frontEnd/css/flex" },
-            { text: "grid布局", link: "/frontEnd/css/grid" },
-            { text: "multicol布局", link: "/frontEnd/css/multicol" },
             {
               text: "变形和渐变色",
               link: "/frontEnd/css/transformAndGradient",
             },
-            { text: "css选择器", link: "/frontEnd/css/selector" },
-            { text: "less的使用", link: "/frontEnd/css/less" },
-            { text: "sass的使用", link: "/frontEnd/css/sass" },
-            { text: "CSS动画", link: "/frontEnd/css/animation" },
-            { text: "CSS坐标系", link: "/frontEnd/css/coordinateSystem" },
-            { text: "CSS计数器", link: "/frontEnd/css/counter" },
-            { text: "CSS嵌套样式规则", link: "/frontEnd/css/insert" },
-            { text: "滚动吸附", link: "/frontEnd/css/scrollSnap" },
-            { text: "定义盒子形状", link: "/frontEnd/css/boxShape" },
-            { text: "CSS属性锦集", link: "/frontEnd/css/attrbutes" },
-            { text: "@查询规则锦集", link: "/frontEnd/css/atRules" },
-            { text: "CSS函数锦集", link: "/frontEnd/css/function" },
+            { text: "CSS 选择器", link: "/frontEnd/css/selector" },
+            { text: "CSS 动画", link: "/frontEnd/css/animation" },
+            { text: "CSS 函数", link: "/frontEnd/css/function" },
+            { text: "CSS @查询规则", link: "/frontEnd/css/atRules" },
+            { text: "Less 预处理器", link: "/frontEnd/css/less" },
+            { text: "Sass 预处理器", link: "/frontEnd/css/sass" },
           ],
         },
         {

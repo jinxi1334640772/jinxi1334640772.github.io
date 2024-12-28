@@ -11,8 +11,9 @@
 3. CSS @charset 声明。
 
 ```css
+/*大小写不敏感*/
 @charset "UTF-8";
-@charset "utf-8"; /*大小写不敏感*/
+@charset "utf-8";
 @charset "iso-8859-15";
 ```
 
@@ -20,15 +21,15 @@
 
 根据元素容器的大小应用样式。
 
-> 要使用容器查询，需要使用 container-type 在容器上声明一个局限上下文，将布局、样式和大小的限制应用于容器。以便浏览器知道你可能希望稍后查询此容器的尺寸。其值有：
+> 要使用容器查询，需要使用 container-type 在容器上声明一个局限上下文，将布局、样式和大小的限制应用于容器。其值有：
 
 - size 查询行向和块向尺度，
 - inline-size 查询行向尺度
 - normal 默认值，不是查询容器
 
 ```css
-/** 通过设置container-type属性，设置局限上下文*/
 .post {
+  /** 通过container-type属性，设置局限上下文*/
   container-type: inline-size;
   /** 给局限上下文起个名字 */
   container-name: sidebar;
@@ -67,94 +68,115 @@
 3. inline-size
 4. height
 5. width
-6. orientation : landscape 或者 portrait
+6. orientation : landscape | portrait
 
 ```css
-/* with an optional <container-name> */
+/* 可选的 <container-name> */
 @container tall (height > 30rem) {
   h2 {
     line-height: 1.6;
   }
 }
 
-/* multiple queries in a single condition */
+/* 多个查询条件 and*/
 @container (width > 400px) and style(--responsive: true) {
   h2 {
-    font-size: 1.5em;
+    line-height: 1.6;
   }
 }
 
-/* condition list */
+/* 或  or*/
 @container card (width > 400px), style(--responsive: true) {
   h2 {
-    font-size: 1.5em;
+    line-height: 1.6;
   }
 }
 
 @container (width > 400px) or (height > 400px) {
-  /* <stylesheet> */
+  h2 {
+    line-height: 1.6;
+  }
 }
 
 @container not (width < 400px) {
-  /* <stylesheet> */
+  h2 {
+    line-height: 1.6;
+  }
 }
+
 /** 应用于容器 */
 .post {
   container-name: sidebar;
   container-type: inline-size;
-  /**简写形式 */
-  container: sidebar / inline-size;
+  container: sidebar / inline-size; /**简写形式 */
 }
 ```
 
 ## @counter-style
 
-自定义 counter 的样式。每个 @counter-style 由一个名称标识并具有一组描述符：
+CSS 计数器是由 CSS 维护的变量，这些变量可能根据 CSS 规则跟踪使用次数以递增或递减。计数器只能在可以生成盒子的元素中使用（设置或重设值、递增）。例如，如果一个元素被设置为了 display: none，那么在这个元素上的任何计数器操作都会被忽略。
 
-1. system 指定一个算法，用于将计数器的整数值转化为字符串表示。
-2. negative 指定一个符号，当计数器表示的值为负的时候，把这个符号加在值的前面或后面
-3. prefix 指定一个符号，加在标记表示符的前面。
-4. suffix 指定一个符号，加在标记表示符的后面。
-5. range 指定一个 counter-style 生效的范围
-6. pad 对于大于 pad 指定值的表示符，标记会恢复为 normal。
-7. fallback 定义一个备用的系统
-8. symbols 定义一个符号，用于标记的表示。符号可以包含字符串，图片或自定义的识别码。这个符号怎样构建标记呢？这依赖于 system 描述符里面所定义的算法。举个例子，如果 system 的值是 fixed，那么 symbols 属性指定的固定的 N 个符号，将被用来表示计数器的前 N 个值。用完了前 N 个符号后，列表里剩下的值将使用 fallback 定义的样式来表示。
-9. additive-symbols 添加的 symbols
-10. speak-as 定义如何在语音识别器中读出计数器样式，比如屏幕阅读器。例如基于该描述符的值，标记符号的值可以作为有序列表的数字或者字幕作为无序列表的音频提示读出。
+自定义 counter 的样式。每个 @counter-style 由一个名称标识并具有一组描述符：
 
 ```css
 @counter-style <counter-style-name> {
-    system: <counter system>
-    symbols: <counter symbols>
-    additive-symbols: <additive-symbols>
-    negative: <negative symbol>
-    prefix: <prefix>
-    suffix: <suffix>
-    range: <range>
-    pad: <padding>
-    speak-as: <speak-as>
+    system: <counter system> 算法，用于将计数器的整数值转化为字符串表示。
+    symbols: <counter symbols> 定义一个符号，用于标记的表示
+    additive-symbols: <additive-symbols>  添加的 symbols
+    negative: <negative symbol> 符号，当计数器为负，加在值的前或后
+    prefix: <prefix> 符号，加在标记表示符的前面
+    suffix: <suffix> 符号，加在标记表示符的后面
+    range: <range> counter-style 生效的范围
+    pad: <padding> 大于 pad 指定值的表示符，标记会恢复为 normal
+    speak-as: <speak-as> 如何在语音识别器中读出计数器样式
     fallback: <counter-style-name>
 }
-/**使用 counter-style 指定符号 */
+
+/**使用 counter-style 定义计数器符号 */
 @counter-style circled-alpha {
   system: fixed;
   symbols: Ⓐ Ⓑ Ⓒ Ⓓ Ⓔ Ⓕ Ⓖ Ⓗ Ⓘ Ⓙ Ⓚ Ⓛ Ⓜ Ⓝ Ⓞ Ⓟ Ⓠ Ⓡ Ⓢ Ⓣ Ⓤ Ⓥ Ⓦ Ⓧ Ⓨ Ⓩ;
   suffix: " ";
 }
-/**上面的计数器样式规则在列表中可以如下使用： */
+
+/**使用定义的计数器 */
 .items {
   list-style: circled-alpha;
+}
+
+/**section 计数器的初始值指定为 3。topic 计数器初始化为默认值 0*/
+counter-reset: section 3 topic;
+
+/**创建名为section的反向计数器(递减) 默认初始值可以自动根据元素数量生成*/
+counter-reset: reversed(section);
+
+/* 将计数器设置为给定值。元素上没有给定名称的计数器时，才会创建新计数器*/
+counter-set: counter1 1 counter2 4;
+
+/**指定section计数器每次递增2 */
+counter-increment: section 2;
+
+
+/**使用 counter() 和 counters() 显示计数器 */
+h3::before {
+  counter-increment: section;
+  /* counter(counterName,counterStyle) 不需要包含父级上下文的编号 1*/
+  content: "Section " counter(section) ": ";
+  /* counters(counterName,separator,counterStyle) 需要包含父级上下文的编号 1.2*/
+  /* separator：分隔符，默认点号`.`分隔 */
+  /* counterStyle:默认decimal，和list-style-type一致 */
+  content: "Section " counters(section) ": ";
 }
 ```
 
 ## @font-face
 
-为其网页指定在线字体。如果提供了 local() 函数，从用户本地查找指定的字体名称。找不到就会使用 url() 函数下载的资源
+为其网页指定在线字体。如果提供了 local() 函数，则从本地查找指定的字体名称。找不到就会使用 url() 函数下载的资源
 
 配置属性：
 
 1. font-family 字体名字。将会被用于 font 或 font-family 属性
-2. src 远程字体文件位置的 URL 或者用户计算机上的字体名称
+2. src 本地 local()或者远程 url()字体文件位置的 URL
 3. font-variant 字体变体 是 font-variant-caps, font-variant-numeric, font-variant-alternates, font-variant-ligatures, font-variant-east-asian 等属性的简写
 4. font-stretch 字体缩放
    1. normal 正常字体
@@ -166,16 +188,22 @@
 7. unicode-range unicode 字体范围
 
 ```css
-/**两种本地字体找不到，就会用下载的字体"MgOpenModernaBold.ttf"来代替： */
+/* 自定义字体 */
 @font-face {
-  font-family: "Bitstream Vera Serif Bold";
+  font-family: "Bitstream Vera";
+  /**两种本地字体找不到，就会用url()下载的字体*/
   src: local("Helvetica Neue Bold"), local("HelveticaNeue-Bold"),
     url(MgOpenModernaBold.ttf);
   font-weight: bold;
+  font-style: italic;
+  font-stretch: normal;
+  font-variant: normal;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA;
 }
-/**body中，使用刚定义的字体 */
+
+/** 使用自定义字体 */
 body {
-  font-family: "Bitstream Vera Serif Bold", serif;
+  font-family: "Bitstream Vera", serif;
 }
 ```
 
@@ -241,26 +269,23 @@ body {
   }
 }
 
-@layer utilities {
-  /* 创建一个名为 utilities 的级联层 */
-}
-/**可以通过 @import 来创建，规则存在于被引入的样式表内： */
+/* 创建一个名为 utilities 的级联层 */
+@layer utilities {}
+
+/**通过 @import 引入外部样式来创建 */
 @import (utilities.css) layer(utilities);
 
 /**指定多个级联层的顺序，决定了级联层的优先级，越靠后优先级越高，匿名级联层优先级最高 */
 @layer framework, layout, utilities;
 
-/**级联层嵌套，并且往已存在的framework级联层添加规则*/
+/**级联层嵌套*/
 @layer framework {
-  @layer layout {
-  }
+  @layer layout {}
 }
 
-/**向 framework 层内部的 layout 层附加规则，只需用 . 连接这两层。 */
+/**向 framework 层内部的 layout 层附加规则 */
 @layer framework.layout {
-  p {
-    margin-block: 1rem;
-  }
+  p { margin-block: 1rem;}
 }
 ```
 
@@ -293,51 +318,34 @@ body {
 }
 /**媒体朝向：竖放portrait、横放landscape */
 @media (orientation: landscape) {
-  body {
-    color: rebeccapurple;
-  }
+  body { color: rebeccapurple;}
 }
-/**这种特征意味着你可以测试用户是否能在一个元素上悬浮，这也基本就是说他们正在使用某种指点设备，因为触摸屏和键盘导航是没法实现悬浮的 */
+/**测试用户是否能在一个元素上悬浮 */
 @media (hover: hover) {
-  body {
-    color: rebeccapurple;
-  }
+  body { color: rebeccapurple;}
 }
-/**pointer媒体特征。它可取三个值：none、fine和coarse。fine指针是类似于鼠标或者触控板的东西，它让用户可以精确指向一片小区域。coarse指针是你在触摸屏上的手指。none值意味着，用户没有指点设备，也许是他们正只使用键盘导航，或者是语音命令。 */
+/**pointer媒体特征。它可取三个值：none、fine和coarse。fine指针是类似于鼠标或者触控板。
+coarse指针是触摸屏上的手指。none意味着用户没有指点设备，也许是键盘导航、语音命令。 */
 @media (pointer: fine) {
-  body {
-    color: rebeccapurple;
-  }
+  body { color: rebeccapurple;}
 }
-/**此 CSS 将适用于任何带有彩色屏幕的设备： */
-@media (color) {
-}
-/**如果某个功能不适用于运行浏览器的设备，则涉及该媒体功能的表达式始终为 false。例如，将不会使用嵌套在以下查询中的样式，因为没有语音专用设备具有屏幕长宽比： */
-@media speech (aspect-ratio: 11/5) {
-}
+/**带有彩色屏幕的设备： */
+@media (color) {}
 
 /**媒体查询中的“与”逻辑 */
 @media screen (min-width: 400px) and (orientation: landscape) {
-  body {
-    color: blue;
-  }
+  body { color: blue;}
 }
 /**媒体查询中的“或”逻辑 */
 @media screen (30em <= width <= 50em) or (orientation: landscape) {
-  body {
-    color: blue;
-  }
+  body { color: blue;}
 }
 /**媒体查询中的“非”逻辑 文本只会在朝向为竖着的时候变成蓝色。*/
 @media not all and (orientation: landscape) {
-  body {
-    color: blue;
-  }
+  body { color: blue; }
 }
 /**not否定一个特性 用 or测试多个特性*/
-@media (not (color)) or (hover) {
-  ...;
-}
+@media (not (color)) or (hover) {}
 ```
 
 ### 外部样式
@@ -354,26 +362,25 @@ body {
 使用 Window.matchMedia() 和 MediaQueryList.addListener() 方法来测试和监控媒体状态。
 
 ```js
-// 通过MediaQueryList 对象来查询结果、设置事件监听器、在查询结果发生变化时自动接收通知。
+// 通过MediaQueryList 对象来查询结果、设置事件监听器
 var mediaQueryList = window.matchMedia("(orientation: portrait)");
+
 // 检查它的 matches 属性来获取相应的查询结果
 if (mediaQueryList.matches) {
   /* 设备的旋转方向为纵向 portrait */
 } else {
-  /* 设备的旋转方向不是纵向，也就是横向 landscape */
+  /* 设备的旋转方向为横线 landscape */
 }
 
 // 定义监听器回调函数
 function handleOrientationChange(evt) {
-  if (evt.matches) {
-  } else {
-  }
+  if (evt.matches) {} 
 }
 
-// 先运行一次回调函数,会让监听器以目前设备的屏幕方向来初始化判定代码。换句话说，如果我们代码中设定设备处于竖屏模式，而实际上它在启动时处于横屏模式，那么我们在后面的判定就会出现矛盾。
+// 先运行一次回调函数，让监听器以目前设备的屏幕方向来初始化判定代码。
 handleOrientationChange(mediaQueryList);
 
-// 需要持续观察查询结果值的变化情况，可以为查询列表注册监听器
+// 需要持续观察查询结果值的变化
 mediaQueryList.addListener(handleOrientationChange);
 
 // 不再需要接收媒体查询值变化，移除监听：
@@ -382,9 +389,9 @@ mediaQueryList.removeListener(handleOrientationChange);
 
 ## @namespace XML 命名空间
 
-定义使用在 CSS 样式表中的 XML 命名空间的 @规则。定义的命名空间可以把通配、元素和属性选择器限制在指定命名空间里的元素。@namespace 规则通常在处理包含多个 namespaces 的文档时才有用，比如 HTML5 里内联的 SVG、MathML 或者混合多个词汇表的 XML。
+定义使用在 CSS 样式表中的 XML 命名空间。选择器限制在指定命名空间里的元素。比如 HTML5 里内联的 SVG
 
-任何 @namespace 规则都必须在所有的 @charset 和 @import 规则之后，并且在样式表中，位于其他任何 style declarations 之前。
+任何 @namespace 规则都必须在所有的 @charset 和 @import 规则之后，其他任何 style declarations 之前。
 
 ```css
 @namespace <namespace-prefix>? [ <string> | <url>];
@@ -402,21 +409,18 @@ mediaQueryList.removeListener(handleOrientationChange);
 @namespace svg url(http://www.w3.org/2000/svg);
 
 /* 匹配所有的 XHTML <a> 元素，因为 XHTML 是默认无前缀命名空间 */
-a {
-}
+a {}
 
 /* 匹配所有的 SVG <a> 元素 */
-svg|a {
-}
+svg|a {}
 
 /* 匹配 XHTML 和 SVG <a> 元素 */
-*|a {
-}
+*|a {}
 ```
 
 ## @page 配置分页媒体
 
-是修改打印页面的尺寸、方向和页边距。
+修改打印页面的尺寸、方向和页边距。
 
 1. margin 指定页边距。也可使用部分页边距属性 margin-top、margin-right、margin-bottom 和 margin-left。
 2. page-orientation 指定文档在页面上的方向
@@ -453,17 +457,11 @@ svg|a {
 
 ## @property 自定义属性
 
-允许自定义 CSS 属性：
-
-- syntax 属性类型，必选
-- inherits 是否可继承，必选
-- initial-value 配置属性默认值，syntax 非通用时，initial-value 必选
-
 ```css
 @property --property-name {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #c0ffee;
+  syntax: "<color>"; 属性类型，必选
+  inherits: false; 是否可继承，必选
+  initial-value: #c0ffee; 属性默认值，syntax 非通用时必选
 }
 ```
 
@@ -486,31 +484,25 @@ window.CSS.registerProperty({
 
 ```css
 @supports (display: grid) {
-  div {
-    display: grid;
-  }
+  div { display: grid;}
 }
 
 @supports not (display: grid) {
-  div {
-    float: right;
-  }
+  div { float: right; }
 }
-@supports (display: grid) or (not (display: inline-grid)) {
-}
+
+@supports (display: grid) or (not (display: inline-grid)) {}
+
 /**测试浏览器是否支持选择器:是否支持子组合器*/
-@supports selector(A > B) {
-}
+@supports selector(A > B) {}
+
 /* 不支持 :is() 时的备选方案 */
 @supports not selector(:is(a, b)) {
-  ol > li {
-  }
+  ol > li {}
 }
 
 /**测试是否支持自定义属性 */
 @supports (--foo: green) {
-  body {
-    color: var(--varName);
-  }
+  body { color: var(--varName);}
 }
 ```

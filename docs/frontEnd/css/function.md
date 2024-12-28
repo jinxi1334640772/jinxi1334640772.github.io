@@ -1,4 +1,4 @@
-## CSS 函数
+# CSS 函数
 
 ## attr()
 
@@ -29,7 +29,7 @@ p:before {
 
 ## blur()
 
-模糊半径，值为`<length>`。它定义了高斯函数的标准偏差值，即屏幕上有多少像素相互融合; 因此，较大的值会产生更多模糊。值为 0 会使输入保持不变。该值为空则为 0。
+模糊半径，值为`<length>`。它定义了高斯函数的标准偏差值，即屏幕上有多少像素相互融合
 
 ```css
 /* 简单用法 */
@@ -59,6 +59,7 @@ filter: brightness(50%);
 
 ```css
  calc( <calc-sum> )
+
  calc(100% - 80px);
  calc(var(--widthB) / 2);
  calc(1.5rem + 3vw);
@@ -70,15 +71,10 @@ filter: brightness(50%);
 
 ```css
 calc-size(<calc-size-basis>, <calc-sum>)
-/* Pass a value through calc-size() */
-calc-size(auto, size) /**0--auto之间 */
-calc-size(fit-content, size)
 
-/* Perform a calculation */
+/* 根据参考值计算结果 size代表前面的参考值*/
 calc-size(min-content, size + 100px) /** 返回min-content+100px */
 calc-size(fit-content, size / 2)
-
-/* Calculation including a function */
 calc-size(auto, round(up, size, 50px))
 
 section {
@@ -91,7 +87,7 @@ section {
 
 ## circle()
 
-定义了一个圆形，使用半径和位置来描述。它是 `<basic-shape>` 数据类型之一。
+使用半径和位置来描述一个圆。它是 `<basic-shape>` 数据类型之一。
 
 ```css
 circle( <radial-size>? [ at <position> ]? )
@@ -103,18 +99,18 @@ circle( <radial-size>? [ at <position> ]? )
   farthest-side                |
   <length [0,∞]>                |
   <length-percentage [0,∞]>{2}
+
 /* 简单用法 */
 shape-outside: circle(50%);
 clip-path: circle(6rem at 12rem 8rem);
-
 ```
 
 ## clamp()
 
-clamp() 函数的作用是把一个值限制在一个上限和下限之间，当这个值超过最小值和最大值的范围时，在最小值和最大值之间选择一个值使用。它接收三个参数：最小值、首选值、最大值。 clamp() 被用在`<length>、<frequency>、<angle>、<time>、<percentage>、<number>、<integer>`中都是被允许的 clamp(MIN, VAL, MAX) 其实就是表示 max(MIN, min(VAL, MAX))。
+把一个值限制在一个上限和下限之间，接收三个参数：最小值、首选值、最大值。 clamp() 被用在`<length>、<frequency>、<angle>、<time>、<percentage>、<number>、<integer>`中都是被允许的。 clamp(MIN, VAL, MAX) 其实就是表示 max(MIN, min(VAL, MAX))。
 
 ```css
- clamp( [ <calc-sum> | none ] , <calc-sum> , [ <calc-sum> | none ] )
+clamp( [ <calc-sum> | none ] , <calc-sum> , [ <calc-sum> | none ] )
 
 clamp(1.8rem, 2.5vw, calc(70% + 100px));
 ```
@@ -127,7 +123,6 @@ clamp(1.8rem, 2.5vw, calc(70% + 100px));
 color-contrast(color vs color-list)
 color-contrast(wheat vs tan, sienna, #d2691e)
 color-contrast(#008080 vs olive, var(--myColor), #d2691e)
-
 ```
 
 ## color-mix()
@@ -139,7 +134,7 @@ color-contrast(#008080 vs olive, var(--myColor), #d2691e)
 /**p1,p2:0% 到 100% 之间的 <percentage> 值，指定每个颜色混合的数量 */
 color-mix(method, color1[ p1], color2[ p2])
 
-  color-mix( <color-interpolation-method> , [ <color> && <percentage [0,100]>? ]#{2} )
+color-mix( <color-interpolation-method> , [ <color> && <percentage [0,100]>? ]#{2} )
 
 <color-interpolation-method> =
   in [ <rectangular-color-space> | <polar-color-space> <hue-interpolation-method>? ]
@@ -166,12 +161,10 @@ color-mix(method, color1[ p1], color2[ p2])
 <hue-interpolation-method> =
   [ shorter | longer | increasing | decreasing ] hue
 
-
 color-mix(in lch, plum, pink);
 color-mix(in lch, plum 40%, pink);
 color-mix(in srgb, #34c9eb 20%, white);
 color-mix(in hsl longer hue, hsl(120 100% 50%) 20%, white);
-
 ```
 
 ## contrast()
@@ -185,7 +178,6 @@ contrast(0)     /* 完全灰色 */
 contrast(65%)   /* 65% 对比度 */
 contrast(1)     /* 无效果 */
 contrast(200%)  /* 两倍对比度 */
-
 ```
 
 ## drop-shadow()
@@ -214,7 +206,6 @@ drop-shadow(5px 5px 15px red)
 /* 可以改变颜色和长度值的顺序 */
 /* drop-shadow( <color> <length> <length> <length> ) */
 drop-shadow(#e23 0.5rem 0.5rem 1rem)
-
 drop-shadow(.5rem .5rem 1rem .3rem #e23)
 ```
 
@@ -223,29 +214,21 @@ drop-shadow(.5rem .5rem 1rem .3rem #e23)
 椭圆本质上是一个扁平的圆形，因此 ellipse() 的行为与 circle() 非常相似，只是我们需要指定两个半径 x 和 y。是 `<basic-shape>` 数据类型之一。
 
 ```css
-shape-outside: ellipse(40% 50% at left);
+clip-path: ellipse(40% 50% at left);
 shape-outside: ellipse(closest-side farthest-side at 30%);
-
-clip-path: ellipse(closest-side farthest-side);
 ```
 
 ## fit-content()
 
-将给定大小夹紧为可用大小 根据公式 min(maximum size, max(minimum size, argument))，返回值如下：
-
-- argument < min-content 返回 min-content
-- min-content < argument < max-content 返回 argument
-- argument > max-content 返回 max-content
+将给定大小夹紧为可用大小
 
 ```css
-/* <length> values */
 fit-content(200px)
 fit-content(5cm)
 fit-content(30vw)
 fit-content(100ch)
-
-/* <percentage> value */
 fit-content(40%)
+
 /** 有点类似该clamp函数，判断中间值 */
 clamp(min-content, 10vw, max-content);
 ```
@@ -260,19 +243,15 @@ grayscale(amount)
 grayscale(0)     /* 无效果 */
 grayscale(.7)    /* 70% 灰度 */
 grayscale(100%)  /* 灰度最大 */
-
 ```
 
 ## hsl()
 
 标记根据其色相、饱和度和明度来表达 sRGB 颜色。
 
-使用 hsl() 来定义互补色可以用一个公式来完成，因为它们位于色环中同一直径上。如果一个颜色的色相度是 θ，那么其互补色的色相角就是 180deg - θ。
-
 ```css
 hsl(120deg 75% 25%)
 hsl(120deg 75% 25% / 0.6)
-
 ```
 
 ## image-set()
@@ -280,38 +259,16 @@ hsl(120deg 75% 25% / 0.6)
 让浏览器从 image-set 中，选择一个最合适的 CSS image，主要应对高像素屏幕。
 
 ```css
-.box {
-  /* Select image based on resolution */
-image-set(
-  "image1.jpg" 1x,
-  "image2.jpg" 2x
-);
+image-set("image1.jpg" 1x,"image2.jpg" 2x);
 
-image-set(
-  url("image1.jpg") 1x,
-  url("image2.jpg") 2x
-);
+image-set(url("image1.jpg") 1x,url("image2.jpg") 2x);
 
-/* Select gradient based on resolution */
-image-set(
-  linear-gradient(blue, white) 1x,
-  linear-gradient(blue, green) 2x
-);
+image-set(linear-gradient(blue, white) 1x,linear-gradient(blue, green) 2x);
 
-/* Select image based on supported formats */
-image-set(
-  url("image1.avif") type("image/avif"),
-  url("image2.jpg") type("image/jpeg")
-);
-
-  background-image: image-set(
-    "large-balloons.avif" type("image/avif"),
-    "large-balloons.jpg" type("image/jpeg")
-  );
-  /** 不支持image-set时回退 */
-    background-image: url("large-balloons.jpg");
-}
-
+/* 根据支持的格式选择图片 */
+background-image: image-set(url("image1.avif") type("image/avif"),url("image2.jpg") type("image/jpeg"));
+/** 不支持image-set时回退 */
+background-image: url("large-balloons.jpg");
 ```
 
 ## image()
@@ -348,19 +305,15 @@ xywh=percent:25,25,50,50
 定义一个矩形，并指定每一边到容器内侧的距离。它是用于定义 `<basic-shape>` 数据类型之一。
 
 ```css
-<inset()> =
-  inset( <length-percentage>{1,4} [ round <'border-radius'> ]? )
+<inset()> = inset( <length-percentage>{1,4} [ round <border-radius> ]? )
 
-<length-percentage> =
-  <length>      |
-  <percentage>
+<length-percentage> = <length> | <percentage>
 
-<border-radius> =
-  <length-percentage [0,∞]>{1,4} [ / <length-percentage [0,∞]>{1,4} ]?
+<border-radius> = <length-percentage [0,∞]>{1,4} [ / <length-percentage [0,∞]>{1,4} ]?
+
 /**round：设置圆角半径 */
 shape-outside: inset(20px 50px 10px 0 round 50px);
 clip-path: inset(4rem 20% round 1rem 2rem 3rem 4rem);
-
 ```
 
 ## invert()
@@ -371,19 +324,16 @@ clip-path: inset(4rem 20% round 1rem 2rem 3rem 4rem);
 invert(0)     /* No effect */
 invert(.6)    /* 60% inversion */
 invert(100%)  /* Completely inverted */
-
 ```
 
 ## lab()
 
-函数记号 lab() 在 CIE L*a*b\* 颜色空间中表示指定颜色。Lab 表示人可见的全部颜色的范围。
+函数记号 lab() 在 `CIE L*a*b* `颜色空间中表示指定颜色。Lab 表示人可见的全部颜色的范围。
 
 ```css
-
 lab(29.2345% 39.3825 20.0664);
 lab(52.2345% 40.1645 59.9971);
 lab(52.2345% 40.1645 59.9971 / .5);
-
 ```
 
 ## layer()
@@ -405,41 +355,21 @@ lab(52.2345% 40.1645 59.9971 / .5);
 }
 body {
   color: light-dark(#333b3c, #efefec);
+  color: light-dark(rgb(0 0 0), rgb(255 255 255));
+  color: light-dark(var(--light), var(--dark));
 }
-
-/* RGB color values */
-color: light-dark(rgb(0 0 0), rgb(255 255 255));
-
-/* Custom properties */
-color: light-dark(var(--light), var(--dark));
 ```
 
-## max()
+## max() | min() | minmax()
 
-max() 这个 CSS 函数让你可以从一个逗号分隔的表达式列表中选择最大（正方向）的值作为属性的值 . max() 可以用于以下场合 `<length>, <frequency>, <angle>, <time>, <percentage>, <number>, 或 <integer> `。
-
-css
+从一个逗号分隔的表达式列表中选择` 最大|最小|范围` 的值作为属性的值。用于以下场合 `<length>, <frequency>, <angle>, <time>, <percentage>, <number>, 或 <integer> `。
 
 ```css
 h1.responsive {
   font-size: max(4vw, 2em, 2rem);
+  font-size: max(min(0.5vw, 0.5em), 1rem);
 }
-font-size: max(min(0.5vw, 0.5em), 1rem);
-```
 
-## min()
-
-min() CSS 方法允许你从逗号分隔符表达式中选择一个最小值作为 CSS 的属性值。min() 方法可以用于以下任何属性中 `<length>, <frequency>, <angle>, <time>, <percentage>,<number>, 或者 <integer>。`
-
-```css
-width: min(50vw, 300px);
-```
-
-## minmax()
-
-CSS 函数 minmax() 定义了一个长宽范围的闭区间，它与 CSS 网格布局一起使用。
-
-```css
 minmax(200px, 1fr)
 minmax(400px, 50%)
 minmax(30%, 300px)
@@ -481,30 +411,25 @@ transition-duration: mod(20s / 2, 3000ms * 2); /* 4s */
 
 ## opacity()
 
-The opacity() CSS 函数在输入的图片实例上应用透明度属性，它的结果是一个 `<filter-function>`.
+The 应用透明度属性，它的结果是一个 `<filter-function>`.
 
 ```css
 opacity(0%)   /* 完全透明*/
 opacity(50%)  /* 50% 透明 */
 opacity(1)    /* 无效果 */
-
 ```
 
 ## path()
 
-path() CSS 函数接受 SVG 路径字符串作为参数，用于 CSS 形状和运动路径模块中绘制形状。path() 函数是 `<basic-shape>` 数据类型的值。它可以用于 CSS 的 offset-path 和 clip-path 属性，以及 SVG 的 d 属性。
+接受 SVG 路径字符串作为参数，用于 CSS 形状和运动路径模块中绘制形状。path() 函数是 `<basic-shape>` 数据类型的值。它可以用于 CSS 的 offset-path 和 clip-path 属性，以及 SVG 的 d 属性。
 
 ```css
-<path()> =
-  path( <'fill-rule'>? , <string> )
+<path()> = path( <fill-rule>? , <string> )
 
-<fill-rule> =
-  nonzero  |
-  evenodd
+<fill-rule> = nonzero  | evenodd
 
 path("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80");
 path(evenodd,"M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80");
-
 ```
 
 ## perspective()
@@ -518,40 +443,30 @@ perspective(d)
 
 ## polygon()
 
-polygon() CSS 函数是` <basic-shape>` 数据类型之一。它用于通过提供一个或多个坐标对（每一个坐标代表形状的一个顶点）来绘制多边形。
+是` <basic-shape>` 数据类型之一。它用于通过提供一个或多个坐标对（每一个坐标代表形状的一个顶点）来绘制多边形。
 
 ```css
 <polygon()> =
-  polygon( <'fill-rule'>? [ round <length> ]? , [ <length-percentage> <length-percentage> ]# )
+  polygon( <fill-rule>? [ round <length> ]? , [ <length-percentage> <length-percentage> ]# )
 
-<fill-rule> =
-  nonzero  |
-  evenodd
+<fill-rule> = nonzero  | evenodd
 
-<length-percentage> =
-  <length>      |
-  <percentage>
-/* 指定坐标列表 */
-/* polygon(<length-percentage> <length-percentage>, ... )*/
-polygon(50% 2.4%, 34.5% 33.8%, 0% 38.8%, 25% 63.1%, 19.1% 97.6%)
-polygon(0px 0px, 200px 100px, 0px 200px)
-polygon(0% 0px, 100% 100px, 0px 100%)
-polygon(0 0, 50% 1rem, 100% 2vw, calc(100% - 20px) 100%, 0 100%)
+<length-percentage> = <length> | <percentage>
 
 /* 指定填充规则和坐标列表 */
 /* polygon(<fill-rule> <length-percentage> <length-percentage>, ... )*/
 polygon(nonzero, 0% 0%, 50% 50%, 0% 100%)
 polygon(evenodd, 0% 0%, 50% 50%, 0% 100%)
-
 ```
 
 ## rect()
 
-创建一个矩形，该矩形位于包含块的顶部和左侧边缘的指定距离处。它是 `<basic-shape>` 数据类型的基本形状函数。
+创建一个矩形，位于包含块的顶部和左侧边缘的指定距离处。它是 `<basic-shape>` 数据类型的基本形状函数。
 
 ```css
 /**创建元素移动的矩形路径 */
 offset-path: rect(50px auto 200px 50px round 20%);
+
 /** 裁剪区域的形状*/
 clip-path: rect(50px auto 200px 50px round 20%);
 ```
@@ -610,17 +525,13 @@ repeat(4, [col-start] min-content [col-middle] max-content [col-end])
 <round()> =
   round( <rounding-strategy>? , <calc-sum> , <calc-sum>? )
 
-<rounding-strategy> =
-  nearest  |
-  up       |
-  down     |
-  to-zero
+<rounding-strategy> = nearest | up | down | to-zero
+
 width: round(var(--width), 50px);
+margin: round(nearest, 123, 5);
 width: round(up, 101px, var(--interval));
 width: round(down, var(--height), var(--interval));
 margin: round(to-zero, -105px, 10px);
-/**用round配置出四舍五入：24.6四舍五入为25 */
-margin: round(nearest, 123, 5);
 ```
 
 ## saturate()
@@ -632,7 +543,6 @@ saturate(0)     /* Completely unsaturated */
 saturate(.4)    /* 40% saturated */
 saturate(100%)  /* No effect */
 saturate(200%)  /* Double saturation */
-
 ```
 
 ## scroll()
@@ -642,26 +552,16 @@ saturate(200%)  /* Double saturation */
 ```css
 scroll( [ <scroller> || <axis> ]? )
 
-<scroller> =
-  root     |
-  nearest  |
-  self
+<scroller> = root | nearest  | self
 
-<axis> =
-  block   |
-  inline  |
-  x       |
-  y
+<axis> = block   | inline  | x | y
 
-/* Function with no parameters set */
 animation-timeline: scroll();
 
-/* Values for selecting the scroller element */
 animation-timeline: scroll(nearest); /* Default */
 animation-timeline: scroll(root);
 animation-timeline: scroll(self);
 
-/* Values for selecting the axis */
 animation-timeline: scroll(block); /* Default */
 animation-timeline: scroll(inline);
 animation-timeline: scroll(y);
@@ -671,7 +571,6 @@ animation-timeline: scroll(x);
 animation-timeline: scroll(block nearest); /* Default */
 animation-timeline: scroll(inline root);
 animation-timeline: scroll(x self);
-
 ```
 
 ## sepia()
@@ -682,12 +581,11 @@ animation-timeline: scroll(x self);
 sepia(0)     /* No effect */
 sepia(.65)   /* 65% sepia */
 sepia(100%)  /* Completely sepia */
-
 ```
 
 ## shape()
 
-定义 clip-path 和 offset-path 属性的形状。它结合了一个初始起点和一系列定义形状路径的形状命令。shape() 函数是 `<basic-shape> `数据类型的成员。
+定义 clip-path 和 offset-path 属性的形状。它结合了一个初始起点和一系列定义形状路径的形状命令。
 
 ```css
 /* <fill-rule> */
@@ -735,7 +633,9 @@ clip-path: shape(
 获取 CSS 变量的值。CSS 变量以`--`开头：`--theme-color`。可以在:root 伪类中定义全局变量。
 
 ```css
-<var() > = var( <custom-property-name> , <declaration-value>? ) :root {
+/* var( <custom-property-name> , <declaration-value>? )  */
+
+:root {
   --backup-bg-color: teal;
 }
 
@@ -753,11 +653,9 @@ body {
 
 ```css
 /* 简单用法 */
-url("https://example.com/images/myImg.jpg");
 url('https://example.com/images/myImg.jpg');
 url(https://example.com/images/myImg.jpg);
 url("data:image/jpg;base64,iRxVB0…");
-url(myImg.jpg);
 url(#IDofSVGpath);
 
 /* 相关属性 */
@@ -787,7 +685,6 @@ content: url(star.svg) url(star.svg) url(star.svg);
 @document url("https://www.example.com/") { /* … */ }
 @import url("https://www.example.com/style.css");
 @namespace url(http://www.w3.org/1999/xhtml);
-
 ```
 
 ## xywh()
@@ -797,6 +694,7 @@ content: url(star.svg) url(star.svg) url(star.svg);
 ```css
 /** 创建元素移动的矩形路径*/
 offset-path: xywh(0 1% 2px 3% round 0 1px 2% 3px);
+
 /**定义裁剪区域的形状 */
 clip-path: xywh(1px 2% 3px 4em round 0 1% 2px 3em);
 ```

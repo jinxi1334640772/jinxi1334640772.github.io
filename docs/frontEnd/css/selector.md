@@ -2,11 +2,11 @@
 
 ## css属性选择器
 
-* [attribute] //具有attribute属性
+- [attribute] //具有attribute属性
 - [attribute=value] //属性attribute值为value
 - [attribute^=value] //属性attribute的值以value开头，valueyou
-- [attribute|=value] //属性attribute 包含以value或者value-开头，valueyou value-you
 - [attribute$=value] //属性attribute的值以value结尾，youvalue,
+- [attribute|=value] //属性attribute 包含以value或者value-开头，valueyou value-you
 - [attribute*=value] //属性attribute包含value就行 ivalueyou
 - [attribute~=value] //属性attribute包含以空格分开的value， i value you
 
