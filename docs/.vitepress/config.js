@@ -135,8 +135,7 @@ export default defineConfig({
     outline: "deep",
     // 自定义底部编辑链接
     editLink: {
-      pattern:
-        "https://gitee.com/myPrettyCode/vitepress/edit/master/docs/:path",
+      pattern: "https://gitee.com/myPrettyCode/vitepress/edit/master/docs/:path",
       text: "欢迎到 Gitee 上编辑此页",
     },
     // VitePress 内置了对 Carbon Ads 的原生支持。通过在配置中定义 Carbon Ads 凭据，VitePress 将在页面上显示广告。
@@ -163,7 +162,7 @@ export default defineConfig({
         items: [
           { text: "HTML & CSS", link: "/frontEnd/css/dom" },
           { text: "JavaScript", link: "/frontEnd/javascript/" },
-          { text: "Window", link: "/frontEnd/window/" },
+          { text: "Window", link: "/frontEnd/window/navigator" },
           { text: "jQuery框架", link: "/frontEnd/web/jQuery" },
           { text: "TypeScript", link: "/frontEnd/web/TypeScript" },
           { text: "qiankun微前端", link: "/frontEnd/web/qiankun" },
@@ -251,9 +250,7 @@ export default defineConfig({
       },
     ],
     // 右上角社交账号配置
-    socialLinks: [
-      { icon: "github", link: "https://github.com/jinxi1334640772" },
-    ],
+    socialLinks: [{ icon: "github", link: "https://github.com/jinxi1334640772" }],
     // 左侧导航栏配置：根据页面路由匹配，可分组
     sidebar: {
       "/tools/": [
@@ -469,10 +466,7 @@ export default defineConfig({
             { text: "DOM 对象", link: "/frontEnd/css/dom" },
             { text: "CSS 样式", link: "/frontEnd/css/index" },
             { text: "常见布局", link: "/frontEnd/css/layout" },
-            {
-              text: "变形和渐变色",
-              link: "/frontEnd/css/transformAndGradient",
-            },
+            { text: "变形和渐变色", link: "/frontEnd/css/transform" },
             { text: "CSS 选择器", link: "/frontEnd/css/selector" },
             { text: "CSS 动画", link: "/frontEnd/css/animation" },
             { text: "CSS 函数", link: "/frontEnd/css/function" },
@@ -490,10 +484,7 @@ export default defineConfig({
             { text: "RegExp正则", link: "/frontEnd/javascript/RegExp" },
             { text: "基本数据类型", link: "/frontEnd/javascript/object" },
             { text: "Set和Map", link: "/frontEnd/javascript/setAndMap" },
-            {
-              text: "ArrayBuffer相关",
-              link: "/frontEnd/javascript/ArrayBuffer",
-            },
+            { text: "ArrayBuffer相关", link: "/frontEnd/javascript/ArrayBuffer" },
             { text: "Atomics原子操作", link: "/frontEnd/javascript/Atomics" },
             { text: "Intl国际化", link: "/frontEnd/javascript/Intl" },
             { text: "JSON对象", link: "/frontEnd/javascript/json" },
@@ -518,12 +509,8 @@ export default defineConfig({
           text: "window",
           collapsed: false,
           items: [
-            { text: "Window简介", link: "/frontEnd/window/" },
             { text: "navigator属性", link: "/frontEnd/window/navigator" },
-            {
-              text: "navigator方法",
-              link: "/frontEnd/window/navigatorFunction",
-            },
+            { text: "navigator方法", link: "/frontEnd/window/navigatorFun" },
             { text: "Web Worker", link: "/frontEnd/window/webWorker" },
             { text: "Service Worker", link: "/frontEnd/window/serviceWorker" },
             { text: "window属性", link: "/frontEnd/window/properties" },

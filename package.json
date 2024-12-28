@@ -4,6 +4,8 @@
   "description": "基于vitepress + vite的项目开发文档，静态网站生成",
   "main": "index.js",
   "type": "module",
+  "packageManager": "pnpm@9.15.1",
+  "registry": "https://registry.npmmirror.com/",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vitepress dev docs --port 9000",
@@ -21,7 +23,7 @@
     "vite",
     "vue3"
   ],
-  "author": "lyt_20201208",
+  "author": "zhangjinxi",
   "license": "MIT",
   "dependencies": {
     "markdown-it-anchor": "^9.2.0",
