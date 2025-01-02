@@ -1,20 +1,21 @@
 ## RegExp 正则表达式
-RegExp 用于创建正则表达式对象，该对象用于将文本与一个模式匹配
+
+RegExp 用于创建正则表达式对象，该对象用于文本与一个模式匹配
 
 ```js
-/**
+/** 可以使用字面量、构造函数和工厂方法来创建正则表达式
  * @pattern 正则表达式的文本，也可以是另一个 RegExp 对象或文字
  * @flags 添加的标志的字符串
  *  g:全局匹配
  *  i:忽略大小写
  *  m:多行匹配
- *  s:点号匹配所有字符，也可以匹配新行
- *  u:开启Unicode匹配模式
  *  y:粘性匹配，从lastIndex后开始匹配
+ *  s:点号匹配所有字符，也可以匹配新行
  *  d:包含每个捕获组子字符串开始和结束的索引
+ *  u:开启Unicode匹配模式
  *  v:u的升级版本
  */
-// 可以使用字面量、构造函数和工厂方法来创建正则表达式
+
 /pattern/flags
 new RegExp(pattern[, flags])
 RegExp(pattern[, flags])
@@ -30,33 +31,23 @@ RegExp(pattern[, flags])
 - sticky
 - unicode
 - hasIndices 是否启用 d 修饰符
-- lastIndex 开启 g/y 匹配时，保存上次匹配成功后的位置。使用此特性，exec() 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），而相比之下， String.prototype.match() 只会返回匹配到的结果。
+- lastIndex 开启 g/y 匹配时，保存上次匹配成功后的位置。
 - unicodeSets 是否启用 v 修饰符
-
-d 标志表示正则表达式匹配的结果应该包含每个捕获组子字符串开始和结束的索引。它不会以任何方式改变正则表达式的解释或匹配行为，它只在匹配的结果中提供额外的信息:
 
 ```js
 const str1 = "foo bar foo";
 
 const regex1 = /foo/dg;
-
 console.log(regex1.hasIndices); // Output: true
-
 console.log(regex1.exec(str1).indices[0]); // Output: Array [0, 3]
 console.log(regex1.exec(str1).indices[0]); // Output: Array [8, 11]
 
-const str2 = "foo bar foo";
-
 const regex2 = /foo/;
-
 console.log(regex2.hasIndices); // Output: false
-
-console.log(regex2.exec(str2).indices); // Output: undefined
-
+console.log(regex2.exec(str1).indices); // Output: undefined
 ```
 
-- test()    
-方法执行一个检索，用来查看正则表达式与指定的字符串是否匹配(类似于 String.prototype.search() 方法），差别在于 test 返回一个布尔值，而 search 返回索引（如果找到）或者 -1（如果没找到)。返回 true 或 false。如果正则表达式设置了全局标志，test() 的执行会改变正则表达式 lastIndex 属性。连续的执行 test()方法，后续的执行将会从 lastIndex 处开始匹配字符串，(exec() 同样改变正则本身的 lastIndex 属性值).
+- test() ：与指定的字符串是否匹配(类似于 String.prototype.search() 方法），差别在于 test 返回一个布尔值，而 search 返回索引（如果找到）或者 -1（如果没找到)。如果正则表达式设置了全局标志，test() 的执行会改变正则表达式 lastIndex 属性。连续的执行 test()方法，后续的执行将会从 lastIndex 处开始匹配字符串，(exec() 同样改变正则本身的 lastIndex 属性值).
 
 ```js
 const str = "table football";
@@ -80,8 +71,7 @@ console.log(globalRegex.test(str));
 // Expected output: false
 ```
 
-- exec()  
-  在一个指定字符串中执行一个搜索匹配。返回一个结果数组或 null(类似于 String.prototype.match() 方法)。当正则表达式设置 g 标志位时，可以多次执行 exec 方法来查找同一个字符串中的成功匹配。下一次查找将从正则表达式的 lastIndex 属性指定的位置开始。
+- exec() ：返回一个结果数组或 null(类似于 String.prototype.match() 方法)。当正则表达式设置 g 标志位时，可以多次执行 exec 方法来查找同一个字符串中的成功匹配。下一次查找将从正则表达式的 lastIndex 属性指定的位置开始。
 
 ```js
 const regex1 = RegExp("foo*", "g");
@@ -95,39 +85,43 @@ while ((array1 = regex1.exec(str1)) !== null) {
 }
 ```
 
-- toString()
-  返回正则的字符串表示，会合并 flags：
+- toString()：正则的字符串表示，会合并 flags：
 
 ```js
 myExp = new RegExp("a+b+c", "gi");
 console.log(myExp.toString()); // /a+b+c/gi
 ```
+
 ### 断言
+
 断言（assertion）是一种结构，用于测试字符串在指定位置是否满足特定条件，但不消耗字符。断言不能使用量词。
-- 前瞻断言 `(?=variant)` :后面紧跟variant
-- 前瞻否定断言 `(?!variant)`：后面不能是variant
-- 后瞻断言 `(?<=variant)`：前面紧跟variant
-- 后瞻否定断言 `(?<!variant)`：前面不能时variant
+
+- 前瞻断言 `(?=variant)` :后面紧跟 variant
+- 前瞻否定断言 `(?!variant)`：后面不能是 variant
+- 后瞻断言 `(?<=variant)`：前面紧跟 variant
+- 后瞻否定断言 `(?<!variant)`：前面不能时 variant
 - 输入边界断言`^ $`：正则开始、结束
 - 单词边界断言`\b \B`：单词边界、非边界
 
 ### 原子
+
 原子（atom）是正则表达式的最基本单位。每个原子消耗字符串中的一个或多个字符，要么匹配失败，要么允许模式继续匹配下一个原子。
 
 - 反向应用`\1 \2`：匹配先前匹配的、用捕获组捕获的子模式。
-- 捕获组`(variant)`：匹配子模式并保存匹配信息。
 - 字符类`[...] [^...]`：匹配字符集中的任何字符。启用 v 标志后，还可用于匹配长度有限的字符串
 - 字符类转义`\d \D \w \W \s \S`：匹配预定义字符集中的任何字符
 - 字符转义`\n \u{...}`：匹配可能无法方便地以字面形式表示的字符。
 - 字面字符`a b c`：匹配特定字符。
-- 具名反向引用`\k<name>`：匹配先前匹配的子模式，并使用已命名的捕获组进行捕获。
+- 捕获组`(variant)`：匹配子模式并保存匹配信息。
 - 具名捕获组`(?<name>...)`：匹配子模式并保存匹配信息。以后可以用自定义名称而不是模式中的索引来识别该组。
+- 具名反向引用`\k<name>`：匹配先前匹配的子模式，并使用已命名的捕获组进行捕获。
 - 非捕获分组`(?:...)`：匹配子模式，但不记忆匹配信息。
-- Unicode字符类转义`p{...} \P{...}`：匹配 Unicode 属性指定的字符集。启用 v 标志后，也可用于匹配长度有限的字符串。
+- Unicode 字符类转义`p{...} \P{...}`：匹配 Unicode 属性指定的字符集。启用 v 标志后，也可用于匹配长度有限的字符串。
 - 通配符`.`：匹配除行结束符外的任何字符，除非设置了 s 标志。
 - 逻辑或`|`：匹配由 | 字符分隔的一组备选字符中的任意一个。
 - 量词`? + * {n} {n,} {n,m}`：匹配除行结束符外的任何字符，除非设置了 s 标志。
->默认情况下，量词是贪婪的，这意味着它们会尝试尽可能多地匹配，直到达到最大值或无法继续匹配为止。你可以在量词后面添加 ?，使其成为非贪婪量词。在这种情况下，量词会尽量减少匹配次数，只有当重复匹配次数达到不可能匹配到模式的其余部分时，才会增加匹配次数。
+  > 默认情况下，量词是贪婪的，这意味着它们会尝试尽可能多地匹配，直到达到最大值或无法继续匹配为止。你可以在量词后面添加 ?，使其成为非贪婪量词。
+
 ```js
 /a*/.exec("aaa"); // ['aaa']；整个输入被消耗
 /a*?/.exec("aaa"); // ['']；可以不消耗任何字符，但仍能成功匹配
@@ -137,21 +131,20 @@ console.log(myExp.toString()); // /a+b+c/gi
 /**[ab]+ 首先贪婪地匹配了 "abb"，但 [abc]c 无法匹配模式的其余部分（"c"），因此量词被简化为只匹配 "ab" */
 /[ab]+[abc]c/.exec("abbc"); // ['abbc'] 如果无法与模式的其余部分匹配，贪婪量词可能会尝试较少的重复。
 
-const sentence = 'A ticket to 大阪 costs ¥2000 👌.';
+const sentence = "A ticket to 大阪 costs ¥2000 👌.";
 
-const regexpEmojiPresentation = /\p{Emoji_Presentation}/gu;
-console.log(sentence.match(regexpEmojiPresentation));
+console.log(sentence.match(/\p{Emoji_Presentation}/gu));
 // Expected output: Array ["👌"]
 
-const regexpNonLatin = /\P{Script_Extensions=Latin}+/gu;
-console.log(sentence.match(regexpNonLatin));
+console.log(sentence.match(/\P{Script_Extensions=Latin}+/gu));
 // Expected output: Array [" ", " ", " 大阪 ", " ¥2000 👌."]
 
-const regexpCurrencyOrPunctuation = /\p{Sc}|\p{P}/gu;
-console.log(sentence.match(regexpCurrencyOrPunctuation));
+console.log(sentence.match(/\p{Sc}|\p{P}/gu));
 // Expected output: Array ["¥", "."]
 ```
+
 ### 转义序列
+
 在正则表达式中，转义序列是指任何一种由 \ 后跟一个或多个字符组成的语法。根据 \ 后面的字符的不同，它们的作用也大相径庭。下面列出了所有有效的“转义序列”：
 |转义序列|含义|
 |-------|----|
@@ -159,7 +152,7 @@ console.log(sentence.match(regexpCurrencyOrPunctuation));
 |\B|非单词边界|
 |\s|空白字符|
 |\S|非空白字符|
-|\d|0——9数字|
+|\d|0——9 数字|
 |\D|非数字|
 |\w|字母数字下划线|
 |\W|非字母数字下划线|
@@ -176,7 +169,9 @@ console.log(sentence.match(regexpCurrencyOrPunctuation));
 |\q|仅在 v 模式字符类中有效；表示要按字面匹配的字符串，后跟{一个字符串}|
 
 ## string 的正则方法
-本质上，会把参数解析为正则对象，然后调用正则的对应方法。例如String的match(value)方法。会把value包装成正则对象，然后调用正则对象的对应属性：`Reg[Symbol.match](string)`
+
+本质上，会把参数解析为正则对象，然后调用正则的对应方法。例如 String 的 match(value)方法。会把 value 包装成正则对象，然后调用正则对象的对应属性：`Reg[Symbol.match](string)`
+
 ### match()
 
 > 匹配失败时返回 null

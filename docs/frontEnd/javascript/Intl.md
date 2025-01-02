@@ -1,6 +1,17 @@
 # Intl 国际化
 
-Intl 对象是 ECMAScript 国际化 API ，提供了精确的字符串对比、数字格式化、日期时间格式化。Collator，NumberFormat 和 DateTimeFormat 对象的构造函数是 Intl 对象的属性。
+Intl 对象是 ECMAScript 国际化 API ，提供了：
+
+- 精确的字符串对比 Collator
+- 数字 NumberFormat
+- 日期时间 DataTimeFormat
+- 持续时间 DurationFormat
+- 相对时间 RelativeTimeFormat
+- 列表 ListFormat
+- 复数 PluralRules
+- 国家展示 DisplayNames
+- 语言片段 Segmentor
+- 区域标识 Locale
 
 ## Intl.Collator
 
@@ -22,12 +33,9 @@ Intl 对象是 ECMAScript 国际化 API ，提供了精确的字符串对比、�
  * caseFirst 是否优先根据大小写排序。可能的值为 "upper"、"lower" 和 "false"（使用区域的默认设置）
  * collation 一些区域的变体
  */
-new Intl.Collator()
-new Intl.Collator(locales)
+
 new Intl.Collator(locales?, options?)
 
-Intl.Collator()
-Intl.Collator(locales)
 Intl.Collator(locales, options)
 ```
 
@@ -71,7 +79,7 @@ console.log(new Intl.Collator("sv", { sensitivity: "base" }).compare("ä", "a"))
 
 - `resolvedOptions()` 获取配置参数
 
-## Intl.DataTimeFormat()
+## Intl.DataTimeFormat
 
 日期和时间在特定的语言环境下格式化
 
@@ -86,12 +94,9 @@ console.log(new Intl.Collator("sv", { sensitivity: "base" }).compare("ä", "a"))
  * hourCycle 小时循环： "h11", "h12", "h23", and "h24".
  * timeZone 时区： "UTC", "Asia/Shanghai", "Asia/Kolkata"
  */
-new Intl.DateTimeFormat();
-new Intl.DateTimeFormat(locales);
+
 new Intl.DateTimeFormat(locales, options);
 
-Intl.DateTimeFormat();
-Intl.DateTimeFormat(locales);
 Intl.DateTimeFormat(locales, options);
 ```
 
@@ -239,7 +244,7 @@ fmt.formatRangeToParts(date1, date2);
 // ]
 ```
 
-## Intl.NumberFormat()
+## Intl.NumberFormat
 
 特定的语言环境下，数字的格式化。
 
@@ -275,34 +280,21 @@ fmt.formatRangeToParts(date1, date2);
  * trailingZeroDisplay
  * ...
  */
-new Intl.NumberFormat();
-new Intl.NumberFormat(locales);
+
 new Intl.NumberFormat(locales, options);
 
-Intl.NumberFormat();
-Intl.NumberFormat(locales);
 Intl.NumberFormat(locales, options);
 
 const number = 123456.789;
 
-console.log(
-  new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(
-    number
-  )
-);
+new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(number);
 // Expected output: "123.456,79 €"
 
-console.log(
-  new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY" }).format(
-    number
-  )
-);
+new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY" }).format(number);
 // Expected output: "￥123,457"
 
 // 限制三位有效数字
-console.log(
-  new Intl.NumberFormat("en-IN", { maximumSignificantDigits: 3 }).format(number)
-);
+new Intl.NumberFormat("en-IN", { maximumSignificantDigits: 3 }).format(number);
 // Expected output: "1,23,000"
 ```
 
@@ -313,16 +305,10 @@ console.log(
 ```js
 const amount = 654321.987;
 
-const options1 = { style: "currency", currency: "RUB" };
-const numberFormat1 = new Intl.NumberFormat("ru-RU", options1);
-
-console.log(numberFormat1.format(amount));
+new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB" }).format(amount);
 // Expected output: "654 321,99 ₽"
 
-const options2 = { style: "currency", currency: "USD" };
-const numberFormat2 = new Intl.NumberFormat("en-US", options2);
-
-console.log(numberFormat2.format(amount));
+new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 // Expected output: "$654,321.99"
 ```
 
@@ -330,10 +316,7 @@ console.log(numberFormat2.format(amount));
 
 ```js
 const amount = 654321.987;
-const options = { style: "currency", currency: "USD" };
-const numberFormat = new Intl.NumberFormat("en-US", options);
-
-const parts = numberFormat.formatToParts(amount);
+const parts = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).formatToParts(amount);
 
 console.log(parts);
 
@@ -396,7 +379,6 @@ const formatter = new Intl.NumberFormat("de-DE", {
 });
 console.log(formatter.formatRangeToParts(startRange, endRange));
 
-// return value:
 [
   { type: "integer", value: "3", source: "startRange" },
   { type: "group", value: ".", source: "startRange" },
@@ -417,8 +399,7 @@ console.log(formatter.formatRangeToParts(startRange, endRange));
 - `resolvedOptions()` 返回配置对象
 
 ```js
-const numberFormat1 = new Intl.NumberFormat('de-DE');
-const options1 = numberFormat1.resolvedOptions();
+const options1 = new Intl.NumberFormat('de-DE').resolvedOptions();
 
 console.log(options1);
 {
@@ -438,7 +419,7 @@ console.log(options1);
 }
 ```
 
-## Intl.ListFormat()
+## Intl.ListFormat
 
 列表数据格式化
 
@@ -446,19 +427,13 @@ console.log(options1);
 new Intl.ListFormat([locales[, options]])
 
 // 创建一个列表格式化器
-const formatter = new Intl.ListFormat('en', {
-  style: 'long',
-  type: 'conjunction',
-});
 const vehicles = ['Motorcycle', 'Bus', 'Car'];
 
+const formatter = new Intl.ListFormat('en', {style: 'long',type: 'conjunction'});
 console.log(formatter.format(vehicles));
 // Expected output: "Motorcycle, Bus, and Car"
 
-const formatter2 = new Intl.ListFormat('de', {
-  style: 'short',
-  type: 'disjunction',
-});
+const formatter2 = new Intl.ListFormat('de', {style: 'short',type: 'disjunction'});
 console.log(formatter2.format(vehicles));
 // Expected output: "Motorcycle, Bus oder Car"
 
@@ -467,20 +442,15 @@ console.log(formatter3.format(vehicles));
 // Expected output: "Motorcycle Bus Car"
 
 // 创建一个返回被格式化部分的列表格式化器
-console.log(
-  new Intl.ListFormat("en-GB", {
-    style: "long",
-    type: "conjunction",
-  }).formatToParts(vehicles),
-);
+new Intl.ListFormat("en-GB", {style: "long",type: "conjunction"}).formatToParts(vehicles),
 
 [
   { "type": "element", "value": "Motorcycle" },
-   { "type": "literal", "value": ", " },
-    { "type": "element", "value": "Bus" },
-     { "type": "literal", "value": ", and " },
-     { "type": "element", "value": "Car" }
-     ];
+  { "type": "literal", "value": ", " },
+  { "type": "element", "value": "Bus" },
+  { "type": "literal", "value": ", and " },
+  { "type": "element", "value": "Car" }
+];
 ```
 
 ## Intl.PluralRules
@@ -496,9 +466,8 @@ console.log(
  *    cardinal: For cardinal numbers
  *    ordinal:For ordinal number
  */
-new Intl.PluralRules();
-new Intl.PluralRules(locales);
-new Intl.PluralRules(locales, options);
+
+new Intl.PluralRules(locales?, options?);
 ```
 
 实例方法：
@@ -527,7 +496,7 @@ new Intl.PluralRules("sl").selectRange(102, 201); // 'few'
 new Intl.PluralRules("pt").selectRange(102, 102); // 'other'
 ```
 
-## Intl.RelativeTimeFormat()
+## Intl.RelativeTimeFormat
 
 相对当前的时间格式化。
 
@@ -549,9 +518,8 @@ new Intl.PluralRules("pt").selectRange(102, 102); // 'other'
  *    always 默认值。
  *    auto： 使用更多的惯用短语。例如："yesterday" instead of "1 day ago".
  */
-new Intl.RelativeTimeFormat();
-new Intl.RelativeTimeFormat(locales);
-new Intl.RelativeTimeFormat(locales, options);
+
+new Intl.RelativeTimeFormat(locales?, options?);
 
 const rtf1 = new Intl.RelativeTimeFormat("en", { style: "short" });
 
@@ -576,7 +544,7 @@ rtf.formatToParts(100, "day");
 - `format(value, unit)` 根据 value 和 unit 格式化相对当前的时间
 - `formatToParts(value, unit)` 各个部分的对象数组
 
-## Intl.DisplayNames()
+## Intl.DisplayNames
 
 根据国家 code 码，支持语言、区域和脚本等，显示名称的一致翻译
 
@@ -592,26 +560,20 @@ rtf.formatToParts(100, "day");
  */
 new Intl.DisplayNames([locales[, options]])
 
-const regionNamesInEnglish = new Intl.DisplayNames(['en'], { type: 'region' });
-console.log(regionNamesInEnglish.of('US'));
+new Intl.DisplayNames(['en'], { type: 'region' }).of('US')
 // Expected output: "United States"
 
-const regionNamesInTraditionalChinese = new Intl.DisplayNames(['zh-Hant'], {
-  type: 'region',
-});
-console.log(regionNamesInTraditionalChinese.of('US'));
+new Intl.DisplayNames(['zh-Hant'], {type: 'region'}).of('US')
 // Expected output: "美國"
 
-const displayNames = new Intl.DisplayNames(["de-DE"], { type: "region" });
-
-const usedOptions = displayNames.resolvedOptions();
+const usedOptions = new Intl.DisplayNames(["de-DE"], { type: "region" }).resolvedOptions()
 console.log(usedOptions.locale); // "de-DE"
 console.log(usedOptions.style); // "long"
 console.log(usedOptions.type); // "region"
 console.log(usedOptions.fallback); // "code"
 ```
 
-## Intl.DurationFormat()
+## Intl.DurationFormat
 
 语言敏感的持续时间格式化
 
@@ -627,7 +589,6 @@ const duration = {
   seconds: 40,
 };
 
-// With style set to "short" and locale "en"
 new Intl.DurationFormat("en", { style: "short" }).format(duration);
 // "1 hr, 46 min and 40 sec"
 
@@ -635,14 +596,9 @@ const duration = {
   hours: 7,
   minutes: 8,
   seconds: 9,
-  milliseconds: 123,
-  microseconds: 456,
-  nanoseconds: 789,
 };
 
 new Intl.DurationFormat("en", { style: "long" }).formatToParts(duration);
-
-// Returned value:
 [
   { type: "integer", value: "7", unit: "hour" },
   { type: "literal", value: " ", unit: "hour" },
@@ -655,24 +611,12 @@ new Intl.DurationFormat("en", { style: "long" }).formatToParts(duration);
   { type: "integer", value: "9", unit: "second" },
   { type: "literal", value: " ", unit: "second" },
   { type: "unit", value: "seconds", unit: "second" },
-  { type: "literal", value: ", " },
-  { type: "integer", value: "123", unit: "millisecond" },
-  { type: "literal", value: " ", unit: "millisecond" },
-  { type: "unit", value: "milliseconds", unit: "millisecond" },
-  { type: "literal", value: ", " },
-  { type: "integer", value: "456", unit: "microsecond" },
-  { type: "literal", value: " ", unit: "microsecond" },
-  { type: "unit", value: "microseconds", unit: "microsecond" },
-  { type: "literal", value: " and " },
-  { type: "integer", value: "789", unit: "nanosecond" },
-  { type: "literal", value: " ", unit: "nanosecond" },
-  { type: "unit", value: "nanoseconds", unit: "nanosecond" },
 ];
 ```
 
 ## Intl.Locale
 
-用于表示 Unicode 区域标识。区域标识符由语言标识符和扩展标记组成。语言标识符是区域 (locale) 的核心，包含了语言、脚本和地域子标记 (region subtags)。
+Unicode 区域标识符由语言标识符和扩展标记组成。语言标识符是区域 (locale) 的核心，包含了语言、脚本和地域子标记 (region subtags)。
 
 ```js
 /**
@@ -688,8 +632,7 @@ new Intl.DurationFormat("en", { style: "long" }).formatToParts(duration);
  *  hourCycle
  *  numeric
  */
-new Intl.Locale(tag);
-new Intl.Locale(tag, options);
+new Intl.Locale(tag, options?);
 
 const korean = new Intl.Locale("ko", {
   script: "Kore",
@@ -706,9 +649,8 @@ console.log(korean.baseName, japanese.baseName);
 console.log(korean.hourCycle, japanese.hourCycle);
 // Expected output: "h23" "h12"
 
-// 获取中国大陆的日历
-console.log(new Intl.Locale("zh-CN").getCalendars());
-["gregory", "chinese"];
+// 获取中国大陆的日历 : ["gregory", "chinese"];
+new Intl.Locale("zh-CN").getCalendars()
 ```
 
 实例属性和方法：
@@ -747,9 +689,7 @@ console.log(new Intl.Locale("zh-CN").getCalendars());
  *    word：按词划分边界。
  *    sentence：按句划分边界。
  */
-new Intl.Segmenter();
-new Intl.Segmenter(locales);
-new Intl.Segmenter(locales, options);
+new Intl.Segmenter(locales?, options?);
 
 const segmenter = new Intl.Segmenter("en", { granularity: "word" });
 
@@ -757,23 +697,8 @@ const segmenter = new Intl.Segmenter("en", { granularity: "word" });
 const Segments = segmenter.segment("hello world");
 console.log(Array.from(Segments));
 [
-  {
-    segment: "hello",
-    index: 0,
-    input: "hello world",
-    isWordLike: true,
-  },
-  {
-    segment: " ",
-    index: 5,
-    input: "hello world",
-    isWordLike: false,
-  },
-  {
-    segment: "world",
-    index: 6,
-    input: "hello world",
-    isWordLike: true,
-  },
+  {segment: "hello",index: 0,input: "hello world",isWordLike: true,},
+  {segment: " ",index: 5,input: "hello world",isWordLike: false,},
+  {segment: "world",index: 6,input: "hello world",isWordLike: true,},
 ];
 ```

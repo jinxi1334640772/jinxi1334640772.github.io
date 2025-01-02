@@ -1,11 +1,11 @@
 ## Set
 
-Set 对象允许你存储任何类型（无论是原始值还是对象引用）的唯一值。实例属性和方法：
+Set 对象允许你存储任何类型（无论是原始值还是对象引用）的唯一值。Set 中的值只能出现一次。实例属性和方法：
 
 - `size`
 - `add()`
-- `has()`
 - `delete()`
+- `has()`
 - `clear()`
 - `keys()`
 - `values()`
@@ -23,8 +23,8 @@ WeakSet 是可被垃圾回收的值的集合，包括对象和非全局注册的
 
 - `[Symbol.toStringTag]`
 - `add()`
-- `has()`
 - `delete()`
+- `has()`
 
 ## Map
 
@@ -54,9 +54,7 @@ Map 对象保存键值对，并且能够记住键的原始插入顺序。任何�
 
   const restock = { restock: true };
   const sufficient = { restock: false };
-  const result = Map.groupBy(inventory, ({ quantity }) =>
-    quantity < 6 ? restock : sufficient
-  );
+  const result = Map.groupBy(inventory, ({ quantity }) => (quantity < 6 ? restock : sufficient));
   console.log(result.get(restock));
   // [{ name: "bananas", type: "fruit", quantity: 5 }]
   ```
@@ -90,7 +88,7 @@ Map 对象保存键值对，并且能够记住键的原始插入顺序。任何�
 /**使用WeakRef，在一个 DOM 元素中启动一个计数器，当这个元素不存在时停止： */
 class Counter {
   constructor(element) {
-    // Remember a weak reference to the DOM element
+    // 保存 DOM element的弱应用
     this.ref = new WeakRef(element);
     this.start();
   }
@@ -99,16 +97,13 @@ class Counter {
     if (this.timer) {
       return;
     }
-
     this.count = 0;
-
     const tick = () => {
-      // Get the element from the weak reference, if it still exists
+      // 从WeakRef中获取弱应用
       const element = this.ref.deref();
       if (element) {
         element.textContent = ++this.count;
       } else {
-        // The element doesn't exist anymore
         console.log("The element is gone.");
         this.stop();
         this.ref = null;

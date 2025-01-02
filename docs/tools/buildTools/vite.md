@@ -19,7 +19,9 @@ Vite 以 原生 ESM 方式提供源码。这实际上是让浏览器接管了打
 Vite 同时利用 HTTP 头来加速整个页面的重新加载（再次让浏览器为我们做更多事情）：源码模块的请求会根据 304 Not Modified 进行协商缓存，而依赖模块请求则会通过 Cache-Control: max-age=31536000,immutable 进行强缓存，因此一旦被缓存它们将不需要再次请求。
 
 ## 安装 vite
+
 create-vite 是一个快速生成主流框架基础模板的工具
+
 ```bash
 # 全局安装 create-vite 按照提示操作即可！
 npm create vite@latest
@@ -90,43 +92,40 @@ const viteConfig: UserConfig = {
     closeBundle(){},
     //Vite 独有钩子
     config(config, { command }) {
-    if (command === 'build') {
-      config.root = 'foo'
-    }
-  },
-  configResolved(resolvedConfig) {
+      if (command === 'build') { config.root = 'foo'}
+    },
+    configResolved(resolvedConfig) {
       // 存储最终解析的配置
       config = resolvedConfig
     },
-    //是用于配置开发服务器的钩子
-  configureServer(server) {
-    server.middlewares.use((req, res, next) => {
-      // 自定义请求处理...
-    })
-  },
-  //转换 index.html 的专用钩子。钩子接收当前的 HTML 字符串和转换上下文
-  transformIndexHtml(html) {
-      return html.replace(
-        /<title>(.*?)<\/title>/,
-        `<title>Title replaced!</title>`,
-      )
+      //是用于配置开发服务器的钩子
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // 自定义请求处理...
+      })
+    },
+    //转换 index.html 的专用钩子。钩子接收当前的 HTML 字符串和转换上下文
+    transformIndexHtml(html) {
+        return html.replace(
+          /<title>(.*?)<\/title>/,
+          `<title>Title replaced!</title>`,
+        )
     },
     //执行自定义 HMR 更新处理
     handleHotUpdate({ server, modules, timestamp }) {
-  // 手动使模块失效
-  const invalidatedModules = new Set()
-  for (const mod of modules) {
-    server.moduleGraph.invalidateModule(
-      mod,
-      invalidatedModules,
-      timestamp,
-      true
-    )
-  }
-  server.ws.send({ type: 'full-reload' })
-  return []
-}
-  }
+      // 手动使模块失效
+      const invalidatedModules = new Set()
+      for (const mod of modules) {
+        server.moduleGraph.invalidateModule(
+          mod,
+          invalidatedModules,
+          timestamp,
+          true
+        )
+      }
+      server.ws.send({ type: 'full-reload' })
+      return []
+    }
   }
   }],
   // 作为静态资源服务的文件夹。
@@ -135,14 +134,14 @@ const viteConfig: UserConfig = {
   cacheDir:"node_modules/.vite",
   resolve:{
     alias:{'@assets':'./src/assets'},
+    //package.json 中，在解析包的入口点时尝试的字段列表
+    mainFields:['browser', 'module', 'jsnext:main', 'jsnext'],
+    extensions:['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
     // 强制 Vite 始终将列出的依赖项解析为同一副本（从项目根目录）
     dedupe:[],
     //解决程序包中 情景导出 时的其他允许条件。
     conditions:['module', 'browser', 'development|production'],
-    //package.json 中，在解析包的入口点时尝试的字段列表
-    mainFields:['browser', 'module', 'jsnext:main', 'jsnext'],
-    extensions:['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
-  }
+  },
   css:{
      //配置 CSS modules 的行为。选项将被传递给 postcss-modules。
     modules:{
@@ -157,36 +156,36 @@ const viteConfig: UserConfig = {
       less: {
         math: 'parens-division',
       },
+      scss: {
+        api: 'modern-compiler', // 或 "modern"，"legacy"
+        //为每一段样式内容添加额外的代码
+        additionalData: `$injectedColor: orange;`,
+        importers: [
+          // ...
+        ],
+      },
       styl: {
         define: {
           $specialColor: new stylus.nodes.RGBA(51, 197, 255, 1),
         },
       },
-      scss: {
-        api: 'modern-compiler', // 或 "modern"，"legacy"
-        //为每一段样式内容添加额外的代码
-         additionalData: `$injectedColor: orange;`,
-        importers: [
-          // ...
-        ],
-      },
-  },
-  //尽可能在 worker 线程中运行。true 表示 CPU 数量减 1。
-  preprocessorMaxWorkers:true,
-  devSourcemap:true,
-  //用于 CSS 处理的引擎
-  transformer:'postcss | lightningcss',
-  lightningcss:{
-  targets?: Targets
-  include?: Features
-  exclude?: Features
-  drafts?: Drafts
-  nonStandard?: NonStandard
-  pseudoClasses?: PseudoClasses
-  unusedSymbols?: string[]
-  cssModules?: CSSModulesConfig,
-  // ...
-},
+    },
+    //尽可能在 worker 线程中运行。true 表示 CPU 数量减 1。
+    preprocessorMaxWorkers:true,
+    devSourcemap:true,
+    //用于 CSS 处理的引擎
+    transformer:'postcss | lightningcss',
+    lightningcss:{
+    targets?: Targets
+    include?: Features
+    exclude?: Features
+    drafts?: Drafts
+    nonStandard?: NonStandard
+    pseudoClasses?: PseudoClasses
+    unusedSymbols?: string[]
+    cssModules?: CSSModulesConfig,
+    // ...
+    },
   },
   // json配置
   json:{
@@ -200,8 +199,8 @@ const viteConfig: UserConfig = {
     jsxFactory: 'h',
     jsxFragment: 'Fragment',
     //为每一个被 esbuild 转换的文件注入 JSX helper。
-     jsxInject: `import React from 'react'`,
-     minify:true
+    jsxInject: `import React from 'react'`,
+    minify:true
   },
   //指定额外的 picomatch 模式 作为静态资源处理
   assetsInclude:string | RegExp | (string | RegExp)[],
@@ -209,14 +208,14 @@ const viteConfig: UserConfig = {
   logLevel:'info' | 'warn' | 'error' | 'silent',
   // 使用自定义 logger 记录消息
   customLogger:{
-  info(msg: string, options?: LogOptions): void
-  warn(msg: string, options?: LogOptions): void
-  warnOnce(msg: string, options?: LogOptions): void
-  error(msg: string, options?: LogErrorOptions): void
-  clearScreen(type: LogType): void
-  hasErrorLogged(error: Error | RollupError): boolean
-  hasWarned: boolean
-},
+    info(msg: string, options?: LogOptions): void
+    warn(msg: string, options?: LogOptions): void
+    warnOnce(msg: string, options?: LogOptions): void
+    error(msg: string, options?: LogErrorOptions): void
+    clearScreen(type: LogType): void
+    hasErrorLogged(error: Error | RollupError): boolean
+    hasWarned: boolean
+  },
   // 设为 false 可以避免 Vite 清屏而错过在终端中打印某些关键信息
   clearScreen:true,
   // 用于加载 .env 文件的目录。
@@ -324,8 +323,7 @@ const viteConfig: UserConfig = {
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      // 正则表达式写法：
-      // http://localhost:5173/fallback/
+      // 正则表达式写法：http://localhost:5173/fallback/
       // -> http://jsonplaceholder.typicode.com/
       '^/fallback/.*': {
         target: 'http://jsonplaceholder.typicode.com',
@@ -340,11 +338,9 @@ const viteConfig: UserConfig = {
           // proxy 是 'http-proxy' 的实例
         }
       },
-      // 代理 websockets 或 socket.io 写法：
-      // ws://localhost:5173/socket.io
+      // 代理 websockets 或 socket.io 写法：ws://localhost:5173/socket.io
       // -> ws://localhost:5174/socket.io
-      // 在使用 `rewriteWsOrigin` 时要特别谨慎，因为这可能会让
-      // 代理服务器暴露在 CSRF 攻击之下
+      // 在使用 `rewriteWsOrigin` 时要特别谨慎，会让代理服务器暴露在 CSRF 攻击之下
       '/socket.io': {
         target: 'ws://localhost:5174',
         ws: true,
@@ -364,11 +360,11 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
   // `VITE_` 前缀。
   const env = loadEnv(mode, process.cwd(), '')
   return {
-    // vite 配置
-    define: {
-      __APP_ENV__: JSON.stringify(env.APP_ENV),
-    },
-  }
+      // vite 配置
+      define: {
+        __APP_ENV__: JSON.stringify(env.APP_ENV),
+      },
+    }
   } else {
     // command === 'build'
     return {
@@ -480,9 +476,7 @@ npm install element-plus --save
 
 ```html
 <!-- 引入样式 -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/element-plus/lib/theme-chalk/index.css" />
+<link rel="stylesheet" href="https://unpkg.com/element-plus/lib/theme-chalk/index.css" />
 <!-- 引入组件库 -->
 <script src="https://unpkg.com/element-plus/lib/index.full.js"></script>
 ```

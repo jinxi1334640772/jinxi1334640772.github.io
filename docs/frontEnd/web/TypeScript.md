@@ -18,22 +18,18 @@ TypeScript 属于 Javascript 的超集，兼容 Javascript 所有语法的基础
 
 ```ts
 let num: number = 123;
-
 let str: string = "12132";
-
 let bool: boolean = true;
 
 // bigint类型
 const oneHundred: bigint = BigInt(100);
 const anotherHundred: bigint = 100n;
 // symbol类型
-const firstName = Symbol("name");
-const secondName = Symbol("name");
-console.log("secondName!==secondName");
+const symbolName: symbol = Symbol("name");
 // any类型
 let name: any = 2323;
 name = "1212";
-
+// 函数类型
 function getName(name: string): void {
   console.log("void类型，修饰不返回任何内容的函数");
 }
@@ -54,7 +50,6 @@ function doSomething(x: string | null) {
 
 //表达式之后写 ! 实际上是一个类型断言，该值不是 null 或 undefined：
 function liveDangerously(x?: number | null) {
-  // No error
   console.log(x!.toFixed());
 }
 ```
@@ -69,8 +64,8 @@ enum Direction {
   Left,
   Right,
 }
-
 console.log("Direction.Down === 2", Direction.Down === 2);
+
 // 字符串枚举
 enum Direction {
   Up = "UP",
@@ -124,6 +119,7 @@ function printCoord({ a, b, c }: { a: number; b: number; c: number }): number {
 ```ts
 let numArray: number[] = [1, 2, 3];
 let stringArray: string[] = ["11", "aha", "zhangjinxi"];
+
 // 使用泛型
 let numArray: Array<number> = [1, 2, 3];
 let numArray: Array<number | string> = [1, "zhangjinxi", 23243, "ewr"];
@@ -192,7 +188,7 @@ let div = document.getElementById("myDiv") as HTMLDivElement;
 - `接口`
 
 ```ts
-// 泛型，readonly只读参数，new构造函数，？可选参数，[params: string]不定参数
+// <T>:泛型，readonly:只读参数，new:构造函数，?:可选参数，[params: string]:不定参数
 interface Person<T> {
   readonly name: string;
   age: T;
@@ -207,6 +203,7 @@ interface Person<T> {
 
 type personAlias = Person;
 
+// extends继承
 interface student extends Person {
   class: number;
   height: number;
@@ -249,21 +246,21 @@ let myIdentity: <Type>(arg: Type) => Type = identity;
 
 // 定义泛型接口
 interface GenericIdentityFn {
-<Type>(arg: Type): Type;
+  <Type>(arg: Type): Type;
 }
 let myIdentity: GenericIdentityFn = identity;
 
 //定义泛型类
 class GenericNumber<NumType> {
-zeroValue: NumType;
-make(): NumType;
-add: (x: NumType, y: NumType) => NumType;
+  zeroValue: NumType;
+  make(): NumType;
+  add: (x: NumType, y: NumType) => NumType;
 }
 
 let myGenericNumber = new GenericNumber<number>();
 myGenericNumber.zeroValue = 0;
 myGenericNumber.add = function (x, y) {
-return x + y;
+  return x + y;
 };
 
 // 泛型约束：约束泛型Type，只能是具有 .length 属性的所有类型
@@ -337,7 +334,7 @@ type Mapish = { [k: string]: boolean };
 type M = keyof Mapish; //M = string | number
 ```
 
-## typeof：类型应用
+## typeof：类型引用
 
 TypeScript 添加了一个 typeof 运算符，你可以在类型上下文中使用它来引用变量或属性的类型：
 
@@ -680,10 +677,7 @@ type T0 = Exclude<"a" | "b" | "c", "a">; //type T0 = "b" | "c"
 //type T2 = string | number
 type T2 = Exclude<string | number | (() => void), Function>;
 
-type Shape =
-  | { kind: "circle"; radius: number }
-  | { kind: "square"; x: number }
-  | { kind: "triangle"; x: number; y: number };
+type Shape = { kind: "circle"; radius: number } | { kind: "square"; x: number } | { kind: "triangle"; x: number; y: number };
 
 type T3 = Exclude<Shape, { kind: "circle" }>;
 type T3 =
@@ -792,10 +786,7 @@ type T0 = C;
 阻止对所包含类型的推断。除了阻止推断之外，`NoInfer<Type>` 与 Type 相同。
 
 ```ts
-function createStreetLight<C extends string>(
-  colors: C[],
-  defaultColor?: NoInfer<C>
-) {
+function createStreetLight<C extends string>(colors: C[], defaultColor?: NoInfer<C>) {
   // ...
 }
 createStreetLight(["red", "yellow", "green"], "red"); // OK

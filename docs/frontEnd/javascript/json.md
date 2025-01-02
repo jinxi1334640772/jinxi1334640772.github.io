@@ -8,7 +8,7 @@
 
 ## JSON.parse()
 
-在接收服务器数据时一般是字符串。可以使用 JSON.parse() 方法将数据转换为 JavaScript 对象。
+将 JSON 字符串数据转换为 JavaScript 对象。
 
 ```js
 let jsonString = '{ "name":"runoob", "alexa":10000, "site":"www.runoob.com" }';
@@ -25,7 +25,7 @@ JSON.parse(jsonString, callback(key, value));
 
 ### JSON.stringify()
 
-向服务器发送数据时一般是字符串。可以使用 JSON.stringify() 方法将 JavaScript 对象转换为字符串。不过 JSON.stringify 存在一些问题：
+将 JavaScript 对象转换为字符串。不过 JSON.stringify 存在一些问题：
 
 - 转换值如果有 toJSON() 方法，那么由 toJson() 定义什么值将被序列化
 - 非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中
@@ -39,9 +39,9 @@ JSON.parse(jsonString, callback(key, value));
 ```js
 let object = { name: "runoob", alexa: 10000, site: "www.runoob.com" };
 /**
-1. object 为将要转成json字符串的对象
-2. replacer 为需要转为JSON的key组成的数组，可以为输出的值做过滤和排序
-3. callback 会传进每个键值对，返回值会替换原来的value值，如果返回undefined，输出结果会过滤掉该项
+1. object ：将要转成为json字符串的对象
+2. replacer ：需要转为JSON的key组成的数组，可以为输出的值做过滤和排序
+3. callback ：返回值会替换原来的value值，如果返回undefined，输出结果会过滤掉该项
 4. space 缩进空格数(最多10个)。也可以使用非数字，如：\t --等代替空格。 */
 JSON.stringify(object, replacer | callback(key, value), space);
 ```
@@ -54,6 +54,7 @@ JSON.stringify(object, replacer | callback(key, value), space);
 
 ```js
 console.log(JSON.rawJSON('"hello world"'));
+
 {
   rawJSON: '"hello world"';
 }
@@ -67,7 +68,7 @@ console.log(JSON.rawJSON('"hello world"'));
 JSON.isRawJSON(JSON.rawJSON('"hello world"')); // true
 ```
 
-## JSON 中保存函数
+## 保存 JSON 中的函数
 
 ```js
 const stringify = obj => {
@@ -91,9 +92,7 @@ const parse = jsonStr => {
     // 函数字符串去除标志位，并转成函数
     return JSON.parse(jsonStr, (key, value) => {
       if (value && typeof value === "string") {
-        return value.indexOf("FUNCTION_FLAG") > -1
-          ? new Function(`return ${value.replace("FUNCTION_FLAG", "")}`)()
-          : value;
+        return value.indexOf("FUNCTION_FLAG") > -1 ? new Function(`return ${value.replace("FUNCTION_FLAG", "")}`)() : value;
       }
       return value;
     });

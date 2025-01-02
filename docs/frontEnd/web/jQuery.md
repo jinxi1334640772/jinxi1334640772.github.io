@@ -1,17 +1,17 @@
 ## jQuery 简介
 
-jQuery 是一个快速、小巧、功能丰富的 JavaScript 库。利用一些容易上手的 API，它使一些任务，譬如 HTML 文档遍历和操纵、事件处理、动画，以及 Ajax 更简单，并能跨浏览器起作用。jQuery 库包含以下功能：
+一个快速、小巧、功能丰富的 JavaScript 库。利用一些容易上手的 API，它使一些任务，譬如 HTML 文档遍历和操纵、事件处理、动画，以及 Ajax 更简单，并能跨浏览器起作用。jQuery 库包含以下功能：
 
 - HTML 元素选取
 - HTML 元素操作
-- CSS 操作
 - HTML 事件函数
-- JavaScript 特效和动画
 - HTML DOM 遍历和修改
+- CSS 操作
+- JavaScript 特效和动画
 - AJAX
 - Utilities
 
-jQuery 使用 `$` 符号和 `jQuery` 对象，会注入 window 全局对象，作为全局对象的属性使用。但可能其他框架也使用 $ 符号，这样就会引发冲突（但 jQuery 也可以照常使用）。使用 `noConflict()`方法避免这个问题。
+jQuery 使用 `$` 符号和 `jQuery` 对象，会注入 window 全局对象。但可能其他框架也使用 $ 符号，这样就会引发冲突（但 jQuery 也可以照常使用）。使用 `noConflict()`方法避免这个问题。
 
 ```js
 // 使用noConflict()，释放对 $ 标识符的控制，返回值相当于起了个别名
@@ -27,8 +27,6 @@ jq(document).ready(function () {
 
 jQuery 选择器基于元素的 id、类、类型、属性、属性值等"查找"（或选择）HTML 元素。 传入任何 CSS 选择器即可选中该元素，返回该元素的 jQuery 对象。
 
-jQuery 中所有选择器都以美元符号开头：`$()`。
-
 伪类选择器：
 
 - `:contains(text)`选择所有包含指定文本的元素。
@@ -37,8 +35,8 @@ jQuery 中所有选择器都以美元符号开头：`$()`。
 - `:parent`选择有子元素或者文本的元素。empty 相反
 
 - `:it(index)`所有索引值小于给定 index 参数的元素
-- `:gt(index)`所有索引值大于给定 index 参数的元素
 - `:eq(index)`所有索引值等于给定 index 参数的元素
+- `:gt(index)`所有索引值大于给定 index 参数的元素
 - `:even`偶数元素
 - `:odd`奇数元素
 
@@ -203,6 +201,7 @@ $(document).ready(function () {
    * @goToEnd 是否立即完成当前动画。默认是 false
    */
   $("div").stop();
+
   $(".hidebtn").click(function () {
     /**
      * @1000:显示/隐藏速度1000ms，也可以用slow、fast关键字
@@ -214,12 +213,7 @@ $(document).ready(function () {
     });
 
     //可以链式调用
-    $("#div2")
-      .fadeToggle("slow")
-      .delay(800)
-      .fadeToggle(3000)
-      .fadeTo("slow", 0.7)
-      .slideUp();
+    $("#div2").fadeToggle("slow").delay(800).fadeToggle(3000).fadeTo("slow", 0.7).slideUp();
   });
 });
 ```
@@ -408,7 +402,7 @@ $("p").not(".url");
 
 ```js
 $("#div1").load("demo_test.txt");
-//把 "demo_test.txt" 文件中 id="p1" 的元素的内容，<div> 元素中
+// "demo_test.txt" 文件中 id="p1" 的元素的内容
 $("#div1").load("demo_test.txt #p1");
 
 /** jQuery AJAX配置对象参数：

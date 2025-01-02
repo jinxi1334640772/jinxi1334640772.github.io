@@ -17,10 +17,7 @@ amis 的其它亮点：
 - 容器支持无线嵌套：可以通过嵌套来满足各种布局及展现需求；
 - 经历长时间的实战考验：amis 在百度内部得到了广泛使用，在 6 年多的时间里创建了 5 万页面，从内容审核到机器管理，从数据分析到模型训练，amis 满足了各种各样的页面需求，最复杂的页面有超过 1 万行 JSON 配置。
 
-JSON 配置使得 amis 更适合做有大量常见 UI 组件的页面，但对于面向普通客户（toC）的页面，往往追求个性化的视觉效果，这种情况下用 amis 就不合适，实际上绝大部分前端 UI 组件库也都不适合，只能定制开发。
-
-有些复杂的前端功能，比如 可视化编辑器，其中有大量定制的拖拽操作，这种需要依赖原生 DOM 实现的功能无法使用 amis。
-但对于某些交互固定的领域，比如图连线，amis 后续会有专门的组件来实现。
+JSON 配置使得 amis 更适合做有大量常见 UI 组件的页面，但对于面向普通客户（toC）的页面，往往追求个性化的视觉效果，这种情况下用 amis 就不合适，实际上绝大部分前端 UI 组件库也都不适合，只能定制开发。有些复杂的前端功能，比如 可视化编辑器，其中有大量定制的拖拽操作，这种需要依赖原生 DOM 实现的功能无法使用 amis。但对于某些交互固定的领域，比如图连线，amis 后续会有专门的组件来实现。
 
 一个普通的页面大致这个样子：
 ![alt text](image.png)
@@ -377,8 +374,8 @@ SDK 版本适合对前端或 React 不了解的开发者，它不依赖 npm 及 
   <script src="sdk.js"></script>
 
   <script type="text/javascript">
-          (function () {
-            let amis = amisRequire('amis/embed');
+    (function () {
+      let amis = amisRequire('amis/embed');
 
       // 通过替换下面这个配置来生成不同页面
       let amisJSON = {
@@ -390,24 +387,14 @@ SDK 版本适合对前端或 React 不了解的开发者，它不依赖 npm 及 
           mode: 'horizontal',
           api: '/saveForm',
           body: [
-            {
-              label: 'Name',
-              type: 'input-text',
-              name: 'name'
-            },
-            {
-              label: 'Email',
-              type: 'input-email',
-              name: 'email'
-            }
+            { label: 'Name',type: 'input-text',name: 'name'},
+            { label: 'Email',type: 'input-email',name: 'email'}
           ]
         }
       };
 
-      // 这里是初始 props，一般不用传。
-      let initProps= {
-        locale: 'en-US' // props 中可以设置语言，默认是中文
-      }
+      // 这里是初始 props，一般不用传。 默认是中文
+      let initProps= { locale: 'en-US' }
 
         // 下面是一些可选的外部控制函数
       let config= {
@@ -476,6 +463,7 @@ SDK 版本适合对前端或 React 不了解的开发者，它不依赖 npm 及 
 
     //调用 amis 中的通用动作和目标组件的动作
     amisScoped.doAction(actions, ctx)
+
     //依次执行了toast提示、ajax请求、dialog弹窗、给目标组件赋值动作
     amisScoped.doAction(
       [
@@ -520,7 +508,7 @@ SDK 版本适合对前端或 React 不了解的开发者，它不依赖 npm 及 
     );
 
     // updateProps 方法来更新下发到 amis 的属性
-    //  udpateSchema 方法来更新更新内容配置。
+    // udpateSchema 方法来更新更新内容配置。
     amisScoped.updateProps(
       {
         // 新的属性对象
@@ -529,9 +517,9 @@ SDK 版本适合对前端或 React 不了解的开发者，它不依赖 npm 及 
 
     //单页应用，在离开当前页面的时候通常需要销毁实例
     amisScoped.unmount();
-
     // 可以基于 SDK 版本封装成 component 供 vue 使用，具体请参考示例：https://github.com/aisuda/vue2-amis-demo
-          })();
+
+    })();
   </script>
 </body>
 ```

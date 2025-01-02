@@ -1,22 +1,19 @@
 ## Svelte 框架介绍
 
-velte 是一种全新的构建用户界面的方法。传统框架如 React 和 Vue 在浏览器中需要做大量的工作，而 Svelte 将这些工作放到构建应用程序的编译阶段来处理。
+传统框架如 React 和 Vue 在浏览器中需要做大量的工作，而 Svelte 将这些工作放到构建应用程序的编译阶段来处理。
 
 与使用虚拟（virtual）DOM 差异对比不同。Svelte 编写的代码在应用程序的状态更改时就能像做外科手术一样更新 DOM。
 
-- 减少代码量  
-  重复利用所掌握的编程语言：HTML、CSS、Javascript，构建的组件无需依赖模板文件。
-- 无虚拟 DOM  
-  Svelte 将代码编译成体积小、不依赖框架的普通 js 代码，让应用程序无论启动或者运行都变得非常迅速。
-- 真正的反应能力  
-  无需复杂的状态管理库，Svelte 为 JavaScript 自身添加反应能力。
+- 减少代码量 ：重复利用所掌握的编程语言：HTML、CSS、Javascript，构建的组件无需依赖模板文件。
+- 无虚拟 DOM ：Svelte 将代码编译成体积小、不依赖框架的普通 js 代码，让应用程序无论启动或者运行都变得非常迅速。
+- 真正的反应能力 ：无需复杂的状态管理库，Svelte 为 JavaScript 自身添加反应能力。
 
-- Svelte 组件建立在 HTML 之上，然后只需添加数据即可。
-- css 默认限定在组件作用域内，不再有样式冲突或者优先级的问题。还可以使用 CSS-in-JS 库。
-- 通过给局部变量赋值就能触发高效、细粒度的更新。剩余的事情交给编译器处理。
-- 使用一个内置于框架中的、强大的、性能卓越的动画引擎来构建漂亮的 UI。
+  - Svelte 组件建立在 HTML 之上，然后只需添加数据即可。
+  - css 默认限定在组件作用域内，不再有样式冲突或者优先级的问题。还可以使用 CSS-in-JS 库。
+  - 通过给局部变量赋值就能触发高效、细粒度的更新。剩余的事情交给编译器处理。
+  - 使用一个内置于框架中的、强大的、性能卓越的动画引擎来构建漂亮的 UI。
 
-```js
+```HTML
 <script>
   //引入组件直接使用
 	import Nested from './Nested.svelte';
@@ -64,7 +61,7 @@ velte 是一种全新的构建用户界面的方法。传统框架如 React 和 
   // 声明周期函数
   onMount(async () => {
 		const res = await fetch(`https://jsonplaceholder.typicode.com/photos?_limit=20`);
-		photos = await res.json();
+		const photos = await res.json();
 	});
 </script>
 
@@ -79,7 +76,7 @@ velte 是一种全新的构建用户界面的方法。传统框架如 React 和 
 
 <p>使用“{doubled}”花括号包含引入的变量、函数和表达式，可以直接调用函数</p>
 
-<p>使用@html直接渲染HTML元素而不是文本{@html '<div></div>'}</p>
+<p>使用@html直接渲染HTML元素而不是文本 {@html '<div></div>'}</p>
 
 <button on:click|once={handleClick}>
 	绑定click事件触发器，并添加修饰符，和vue相同：
@@ -88,14 +85,13 @@ velte 是一种全新的构建用户界面的方法。传统框架如 React 和 
 <div on:mousemove="{e => m = { x: e.clientX, y: e.clientY }}">
 	也可以内联事件 {m.x} x {m.y}
 </div>
-// 使用组件，并给组件添加属性props。组件内直接通过定义这个变量的方式
-// 获取这个props。例如：let answer;
+使用组件，并添加props。组件内直接通过定义这个变量的方式获取这个props。例如：let answer;
 <Nested answer={42} {...pkg}/>
 
-// bind:this 类似vue中的ref，可以获取dom对象的引用
+bind:this 类似vue中的ref，可以获取dom对象的引用
 <canvas bind:this={canvasElement}></canvas>
 
-// 条件判断
+条件判断
 {#if visible}
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 103 124">
 		<g out:fade="{{duration: 200}}" opacity=0.2>
@@ -127,26 +123,20 @@ velte 是一种全新的构建用户界面的方法。传统框架如 React 和 
 	</div>
 {/if}
 
-<link href="https://fonts.googleapis.com/css?family=Overpass:100,400" rel="stylesheet">
-
-{/* 处理异步数据的需求 */}
 {#await promise}
-	<p>...waiting</p>
+	<p>...waiting 处理异步数据的需求:</p>
 {:then number}
 	<p>The number is {number}</p>
 {:catch error}
 	<p style="color: red">{error.message}</p>
 {/await}
- {/* promise 总是返回错误，则可以忽略 catch 块 */}
+
 {#await promise then value}
-	<p>the value is {value}</p>
+	<p>promise 总是返回错误，则可以忽略 catch 块: {value}</p>
 {/await}
 
-{/* 支持 contenteditable="true"属性的标签，可以使用 textContent 与 innerHTML 属性的绑定： */}
-<div
-	contenteditable="true"
-	bind:innerHTML={html}
-></div>
+支持 contenteditable="true"属性的标签，可以使用 textContent 与 innerHTML 属性的绑定:
+<div contenteditable="true" bind:innerHTML={html}></div>
 ```
 
 ## 客户端 component API
@@ -193,26 +183,26 @@ numbers[numbers.length] = numbers.length + 1;
 
 与 DOM 事件不同， 组件事件不会 冒泡（bubble） ，如果你想要在某个深层嵌套的组件上监听事件，则中间组件必须 转发（forward） 该事件
 
-为此，组件内必须创建一个相同事件并在外部进行分配。createEventDispatcher 必须在首次实例化组件时调用它，—组件本身不支持如 setTimeout 之类的事件回调。 定义一个 dispatch 进行连接，进而把组件实例化。
+为此，组件内必须创建一个相同事件并在外部进行分配。createEventDispatcher 必须在首次实例化组件时调用它，组件本身不支持如 setTimeout 之类的事件回调。 定义一个 dispatch 进行连接，进而把组件实例化。
 
-```js
+```html
 <script>
-  import Inner from './Inner.svelte';
-	import { createEventDispatcher } from 'svelte';
+  import Inner from "./Inner.svelte";
+  import { createEventDispatcher } from "svelte";
 
-	const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 
   // 监听Inner组件内的message事件
-	function forward() {
-		dispatch('message', {
-			text: 'Hello!'
-		});
-	}
+  function forward() {
+    dispatch("message", {
+      text: "Hello!",
+    });
+  }
 </script>
 
-<Inner on:message={forward}/>
+<Inner on:message="{forward}" />
 {/* 简写属性 on:message。 message 没有赋予特定的值得情况下意味着转发所有massage事件： */}
-<Inner on:message/>
+<Inner on:message />
 ```
 
 ## store
@@ -364,7 +354,7 @@ function fade(node, {
 </p>
 
 //过 局部（local）过渡
-<div transition:slide|local>
+<div transition:"slide|local">
 	{item}
 </div>
 
@@ -534,64 +524,67 @@ export function pannable(node, ...args) {
 
 app.svelte
 
-```js
+```vue
 <script>
-	import { spring } from 'svelte/motion';
-  import { pannable } from './pannable.js';
+import { spring } from "svelte/motion";
+import { pannable } from "./pannable.js";
 
-	const coords = spring({ x: 0, y: 0 }, {
-		stiffness: 0.2,
-		damping: 0.4
-	});
+const coords = spring(
+  { x: 0, y: 0 },
+  {
+    stiffness: 0.2,
+    damping: 0.4,
+  }
+);
 
-	function handlePanStart() {
-		coords.stiffness = coords.damping = 1;
-	}
+function handlePanStart() {
+  coords.stiffness = coords.damping = 1;
+}
 
-	function handlePanMove(event) {
-		coords.update($coords => ({
-			x: $coords.x + event.detail.dx,
-			y: $coords.y + event.detail.dy
-		}));
-	}
+function handlePanMove(event) {
+  coords.update($coords => ({
+    x: $coords.x + event.detail.dx,
+    y: $coords.y + event.detail.dy,
+  }));
+}
 
-	function handlePanEnd(event) {
-		coords.stiffness = 0.2;
-		coords.damping = 0.4;
-		coords.set({ x: 0, y: 0 });
-	}
+function handlePanEnd(event) {
+  coords.stiffness = 0.2;
+  coords.damping = 0.4;
+  coords.set({ x: 0, y: 0 });
+}
 </script>
 
 <style>
-	.box {
-		--width: 100px;
-		--height: 100px;
-		position: absolute;
-		width: var(--width);
-		height: var(--height);
-		left: calc(50% - var(--width) / 2);
-		top: calc(50% - var(--height) / 2);
-		border-radius: 4px;
-		background-color: #ff3e00;
-		cursor: move;
-	}
+.box {
+  --width: 100px;
+  --height: 100px;
+  position: absolute;
+  width: var(--width);
+  height: var(--height);
+  left: calc(50% - var(--width) / 2);
+  top: calc(50% - var(--height) / 2);
+  border-radius: 4px;
+  background-color: #ff3e00;
+  cursor: move;
+}
 </style>
 
-// 通过use使用action，action里可以拿到并操作dom，还可以传递参数
-<div class="box"
-	use:pannable={{duration:1000,delay:1000}}
-	on:panstart={handlePanStart}
-	on:panmove={handlePanMove}
-	on:panend={handlePanEnd}
-	style="transform:
+<!-- 通过use使用action，action里可以拿到并操作dom，还可以传递参数 -->
+<div
+  class="box"
+  use:pannable="{{duration:1000,delay:1000}}"
+  on:panstart="{handlePanStart}"
+  on:panmove="{handlePanMove}"
+  on:panend="{handlePanEnd}"
+  style="transform:
 		translate({$coords.x}px,{$coords.y}px)
-		rotate({$coords.x * 0.2}deg)"
-></div>
+		rotate({$coords.x * 0.2}deg)"></div>
 ```
 
 ## Classes
 
-```js
+```vue
 <button
   class="{current === 'foo' ? 'selected' : ''}"
   class:selected="{current === 'foo'}"
@@ -606,14 +599,14 @@ app.svelte
 
 像 vue 一样，支持 slot 插槽，命名插槽，插槽默认值
 
-```js
-// 定义组件
+```vue
+<!-- 定义组件 -->
 <slot name="address">
   <span class="missing">具名插槽address的默认内容</span>
 </slot>
 <slot>默认default插槽的默认内容</slot>
 
-// 获取父组件传递的comments插槽内容
+<!-- 获取父组件传递的comments插槽内容 -->
 {#if $$slots.comments}
 	<div class="discussion">
 		<h3>Comments</h3>
@@ -621,10 +614,10 @@ app.svelte
 	</div>
 {/if}
 
-// 作用域插槽。hovering传递给父组件
+<!-- 作用域插槽。hovering传递给父组件 -->
 <slot hovering={hovering}></slot>
 
-// 使用组件。let来获取子组件传递的内容。也可以通过slot获取
+<!-- 使用组件。let来获取子组件传递的内容。也可以通过slot获取 -->
 <ContactCard let:hovering={hovering}>
   {#if hovering}
     <p>I am being hovered upon.</p>

@@ -3,13 +3,13 @@
 表示通用的原始二进制数据缓冲区。不能直接操作 ArrayBuffer 中的内容；而是要通过类型化数组对象或 DataView 对象来操作，它们会将缓冲区中的数据表示为特定的格式，并通过这些格式来读写缓冲区的内容。静态属性和方法：
 
 - `[Symbol.species]` 用于创建派生对象的构造函数。
-- `isView(arg)` 是否 ArrayBuffer 视图
+- `isView(DataView)` 是否 ArrayBuffer 视图
 - `byteLength` ArrayBuffer 的大小，以字节为单位。它在构造时确定，
-- `detached` ArrayBuffer 已分离（传输），则返回 true，否则返回 false。
 - `maxByteLength` 只读，ArrayBuffer 可以调整到的最大字节长度。它在构造时确定，并且无法更改
+- `detached` ArrayBuffer 已分离（传输），则返回 true，否则返回 false。
 - `resizeble` 只读。是否可调整大小
-- `resize()` 调整为指定大小，以字节为单位。
-- `slice()` 返回内容是从 begin（包含）到 end（不包含）的 ArrayBuffer 的字节内容的副本。
+- `resize(size)` 调整为指定大小，以字节为单位。
+- `slice(begin,end)` 从 begin（包含）到 end（不包含）的 ArrayBuffer 的字节内容的副本。
 - `transfer()` 创建一个新的 ArrayBuffer 对象，其内容是与此缓冲区相同的字节内容，然后分离此缓冲区。
 - `transferToFixedLength()` 创建一个新的不可调整大小的 ArrayBuffer 对象，其内容与此缓冲区相同，然后分离此缓冲区。
 
@@ -43,7 +43,6 @@ const buffer = new SharedArrayBuffer(8, { maxByteLength: 16 });
 if (buffer.growable) {
   // growable byteLength maxByteLength
   buffer.grow(12);
-  // 创建包含当前 SharedArrayBuffer 从 start 开始（包含）到 end 结束（不含）的字节内容的副本
   let newSharedArrayBuffer = buffer.slice(4, 12);
 }
 ```
@@ -52,7 +51,7 @@ if (buffer.growable) {
 
 SharedArrayBuffer 在全局对象上的构造函数是隐藏的，需要文档处于一个安全的上下文之中才行。对于顶级文档，需要设置两个表头来实现网站的跨源隔离：
 
-- `Cross-Origin-Opener-Policy` 设置为 same-origin（来保护你的源站点免受攻击），该标头会限制对弹出窗口引用的保留能力。两个顶级窗口上下文之间的直接访问基本上只在它们同源且携带相同的两个标头（且具有相同的值）时才可行。
+- `Cross-Origin-Opener-Policy` 设置为 same-origin（来保护源站点免受攻击），该标头会限制对弹出窗口引用的保留能力。两个顶级窗口上下文之间的直接访问基本上只在它们同源且携带相同的两个标头（且具有相同的值）时才可行。
 - `Cross-Origin-Embedder-Policy` 设置为 require-corp 或 credentialless（保护受害者免受你的源站点的影响）
 
 为了验证跨源隔离是否生效，你可以测试窗口和 worker 上下文中的 crossOriginIsolated 属性：
@@ -73,7 +72,7 @@ if (crossOriginIsolated) {
 
 ## TypedArray
 
-一个 TypedArray 对象描述了底层二进制数据缓冲区的类数组视图。将 %TypedArray% 作为一个“抽象类”，其为所有类型化数组的子类提供了实用方法的通用接口。其子类有：
+描述底层二进制数据缓冲区的类数组视图。将 %TypedArray% 作为一个“抽象类”，其为所有类型化数组的子类提供了实用方法的通用接口。其子类有：
 
 - `Int8Array` 8 位有符号整型（补码）
 - `Uint8Array` 8 位无符号整型
@@ -186,12 +185,9 @@ function getUint64(dataview, byteOffset, littleEndian) {
   const right = dataview.getUint32(byteOffset + 4, littleEndian);
 
   // 将两个 32 位的值组合在一起
-  const combined = littleEndian
-    ? left + 2 ** 32 * right
-    : 2 ** 32 * left + right;
+  const combined = littleEndian ? left + 2 ** 32 * right : 2 ** 32 * left + right;
 
-  if (!Number.isSafeInteger(combined))
-    console.warn(combined, "超过 MAX_SAFE_INTEGER。可能存在精度丢失。");
+  if (!Number.isSafeInteger(combined)) console.warn(combined, "超过 MAX_SAFE_INTEGER。可能存在精度丢失。");
 
   return combined;
 }
@@ -205,13 +201,9 @@ const BigInt = window.BigInt,
 function getUint64BigInt(dataview, byteOffset, littleEndian) {
   // 将 64 位的数字拆分位两个 32 位（4 字节）的部分
   const left = BigInt(dataview.getUint32(byteOffset | 0, !!littleEndian) >>> 0);
-  const right = BigInt(
-    dataview.getUint32(((byteOffset | 0) + 4) | 0, !!littleEndian) >>> 0
-  );
+  const right = BigInt(dataview.getUint32(((byteOffset | 0) + 4) | 0, !!littleEndian) >>> 0);
 
   // 将两个 32 位的值组合在一起并返回该值
-  return littleEndian
-    ? (right << bigThirtyTwo) | left
-    : (left << bigThirtyTwo) | right;
+  return littleEndian ? (right << bigThirtyTwo) | left : (left << bigThirtyTwo) | right;
 }
 ```

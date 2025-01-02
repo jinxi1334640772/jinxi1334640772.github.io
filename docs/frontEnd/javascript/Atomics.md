@@ -1,6 +1,6 @@
 # Atomics 原子操作
 
-抽象对象 Atomics 可以操作 SharedArrayBuffer 和 ArrayBuffer 对象指定位置的数据，并返回操作之前的值。
+抽象对象 Atomics 可以操作 ArrayBuffer 和 SharedArrayBuffer 对象指定位置的数据，并返回操作之前的值。
 
 > 原子操作：当内存被共享时，确保上一个原子操作结束后，下一个原子操作才开始执行，其操作不会被中断。这样可以确保正在读写的数据的值是符合预期的。
 
@@ -65,12 +65,12 @@ Atomics.load(ta, 0); // 11
 const sab = new SharedArrayBuffer(1024);
 const int32 = new Int32Array(sab);
 
-// 等待int32[0]!==0时，往下执行，否则一直挂起
+// 同步等待直到 int32[0]!==0
 Atomics.wait(int32, 0, 0);
 // 值改变为123后，wait不在挂起，这里开始执行，打印新值123
 console.log(int32[0]); // 123
 
-// 异步等待int32[0]!==0，后续代码继续执行
+// 异步等待 int32[0]!==0，后续代码继续执行
 const result = Atomics.waitAsync(int32, 0, 0, 1000);
 // { async: true, value: Promise {<pending>} }
 

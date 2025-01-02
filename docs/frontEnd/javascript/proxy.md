@@ -70,15 +70,17 @@ let handler = {
   },
   // 拦截函数的调用
   apply: function (target, thisArg, argumentsList) {
-    return Reflect.apply(target, thisArgument, argumentsList)
+    return Reflect.apply(target, thisArg, argumentsList)
   },
 };
 let proxy = new Proxy(target, handler);
 
 // 可撤销的Proxy
 let revocableProcy = Proxy.revocable(target,handler)
+
 // 表示新生成的代理对象本身
 revocableProcy.proxy
+
 // 撤销代理的方法，调用的时候不需要加任何参数
 revocableProxy.revoke()
 ```

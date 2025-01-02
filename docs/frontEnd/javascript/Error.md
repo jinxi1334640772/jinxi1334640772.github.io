@@ -1,27 +1,14 @@
-
 ## Error 错误基类
 
-当运行时错误产生时，Error 对象会被抛出。Error 对象也可用于用户自定义的异常的基础对象。
-
-Error() 构造函数能够创建一个包含错误信息的对象。
+当运行时错误产生时，Error 对象会被抛出。Error 对象也可用于自定义异常的基础对象。
 
 ```js
-/**
+/** Error() 构造函数能够创建一个包含错误信息的对象。
  * @message 人类可读的错误信息。
  * @fileName 引发此错误的文件路径。默认为调用 Error() 构造函数的代码所在文件的名称。
  * @lineNumber 引发错误的文件中的行号，默认为包含 Error() 构造函数调用的行号。
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
-new Error()
-new Error(message)
-new Error(message, options)
-new Error(message, fileName)
-new Error(message, fileName, lineNumber)
-Error()
-Error(message)
-Error(message, options)
-Error(message, fileName)
-Error(message, fileName, lineNumber)
 
 const error = new Error(message?, fileName?, lineNumber?,optoins?)
 /**也可以不适用new，直接调用， */
@@ -30,11 +17,11 @@ Error(message, fileName, lineNumber,options)
 const y = new Error('I was constructed via the "new" keyword!'，{cause: '错误的具体原因！'});
 ```
 
-Error实例属性和方法
+Error 实例属性和方法
 
 - name 错误名称：Error
 - message 错误 message ：I was constructed via the "new" keyword!
-- cause 具体原因
+- cause 具体原因：错误的具体原因！
 - fileName 发生错误的文件名
 - lineNumber 发生错误的行号
 - columnNumber 发生错误的列号
@@ -48,12 +35,12 @@ AggregateError() 构造函数能够创建了一个包装了多个错误对象的
 
 ```js
 /**
- * @errors 一系列错误对象，实际上可能不是 Error 的实例。的名称。
+ * @errors 一系列错误对象，实际上可能不是 Error 的实例。
  * @message 一个可选的对错误集合的可读描述。
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
 const error = new AggregateError( errors,message?, optoins?)
-/**也可以不适用new，直接调用， */
+/**也可以不适用new，直接调用 */
 AggregateError( errors,message?, optoins?)
 
 try {
@@ -66,7 +53,7 @@ try {
 }
 ```
 
-AggregateError实例属性和方法
+AggregateError 实例属性和方法
 
 - name 错误名称：AggregateError
 - message 错误 message
@@ -78,10 +65,7 @@ AggregateError实例属性和方法
 
 eval() 全局函数的错误
 
-EvalError() 构造函数能够创建一个包含错误信息的对象。此异常不再会被 JavaScript 抛出，但是 EvalError 对象仍然存在，以保持兼容性。
-
 EvalError 是一个可序列化对象，所以可以使用 structuredClone() 对它进行克隆，也可以使用 postMessage() 在 Worker 之间拷贝它。
-
 
 ```js
 /**
@@ -125,20 +109,13 @@ try {
  * @lineNumber 引发错误的文件中的行号
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
-new InternalError();
-new InternalError(message);
-new InternalError(message, options);
-new InternalError(message, fileName);
-new InternalError(message, fileName, lineNumber);
-
-InternalError();
-InternalError(message);
-InternalError(message, options);
-InternalError(message, fileName);
-InternalError(message, fileName, lineNumber);
+const error = new InternalError(message?, fileName?, lineNumber?,optoins?)
+/**也可以不适用new，直接调用， */
+InternalError(message, fileName, lineNumber,options)
 
 new InternalError("Engine failure");
 ```
+
 实例属性和方法
 
 - name 错误名称：InternalError
@@ -151,7 +128,7 @@ new InternalError("Engine failure");
 
 ## RangeError
 
-表示一个特定值不在所允许的范围或者集合中的错误，RangeError 是一个可序列化对象，所以可以使用 structuredClone() 对它进行克隆，也可以使用 postMessage() 在 Worker 之间拷贝它。
+表示一个特定值不在所允许的范围或者集合中的错误，RangeError 是一个可序列化对象
 
 ```js
 /**
@@ -160,19 +137,12 @@ new InternalError("Engine failure");
  * @lineNumber 引发错误的文件中的行号
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
-new RangeError();
-new RangeError(message);
-new RangeError(message, options);
-new RangeError(message, fileName);
-new RangeError(message, fileName, lineNumber);
-
-RangeError();
-RangeError(message);
-RangeError(message, options);
-RangeError(message, fileName);
-RangeError(message, fileName, lineNumber);
+const error = new RangeError(message?, fileName?, lineNumber?,optoins?)
+/**也可以不适用new，直接调用， */
+RangeError(message, fileName, lineNumber,options)
 new RangeError("The argument must be between -500 and 500.");
 ```
+
 实例属性和方法:
 
 - name 错误名称：RangeError
@@ -196,13 +166,10 @@ ReferenceError 是一个可序列化对象，所以可以使用 structuredClone(
  * @lineNumber 引发错误的文件中的行号
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
-new ReferenceError(message, fileName, lineNumber);
 
-ReferenceError();
-ReferenceError(message);
-ReferenceError(message, options);
-ReferenceError(message, fileName);
-ReferenceError(message, fileName, lineNumber);
+const error = new ReferenceError(message?, fileName?, lineNumber?,optoins?)
+/**也可以不适用new，直接调用， */
+ReferenceError(message, fileName, lineNumber,options)
 
 try {
   let a = undefinedVariable;
@@ -239,6 +206,10 @@ try {
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
 
+const error = new SyntaxError(message?, fileName?, lineNumber?,optoins?)
+/**也可以不适用new，直接调用， */
+SyntaxError(message, fileName, lineNumber,options)
+
 try {
   throw new SyntaxError("Hello", "someFile.js", 10);
 } catch (e) {
@@ -251,6 +222,7 @@ try {
   console.error(e.stack); // @debugger eval code:3:9
 }
 ```
+
 实例属性和方法
 
 - name 错误名称：SyntaxError
@@ -272,6 +244,10 @@ try {
  * @lineNumber 引发错误的文件中的行号
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
+
+const error = new TypeError(message?, fileName?, lineNumber?,optoins?)
+/**也可以不适用new，直接调用， */
+TypeError(message, fileName, lineNumber,options)
 try {
   null.f();
 } catch (e) {
@@ -284,6 +260,7 @@ try {
   console.log(e.stack); // "@Scratchpad/2:2:3\n"
 }
 ```
+
 实例属性和方法
 
 - name 错误名称：TypeError
@@ -305,6 +282,11 @@ try {
  * @lineNumber 引发错误的文件中的行号
  * @options 包含cause属性的对象，cause指示错误的具体原因
  */
+
+const error = new URIError(message?, fileName?, lineNumber?,optoins?)
+/**也可以不适用new，直接调用， */
+URIError(message, fileName, lineNumber,options)
+
 try {
   decodeURIComponent("%");
   //等于 throw new URIError("Hello", "someFile.js", 10);
@@ -318,6 +300,7 @@ try {
   console.log(e.stack); // "@Scratchpad/2:2:3\n"
 }
 ```
+
 实例属性和方法
 
 - name 错误名称：URIError

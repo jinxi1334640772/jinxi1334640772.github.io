@@ -1,12 +1,6 @@
 ## Nuxt 简介
 
-Nuxt.js 是一个基于 Vue.js 的通用应用框架。
-
-通过对客户端/服务端基础架构的抽象组织，Nuxt.js 主要关注的是应用的 UI 渲染。
-
-Nuxt.js 预设了利用 Vue.js 开发服务端渲染的应用所需要的各种配置。
-
-`nuxt generate` 命令，为基于 Vue.js 的应用提供生成对应的静态站点的功能。
+Nuxt.js 是一个基于 Vue.js 的通用应用框架。预设了利用 Vue.js 开发服务端渲染的应用所需要的各种配置。
 
 - 基于 Vue.js
 - 自动代码分层
@@ -21,7 +15,8 @@ Nuxt.js 预设了利用 Vue.js 开发服务端渲染的应用所需要的各种�
 - 支持各种样式预处理器： SASS、LESS、 Stylus 等等
 - 支持 HTTP/2 推送
 
-参考：https://ezdoc.cn/docs/nuxtjs/getting-started/installation
+> `nuxt generate` 命令，为基于 Vue.js 的应用提供生成对应的静态站点的功能。
+> 参考：https://ezdoc.cn/docs/nuxtjs/getting-started/installation
 
 ## 自动化和预置
 
@@ -47,6 +42,7 @@ Nuxt 负责这些并提供前端和后端功能，因此您可以专注于重要
 - `components` 组件目录
 - `composables` 自动导入 Vue 可组合项
 - `content` 内容模块，解析 .md、.yml、.csv 和 .json 文件，创建一个基于文件的 CMS
+
 - `layouts` 布局目录，将通用 UI 或代码模式提取到可重用的布局组件
   - 通过将 `<NuxtLayout >` 添加到 app.vue 来使用布局
   - 或者将 layout 属性设置为页面元数据的一部分
@@ -108,7 +104,7 @@ Nuxt 服务器引擎 Nitro 解锁了新的全栈功能。
 
 在开发中，它使用 Rollup 和 Node.js worker 来实现服务器代码和上下文隔离。 它还通过读取 server/api/ 中的文件和 server/middleware/ 中的服务器中间件来生成服务器 API。
 
-在生产环境中，Nitro 将您的应用程序和服务器构建到一个通用的.output 目录中。 这个输出很轻：缩小并从任何 Node.js 模块(polyfills 除外)中删除。 您可以在任何支持 JavaScript 的系统上部署此输出，包括 Node.js、无服务器、Workers、边缘端渲染或纯静态。
+在生产环境中，Nitro 将您的应用程序和服务器构建到一个通用的.output 目录中。 这个输出很轻：缩小并从任何 Node.js 模块(polyfills 除外)中删除。 可以在任何支持 JavaScript 的系统上部署此输出，包括 Node.js、无服务器、Workers、边缘端渲染或纯静态。
 
 ## Nuxt 配置
 
@@ -242,7 +238,7 @@ const appConfig = useAppConfig();
 
 ## SEO 优化和元标记
 
-通过强大的头部配置、可组合项和组件改进您的 Nuxt 应用程序的 SEO。
+通过强大的头部配置、可组合项和组件改进 Nuxt 应用程序的 SEO。
 
 ### 入口文件
 
@@ -282,14 +278,9 @@ useHead({
     return titleChunk ? `${titleChunk} - Site Title` : "Site Title";
   },
   meta: [{ name: "description", content: description }],
-  bodyAttrs: {
-    class: "test",
-  },
+  bodyAttrs: { class: "test" },
   link: [
-    {
-      rel: "preconnect",
-      href: "https://fonts.googleapis.com",
-    },
+    { rel: "preconnect", href: "https://fonts.googleapis.com" },
     {
       rel: "stylesheet",
       href: "https://fonts.googleapis.com/css2?family=Roboto&display=swap",
@@ -298,11 +289,8 @@ useHead({
   ],
   script: [
     { innerHTML: "console.log('Hello world')" },
-    {
-      src: "https://third-party-script.com",
-      // 附加到 <body> 标签的位置 'head' | 'bodyClose' | 'bodyOpen'
-      tagPosition: "bodyClose",
-    },
+    // 附加到 <body> 标签的位置 'head' | 'bodyClose' | 'bodyOpen'
+    { src: "https://third-party-script.com", tagPosition: "bodyClose" },
   ],
 });
 
@@ -316,26 +304,21 @@ useServerSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// 使用响应式的title:在Nuxt中，支持对所有属性使用响应式(Reactivity)机制，包括计算属性(computed)、getter以及响应式对象(reactive)。
+// 使用响应式的title:支持对所有属性使用响应式(Reactivity)机制，包括计算属性(computed)、getter以及响应式对象(reactive)。
 const title = ref("网站标题");
-useSeoMeta({
-  title,
-  description: () => `description: ${title.value}`,
-});
+useSeoMeta({ title, description: () => `description: ${title.value}` });
 </script>
 
 <template>
-  <!-- Nuxt 提供<Title>, <Base>, <NoScript>, <Style>, <Meta>, <Link>, <Body>, <Html> 和 <Head> 组件，以便您可以直接与组件模板中的元数据进行交互。为了和原生HTML原生区分，需要大写开头。 -->
+  <!-- Nuxt 提供<Title>, <Base>, <NoScript>, <Style>, <Meta>, <Link>, <Body>, <Html> 和 <Head> 组件，
+  以便直接与组件模板中的元数据进行交互。为了和原生HTML原生区分，需要大写开头。 -->
   <div>
     <Head>
       <Title>{{ title }}</Title>
       <Meta name="description" :content="title" />
       <!-- <Style type="text/css" children="body {color: green; }" /> -->
       <Link rel="preconnect" href="https://fonts.googleapis.com" />
-      <Link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
-        crossorigin="" />
+      <Link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" crossorigin="" />
     </Head>
 
     <ClientOnly fallback-tag="span" fallback="Loading comments...">
@@ -411,7 +394,7 @@ useSeoMeta({
 
 ### 页面路由文件
 
-pages/ 目录中，您可以使用 definePageMeta 和 useHead 来根据当前路由设置元数据。`pages/posts/[id].vue` ：
+pages/ 目录中，使用 definePageMeta 和 useHead 来根据当前路由设置元数据。`pages/posts/[id].vue` ：
 
 ```vue
 <script setup>
@@ -423,11 +406,10 @@ definePageMeta({
   // 也可以内联middleware
   middleware(to, from) {
     // 使用条件逻辑应用动态 transition
-    to.meta.pageTransition.name =
-      +to.params.id > +from.params.id ? "slide-left" : "slide-right";
+    to.meta.pageTransition.name = +to.params.id > +from.params.id ? "slide-left" : "slide-right";
   },
 
-  //路由验证：返回一个布尔值来确定这是否是要使用此页面呈现的有效路由
+  //路由验证：返回一个布尔值来确定是否要使用此页面呈现的有效路由
   validate: async route => {
     // 检查id是否由数字组成
     return /^\d+$/.test(route.params.id);
@@ -522,13 +504,9 @@ div {
 
 ## 数据获取
 
-Nuxt 附带两个可组合项和一个内置库，用于在浏览器或服务器环境中执行数据获取： useFetch、useAsyncData 和 $fetch 。
+Nuxt 附带两个可组合项和一个内置库，用于在浏览器或服务器环境中执行数据获取： useFetch、useAsyncData 和 $fetch 。它们一起使用，可确保跨环境兼容性和高效缓存，并避免重复的网络调用。
 
-它们一起使用，可确保跨环境兼容性和高效缓存，并避免重复的网络调用。
-
-useFetch 是在 Nuxt 中执行 API 调用的最直接的方法。
-
-如果需要更细粒度的控制，可以单独使用 useAsyncData 和$fetch。
+useFetch 是在 Nuxt 中执行 API 调用的最直接的方法。如果需要更细粒度的控制，可以单独使用 useAsyncData 和$fetch。
 
 useAsyncData 和 useFetch 返回相同的对象类型并接受一组通用选项。它们可以帮助您控制可组合项的行为，例如导航阻止、缓存或执行
 
@@ -598,12 +576,10 @@ const users = await $fetch("/api/users").catch(error => error.data);
 
 useFetch 接收 URL 并获取该数据，而 useAsyncData 可能有更复杂的逻辑 。 useFetch(url) 几乎等同于 useAsyncData(url, () => $fetch(url))
 
-在某些情况下，使用 useFetch 可组合项并不合适，例如，当 CMS 或第三方提供自己的查询层时。 在这种情况下，您可以使用 useAsyncData 来包装您的调用，并仍然保留可组合项提供的好处：
+在某些情况下，使用 useFetch 可组合项并不合适，例如，当 CMS 或第三方提供自己的查询层时。 在这种情况下，可以使用 useAsyncData 来包装调用，并仍然保留可组合项提供的好处：
 
 ```js
-const { data, error } = await useAsyncData("users", () =>
-  myGetFunction("users")
-);
+const { data, error } = await useAsyncData("users", () => myGetFunction("users"));
 ```
 
 ### 获取客户端 headers
@@ -627,8 +603,7 @@ import { H3Event, appendResponseHeader } from "h3";
 export async function fetchWithCookie(event: H3Event, url: string) {
   const res = await $fetch.raw(url);
   const cookies = (res.headers.get("set-cookie") || "").split(",");
-  for (const cookie of cookies)
-    appendResponseHeader(event, "set-cookie", cookie);
+  for (const cookie of cookies) appendResponseHeader(event, "set-cookie", cookie);
 
   return res._data;
 }

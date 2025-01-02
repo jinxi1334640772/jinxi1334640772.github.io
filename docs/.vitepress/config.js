@@ -286,7 +286,6 @@ export default defineConfig({
           text: "好用的工具",
           collapsed: false,
           items: [
-            { text: "我的Webpack插件", link: "/tools/package/myplugin" },
             { text: "animate css动画库", link: "/tools/package/animate" },
             { text: "Anime js动画库", link: "/tools/package/anime" },
             { text: "Lottie js动画库", link: "/tools/package/Lottie" },

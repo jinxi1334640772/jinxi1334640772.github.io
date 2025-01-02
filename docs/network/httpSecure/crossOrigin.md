@@ -59,16 +59,16 @@ fetchPromise.then(response => console.log(response));
 ## CORS 响应标头字段
 
 - `Access-Control-Allow-Origin`:告诉浏览器允许该源访问资源。或者，对于不需要携带身份凭证的请求，服务器可以指定该字段的值为通配符“\*”，表示允许来自任意源的请求。
-- `Access-Control-Max-Age`:指定了 preflight 请求的结果能够被缓存多久
-- `Access-Control-Allow-Credentials`:当浏览器的 credentials 设置为 true 时是否允许浏览器读取 response 的内容。当用在预检请求的响应中时，它指定了实际的请求是否可以使用 credentials
 - `Access-Control-Allow-Methods`:指定了访问资源时允许使用的请求方法，用于预检请求的响应
 - `Access-Control-Allow-Headers`:用于预检请求的响应。其指明了实际请求中允许携带的标头字段。这个标头是服务器端对浏览器端 Access-Control-Request-Headers 标头的响应。
+- `Access-Control-Allow-Credentials`:当浏览器的 credentials 设置为 true 时是否允许浏览器读取 response 的内容。当用在预检请求的响应中时，它指定了实际的请求是否可以使用 credentials
+- `Access-Control-Max-Age`:指定了 preflight 请求的结果能够被缓存多久
 
 ## Access-Control-Expose-Headers
 
 在跨源访问时，XMLHttpRequest 对象的 getResponseHeader() 方法只能拿到一些最基本的响应头:
 
-- Cashe-Control
+- Cache-Control
 - Content-Language
 - Content-Type
 - Expires
@@ -127,4 +127,3 @@ Cross-Origin-Resource-Policy: same-site | same-origin | cross-origin
 - same-origin-allow-popups 还允许窗口或标签页的引用。
 
 类似于跨域嵌入策略，COOP 必须配置为 same-origin 才能解锁强大功能如 SharedArrayBuffer 和 Performance.now()。
-

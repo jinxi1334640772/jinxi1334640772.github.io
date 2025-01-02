@@ -31,13 +31,7 @@ XSS（Cross Site Scripting）跨站脚本攻击，是一种代码注入攻击。
 
 ```js
 const htmlEncode = function (handleString) {
-  return handleString
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/ /g, "&nbsp;")
-    .replace(/\'/g, "&#39;")
-    .replace(/\"/g, "&quot;");
+  return handleString.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/ /g, "&nbsp;").replace(/\'/g, "&#39;").replace(/\"/g, "&quot;");
 };
 ```
 
@@ -161,6 +155,10 @@ cookies.set(name, value, {
 - DENY，完全阻止页面的嵌入。
 - ALLOW-FRO，表示页面可以在指定来源的 iframe 中展示
 
+```js
+response.setHeaders("X-FRAME-OPTIONS", "DENY");
+```
+
 2. 使用 JavaScript 来防止页面被透明覆盖。
 
 ```js
@@ -171,10 +169,6 @@ if (top.location != self.location) {
 ```
 
 3. 使用 CSP 来限制页面的加载，避免恶意脚本的注入
-
-```js
-response.setHeaders("X-FRAME-OPTIONS", "DENY");
-```
 
 ## HTTP 首部注入攻击
 
