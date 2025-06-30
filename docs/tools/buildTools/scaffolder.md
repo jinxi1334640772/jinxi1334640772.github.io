@@ -1,43 +1,66 @@
-# 脚手架开发流程
+---
+title: 🏗️ 前端脚手架开发完全指南
+description: 从零开始构建前端脚手架工具的详细教程，包括 Commander.js 命令行设计、模板下载、依赖管理等核心功能实现
+outline: deep
+---
 
-## 引入相关模块
+# 🏗️ 前端脚手架开发完全指南
 
-- commander 注册命令
-- download-git-repo 获取远程 git 仓库资源
-- child_process node 子进程模块，使用子进程启动 npm install 命令安装项目依赖
-- ora 用于控制台显示 loading
-- semver 判断版本是否符合预期
-- chalk 美化控制台输入，显示不同颜色文本
+> 脚手架是快速搭建项目的重要工具，通过系统化的开发流程，可以构建出功能完善、易于维护的前端脚手架工具。
+
+## 🎯 脚手架开发流程
+
+### 📦 引入相关模块
+
+脚手架开发需要以下核心模块：
+
+| 模块 | 功能 | 用途 |
+|------|------|------|
+| **commander** | 注册命令 | 🎮 构建命令行界面 |
+| **download-git-repo** | 获取远程 git 仓库资源 | 📥 下载项目模板 |
+| **child_process** | Node.js 子进程模块 | ⚙️ 执行 npm install 等命令 |
+| **ora** | 控制台显示 loading | ⏳ 提供加载动画效果 |
+| **semver** | 判断版本是否符合预期 | 📊 版本号管理 |
+| **chalk** | 美化控制台输入 | 🎨 显示不同颜色文本 |
+
+### 🔧 安装依赖
 
 ```bash
- npm install commander --save
- npm install download-git-repo --save
- npm install chalk --save
- npm install ora --save
- npm install semver --save
- npm install chalk --save
+# 安装核心依赖
+npm install commander --save
+npm install download-git-repo --save
+npm install chalk --save
+npm install ora --save
+npm install semver --save
 ```
 
-download-git-repo 下载 github 的包踩坑:
+### ⚠️ download-git-repo 踩坑指南
 
-1.Error: 'git clone' failed with status 128
+::: warning 🚨 常见错误及解决方案
 
-解决：地址要保证使用的是 https 模式，地址加前缀，例如：
+**1. Error: 'git clone' failed with status 128**
 
-`direct:https://github.com/username/XXX.git`
+**解决方案**: 地址要保证使用的是 HTTPS 模式，地址加前缀：
+```bash
+direct:https://github.com/username/XXX.git
+```
 
-2.Error: 'git checkout' failed with status 1
+**2. Error: 'git checkout' failed with status 1**
 
-解决：保证你拥有 master 分支（不指定分支的情况），我之前的项目就只有一个分支叫 main，不符合分支要求，所以会报错，但是他也会下载下来，只是提示不好看
-但是如果指定分支的话不会报错，例如：
+**解决方案**: 保证你拥有 master 分支（不指定分支的情况）。如果只有 main 分支，需要指定分支：
+```bash
+direct:https://github.com/username/XXX.git#main
+```
 
-`direct:https://github.com/username/XXX.git#main`
+**3. 国内码云访问问题**
 
-就会下载 main 分支下的了
+- **码云**: 需要开启 `clone: true`，否则 403 错误
+- **GitHub**: 需要 `clone: false`，否则 118 错误
 
-3.Error: 国内使用码云需要开启 clone：true，否则 403。GitHub 需要 clone：false，否则 118 错误
-
+```bash
 direct:https://gitee.com/myPrettyCode/vue3-element-admin.git#master
+```
+:::
 
 ## 注册一级命令
 

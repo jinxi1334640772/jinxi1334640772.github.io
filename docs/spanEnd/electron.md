@@ -106,18 +106,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 | **shell** | 系统操作 | `openExternal()`, `showItemInFolder()` |
 | **session** | 会话管理 | `defaultSession`, `loadExtension()` |
 
+```
 function talkWithRender() {
   /** ipcMain用于和渲染进程进行通信
-   * 监听渲染进程的talk事件，回调函数接受事件对象和传里的数据
+   * 监听渲染进程的talk事件，回调函数接受事件对象和传过来的数据
    * 通过on(eventName,callback)监听通过send派发的事件。同步事件
    * 通过handle(eventName,callback)监听通过invoke派发的事件，其
    * 返回值会发送给渲染进程。为异步事件
    */
   ipcMain.handle("talk", (event, value) => {
-    event.sender.send(
-      "talk",
-      "双向通信：通过sender拿到webContents,再次派发talk事件"
-    );
+    event.sender.send("talk","双向通信：通过sender拿到webContents,再次派发talk事件");
     return "渲染进程，你好";
   });
   ipcMain.handleOnce("onceEvent", (event, value) => {
@@ -130,16 +128,12 @@ function talkWithRender() {
 
 // 分装创建新窗口的工厂函数
 function createWindow() {
-  /** BrowserWindow窗口构造器
+  /**
+   * 使用BrowserWindow() 窗口构造器新建一个窗口
    *  getAllWindows()获取所有窗口对象
    *  formId(windowId) 返回windowId对应的窗口对象
    *  getFocusedWindow() 获取聚焦的窗口
-   *
-   */
-
-  /**
-   * 使用BrowserWindow()新建一个窗口，参数为窗口配置对象
-   * 每个窗口都属于一个渲染进程，
+   * 窗口配置对象：每个窗口都属于一个渲染进程，
    * setPosition(x,y) 设置窗口位置
    * getBounds()  获取窗口边界信息
    * setBounds({x,y,width,height})
@@ -162,7 +156,6 @@ function createWindow() {
     icon: "/hello.svg", // 托盘图表
     width: 800, //窗口宽度
     height: 600, //窗口高度
-
     show: true, // 是否显示窗口
     //web偏好配置
     webPreferences: {
@@ -183,7 +176,7 @@ function createWindow() {
     childWindow = null;
   });
   /** 窗口里的内容对象
-   *  send('eventName',data) 同步触发eventName事件
+   * send('eventName',data) 同步触发eventName事件
    * openDevTools() 打开开发者工具
    * setWindowOpenHandler(callback(content)=>({action:'deny'}))
    *

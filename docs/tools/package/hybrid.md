@@ -1,6 +1,16 @@
-## 混合开发
+---
+title: 📱 Hybrid 混合开发完全指南
+description: 混合开发技术详解，包括原理实现、H5与原生交互、DSBridge 框架等，实现一次开发多处运行
+outline: deep
+---
 
-Hybrid App 主要以 JS+Native 两者相互调用为主，从开发层面实现“一次开发，多处运行”的机制，成为真正适合跨平台的开发。Hybrid App 兼具了 Native App 良好用户体验的优势，也兼具了 Web App 使用 HTML5 跨平台开发低成本的优势。
+# 📱 Hybrid 混合开发完全指南
+
+> Hybrid App 主要以 JS+Native 两者相互调用为主，从开发层面实现"一次开发，多处运行"的机制，成为真正适合跨平台的开发。
+
+## 🎯 混合开发概述
+
+Hybrid App 兼具了 Native App 良好用户体验的优势，也兼具了 Web App 使用 HTML5 跨平台开发低成本的优势。
 
 混合开发具有以下优点：
 

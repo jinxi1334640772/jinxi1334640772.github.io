@@ -38,10 +38,10 @@ export default defineConfig({
         text: '🏠 首页', 
         link: '/home' 
       },
-      { 
-        text: '👤 简历', 
-        link: '/' 
-      },
+      // { 
+      //   text: '👤 简历', 
+      //   link: '/' 
+      // },
       {
         text: '🎨 前端技术',
         items: [
@@ -115,7 +115,7 @@ export default defineConfig({
           text: '⚡ JavaScript 核心',
           collapsed: false,
           items: [
-            { text: '🏁 JavaScript 入门', link: '/frontEnd/javascript/' },
+            { text: '🏁 JavaScript', link: '/frontEnd/javascript/' },
             { text: '🎯 对象详解', link: '/frontEnd/javascript/object' },
             { text: '🔗 Proxy 代理', link: '/frontEnd/javascript/proxy' },
             { text: '📝 正则表达式', link: '/frontEnd/javascript/RegExp' },
@@ -134,7 +134,7 @@ export default defineConfig({
             { text: '🌐 窗口属性', link: '/frontEnd/window/properties' },
             { text: '🎪 事件机制', link: '/frontEnd/window/events' },
             { text: '🔧 实用函数', link: '/frontEnd/window/function' },
-            { text: '👀 观察者模式', link: '/frontEnd/window/observer' },
+            { text: '👀 observer', link: '/frontEnd/window/observer' },
             { text: '📏 元素尺寸', link: '/frontEnd/window/offsetWidth' },
             { text: '🎨 Canvas 绘图', link: '/frontEnd/window/Canvas' },
             { text: '🔐 加密 API', link: '/frontEnd/window/crypto' },
@@ -160,14 +160,14 @@ export default defineConfig({
           text: '🚀 现代框架',
           collapsed: false,
           items: [
-            { text: '💚 Vue.js', link: '/frontEnd/web/vue' },
-            { text: '🔷 TypeScript', link: '/frontEnd/web/TypeScript' },
-            { text: '⚡ VitePress', link: '/frontEnd/web/VitePress' },
-            { text: '🎭 Svelte', link: '/frontEnd/web/svelte' },
-            { text: '💎 jQuery', link: '/frontEnd/web/jQuery' },
-            { text: '🚀 Nuxt.js', link: '/frontEnd/web/nuxt' },
+            { text: '💚 Vue.js 框架', link: '/frontEnd/web/vue' },
+            { text: '🔷 TypeScript 语言', link: '/frontEnd/web/TypeScript' },
+            { text: '⚡ VitePress 文档', link: '/frontEnd/web/VitePress' },
+            { text: '🎭 Svelte 框架', link: '/frontEnd/web/svelte' },
+            { text: '💎 jQuery 库', link: '/frontEnd/web/jQuery' },
+            { text: '🚀 Nuxt.js 框架', link: '/frontEnd/web/nuxt' },
             { text: '🔧 无代码开发', link: '/frontEnd/web/lessCode' },
-            { text: '🏗️ 微前端 qiankun', link: '/frontEnd/web/qiankun' }
+            { text: '🏗️ 微前端 qiankun 框架', link: '/frontEnd/web/qiankun' }
           ]
         }
       ],
@@ -200,24 +200,24 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '🌐 服务器搭建', link: '/afterEnd/express/server' },
-            { text: '🥚 Egg.js', link: '/afterEnd/express/egg' },
-            { text: '🎯 Koa.js', link: '/afterEnd/express/koa' }
+            { text: '🥚 Egg.js 框架', link: '/afterEnd/express/egg' },
+            { text: '🎯 Koa.js 框架', link: '/afterEnd/express/koa' }
           ]
         },
         {
           text: '🗄️ 数据库',
           collapsed: false,
           items: [
-            { text: '🐬 MySQL', link: '/afterEnd/database/mysql' },
-            { text: '🍃 MongoDB', link: '/afterEnd/database/mongoose' }
+            { text: '🐬 MySQL 数据库', link: '/afterEnd/database/mysql' },
+            { text: '🍃 MongoDB 数据库', link: '/afterEnd/database/mongoose' }
           ]
         },
         {
           text: '🌐 服务器',
           collapsed: false,
           items: [
-            { text: '🌊 Nginx', link: '/afterEnd/server/nginx' },
-            { text: '⚡ Nitro', link: '/afterEnd/server/nitro' }
+            { text: '🌊 Nginx 服务器', link: '/afterEnd/server/nginx' },
+            { text: '⚡ Nitro 服务器', link: '/afterEnd/server/nitro' }
           ]
         }
       ],
@@ -268,12 +268,12 @@ export default defineConfig({
             { text: '⚡ Vite', link: '/tools/buildTools/vite' },
             { text: '📦 Webpack', link: '/tools/buildTools/webpack' },
             { text: '🔧 Rollup', link: '/tools/buildTools/rollup' },
-            { text: '🏗️ 脚手架', link: '/tools/buildTools/scaffolder' },
             { text: '🌊 Gulp', link: '/tools/buildTools/gulp' },
-            { text: '📦 NPM', link: '/tools/buildTools/npm' },
-            { text: '🎯 Lerna', link: '/tools/buildTools/lerna' },
-            { text: '🐳 Docker', link: '/tools/buildTools/docker' },
-            { text: '🚀 Jenkins', link: '/tools/buildTools/Jenkins' },
+            { text: '🏗️ 脚手架', link: '/tools/buildTools/scaffolder' },
+            { text: '📦 NPM 包管理', link: '/tools/buildTools/npm' },
+            { text: '🎯 Lerna 包管理', link: '/tools/buildTools/lerna' },
+            { text: '🐳 Docker 容器', link: '/tools/buildTools/docker' },
+            { text: '🚀 Jenkins 持续集成', link: '/tools/buildTools/Jenkins' },
             { text: '⚙️ GitHub Actions', link: '/tools/buildTools/actions' }
           ]
         },
@@ -281,40 +281,40 @@ export default defineConfig({
           text: '📚 常用包',
           collapsed: false,
           items: [
-            { text: '🛠️ Lodash', link: '/tools/package/lodash' },
-            { text: '📊 ECharts', link: '/tools/package/echarts' },
-            { text: '🎭 Anime.js', link: '/tools/package/anime' },
-            { text: '📈 AntV', link: '/tools/package/antv' },
-            { text: '🎨 Bootstrap', link: '/tools/package/bootstrap' },
-            { text: '🌍 Cesium', link: '/tools/package/Cesium' },
-            { text: '📊 D3.js', link: '/tools/package/D3' },
-            { text: '📅 Day.js', link: '/tools/package/dayjs' },
-            { text: '🖼️ DomToImage', link: '/tools/package/DomToImage' },
-            { text: '🔍 Fuse.js', link: '/tools/package/fuse' },
-            { text: '📱 Hybrid 开发', link: '/tools/package/hybrid' },
-            { text: '🎨 Iconfont', link: '/tools/package/iconfont' },
-            { text: '🎬 Lottie', link: '/tools/package/Lottie' },
-            { text: '🎭 Mock.js', link: '/tools/package/mockjs' },
-            { text: '🍍 Pinia', link: '/tools/package/pinia' },
-            { text: '📊 Sentry', link: '/tools/package/sentry' },
-            { text: '🧩 SodaJS', link: '/tools/package/sodajs' },
-            { text: '📚 Storybook', link: '/tools/package/Storybook' },
-            { text: '📝 TinyMCE', link: '/tools/package/TinyMCE' },
-            { text: '⚡ Velocity.js', link: '/tools/package/Velocity' },
-            { text: '🌍 Vue I18n', link: '/tools/package/vueI18n' },
-            { text: '🧭 Vue Router', link: '/tools/package/VueRouter' },
-            { text: '💾 Vuex Persist', link: '/tools/package/vuexPersist' },
-            { text: '🔍 Whistle', link: '/tools/package/whistle' },
+            { text: '🛠️ Lodash 工具库', link: '/tools/package/lodash' },
+            { text: '📊 ECharts 数据可视化', link: '/tools/package/echarts' },
+            { text: '📈 AntV 数据可视化', link: '/tools/package/antv' },
+            { text: '📊 D3.js 数据可视化', link: '/tools/package/D3' },
+            { text: '🎭 Anime.js 动画库', link: '/tools/package/anime' },
+            { text: '🎨 Bootstrap 前端框架', link:'/tools/package/bootstrap' },
+            { text: '🌍 Cesium 地图', link: '/tools/package/Cesium' },
+            { text: '📅 Day.js 日期处理', link: '/tools/package/dayjs' },
+            { text: '🖼️ DomToImage 截图', link: '/tools/package/DomToImage' },
+            { text: '🔍 Fuse.js 搜索', link: '/tools/package/fuse' },
+            { text: '📱 Hybrid 混合开发', link: '/tools/package/hybrid' },
+            { text: '🎨 Iconfont 图标库', link: '/tools/package/iconfont' },
+            { text: '🎬 Lottie 动画库', link: '/tools/package/Lottie' },
+            { text: '🎭 Mock.js 模拟数据', link: '/tools/package/mockjs' },
+            { text: '🍍 Pinia 状态管理', link: '/tools/package/pinia' },
+            { text: '📊 Sentry 错误监控', link: '/tools/package/sentry' },
+            { text: '🧩 SodaJS 模板引擎', link: '/tools/package/sodajs' },
+            { text: '📚 Storybook 组件测试', link: '/tools/package/Storybook' },
+            { text: '📝 TinyMCE 富文本编辑器', link: '/tools/package/TinyMCE' },
+            { text: '⚡ Velocity.js 动画库', link: '/tools/package/Velocity' },
+            { text: '🌍 Vue I18n 国际化', link: '/tools/package/vueI18n' },
+            { text: '🧭 Vue Router 路由', link: '/tools/package/VueRouter' },
+            { text: '💾 Vuex Persist 状态管理', link: '/tools/package/vuexPersist' },
+            { text: '🔍 Whistle 代理', link: '/tools/package/whistle' },
             { text: '📋 Tasks 文件', link: '/tools/package/tasksfile' },
-            { text: '🎬 动画库', link: '/tools/package/animate' },
-            { text: '📋 SignalR', link: '/tools/package/SignalR使用指南' }
+            { text: '🎬 animate.js 动画库', link: '/tools/package/animate' },
+            { text: '📋 SignalR 实时通信', link: '/tools/package/SignalR使用指南' }
           ]
         },
         {
           text: '🧪 测试工具',
           collapsed: false,
           items: [
-            { text: '🌲 Cypress', link: '/tools/package/test/Cypress' }
+            { text: '🌲 Cypress 测试框架', link: '/tools/package/test/Cypress' }
           ]
         },
         {
@@ -322,9 +322,9 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '🔄 Git 版本控制', link: '/tools/stardard/git' },
-            { text: '✨ Prettier', link: '/tools/stardard/prettier' },
-            { text: '🔍 ESLint', link: '/tools/stardard/eslint' },
-            { text: '💻 VS Code', link: '/tools/stardard/vscode' },
+            { text: '✨ Prettier 代码格式化', link: '/tools/stardard/prettier' },
+            { text: '🔍 ESLint 代码规范', link: '/tools/stardard/eslint' },
+            { text: '💻 VS Code 编辑器', link: '/tools/stardard/vscode' },
             { text: '📖 命名规范', link: '/tools/stardard/naming' },
             { text: '📊 质量管控', link: '/tools/stardard/quality' }
           ]
@@ -344,7 +344,7 @@ export default defineConfig({
             { text: '🖨️ 打印功能', link: '/tools/questions/print' },
             { text: '💳 微信支付', link: '/tools/questions/wechatPay' },
             { text: '🏗️ 系统设计', link: '/tools/questions/system' },
-            { text: '📊 Grafana', link: '/tools/questions/Grafana' },
+            { text: '📊 Grafana 监控', link: '/tools/questions/Grafana' },
             { text: '📦 NPM 发布', link: '/tools/questions/npmPublish' },
             { text: '🔍 NPM 镜像', link: '/tools/questions/npmHub' },
             { text: '📄 LeetCode', link: '/tools/questions/leetCode' },

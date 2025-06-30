@@ -1,18 +1,38 @@
-## Lerna 简介
+---
+title: 🏗️ Lerna Monorepo 管理工具完全指南
+description: Lerna 多包管理工具的详细使用指南，包括项目初始化、依赖管理、版本控制、发布流程等最佳实践
+outline: deep
+---
 
-Lerna 是一个快速、领先的构建系统，用于管理和发布来 自同一源码仓库(Monorepos)的多个 JavaScript/TypeScript 软件包。
+# 🏗️ Lerna Monorepo 管理工具完全指南
 
-它解决了 JavaScript/TypeScript 单一源码仓库（monorepos）的两大问题：
+> Lerna 是一个快速、领先的构建系统，用于管理和发布来自同一源码仓库（Monorepos）的多个 JavaScript/TypeScript 软件包。
 
-- Lerna 可以针对任意数量的项目运行命令，并以最高效的方式、正确的顺序运行，还可以在分布到多台机器上。
-- Lerna 可以管理发布流程，从版本管理到发布到 NPM，它提供了多种选项，确保任何工作流程都能得到满足。
+## 🎯 Lerna 简介
 
-从 v6+ 版本开始，Lerna 将任务调度工作委托给 经过实战检验、业界领先的 Nx 任务运行程序，这意味着 lerna run 可以免费获得缓存和命令分布式运行所带来的好处！
+Lerna 是一个快速、领先的构建系统，用于管理和发布来自同一源码仓库（Monorepos）的多个 JavaScript/TypeScript 软件包。
 
-参考：https://www.lernajs.cn/docs/getting-started
+### ✨ 核心优势
 
-新版本的 lerna 统一改为使用包管理器例如：npm/yarn/pnpm，来管理依赖。
-Lerna 仓库文件结构如下：packages 目录为子项目储存目录
+Lerna 解决了 JavaScript/TypeScript 单一源码仓库（monorepos）的两大问题：
+
+| 功能 | 描述 | 优势 |
+|------|------|------|
+| **高效执行** | 针对任意数量的项目运行命令 | ⚡ 以最高效的方式、正确的顺序运行 |
+| **发布管理** | 管理从版本控制到 NPM 发布的完整流程 | 🚀 支持多种工作流程 |
+| **任务调度** | 基于 Nx 任务运行程序 | 🔄 免费获得缓存和分布式运行 |
+
+::: info 📖 版本特性
+从 v6+ 版本开始，Lerna 将任务调度工作委托给经过实战检验、业界领先的 Nx 任务运行程序，这意味着 `lerna run` 可以免费获得缓存和命令分布式运行所带来的好处！
+
+**参考文档**: [Lerna 官方文档](https://www.lernajs.cn/docs/getting-started)
+:::
+
+### 🏗️ 项目结构
+
+新版本的 Lerna 统一改为使用包管理器（如：npm/yarn/pnpm）来管理依赖。
+
+Lerna 仓库文件结构如下：`packages` 目录为子项目储存目录
 
 ```txt
 my-lerna-repo/

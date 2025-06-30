@@ -1,4 +1,14 @@
-## promise 原理
+---
+title: ⚡ Promise 原理与实现完全指南
+description: JavaScript Promise 的底层原理解析和手写实现，包括状态管理、链式调用、并发控制等核心概念
+outline: deep
+---
+
+# ⚡ Promise 原理与实现完全指南
+
+> Promise 是 JavaScript 中处理异步操作的重要机制，理解其原理和实现对于深入掌握异步编程至关重要。
+
+## 🎯 Promise 原理
 
 ```js
 const PENDING = "pending";

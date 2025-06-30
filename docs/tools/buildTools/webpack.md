@@ -1,16 +1,86 @@
-## webpack
+---
+title: 📦 Webpack 构建工具完全指南
+description: 现代化的模块打包工具 Webpack 的完整使用指南，包括配置、优化和最佳实践
+outline: deep
+---
 
-webpack 开箱即用，可以无需使用任何配置文件。然而，webpack 会假定项目的入口起点为 src/index.js，然后会在 dist/main.js 输出结果，并且在生产环境开启压缩和优化.
+# 📦 Webpack 构建工具完全指南
 
-Webpack 有大量的配置项，利用 webpack-cli 的 init 命令，它可以根据你的项目需求快速生成 webpack 配置文件，它会在创建配置文件之前询问你几个问题。
+> Webpack 是一个现代 JavaScript 应用程序的静态模块打包器。当 webpack 处理应用程序时，它会递归地构建一个依赖关系图，其中包含应用程序需要的每个模块，然后将所有这些模块打包成一个或多个 bundle。
+
+## 📖 概述
+
+### ✨ 核心特性
+
+| 特性 | 描述 | 优势 |
+|------|------|------|
+| 📦 **模块打包** | 支持各种模块系统 | 统一的模块化方案 |
+| 🔄 **代码分割** | 按需加载代码 | 优化加载性能 |
+| 🔌 **插件系统** | 丰富的插件生态 | 高度可扩展 |
+| 🎯 **资源处理** | 处理各种类型资源 | 一站式解决方案 |
+| 🚀 **热更新** | 开发时热重载 | 提升开发效率 |
+| 🛠️ **优化能力** | 压缩、Tree Shaking | 优化生产代码 |
+
+### 🏗️ 核心概念
+
+```javascript
+// Webpack 的核心概念
+┌─────────────┐    ┌──────────────┐    ┌─────────────┐
+│    Entry    │ -> │   Module     │ -> │   Output    │
+│   入口点     │    │   模块处理    │    │   输出结果   │
+└─────────────┘    └──────────────┘    └─────────────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+   ┌─────────┐        ┌─────────┐        ┌─────────┐
+   │ Loaders │        │ Plugins │        │ Chunks  │
+   │ 加载器   │        │ 插件    │        │ 代码块   │
+   └─────────┘        └─────────┘        └─────────┘
+```
+
+## 🚀 快速开始
+
+### 📦 安装 Webpack
 
 ```bash
-$ npx webpack init
+# 全局安装
+npm install -g webpack webpack-cli
 
+# 项目内安装（推荐）
+npm install --save-dev webpack webpack-cli
+
+# 使用 yarn
+yarn add -D webpack webpack-cli
+
+# 使用 pnpm
+pnpm add -D webpack webpack-cli
+```
+
+### 🎯 零配置使用
+
+Webpack 开箱即用，可以无需使用任何配置文件。然而，webpack 会假定项目的入口起点为 `src/index.js`，然后会在 `dist/main.js` 输出结果，并且在生产环境开启压缩和优化。
+
+```bash
+# 开发模式打包
+npx webpack --mode development
+
+# 生产模式打包
+npx webpack --mode production
+
+# 指定入口和输出
+npx webpack src/index.js --output-path dist --output-filename bundle.js
+```
+
+### 🛠️ 快速初始化配置
+
+利用 `webpack-cli` 的 `init` 命令，它可以根据你的项目需求快速生成 webpack 配置文件：
+
+```bash
+npx webpack init
+
+# 示例交互过程
 [webpack-cli] For using this command you need to install: '@webpack-cli/generators' package.
-[webpack-cli] Would you like to install '@webpack-cli/generators' package? (That will run 'npm install -D @webpack-cli/generators') (Y/n)
-devDependencies:
-+ @webpack-cli/generators 2.5.0
+[webpack-cli] Would you like to install '@webpack-cli/generators' package? (Y/n) Y
+
 ? Which of the following JS solutions do you want to use? ES6
 ? Do you want to use webpack-dev-server? Yes
 ? Do you want to simplify the creation of HTML files for your bundle? Yes
@@ -20,29 +90,18 @@ devDependencies:
 ? Do you want to extract CSS for every file? Only for Production
 ? Do you like to install prettier to format generated configuration? Yes
 ? Pick a package manager: pnpm
-[webpack-cli] ℹ INFO  Initialising project...
 
-devDependencies:
-+ @babel/core 7.19.3
-+ @babel/preset-env 7.19.4
-+ autoprefixer 10.4.12
-+ babel-loader 8.2.5
-+ css-loader 6.7.1
-+ html-webpack-plugin 5.5.0
-+ mini-css-extract-plugin 2.6.1
-+ postcss 8.4.17
-+ postcss-loader 7.0.1
-+ prettier 2.7.1
-+ style-loader 3.3.1
-+ webpack-dev-server 4.11.1
+[webpack-cli] ℹ INFO  Initialising project...
 [webpack-cli] Project has been initialised with webpack!
 ```
 
-## webpack 配置选项
+## ⚙️ 配置详解
 
-通常你的项目还需要继续扩展此能力，为此你可以在项目根目录下创建一个 webpack.config.js 文件，然后 webpack 会自动使用它
+通常你的项目还需要继续扩展此能力，为此你可以在项目根目录下创建一个 `webpack.config.js` 文件，然后 webpack 会自动使用它。
 
-```js
+### 📝 完整配置示例
+
+```javascript
 // 用于删除/清理构建文件夹
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 // 把打包后的文件插入HTML文件中，可以传递变量给HTML
@@ -56,24 +115,29 @@ const CSSSplitWebpackPlugin = require("css-split-webpack-plugin").default;
 //引入CSS cssnano配置压缩选项
 const cssnano = require("cssnano");
 // 混合外部webpack配置文件：merge(baseConfig,currentConfig)
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
+const path = require("path");
 
 // 导出webpack配置文件
 module.exports = {
   // 项目入口文件:String|Array|Object
   entry: {
-    app: "/bin.js",
+    app: "./src/index.js",
+    vendor: ["react", "react-dom"]
   },
   //构建目录和文件
   output: {
-    filename: "[name].[hash:7].js",
-    path: "/dist",
+    filename: "[name].[contenthash:8].js",
+    path: path.resolve(__dirname, "dist"),
     clean: true, // 在生成文件之前清空 output 目录
+    publicPath: "/",
+    // 代码分割的chunk文件名
+    chunkFilename: "[name].[contenthash:8].chunk.js"
   },
   // 打包模式 development|production(内部做更多优化，生产部署代码)
   mode: "development",
   // sourceMap配置选项：跟踪原始文件目录|行号|列号，方便调试
-  devtool: "cheap-module-eval-source-map",
+  devtool: "cheap-module-source-map",
   //缓存生成的 webpack 模块和 chunk，来改善构建速度
   cache: {
     type: "filesystem",
@@ -101,9 +165,11 @@ module.exports = {
       return assetFilename.endsWith(".js");
     },
     //打开/关闭提示 'error' | 'warning'| boolean
-    hints: false,
+    hints: "warning",
     //根据单个资源体积(单位: bytes)，控制 webpack 何时生成性能提示。
-    maxAssetSize: 100000,
+    maxAssetSize: 250000,
+    // 根据入口起点的最大体积，控制 webpack 何时生成性能提示
+    maxEntrypointSize: 250000,
   },
   // 开发服务器配置，交给webpack-dev-server
   devServer: {
@@ -126,9 +192,10 @@ module.exports = {
     historyApiFallback: true,
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://localhost:8080",
         pathRewrite: { "^/api": "" },
         changeOrigin: true,
+        secure: false
       },
     },
   },
@@ -137,59 +204,114 @@ module.exports = {
     // 配置如何解析MIME文件类型
     rules: [
       {
-        test: /\.js[x]?$/, // jsx、js处理
+        test: /\.jsx?$/, // jsx、js处理
         exclude: /node_modules/,
-        use: ["babel-loader"],
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+            plugins: ["@babel/plugin-proposal-class-properties"]
+          }
+        },
+      },
+      {
+        test: /\.tsx?$/, // TypeScript处理
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              transpileOnly: true
+            }
+          }
+        ]
       },
       {
         test: /\.(le|c)ss$/, // scss、css处理
-        use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"],
-      },
-      {
-        test: /\.(png|jpg|jpeg|gif|svg)/, // 图片处理
         use: [
+          process.env.NODE_ENV === "production" 
+            ? MiniCssExtractPlugin.loader 
+            : "style-loader",
           {
-            loader: "url-loader",
+            loader: "css-loader",
             options: {
-              name: "[name]_[hash].[ext]",
-              outputPath: "images/",
-              limit: 204800, // 小于200kb采用base64转码
-            },
+              modules: {
+                localIdentName: "[name]__[local]--[hash:base64:5]"
+              },
+              sourceMap: true
+            }
           },
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  ["autoprefixer", { grid: true }],
+                  ["cssnano", { preset: "default" }]
+                ]
+              }
+            }
+          },
+          "less-loader"
         ],
       },
       {
-        test: /\.(eot|woff2?|ttf)/, // 字体处理
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              name: "[name]-[hash:5].min.[ext]",
-              limit: 5000, // 5kb限制
-              outputPath: "fonts/",
-            },
-          },
-        ],
+        test: /\.(png|jpg|jpeg|gif|svg)$/, // 图片处理
+        type: "asset",
+        parser: {
+          dataUrlCondition: {
+            maxSize: 8 * 1024 // 8kb
+          }
+        },
+        generator: {
+          filename: "images/[name].[contenthash:8][ext]"
+        }
+      },
+      {
+        test: /\.(eot|woff2?|ttf)$/, // 字体处理
+        type: "asset/resource",
+        generator: {
+          filename: "fonts/[name].[contenthash:8][ext]"
+        }
       },
     ],
   },
   // 配置如何模块解析策略
   resolve: {
-    extensions: [".jsx", ".js"],
+    extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
     alias: {
-      Utilities: path.resolve(__dirname, "src/utilities/"),
-      Templates: path.resolve(__dirname, "src/templates/"),
+      "@": path.resolve(__dirname, "src"),
+      "components": path.resolve(__dirname, "src/components"),
+      "utils": path.resolve(__dirname, "src/utils"),
     },
     fallback: {
-      assert: require.resolve("assert"),
-      buffer: require.resolve("buffer"),
-      console: require.resolve("console-browserify"),
+      "assert": require.resolve("assert"),
+      "buffer": require.resolve("buffer"),
+      "console": require.resolve("console-browserify"),
+      "constants": require.resolve("constants-browserify"),
+      "crypto": require.resolve("crypto-browserify"),
+      "domain": require.resolve("domain-browser"),
+      "events": require.resolve("events"),
+      "http": require.resolve("stream-http"),
+      "https": require.resolve("https-browserify"),
+      "os": require.resolve("os-browserify/browser"),
+      "path": require.resolve("path-browserify"),
+      "punycode": require.resolve("punycode"),
+      "process": require.resolve("process/browser"),
+      "querystring": require.resolve("querystring-es3"),
+      "stream": require.resolve("stream-browserify"),
+      "string_decoder": require.resolve("string_decoder"),
+      "sys": require.resolve("util"),
+      "timers": require.resolve("timers-browserify"),
+      "tty": require.resolve("tty-browserify"),
+      "url": require.resolve("url"),
+      "util": require.resolve("util"),
+      "vm": require.resolve("vm-browserify"),
+      "zlib": require.resolve("browserify-zlib"),
     },
     mainFields: ["browser", "module", "main"],
     mainFiles: ["index"],
     modules: [path.resolve(__dirname, "src"), "node_modules"],
-    exportsFields: ["exports", "myCompanyExports"],
-    importsFields: ["browser", "module", "main"],
   },
   // 配置优化选项
   optimization: {
@@ -204,20 +326,28 @@ module.exports = {
     nodeEnv: "production",
     mergeDuplicateChunks: false,
     //使用 TerserPlugin插件压缩 bundle。
-    minimize: true,
+    minimize: process.env.NODE_ENV === "production",
     //提供一个或多个定制过的 TerserPlugin 实例，覆盖默认压缩工具(minimizer)。
     minimizer: [
       new TerserPlugin({
         parallel: true,
         terserOptions: {
-          // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
-        },
+          compress: {
+            drop_console: true,
+            drop_debugger: true
+          }
+        }
       }),
+      new OptimizeCSSAssetsPlugin({
+        cssProcessor: cssnano,
+        cssProcessorPluginOptions: {
+          preset: ['default', { discardComments: { removeAll: true } }],
+        },
+      })
     ],
     // 配置代码分割策略
     splitChunks: {
-      // 提取公共代码
-      chunks: "all", //  async(动态加载模块)，initital（入口模块），all（全部模块入口和动态的）
+      chunks: "all",
       minSize: 3000, // 抽取出来的文件压缩前最小大小
       maxSize: 0, // 抽取出来的文件压缩前的最大大小
       minChunks: 1, // 被引用次数,默认为1
@@ -225,44 +355,41 @@ module.exports = {
       maxInitialRequests: 3, // 最大的初始化加载次数，默认为 3；
       automaticNameDelimiter: "~", // 抽取出来的文件的自动生成名字的分割符，默认为 ~；
       name: "vendor/vendor", // 抽取出的文件名，默认为true，表示自动生成文件名
-      // 配置具体分割组
       cacheGroups: {
-        // 缓存组
-        common: {
-          // 将node_modules模块被不同的chunk引入超过1次的抽取为common
+        vendor: {
           test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "all",
+          priority: 10
+        },
+        common: {
           name: "common",
-          chunks: "initial",
-          priority: 2,
           minChunks: 2,
-        },
-        default: {
-          reuseExistingChunk: true, // 避免被重复打包分割
-          filename: "common.js", // 其他公共函数打包成common.js
-          priority: -20,
-        },
+          chunks: "all",
+          priority: 5,
+          reuseExistingChunk: true
+        }
       },
     },
   },
   // 引入的各种插件配置
   plugins: [
     new webpack.DefinePlugin({
-      // 创建可在编译时配置的全局常量
+      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development")
     }),
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
-      filename: "css/[name].[hash:7].css",
-      chunkFilename: "[id].css",
+      filename: "css/[name].[contenthash:8].css",
+      chunkFilename: "css/[name].[contenthash:8].chunk.css"
     }),
     new OptimizeCSSAssetsPlugin({
       assetNameRegExp: /\.css$/g,
-      cssProcessor: cssnano, // //引入cssnano配置压缩选项
+      cssProcessor: cssnano,
       cssProcessorPluginOptions: {
         preset: [
           "default",
           {
             discardComments: {
-              // 移除注释
               removeAll: true,
             },
             normalizeUnicode: false,
@@ -277,7 +404,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       filename: "index.html", // 模板文件名
-      template: "/index.html", // 模板文件源
+      template: "./public/index.html", // 模板文件源
       minify: {
         collapseWhitespace: true, // 压缩空格
         minifyCSS: true, // 压缩css
@@ -288,7 +415,10 @@ module.exports = {
         removeStyleLinkTypeAttributes: true, // 移除link的type属性
       },
     }),
-  ],
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.ProgressPlugin(),
+    process.env.ANALYZE && new BundleAnalyzerPlugin()
+  ].filter(Boolean)
 };
 ```
 
@@ -523,7 +653,7 @@ const chunk = {
 
 /** 配置生成chunk的规则
  * @basePriority 生成路由chunk的基础优先级，路由chunk依次++
- * @pathSeparator  把页面路由path的分隔符‘/’替换为其他标识符，
+ * @pathSeparator  把页面路由path的分隔符'/'替换为其他标识符，
  *  用于根据路由path，生成chunk.name，例如： /cashier/home -> _cashier_home
  * @chunkPathKey 每个路由配置route中的一个字段，用于生成chunk的匹配规则
  * @chunkConfigFun 自定义webpack的分包配置规则，会把匹配到的文件打包进
@@ -647,7 +777,7 @@ class ChunksMapUtils {
     const hash = urlObj.hash;
     if (!hash) return "";
     const index = hash.indexOf("?");
-    // 截取hash中‘#’之后‘？’之前的部分
+    // 截取hash中'#'之后'?'之前的部分
     if (index > 0) return hash.slice(1, index);
     return hash.slice(1);
   }
@@ -722,7 +852,7 @@ class ChunksMapUtils {
       const routeFullPath = `${parentPath}/${route.path}`.toLowerCase();
 
       // 替换完整pathname的分隔符，用于打包后生成的chunk名，会转成文件名
-      // 拼接前 /home/page，拼接后 _home_page。因为‘/’是个敏感字符
+      // 拼接前 /home/page，拼接后 _home_page。因为'/'是个敏感字符
       const chunkname = routeFullPath.replace(/[\\/]/g, options.pathSeparator);
 
       // chunks根据routeFullPath分组，优先级priority递增

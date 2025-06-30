@@ -1,4 +1,15 @@
-## tasksfile 简介
+---
+title: 📋 Tasksfile 任务管理工具完全指南
+description: 基于 JavaScript 的任务执行工具，提供简单的方式在函数任务中执行 shell 命令，支持同步和异步操作
+outline: deep
+---
+
+# 📋 Tasksfile 任务管理工具完全指南
+
+> Tasksfile 提供了一种以同步和异步方式在函数任务中，执行 shell 命令的简单方法，是现代前端项目的任务管理利器。
+
+## 🎯 Tasksfile 简介
+
 Tasksfile 提供了一种以同步和异步方式在函数任务中，执行 shell 命令的简单方法 
 
 安装依赖：`npm install tasksfile --save-dev`

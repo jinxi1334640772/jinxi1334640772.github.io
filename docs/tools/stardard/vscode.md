@@ -1,13 +1,33 @@
-## VSCode 简介
+---
+title: 💻 VSCode 开发环境配置完全指南
+description: Visual Studio Code 编辑器的详细配置指南，包括插件推荐、设置优化、团队协作等最佳实践
+outline: deep
+---
 
-::: tip 强烈建议
-VSCode IDE，轻量，性能好，占用内存小，广泛用于前端开发中。项目一般都有统一的代码风格，建议团队开发先配置好 eslint、prettier，把配置共享给其他同事，共用相同代码风格配置更利于项目开发、维护。
+# 💻 VSCode 开发环境配置完全指南
+
+> Visual Studio Code 是一款轻量级但功能强大的代码编辑器，广泛应用于前端开发，通过合理配置可以显著提升开发效率。
+
+## 🎯 VSCode 简介
+
+::: tip 💡 强烈建议
+VSCode IDE，轻量，性能好，占用内存小，广泛用于前端开发中。项目一般都有统一的代码风格，建议团队开发先配置好 ESLint、Prettier，把配置共享给其他同事，共用相同代码风格配置更利于项目开发、维护。
 :::
 
-官网地址：[https://code.visualstudio.com/](https://code.visualstudio.com/)
+### 📋 核心特性
 
-快捷键集合：
-![alt text](image-1.png)
+| 特性 | 描述 | 优势 |
+|------|------|------|
+| **轻量级** | 启动快速，占用内存小 | ⚡ 高效的开发体验 |
+| **丰富插件** | 强大的插件生态系统 | 🔧 可扩展性强 |
+| **智能提示** | IntelliSense 代码补全 | 🧠 提升编码效率 |
+| **集成终端** | 内置终端支持 | 🖥️ 一站式开发环境 |
+
+**官网地址**: [https://code.visualstudio.com/](https://code.visualstudio.com/)
+
+### ⌨️ 快捷键集合
+
+![VSCode 快捷键](image-1.png)
 
 ## VSCode 配置
 

@@ -1,76 +1,102 @@
-## Storybook 简介
+---
+title: 📚 Storybook 组件开发环境完全指南
+description: Storybook 可视化组件测试和开发工具，支持组件文档、实时交互、调试和测试等功能，提升组件开发效率
+outline: deep
+---
 
-使用 Storybook 进行可视化组件测试是非常简单和友好的。
+# 📚 Storybook 组件开发环境完全指南
 
-- 易于编写测试：Storybook 采用与典型网络应用程序相同的方式渲染组件，从而简化了编写测试和用例（称为 "故事"）的过程。这种方法允许使用类似 Playwright 的 Jest 语法对每个组件进行直接、孤立的测试，同时提供组件行为的实时可视化。
+> 使用 Storybook 进行可视化组件测试是非常简单和友好的，为组件开发提供完整的开发和测试环境。
 
-- 组件文档：组件的输入和输出属性都有详细的文档说明，而且可以通过 Storybook 用户界面方便地进行修改。任何修改都会立即生效，组件会根据其属性输入进行渲染。
+::: info 🌟 核心特性
+- **可视化测试** - 组件的实时可视化和交互
+- **组件文档** - 自动生成详细的组件文档
+- **实时交互** - 属性修改和事件监听
+- **调试工具** - 完整的调试和测试支持
+:::
 
-- 实时交互：由于属性可以修改、组件可以渲染和交互，我们还可以查看组件触发的所有事件（输出）。
+## 🎯 Storybook 简介
 
-- 调试（Debugging）：使用 Interactions 选项卡中提供的前后箭头，一步步进行测试非常简单。我们还提供了正常的浏览器开发工具用于调试。
-- 模拟（Mocking）API：你可以选择让 API 调用以正常方式执行，也可以对其进行模拟。
-- 无头执行（Headless execution）：在开发和调试过程中，所有这些测试都可以在浏览器上运行，这非常方便，但你很可能希望在 CI 管道中通过命令行运行测试。@storybook/test-runner （https://github.com/storybookjs/test-runner）库提供所需的一切。
+Storybook 是一个强大的组件开发环境，它允许你在隔离的环境中构建、测试和文档化组件。
 
-- 并行运行（Parallel runs）：Storybook 的测试运行库开箱即支持并行化。
+### ✨ 主要优势
 
-- 测试覆盖率：如果在运行测试时使用--coverage 标志，Storybook 的测试运行库会为测试生成 lcov 报告。然后，我们使用 istanbul-merge （https://github.com/ljharb/istanbul-merge）将此报告与其他测试覆盖率报告合并，以提供统一的报告。
+| 特性 | 描述 | 优势 |
+|------|------|------|
+| **易于编写测试** | 采用与典型网络应用程序相同的方式渲染组件 | 🧪 简化测试编写过程 |
+| **组件文档** | 组件的输入和输出属性都有详细的文档说明 | 📖 自动生成文档 |
+| **实时交互** | 属性可以修改、组件可以渲染和交互 | ⚡ 即时反馈 |
+| **调试功能** | 提供前后箭头，一步步进行测试 | 🔍 强大的调试能力 |
+| **API 模拟** | 可以选择让 API 调用以正常方式执行或进行模拟 | 🎭 灵活的测试环境 |
+| **无头执行** | 支持在 CI 管道中通过命令行运行测试 | 🤖 自动化测试 |
+| **并行运行** | 开箱即支持并行化 | 🚀 提升测试效率 |
+| **测试覆盖率** | 使用 --coverage 标志生成 lcov 报告 | 📊 代码覆盖率分析 |
 
-- 控制台日志：Storybook 的测试运行库会在终端显示所有浏览器控制台日志。这有助于调试可能只在管道中失败的测试。
+![Storybook 界面展示](image-20.png)
 
-![alt text](image-20.png)
+## 📦 安装与配置
 
-## 使用 storybook
-
-启动命令:
+### 🚀 快速开始
 
 ```bash
-#安装基于vue3+vite版本的storybook
+# 安装基于 Vue3 + Vite 版本的 Storybook
 npm install --save-dev @storybook/vue3-vite
 npm install --save-dev @storybook/vue3
 
-#初始化storybook项目
+# 初始化 Storybook 项目
 npx storybook@latest init
 
-#更新storybook版本
+# 更新 Storybook 版本
 npx storybook@latest upgrade
 
-#启动storybook命令
+# 启动 Storybook 命令
 npm run storybook
 ```
 
-就会在浏览器加载出一个页面，类似这种:
+启动后会在浏览器中加载出一个页面：
 
-![alt text](image-19.png)
+![Storybook 运行界面](image-19.png)
 
-## 创建`.storybook/main.js`文件
+## ⚙️ 配置文件
 
-```ts
+### 📋 主配置文件 `.storybook/main.js`
+
+```typescript
 import type { StorybookConfig } from "@storybook/vue3-vite";
 
 const config: StorybookConfig = {
   framework: {
     name: "@storybook/vue3-vite",
-    // frameword 的builder配置项
+    // framework 的 builder 配置项
     options: {
       docgen: {
         // 组件数据来源
         plugin: "vue-docgen-api" | "vue-component-meta",
-        // 覆盖默认ts配置
+        // 覆盖默认 ts 配置
         tsconfig: "tsconfig.app.json",
       },
     },
   },
+  
+  // Story 文件路径配置
   stories: ["../src/components/**/*.stories.js"],
+  
+  // 静态资源目录
   staticDirs: ["../public"],
+  
+  // 插件配置
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
   ],
+  
+  // 构建器配置
   core: {
     builder: "@storybook/builder-webpack5",
   },
+  
+  // 功能配置
   features: {
     interactionsDebugger: true,
   },
@@ -79,13 +105,13 @@ const config: StorybookConfig = {
 export default config;
 ```
 
-## 扩展 Vue 应用
+### 🎨 预览配置 `.storybook/preview.js|ts`
 
-新增`.storybook/preview.js|ts`文件：
-
-```js
+```javascript
 import { setup } from "@storybook/vue3";
 import "../src/index.css";
+
+// 扩展 Vue 应用
 setup(app => {
   app.use(MyPlugin);
   app.component("my-component", MyComponent);
@@ -94,9 +120,11 @@ setup(app => {
   });
 });
 
-// 控制 Storybook 功能和插件的行为：配置 actions （模拟回调）如何被处理
+// 控制 Storybook 功能和插件的行为：配置 actions（模拟回调）如何被处理
 export const parameters = {
-  actions: { argTypesRegex: "^on[A-Z].*" },
+  actions: { 
+    argTypesRegex: "^on[A-Z].*" 
+  },
   controls: {
     matchers: {
       color: /(background|color)$/i,
@@ -106,9 +134,9 @@ export const parameters = {
 };
 ```
 
-## 创建 vue 组件
+## 🧩 创建组件
 
-src/components/Task.vue:
+### 📝 示例组件 `src/components/Task.vue`
 
 ```vue
 <template>
@@ -125,6 +153,7 @@ src/components/Task.vue:
         :id="'archiveTask-' + task.id" />
       <span class="checkbox-custom" @click="archiveTask" />
     </label>
+    
     <label :for="'title-' + task.id" :aria-label="task.title" class="title">
       <input
         type="text"
@@ -134,6 +163,7 @@ src/components/Task.vue:
         name="title"
         placeholder="Input title" />
     </label>
+    
     <button
       v-if="!isChecked"
       class="pin-button"
@@ -149,8 +179,8 @@ src/components/Task.vue:
 import { reactive, computed } from "vue";
 
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
   name: "Task",
+  
   props: {
     task: {
       type: Object,
@@ -159,28 +189,34 @@ export default {
       validator: task => ["id", "state", "title"].every(key => key in task),
     },
   },
+  
   emits: ["archive-task", "pin-task"],
 
   setup(props, { emit }) {
     props = reactive(props);
+    
     return {
+      // 计算样式类
       classes: computed(() => ({
         "list-item TASK_INBOX": props.task.state === "TASK_INBOX",
         "list-item TASK_PINNED": props.task.state === "TASK_PINNED",
         "list-item TASK_ARCHIVED": props.task.state === "TASK_ARCHIVED",
       })),
+      
       /**
-       * Computed property for checking the state of the task
+       * 计算属性：检查任务状态
        */
       isChecked: computed(() => props.task.state === "TASK_ARCHIVED"),
+      
       /**
-       * Event handler for archiving tasks
+       * 事件处理器：归档任务
        */
       archiveTask() {
         emit("archive-task", props.task.id);
       },
+      
       /**
-       * Event handler for pinning tasks
+       * 事件处理器：置顶任务
        */
       pinTask() {
         emit("pin-task", props.task.id);
@@ -189,53 +225,79 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.checkbox {
+  margin-right: 12px;
+}
+
+.title {
+  flex: 1;
+}
+
+.pin-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.TASK_ARCHIVED {
+  opacity: 0.6;
+}
+
+.TASK_PINNED {
+  background-color: #f0f8ff;
+}
+</style>
 ```
 
-## 创建组件对应 story
+## 📚 创建 Story
 
-src/components/Task.stories.js
+### 🎭 基础 Story `src/components/Task.stories.js`
 
-```js
+```javascript
 // 引入需要测试的组件
 import Task from "./Task.vue";
-import fetch from "node-fetch";
-import { action } from "@storybook/addon-actions";
 
-//告诉 Storybook 我们正在文档化的组件
+// 默认导出：Story 的元数据
 export default {
-  component: Task, // 组件本身
-  //👇story 本身需要但是不用在 Storybook 应用中渲染的信息
-  excludeStories: /.*Data$/,
-  //title对应了页面上左侧的菜单，会根据/自动分级
-  title: "Task",
-  //👇 在每个 story 中具体说明 args 的行为
+  title: "Example/Task",
+  component: Task,
+  parameters: {
+    // 可选参数：在组件级别设置
+    layout: "fullscreen",
+  },
+  // 定义 argTypes 来控制 controls 面板
   argTypes: {
-    onPinTask: {},
-    onArchiveTask: {},
+    onPinTask: { action: "pin-task" },
+    onArchiveTask: { action: "archive-task" },
   },
 };
 
-// 创建 Storybook UI 的 actions 面板被点击时显示的回调
-export const actionsData = {
-  onPinTask: action("pin-task"),
-  onArchiveTask: action("archive-task"),
-};
-// args 在不重启 Storybook 的前提下实时编辑组件
-const Template = args => ({
+// 创建模板函数
+const Template = (args) => ({
   components: { Task },
   setup() {
-    return { args, ...actionsData };
+    return { args };
   },
-  template: '<Task v-bind="args" />',
+  template: '<Task v-bind="args" @pin-task="onPinTask" @archive-task="onArchiveTask" />',
 });
 
-// Story :根据给定的状态返回已渲染元素的函数---就像是函数式组件。
+// 导出各种状态的 Story
 export const Default = Template.bind({});
 Default.args = {
   task: {
     id: "1",
     title: "Test Task",
     state: "TASK_INBOX",
+    updatedAt: new Date(2021, 0, 1, 9, 0),
   },
 };
 
@@ -255,174 +317,215 @@ Archived.args = {
   },
 };
 
-//补充story：也可以是个对象，useLabel则会作为页面上的菜单名称显示出来
-export const useLabel = {
-  // 组件props
-  args: {
-    label: "天下无贼",
-    textColor: "red",
-    onClick: fn(),
+// 长标题的边界情况
+export const LongTitle = Template.bind({});
+LongTitle.args = {
+  task: {
+    ...Default.args.task,
+    title: "This task's name is absurdly large. In fact, I think if I keep going I might end up with content overflow. What will happen? The star that represents a pinned task could have text overlapping. The text could cut-off abruptly when it reaches the star. I hope not!",
   },
-  argTypes: {
-    textColor: { control: "color" },
-  },
-  // 通过storybook提供的loader来加载远程数据
-  loaders: [
-    async () => ({
-      todo: await (
-        await fetch("https://jsonplaceholder.typicode.com/todos/1")
-      ).json(),
-    }),
-  ],
-  // storybook提供了对组件进行单元测试的方法，即:play属性
-  play: async function ({ canvasElement }) {
-    const canvas = within(canvasElement);
-    // 选取到textContent为"default:card"的div,这里指的是组件本身
-    const labelDiv = canvas.getByText("default:card", {
-      selector: "div",
-    });
-    // 用expect断言测试是否有对应的style
-    await expect(labelDiv).toHaveStyle({ color: "rgb(255, 0, 0)" });
-  },
-  // 在meta data中可以添加decorator来嵌套组件
-  decorators: [
-    Story => (
-      <div style={{ border: "1px solid red" }}>
-        <Story />
-      </div>
-    ),
-  ],
 };
 ```
 
-<iframe width="100%" height="500" src="storybook.mp4" title="markdown video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+### 🧪 交互测试 Story
 
-## 合成组件 TaskList
+```javascript
+import { userEvent, within, expect } from "@storybook/test";
 
-上面 Task 组件的父组件 TaskList 组件：src/components/TaskList.vue
+// 添加交互测试
+export const InteractiveTask = Template.bind({});
+InteractiveTask.args = Default.args;
 
-```vue
-<template>
-  <div class="list-items">
-    <template v-if="loading"> loading </template>
-    <template v-else-if="isEmpty"> empty </template>
-    <template v-else>
-      <Task
-        v-for="task in tasks"
-        :key="task.id"
-        :task="task"
-        @archive-task="onArchiveTask"
-        @pin-task="onPinTask" />
-    </template>
-  </div>
-</template>
-
-<script>
-import Task from "./Task";
-import { reactive, computed } from "vue";
-
-export default {
-  name: "TaskList",
-  components: { Task },
-  props: {
-    tasks: { type: Array, required: true, default: () => [] },
-    loading: { type: Boolean, default: false },
-  },
-  emits: ["archive-task", "pin-task"],
-
-  setup(props, { emit }) {
-    props = reactive(props);
-    return {
-      isEmpty: computed(() => props.tasks.length === 0),
-      /**
-       * Event handler for archiving tasks
-       */
-      onArchiveTask(taskId) {
-        emit("archive-task", taskId);
-      },
-      /**
-       * Event handler for pinning tasks
-       */
-      onPinTask(taskId) {
-        emit("pin-task", taskId);
-      },
-    };
-  },
+// 定义交互测试
+InteractiveTask.play = async ({ canvasElement }) => {
+  const canvas = within(canvasElement);
+  
+  // 查找置顶按钮并点击
+  const pinButton = canvas.getByRole("button", { name: /pinTask/ });
+  await userEvent.click(pinButton);
+  
+  // 验证事件是否被触发
+  await expect(pinButton).toBeInTheDocument();
 };
-</script>
 ```
 
-## TaskList 的测试状态
+## 🎨 高级功能
 
-src/components/TaskList.stories.js
+### 📖 自动文档生成
 
-```js
-import { app } from "@storybook/vue3";
-import { createPinia } from "pinia";
-app.use(createPinia());
-
-import TaskList from "./TaskList.vue";
-
-import * as TaskStories from "./Task.stories";
-
+```javascript
+// 在 Story 中添加文档
 export default {
-  component: TaskList,
-  title: "TaskList",
-  //Decorators - 装饰器 提供了一种任意包装 story 的方法
-  decorators: [
-    () => ({ template: '<div style="margin: 3em;"><story/></div>' }),
-  ],
-  argTypes: {
-    onPinTask: {},
-    onArchiveTask: {},
+  title: "Example/Task",
+  component: Task,
+  parameters: {
+    docs: {
+      description: {
+        component: "任务组件用于显示单个任务项，支持置顶和归档操作。",
+      },
+    },
   },
 };
 
-const Template = args => ({
-  components: { TaskList },
-  setup() {
-    return { args, ...TaskStories.actionsData };
-  },
-  template: '<TaskList v-bind="args" />',
-});
-
+// 为特定 Story 添加描述
 export const Default = Template.bind({});
-Default.args = {
-  // Shaping the stories through args composition.
-  // The data was inherited from the Default story in task.stories.js.
-  tasks: [
-    { ...TaskStories.Default.args.task, id: "1", title: "Task 1" },
-    { ...TaskStories.Default.args.task, id: "2", title: "Task 2" },
-    { ...TaskStories.Default.args.task, id: "3", title: "Task 3" },
-    { ...TaskStories.Default.args.task, id: "4", title: "Task 4" },
-    { ...TaskStories.Default.args.task, id: "5", title: "Task 5" },
-    { ...TaskStories.Default.args.task, id: "6", title: "Task 6" },
-  ],
-};
-
-export const WithPinnedTasks = Template.bind({});
-WithPinnedTasks.args = {
-  // Shaping the stories through args composition.
-  // Inherited data coming from the Default story.
-  tasks: [
-    ...Default.args.tasks.slice(0, 5),
-    { id: "6", title: "Task 6 (pinned)", state: "TASK_PINNED" },
-  ],
-};
-
-export const Loading = Template.bind({});
-Loading.args = {
-  tasks: [],
-  loading: true,
-};
-
-export const Empty = Template.bind({});
-Empty.args = {
-  // Shaping the stories through args composition.
-  // Inherited data coming from the Loading story.
-  ...Loading.args,
-  loading: false,
+Default.parameters = {
+  docs: {
+    description: {
+      story: "这是任务的默认状态，显示在收件箱中。",
+    },
+  },
 };
 ```
 
-参考：https://storybook.js.org/tutorials/intro-to-storybook/vue/zh-CN/data/
+### 🎛️ Controls 配置
+
+```javascript
+export default {
+  title: "Example/Task",
+  component: Task,
+  argTypes: {
+    task: {
+      description: "任务对象",
+      control: { type: "object" },
+    },
+    onPinTask: {
+      description: "置顶任务时触发的事件",
+      action: "pin-task",
+    },
+    onArchiveTask: {
+      description: "归档任务时触发的事件", 
+      action: "archive-task",
+    },
+  },
+};
+```
+
+### 🎭 装饰器 (Decorators)
+
+```javascript
+// 全局装饰器
+export const decorators = [
+  (story) => ({
+    components: { story },
+    template: '<div style="margin: 3em;"><story /></div>',
+  }),
+];
+
+// Story 级别装饰器
+export const WithMargin = Template.bind({});
+WithMargin.decorators = [
+  () => ({
+    template: '<div style="margin: 50px;"><story /></div>',
+  }),
+];
+```
+
+## 🔧 测试配置
+
+### 🧪 测试运行器
+
+```bash
+# 安装测试运行器
+npm install --save-dev @storybook/test-runner
+
+# 运行测试
+npm run test-storybook
+
+# 运行测试并生成覆盖率报告
+npm run test-storybook -- --coverage
+```
+
+### 📊 覆盖率配置
+
+```javascript
+// .storybook/test-runner.js
+module.exports = {
+  async preRender(page) {
+    // 在每个 story 渲染前执行
+    await page.evaluateOnNewDocument(() => {
+      window.console.log("Story 即将渲染");
+    });
+  },
+  
+  async postRender(page) {
+    // 在每个 story 渲染后执行
+    const elementHandler = await page.$("#root");
+    const innerHTML = await elementHandler.innerHTML();
+    expect(innerHTML).toMatchSnapshot();
+  },
+};
+```
+
+## 🚀 最佳实践
+
+### 📝 Story 命名规范
+
+```javascript
+// 好的做法：语义化命名
+export const Default = Template.bind({});
+export const Loading = Template.bind({});
+export const Error = Template.bind({});
+export const Empty = Template.bind({});
+
+// 避免：无意义命名
+export const Story1 = Template.bind({});
+export const Story2 = Template.bind({});
+```
+
+### 🎯 组件隔离
+
+```javascript
+// 确保每个 Story 都是独立的
+export const Independent = Template.bind({});
+Independent.args = {
+  // 完整的 props 定义
+  task: {
+    id: "unique-id",
+    title: "Independent Task",
+    state: "TASK_INBOX",
+  },
+};
+```
+
+### 🔄 数据模拟
+
+```javascript
+// 使用 Mock Service Worker 模拟 API
+import { rest } from "msw";
+
+export const parameters = {
+  msw: {
+    handlers: [
+      rest.get("/api/tasks", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            { id: "1", title: "Task 1", state: "TASK_INBOX" },
+            { id: "2", title: "Task 2", state: "TASK_PINNED" },
+          ])
+        );
+      }),
+    ],
+  },
+};
+```
+
+::: tip 💡 开发建议
+1. **组件优先** - 先开发组件，再编写 Story
+2. **状态覆盖** - 为组件的所有状态创建 Story
+3. **边界测试** - 测试极端情况和边界条件
+4. **文档同步** - 保持 Story 和组件文档的同步
+:::
+
+::: warning ⚠️ 注意事项
+- 确保 Story 中的数据是静态的，避免依赖外部状态
+- 使用装饰器时注意样式隔离
+- 定期更新 Storybook 版本以获得最新功能
+:::
+
+## 📚 扩展阅读
+
+- [Storybook 官方文档](https://storybook.js.org/)
+- [Vue Storybook 指南](https://storybook.js.org/docs/vue/get-started/introduction)
+- [测试最佳实践](https://storybook.js.org/docs/vue/writing-tests/introduction)
+- [部署 Storybook](https://storybook.js.org/docs/vue/sharing/publish-storybook)
