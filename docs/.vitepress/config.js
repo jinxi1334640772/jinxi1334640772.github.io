@@ -1,571 +1,546 @@
-// 解析markdown转为HTML文件时，各种配置，例如：页面title，head,script,meta等
-import { defineConfig } from "vitepress";
-// 解析markdown转为HTML文件时，给特定标签添加特定属性和属性值
-import mdItCustomAttrs from "markdown-it-custom-attrs";
-// 页面配置
+// VitePress 配置文件
+// 详细配置文档: https://vitepress.dev/reference/site-config
+
+import { defineConfig } from 'vitepress'
+
 export default defineConfig({
-  // 应用级别配置选项
-  // 往head里添加标签
+  // ===== 基础配置 =====
+  title: '💻 VitePress 技术文档站点',
+  description: '专业的前端技术知识库，涵盖前端、后端、网络工程、开发工具等技术领域',
+  lang: 'zh-CN',
+  
+  // ===== 头部配置 =====
   head: [
-    ["link", { rel: "icon", href: "/favicon.ico" }],
-    [
-      "meta",
-      {
-        name: "keywords",
-        content: "vitepress生成的静态站点，用markdown语法编写HTML页面",
-      },
-    ],
-    [
-      "link",
-      {
-        rel: "stylesheet",
-        href: "https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css",
-      },
-    ],
-    [
-      "script",
-      {
-        src: "https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js",
-      },
-    ],
-    [
-      "script",
-      { type: "text/javascript" },
-      `var _hmt = _hmt || [];
-      (function() {
-        var hm = document.createElement("script");
-        hm.src = "https://hm.baidu.com/hm.js?dd9ada7b25f65a181a42780f04b764e6";
-        var s = document.getElementsByTagName("script")[0]; 
-        s.parentNode.insertBefore(hm, s);
-      })();
-      `,
-    ],
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['meta', { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
+    ['meta', { name: 'theme-color', content: '#646cff' }],
+    ['meta', { name: 'keywords', content: 'VitePress,前端,技术文档,JavaScript,Vue,React,Node.js' }],
+    ['meta', { property: 'og:title', content: 'VitePress 技术文档站点' }],
+    ['meta', { property: 'og:description', content: '专业的前端技术知识库' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    // Fancybox 图片灯箱效果
+    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js' }]
   ],
-  // 配置 Markdown 解析器选项。VitePress 使用 Markdown-it 作为解析器，使用 Shiki 来高亮不同语言语法。在此选项中，可以传递各种 Markdown 相关选项以满足你的需要。
-  markdown: {
-    // markdown-it-anchor 的选项
-    // https://github.com/valeriangalliat/markdown-it-anchor#usage
-    // anchor: {
-    //   permalink: markdownItAnchor.permalink.headerLink()
-    // },
-    // @mdit-vue/plugin-toc 的选项
-    // https://github.com/mdit-vue/mdit-vue/tree/main/packages/plugin-toc#options
-    toc: { level: [1, 2] },
-    lineNumbers: true, // 为代码块启动行号显示
-    image: {
-      // 默认禁用图片懒加载
-      lazyLoading: true,
-    },
-    // 可以添加markdown插件，添加markdown扩展功能
-    config: md => {
-      // 遇到img标签，添加自定义属性
-      md.use(mdItCustomAttrs, "image", { "data-fancybox": "gallery" });
-    },
-    // 全局自定义提示信息标题
-    container: {
-      tipLabel: "提示",
-      warningLabel: "警告",
-      dangerLabel: "危险",
-      infoLabel: "信息",
-      detailsLabel: "详细信息",
-    },
-  },
-  // 左上角title & 网站title配置
-  title: "我的主页",
-  // 自定义每个页面的标题后缀或整个标题
-  titleTemplate: ":title - 基于vitePress项目",
-  // 网页description 描述介绍
-  description:
-    "🎉🎉🔥VitePress 是一个静态站点生成器 (SSG)，专为构建快速、以内容为中心的站点而设计。简而言之，VitePress 获取用 Markdown 编写的内容，对其应用主题，并生成可以轻松部署到任何地方的静态 HTML 页面。",
-  // 网页语言
-  lang: "zh-CN",
-  // 基础baseUrl 类似publicPath
-  base: "/",
-  // 是否显示更新时间，是否使用 Git 获取每个页面的最后更新时间戳。时间戳将包含在每个页面的页面数据中，可通过 useData 访问。
-  lastUpdated: false,
-  // 自定义更新text
-  lastUpdatedText: "上次更新",
-  // 当设置为 true 时，VitePress 将从 URL 中删除 .html 后缀。需要服务端支持
-  cleanUrls: false,
-  // 源代码目录，默认是根目录。相对于项目根目录的 markdown 文件所在的文件夹。
-  // srcDir: './src',
-  // 用于匹配应排除作为源内容输出的 markdown 文件，语法详见 glob pattern。
-  // srcExclude: ['**/index.md', '**/TODO.md'],
-  // 构建生成静态资源的目录，默认assets
-  assetsDir: "assets",
-  // 是否启用深色模式，默认true，用户首选配色方案。boolean | 'dark' | 'force-dark'
-  appearance: true,
-  //默认false，当设置为 true 时，将页面元数据提取到单独的 JavaScript 块中，而不是内联在初始 HTML 中。这使每个页面的 HTML 负载更小，并使页面元数据可缓存，从而当站点中有很多页面时可以减少服务器带宽。
-  metaChunk: true,
-  //缓存文件的位置，默认值./.vitepress/cache
-  cacheDir: "./.vitepress/cache",
-  // 项目的构建输出位置，相对于项目根目录。
-  outDir: "./.vitepress/dist",
-  // 重写生成文件的路径
-  rewrites: {
-    "source/:page": "destination/:page",
-  },
-  // 将原始 Vite 配置传递给内部 Vite 开发服务器 / bundler。
-  vite: {
-    // Vite 配置选项
-  },
-  // 将原始的 @vitejs/plugin-vue 选项传递给内部插件实例。
-  vue: {
-    // @vitejs/plugin-vue 选项
-  },
-  // 主题级别配置选项
+
+  // ===== 路由配置 =====
+  cleanUrls: true,
+  
+  // ===== 主题配置 =====
   themeConfig: {
-    // 左上角是否显示logo
-    logo: "/images/mogu.jpg",
-    search: {
-      provider: "local",
-    },
-    // search: {
-    //   provider: "algolia",
-    //   options: {
-    //     apiKey: "ef1d5913298c3b377842ab406af9cbf6",
-    //     appId: "VZD7WV0OU8",
-    //     indexName: "vue-next-admin-doc-preview",
-    //     placeholder: "请输入内容...",
-    //   },
-    // },
-    // 自定义右侧大纲标题
-    outlineTitle: "大纲",
-    // 开启大纲深层导航：1，1.1，1.2.1
-    outline: "deep",
-    // 自定义底部编辑链接
-    editLink: {
-      pattern: "https://gitee.com/myPrettyCode/vitepress/edit/master/docs/:path",
-      text: "欢迎到 Gitee 上编辑此页",
-    },
-    // VitePress 内置了对 Carbon Ads 的原生支持。通过在配置中定义 Carbon Ads 凭据，VitePress 将在页面上显示广告。
-    // carbonAds: {
-    //   code: 'your-carbon-code',
-    //   placement: 'your-carbon-placement'
-    // },
-    author: "zhangjinxi",
-    // 底部版权声明
-    footer: {
-      message: "根据 MIT 许可证发布",
-      copyright: "Copyright © 2022-present zhangjinxi",
-    },
-    //  // 可用于自定义出现在上一页和下一页链接上方的文本。如果不是用英语编写文档，这很有帮助。也可用于全局禁用上一页/下一页链接。如果想有选择地启用/禁用上一个/下一个链接，可以使用 frontmatter。
-    docFooter: {
-      prev: "上一页",
-      next: "下一页",
-    },
-    // 右上角导航配置
+    // ----- 网站信息 -----
+    logo: '/images/logo-mini.svg',
+    siteTitle: '🚀 技术文档',
+    
+    // ----- 导航栏 -----
     nav: [
+      { 
+        text: '🏠 首页', 
+        link: '/home' 
+      },
+      { 
+        text: '👤 简历', 
+        link: '/' 
+      },
       {
-        text: "前端技术",
-        activeMatch: "/web/",
+        text: '🎨 前端技术',
         items: [
-          { text: "HTML & CSS", link: "/frontEnd/css/dom" },
-          { text: "JavaScript", link: "/frontEnd/javascript/" },
-          { text: "Window", link: "/frontEnd/window/navigator" },
-          { text: "jQuery框架", link: "/frontEnd/web/jQuery" },
-          { text: "TypeScript", link: "/frontEnd/web/TypeScript" },
-          { text: "qiankun微前端", link: "/frontEnd/web/qiankun" },
-          { text: "Svelte框架", link: "/frontEnd/web/svelte" },
-          { text: "Vue框架", link: "/frontEnd/web/vue" },
-          { text: "Amis低代码", link: "/frontEnd/web/lessCode" },
-          { text: "VitePress生成站点", link: "/frontEnd/web/VitePress" },
-          { text: "Nuxt SSR服务端渲染", link: "/frontEnd/web/nuxt" },
-        ],
+          { text: '📝 HTML & CSS', link: '/frontEnd/css/dom' },
+          { text: '⚡ JavaScript', link: '/frontEnd/javascript/' },
+          { text: '🖥️ 浏览器 API', link: '/frontEnd/window/properties' },
+          { text: '🚀 现代框架', link: '/frontEnd/web/vue' }
+        ]
       },
       {
-        text: "后端技术",
-        activeMatch: "/afterEnd/",
+        text: '⚙️ 后端技术',
         items: [
-          { text: "Node", link: "/afterEnd/node/module" },
-          { text: "Express", link: "/afterEnd/express/server" },
-          { text: "Koa", link: "/afterEnd/express/koa" },
-          { text: "数据库", link: "/afterEnd/database/mongoose" },
-          { text: "服务器", link: "/afterEnd/server/nginx" },
-        ],
+          { text: '🟢 Node.js', link: '/afterEnd/node/module' },
+          { text: '🚂 Express 框架', link: '/afterEnd/express/server' },
+          { text: '🗄️ 数据库', link: '/afterEnd/database/mysql' },
+          { text: '🌐 服务器', link: '/afterEnd/server/nginx' }
+        ]
       },
       {
-        text: "测试技术",
+        text: '🌐 网络工程',
         items: [
-          { text: "test 测试模块", link: "/afterEnd/node/test" },
-          { text: "assert 断言模块", link: "/afterEnd/node/assert" },
-          { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
-          { text: "Storybook组件测试", link: "/tools/package/Storybook" },
-        ],
+          { text: '📡 HTTP 协议', link: '/network/http/' },
+          { text: '🔒 网络安全', link: '/network/httpSecure/https' },
+          { text: '📨 网络请求', link: '/network/ajaxAndFetch/ajax' }
+        ]
       },
       {
-        text: "跨端开发",
-        activeMatch: "/spanEnd/",
+        text: '🛠️ 开发工具',
         items: [
-          { text: "Electron桌面开发", link: "/spanEnd/electron" },
-          { text: "Taro", link: "/spanEnd/taro" },
-          { text: "Uni-App", link: "/spanEnd/uniapp" },
-        ],
+          { text: '📦 构建工具', link: '/tools/buildTools/vite' },
+          { text: '📚 常用包', link: '/tools/package/lodash' },
+          { text: '📋 开发规范', link: '/tools/stardard/git' },
+          { text: '❓ 问题集合', link: '/tools/questions/handwrite' }
+        ]
       },
       {
-        text: "网络工程",
-        activeMatch: "/network/",
+        text: '📱 跨端开发',
         items: [
-          { text: "HTTP协议", link: "/network/http" },
-          { text: "HTTP安全", link: "/network/httpSecure/contentSecurity" },
-          { text: "HTTP请求工具", link: "/network/ajaxAndFetch/fetch" },
-        ],
+          { text: '🎯 Taro', link: '/spanEnd/Taro/' },
+          { text: '🦄 uni-app', link: '/spanEnd/uniapp/' },
+          { text: '💻 Electron', link: '/spanEnd/electron' }
+        ]
       },
       {
-        text: "开发工具",
-        activeMatch: "/tools/",
-        items: [
-          { text: "开发规范", link: "/tools/stardard/eslint" },
-          { text: "问题锦集", link: "/tools/questions/handwrite" },
-          {
-            text: "构建工具&CI/CD",
-            items: [
-              { text: "Webpack", link: "/tools/buildTools/webpack" },
-              { text: "Gulp", link: "/tools/buildTools/gulp" },
-              { text: "Vite", link: "/tools/buildTools/vite" },
-              { text: "Docker", link: "/tools/buildTools/docker" },
-              { text: "Jenkins", link: "/tools/buildTools/Jenkins" },
-              { text: "GitHub Actions", link: "/tools/buildTools/actions" },
-              { text: "脚手架开发", link: "/tools/buildTools/scaffolder" },
-            ],
-          },
-          { text: "数据结构和算法", link: "/tools/questions/algorithm" },
-          { text: "架构设计", link: "/tools/questions/system" },
-          { text: "设计模式", link: "/tools/questions/designMode" },
-          { text: "Git版本管理", link: "/tools/stardard/git" },
-          { text: "Lodash工具库", link: "/tools/package/lodash" },
-          { text: "Vue-I18n国际化", link: "/tools/package/vueI18n" },
-          { text: "Whistle网络调试", link: "/tools/package/whistle" },
-          { text: "Mockjs数据模拟", link: "/tools/package/mockjs" },
-          { text: "Echarts图表库", link: "/tools/package/echarts" },
-          { text: "AntV图表库", link: "/tools/package/antv" },
-          { text: "VueRouter", link: "/tools/package/VueRouter" },
-          { text: "Pinia状态管理", link: "/tools/package/pinia" },
-        ],
-      },
-      {
-        text: "性能优化",
-        link: "/performace/dnsPrefetch",
-        activeMatch: "/performace/",
-      },
+        text: '⚡ 性能优化',
+        link: '/performace/performace'
+      }
     ],
-    // 右上角社交账号配置
-    socialLinks: [{ icon: "github", link: "https://github.com/jinxi1334640772" }],
-    // 左侧导航栏配置：根据页面路由匹配，可分组
+
+    // ----- 侧边栏 -----
     sidebar: {
-      "/tools/": [
+      // 前端技术侧边栏
+      '/frontEnd/': [
         {
-          text: "开发规范",
+          text: '🎨 CSS 基础',
           collapsed: false,
           items: [
-            { text: "学习文档", link: "/tools/study" },
-            { text: "Eslint 代码风格", link: "/tools/stardard/eslint" },
-            { text: "Prettier 格式化", link: "/tools/stardard/prettier" },
-            { text: "VsCode 配置", link: "/tools/stardard/vscode" },
-            { text: "Git 版本管理", link: "/tools/stardard/git" },
-            { text: "命名规范", link: "/tools/stardard/naming" },
-            { text: "代码质量把控", link: "/tools/stardard/quality" },
-          ],
+            { text: '📄 DOM 操作', link: '/frontEnd/css/dom' },
+            { text: '🎯 CSS 选择器', link: '/frontEnd/css/selector' },
+            { text: '📐 布局技术', link: '/frontEnd/css/layout' },
+            { text: '🎭 CSS 函数', link: '/frontEnd/css/function' },
+            { text: '🎬 动画效果', link: '/frontEnd/css/animation' },
+            { text: '🔄 变换属性', link: '/frontEnd/css/transform' },
+            { text: '📋 HTML 基础', link: '/frontEnd/css/html' },
+            { text: '📏 Less 预处理', link: '/frontEnd/css/less' },
+            { text: '🎨 Sass 预处理', link: '/frontEnd/css/sass' },
+            { text: '📝 At-Rules', link: '/frontEnd/css/atRules' }
+          ]
         },
         {
-          text: "构建工具&CI/CD",
+          text: '⚡ JavaScript 核心',
           collapsed: false,
           items: [
-            { text: "Vite", link: "/tools/buildTools/vite" },
-            { text: "Webpack", link: "/tools/buildTools/Webpack" },
-            { text: "Gulp", link: "/tools/buildTools/gulp" },
-            { text: "Rollup", link: "/tools/buildTools/rollup" },
-            { text: "Docker", link: "/tools/buildTools/docker" },
-            { text: "Jenkins", link: "/tools/buildTools/Jenkins" },
-            { text: "脚手架开发", link: "/tools/buildTools/scaffolder" },
-            { text: "node&npm包管理", link: "/tools/buildTools/npm" },
-            { text: "Lerna多包管理", link: "/tools/buildTools/lerna" },
-          ],
+            { text: '🏁 JavaScript 入门', link: '/frontEnd/javascript/' },
+            { text: '🎯 对象详解', link: '/frontEnd/javascript/object' },
+            { text: '🔗 Proxy 代理', link: '/frontEnd/javascript/proxy' },
+            { text: '📝 正则表达式', link: '/frontEnd/javascript/RegExp' },
+            { text: '🔢 集合类型', link: '/frontEnd/javascript/setAndMap' },
+            { text: '⚠️ 错误处理', link: '/frontEnd/javascript/Error' },
+            { text: '🌍 国际化', link: '/frontEnd/javascript/Intl' },
+            { text: '📊 JSON 处理', link: '/frontEnd/javascript/json' },
+            { text: '💾 二进制数据', link: '/frontEnd/javascript/ArrayBuffer' },
+            { text: '🔒 原子操作', link: '/frontEnd/javascript/Atomics' }
+          ]
         },
         {
-          text: "好用的工具",
+          text: '🖥️ 浏览器 API',
           collapsed: false,
           items: [
-            { text: "animate css动画库", link: "/tools/package/animate" },
-            { text: "Anime js动画库", link: "/tools/package/anime" },
-            { text: "Lottie js动画库", link: "/tools/package/Lottie" },
-            { text: "Velocity js动画库", link: "/tools/package/Velocity" },
-            { text: "Echarts 图表库", link: "/tools/package/echarts" },
-            { text: "AntV 图表库", link: "/tools/package/antv" },
-            { text: "D3.js 数据可视化", link: "/tools/package/D3" },
-            { text: "Cesium 地图可视化", link: "/tools/package/Cesium" },
-            { text: "Pinia 状态管理", link: "/tools/package/pinia" },
-            { text: "VueRouter 路由管理", link: "/tools/package/VueRouter" },
-            { text: "Vue-I18n 国际化", link: "/tools/package/vueI18n" },
-            { text: "Lodash 工具库", link: "/tools/package/lodash" },
-            { text: "Iconfont 字体图表", link: "/tools/package/iconfont" },
-            { text: "TinyMCE 富文本", link: "/tools/package/TinyMCE" },
-            { text: "dom-to-image", link: "/tools/package/DomToImage" },
-            { text: "vuex-persist", link: "/tools/package/vuexPersist" },
-            { text: "tasksfile 函数任务", link: "/tools/package/tasksfile" },
-            { text: "fuse.js 模糊匹配", link: "/tools/package/fuse" },
-            { text: "day.js 日期时间格式化", link: "/tools/package/dayjs" },
-            { text: "Cypress 测试框架", link: "/tools/package/test/Cypress" },
-            { text: "Storybook 组件测试", link: "/tools/package/Storybook" },
-            { text: "sodajs 模板引擎", link: "/tools/package/sodajs" },
-            { text: "Sentry 错误监控", link: "/tools/package/sentry" },
-            { text: "Hybrid 混合开发", link: "/tools/package/hybrid" },
-            { text: "Bootstrap", link: "/tools/package/bootstrap" },
-          ],
+            { text: '🌐 窗口属性', link: '/frontEnd/window/properties' },
+            { text: '🎪 事件机制', link: '/frontEnd/window/events' },
+            { text: '🔧 实用函数', link: '/frontEnd/window/function' },
+            { text: '👀 观察者模式', link: '/frontEnd/window/observer' },
+            { text: '📏 元素尺寸', link: '/frontEnd/window/offsetWidth' },
+            { text: '🎨 Canvas 绘图', link: '/frontEnd/window/Canvas' },
+            { text: '🔐 加密 API', link: '/frontEnd/window/crypto' },
+            { text: '🗄️ IndexedDB', link: '/frontEnd/window/indexedDB' },
+            { text: '🧭 导航信息', link: '/frontEnd/window/navigator' },
+            { text: '🔧 导航功能', link: '/frontEnd/window/navigatorFun' },
+            { text: '💳 支付 API', link: '/frontEnd/window/payment' },
+            { text: '📊 性能监控', link: '/frontEnd/window/Performance' },
+            { text: '🎤 语音 API', link: '/frontEnd/window/speech' },
+            { text: '🌊 流处理', link: '/frontEnd/window/stream' },
+            { text: '🔗 Socket 通信', link: '/frontEnd/window/Socket' },
+            { text: '🛠️ Service Worker', link: '/frontEnd/window/serviceWorker' },
+            { text: '👷 Web Worker', link: '/frontEnd/window/webWorker' },
+            { text: '🧩 Web Components', link: '/frontEnd/window/webComponents' },
+            { text: '📹 WebRTC', link: '/frontEnd/window/webRTC' },
+            { text: '🌐 Web API 1', link: '/frontEnd/window/webapi1' },
+            { text: '🌐 Web API 2', link: '/frontEnd/window/webapi2' },
+            { text: '🌐 Web API 3', link: '/frontEnd/window/webapi3' },
+            { text: '🧭 路由管理', link: '/frontEnd/window/route' }
+          ]
         },
         {
-          text: "常见问题",
+          text: '🚀 现代框架',
           collapsed: false,
           items: [
-            { text: "架构设计", link: "/tools/questions/system" },
-            { text: "设计模式", link: "/tools/questions/designMode" },
-            { text: "数据结构与算法", link: "/tools/questions/algorithm" },
-            { text: "LeetCode", link: "/tools/questions/leetCode" },
-            { text: "手写日常", link: "/tools/questions/handwrite" },
-            { text: "内容输出问题", link: "/tools/questions/print" },
-            { text: "发布npm包", link: "/tools/questions/npmPublish" },
-            { text: "promise", link: "/tools/questions/promise" },
-            { text: "兼容性问题", link: "/tools/questions/compatibility" },
-            { text: "问题锦集", link: "/tools/questions/questions" },
-            { text: "npm私服搭建", link: "/tools/questions/npmHub" },
-            { text: "移动端适配", link: "/tools/questions/mobileFit" },
-            { text: "dev-tools 调试", link: "/tools/questions/debugging" },
-            { text: "Robots爬虫协议", link: "/tools/questions/robots" },
-            { text: "微信支付", link: "/tools/questions/wechatPay" },
-            { text: "Grafana数据监控", link: "/tools/questions/Grafana" },
-          ],
-        },
+            { text: '💚 Vue.js', link: '/frontEnd/web/vue' },
+            { text: '🔷 TypeScript', link: '/frontEnd/web/TypeScript' },
+            { text: '⚡ VitePress', link: '/frontEnd/web/VitePress' },
+            { text: '🎭 Svelte', link: '/frontEnd/web/svelte' },
+            { text: '💎 jQuery', link: '/frontEnd/web/jQuery' },
+            { text: '🚀 Nuxt.js', link: '/frontEnd/web/nuxt' },
+            { text: '🔧 无代码开发', link: '/frontEnd/web/lessCode' },
+            { text: '🏗️ 微前端 qiankun', link: '/frontEnd/web/qiankun' }
+          ]
+        }
       ],
-      "/network/": [
+
+      // 后端技术侧边栏
+      '/afterEnd/': [
         {
-          text: "HTTP",
+          text: '🟢 Node.js',
           collapsed: false,
           items: [
-            { text: "HTTP简介", link: "/network/http" },
-            { text: "网络七层模型", link: "/network/http/osi" },
-            { text: "HTTP协议和连接", link: "/network/http/connection" },
-            { text: "常见状态码", link: "/network/http/status" },
-            { text: "MIME类型", link: "/network/http/mime" },
-            { text: "HTTP范围请求", link: "/network/http/range" },
-            { text: "内容协商", link: "/network/http/accept" },
-          ],
+            { text: '📦 模块系统', link: '/afterEnd/node/module' },
+            { text: '🌐 HTTP 模块', link: '/afterEnd/node/server' },
+            { text: '🔧 实用工具', link: '/afterEnd/node/util' },
+            { text: '📂 文件系统', link: '/afterEnd/node/fs' },
+            { text: '📍 路径处理', link: '/afterEnd/node/path' },
+            { text: '⚙️ 进程管理', link: '/afterEnd/node/process' },
+            { text: '🔍 断言库', link: '/afterEnd/node/assert' },
+            { text: '💾 缓冲区', link: '/afterEnd/node/buffer' },
+            { text: '📡 事件系统', link: '/afterEnd/node/events' },
+            { text: '🌊 流处理', link: '/afterEnd/node/stream' },
+            { text: '🔗 查询字符串', link: '/afterEnd/node/querystring' },
+            { text: '📝 读取行', link: '/afterEnd/node/readline' },
+            { text: '🕷️ 网络爬虫', link: '/afterEnd/node/reptile' },
+            { text: '🚀 HTTP/2', link: '/afterEnd/node/http2' },
+            { text: '🧪 测试工具', link: '/afterEnd/node/test' }
+          ]
         },
         {
-          text: "HTTP 安全",
+          text: '🚂 Express 框架',
           collapsed: false,
           items: [
-            { text: "权限策略", link: "/network/httpSecure/premission" },
-            {
-              text: "内容安全策略",
-              link: "/network/httpSecure/contentSecurity",
-            },
-            { text: "跨域策略", link: "/network/httpSecure/crossOrigin" },
-            { text: "HTTPS 协议", link: "/network/httpSecure/https" },
-            { text: "常见安全问题", link: "/network/httpSecure/secure" },
-          ],
+            { text: '🌐 服务器搭建', link: '/afterEnd/express/server' },
+            { text: '🥚 Egg.js', link: '/afterEnd/express/egg' },
+            { text: '🎯 Koa.js', link: '/afterEnd/express/koa' }
+          ]
         },
         {
-          text: "HTTP请求工具",
+          text: '🗄️ 数据库',
           collapsed: false,
           items: [
-            { text: "ajax", link: "/network/ajaxAndFetch/ajax" },
-            { text: "fetch", link: "/network/ajaxAndFetch/fetch" },
-            { text: "axios", link: "/network/ajaxAndFetch/axios" },
-          ],
+            { text: '🐬 MySQL', link: '/afterEnd/database/mysql' },
+            { text: '🍃 MongoDB', link: '/afterEnd/database/mongoose' }
+          ]
         },
+        {
+          text: '🌐 服务器',
+          collapsed: false,
+          items: [
+            { text: '🌊 Nginx', link: '/afterEnd/server/nginx' },
+            { text: '⚡ Nitro', link: '/afterEnd/server/nitro' }
+          ]
+        }
       ],
-      "/spanEnd/": [
+
+      // 网络工程侧边栏
+      '/network/': [
         {
-          text: "桌面跨端开发",
-          collapsed: false,
-          items: [{ text: "electron开发", link: "/spanEnd/electron" }],
-        },
-        {
-          text: "uni-app 跨端开发",
+          text: '📡 HTTP 协议',
           collapsed: false,
           items: [
-            { text: "uni-app 介绍", link: "/spanEnd/uniapp/" },
-            { text: "uni-app 组件", link: "/spanEnd/uniapp/components" },
-            { text: "uni-app API", link: "/spanEnd/uniapp/api" },
-          ],
+            { text: '🌐 HTTP 基础', link: '/network/http/' },
+            { text: '📊 状态码', link: '/network/http/status' },
+            { text: '🎭 MIME 类型', link: '/network/http/mime' },
+            { text: '✅ Accept 协商', link: '/network/http/accept' },
+            { text: '🔗 连接管理', link: '/network/http/connection' },
+            { text: '📄 范围请求', link: '/network/http/range' },
+            { text: '🏗️ OSI 模型', link: '/network/http/osi' }
+          ]
         },
         {
-          text: "Taro 跨端开发",
+          text: '🔒 网络安全',
           collapsed: false,
           items: [
-            { text: "taro简介", link: "/spanEnd/Taro/" },
-            { text: "taro配置", link: "/spanEnd/Taro/config" },
-            { text: "taro适配vue", link: "/spanEnd/Taro/vue" },
-            { text: "taro路由", link: "/spanEnd/Taro/router" },
-            { text: "基础内容组件", link: "/spanEnd/Taro/basic" },
-            { text: "视图容器组件", link: "/spanEnd/Taro/viewContrainer" },
-            { text: "表单组件", link: "/spanEnd/Taro/form" },
-            { text: "导航组件", link: "/spanEnd/Taro/navigator" },
-            { text: "媒体组件", link: "/spanEnd/Taro/media" },
-            { text: "开放能力", link: "/spanEnd/Taro/open" },
-            { text: "taro云开发", link: "/spanEnd/Taro/cloud" },
-            { text: "taro API", link: "/spanEnd/Taro/api" },
-          ],
+            { text: '🔐 HTTPS 协议', link: '/network/httpSecure/https' },
+            { text: '🛡️ 内容安全', link: '/network/httpSecure/contentSecurity' },
+            { text: '🌍 跨域处理', link: '/network/httpSecure/crossOrigin' },
+            { text: '🔑 权限管理', link: '/network/httpSecure/premission' },
+            { text: '🛡️ 安全策略', link: '/network/httpSecure/secure' }
+          ]
         },
+        {
+          text: '📨 网络请求',
+          collapsed: false,
+          items: [
+            { text: '📡 Ajax 技术', link: '/network/ajaxAndFetch/ajax' },
+            { text: '🚀 Fetch API', link: '/network/ajaxAndFetch/fetch' },
+            { text: '📊 Axios 库', link: '/network/ajaxAndFetch/axios' }
+          ]
+        }
       ],
-      "/afterEnd/": [
+
+      // 开发工具侧边栏
+      '/tools/': [
         {
-          text: "node",
+          text: '📦 构建工具',
           collapsed: false,
           items: [
-            { text: "模块系统", link: "/afterEnd/node/module" },
-            { text: "test 模块", link: "/afterEnd/node/test" },
-            { text: "assert 模块", link: "/afterEnd/node/assert" },
-            { text: "buffer 模块", link: "/afterEnd/node/buffer" },
-            { text: "fs 模块", link: "/afterEnd/node/fs" },
-            { text: "path 模块", link: "/afterEnd/node/path" },
-            { text: "events 模块", link: "/afterEnd/node/events" },
-            { text: "http 模块", link: "/afterEnd/node/server" },
-            { text: "http2 模块", link: "/afterEnd/node/http2" },
-            { text: "fs Stream", link: "/afterEnd/node/stream" },
-            { text: "util 模块", link: "/afterEnd/node/util" },
-            { text: "process 模块", link: "/afterEnd/node/process" },
-            { text: "readline 模块", link: "/afterEnd/node/readline" },
-            { text: "querystring 模块", link: "/afterEnd/node/querystring" },
-            { text: "node 爬虫", link: "/afterEnd/node/reptile" },
-          ],
+            { text: '⚡ Vite', link: '/tools/buildTools/vite' },
+            { text: '📦 Webpack', link: '/tools/buildTools/webpack' },
+            { text: '🔧 Rollup', link: '/tools/buildTools/rollup' },
+            { text: '🏗️ 脚手架', link: '/tools/buildTools/scaffolder' },
+            { text: '🌊 Gulp', link: '/tools/buildTools/gulp' },
+            { text: '📦 NPM', link: '/tools/buildTools/npm' },
+            { text: '🎯 Lerna', link: '/tools/buildTools/lerna' },
+            { text: '🐳 Docker', link: '/tools/buildTools/docker' },
+            { text: '🚀 Jenkins', link: '/tools/buildTools/Jenkins' },
+            { text: '⚙️ GitHub Actions', link: '/tools/buildTools/actions' }
+          ]
         },
         {
-          text: "Node 框架",
+          text: '📚 常用包',
           collapsed: false,
           items: [
-            { text: "Express", link: "/afterEnd/express/server" },
-            { text: "Koa", link: "/afterEnd/express/koa" },
-            { text: "Egg", link: "/afterEnd/express/egg" },
-          ],
+            { text: '🛠️ Lodash', link: '/tools/package/lodash' },
+            { text: '📊 ECharts', link: '/tools/package/echarts' },
+            { text: '🎭 Anime.js', link: '/tools/package/anime' },
+            { text: '📈 AntV', link: '/tools/package/antv' },
+            { text: '🎨 Bootstrap', link: '/tools/package/bootstrap' },
+            { text: '🌍 Cesium', link: '/tools/package/Cesium' },
+            { text: '📊 D3.js', link: '/tools/package/D3' },
+            { text: '📅 Day.js', link: '/tools/package/dayjs' },
+            { text: '🖼️ DomToImage', link: '/tools/package/DomToImage' },
+            { text: '🔍 Fuse.js', link: '/tools/package/fuse' },
+            { text: '📱 Hybrid 开发', link: '/tools/package/hybrid' },
+            { text: '🎨 Iconfont', link: '/tools/package/iconfont' },
+            { text: '🎬 Lottie', link: '/tools/package/Lottie' },
+            { text: '🎭 Mock.js', link: '/tools/package/mockjs' },
+            { text: '🍍 Pinia', link: '/tools/package/pinia' },
+            { text: '📊 Sentry', link: '/tools/package/sentry' },
+            { text: '🧩 SodaJS', link: '/tools/package/sodajs' },
+            { text: '📚 Storybook', link: '/tools/package/Storybook' },
+            { text: '📝 TinyMCE', link: '/tools/package/TinyMCE' },
+            { text: '⚡ Velocity.js', link: '/tools/package/Velocity' },
+            { text: '🌍 Vue I18n', link: '/tools/package/vueI18n' },
+            { text: '🧭 Vue Router', link: '/tools/package/VueRouter' },
+            { text: '💾 Vuex Persist', link: '/tools/package/vuexPersist' },
+            { text: '🔍 Whistle', link: '/tools/package/whistle' },
+            { text: '📋 Tasks 文件', link: '/tools/package/tasksfile' },
+            { text: '🎬 动画库', link: '/tools/package/animate' },
+            { text: '📋 SignalR', link: '/tools/package/SignalR使用指南' }
+          ]
         },
         {
-          text: "数据库",
+          text: '🧪 测试工具',
           collapsed: false,
           items: [
-            { text: "MongoDB", link: "/afterEnd/database/mongoose" },
-            { text: "MySQL", link: "/afterEnd/database/mysql" },
-          ],
+            { text: '🌲 Cypress', link: '/tools/package/test/Cypress' }
+          ]
         },
         {
-          text: "服务器",
+          text: '📋 开发规范',
           collapsed: false,
           items: [
-            { text: "Nginx服务器", link: "/afterEnd/server/nginx" },
-            { text: "Nitro服务器", link: "/afterEnd/server/nitro" },
-          ],
+            { text: '🔄 Git 版本控制', link: '/tools/stardard/git' },
+            { text: '✨ Prettier', link: '/tools/stardard/prettier' },
+            { text: '🔍 ESLint', link: '/tools/stardard/eslint' },
+            { text: '💻 VS Code', link: '/tools/stardard/vscode' },
+            { text: '📖 命名规范', link: '/tools/stardard/naming' },
+            { text: '📊 质量管控', link: '/tools/stardard/quality' }
+          ]
         },
+        {
+          text: '❓ 问题集合',
+          collapsed: false,
+          items: [
+            { text: '✍️ 手写题汇总', link: '/tools/questions/handwrite' },
+            { text: '🧮 算法题解', link: '/tools/questions/algorithm' },
+            { text: '🎨 设计模式', link: '/tools/questions/designMode' },
+            { text: '🐞 调试技巧', link: '/tools/questions/debugging' },
+            { text: '🔄 兼容性处理', link: '/tools/questions/compatibility' },
+            { text: '📱 移动端适配', link: '/tools/questions/mobileFit' },
+            { text: '🎯 Promise 实现', link: '/tools/questions/promise' },
+            { text: '🤖 机器人协议', link: '/tools/questions/robots' },
+            { text: '🖨️ 打印功能', link: '/tools/questions/print' },
+            { text: '💳 微信支付', link: '/tools/questions/wechatPay' },
+            { text: '🏗️ 系统设计', link: '/tools/questions/system' },
+            { text: '📊 Grafana', link: '/tools/questions/Grafana' },
+            { text: '📦 NPM 发布', link: '/tools/questions/npmPublish' },
+            { text: '🔍 NPM 镜像', link: '/tools/questions/npmHub' },
+            { text: '📄 LeetCode', link: '/tools/questions/leetCode' },
+            { text: '❓ 综合问题', link: '/tools/questions/questions' }
+          ]
+        },
+        {
+          text: '📚 学习指南',
+          collapsed: false,
+          items: [
+            { text: '📖 学习方法', link: '/tools/study' }
+          ]
+        }
       ],
-      "/frontEnd/": [
+
+      // 跨端开发侧边栏
+      '/spanEnd/': [
         {
-          text: "HTML & CSS",
-          collapsed: true,
-          items: [
-            { text: "HTML元素", link: "/frontEnd/css/html" },
-            { text: "DOM 对象", link: "/frontEnd/css/dom" },
-            { text: "CSS 样式", link: "/frontEnd/css/index" },
-            { text: "常见布局", link: "/frontEnd/css/layout" },
-            { text: "变形和渐变色", link: "/frontEnd/css/transform" },
-            { text: "CSS 选择器", link: "/frontEnd/css/selector" },
-            { text: "CSS 动画", link: "/frontEnd/css/animation" },
-            { text: "CSS 函数", link: "/frontEnd/css/function" },
-            { text: "CSS @查询规则", link: "/frontEnd/css/atRules" },
-            { text: "Less 预处理器", link: "/frontEnd/css/less" },
-            { text: "Sass 预处理器", link: "/frontEnd/css/sass" },
-          ],
-        },
-        {
-          text: "javascript",
-          collapsed: true,
-          items: [
-            { text: "javascript简介", link: "/frontEnd/javascript/" },
-            { text: "Error错误对象", link: "/frontEnd/javascript/Error" },
-            { text: "RegExp正则", link: "/frontEnd/javascript/RegExp" },
-            { text: "基本数据类型", link: "/frontEnd/javascript/object" },
-            { text: "Set和Map", link: "/frontEnd/javascript/setAndMap" },
-            { text: "ArrayBuffer相关", link: "/frontEnd/javascript/ArrayBuffer" },
-            { text: "Atomics原子操作", link: "/frontEnd/javascript/Atomics" },
-            { text: "Intl国际化", link: "/frontEnd/javascript/Intl" },
-            { text: "JSON对象", link: "/frontEnd/javascript/json" },
-            { text: "Proxy & Reflect", link: "/frontEnd/javascript/proxy" },
-          ],
-        },
-        {
-          text: "Web 技术锦集",
+          text: '🎯 Taro 框架',
           collapsed: false,
           items: [
-            { text: "jQuery框架", link: "/frontEnd/web/jQuery" },
-            { text: "Vue 框架", link: "/frontEnd/web/vue" },
-            { text: "TypeScript", link: "/frontEnd/web/TypeScript" },
-            { text: "qiankun微前端", link: "/frontEnd/web/qiankun" },
-            { text: "Svelte框架", link: "/frontEnd/web/svelte" },
-            { text: "Amis低代码", link: "/frontEnd/web/lessCode" },
-            { text: "VitePress生成站点", link: "/frontEnd/web/VitePress" },
-            { text: "Nuxt SSR服务端渲染", link: "/frontEnd/web/nuxt" },
-          ],
+            { text: '🏁 Taro 入门', link: '/spanEnd/Taro/' },
+            { text: '⚙️ 基础配置', link: '/spanEnd/Taro/basic' },
+            { text: '🔧 配置详解', link: '/spanEnd/Taro/config' },
+            { text: '📊 API 使用', link: '/spanEnd/Taro/api' },
+            { text: '📱 媒体组件', link: '/spanEnd/Taro/media' },
+            { text: '📋 表单组件', link: '/spanEnd/Taro/form' },
+            { text: '🧭 导航系统', link: '/spanEnd/Taro/navigator' },
+            { text: '🌐 开放能力', link: '/spanEnd/Taro/open' },
+            { text: '🧭 路由管理', link: '/spanEnd/Taro/router' },
+            { text: '📦 容器视图', link: '/spanEnd/Taro/viewContrainer' },
+            { text: '💚 Vue 集成', link: '/spanEnd/Taro/vue' },
+            { text: '☁️ 云开发', link: '/spanEnd/Taro/cloud' }
+          ]
         },
         {
-          text: "window",
+          text: '🦄 uni-app',
           collapsed: false,
           items: [
-            { text: "navigator属性", link: "/frontEnd/window/navigator" },
-            { text: "navigator方法", link: "/frontEnd/window/navigatorFun" },
-            { text: "Web Worker", link: "/frontEnd/window/webWorker" },
-            { text: "Service Worker", link: "/frontEnd/window/serviceWorker" },
-            { text: "window属性", link: "/frontEnd/window/properties" },
-            { text: "window方法", link: "/frontEnd/window/function" },
-            { text: "window事件", link: "/frontEnd/window/events" },
-            { text: "crypto加密", link: "/frontEnd/window/crypto" },
-            { text: "web Components", link: "/frontEnd/window/webComponents" },
-            { text: "indexedDB", link: "/frontEnd/window/indexedDB" },
-            { text: "Performance", link: "/frontEnd/window/Performance" },
-            { text: "web语音识别&合成", link: "/frontEnd/window/speech" },
-          ],
+            { text: '🏁 uni-app 入门', link: '/spanEnd/uniapp/' },
+            { text: '📊 API 文档', link: '/spanEnd/uniapp/api' },
+            { text: '🧩 组件库', link: '/spanEnd/uniapp/components' }
+          ]
         },
         {
-          text: "Web API",
+          text: '💻 桌面应用',
           collapsed: false,
           items: [
-            { text: "Canvas API", link: "/frontEnd/window/Canvas" },
-            { text: "Web API锦集a-i", link: "/frontEnd/window/webapi1" },
-            { text: "Web API锦集k-u", link: "/frontEnd/window/webapi2" },
-            { text: "Web API锦集v-z", link: "/frontEnd/window/webapi3" },
-            { text: "Web Observer锦集", link: "/frontEnd/window/observer" },
-            { text: "Web payment支付", link: "/frontEnd/window/payment" },
-            { text: "Stream API", link: "/frontEnd/window/stream" },
-            { text: "Web RTC", link: "/frontEnd/window/webRTC" },
-            { text: "Web Socket", link: "/frontEnd/window/Socket" },
-          ],
-        },
+            { text: '⚡ Electron', link: '/spanEnd/electron' }
+          ]
+        }
       ],
-      "/performace/": [
+
+      // 性能优化侧边栏
+      '/performace/': [
         {
-          text: "代码优化",
+          text: '⚡ 性能优化',
           collapsed: false,
           items: [
-            {
-              text: "性能优化手段",
-              link: "/performace/performace",
-            },
-            {
-              text: "DNS预解析和预连接",
-              link: "/performace/dnsPrefetch",
-            },
-            {
-              text: "资源预获取和预加载",
-              link: "/performace/prefetch",
-            },
-            {
-              text: "图片优化",
-              link: "/performace/image",
-            },
-            {
-              text: "优化 SEO",
-              link: "/performace/seo",
-            },
-          ],
-        },
-      ],
+            { text: '📊 性能分析', link: '/performace/performace' },
+            { text: '🖼️ 图片优化', link: '/performace/image' },
+            { text: '🌐 DNS 预解析', link: '/performace/dnsPrefetch' },
+            { text: '📦 资源预加载', link: '/performace/prefetch' },
+            { text: '🔍 SEO 优化', link: '/performace/seo' }
+          ]
+        }
+      ]
     },
+
+    // ----- 社交链接 -----
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/jinxi1334640772' },
+      { 
+        icon: { 
+          svg: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>掘金</title><path d="M12 14.316l7.454-5.88-2.022-1.625L12 11.1l-.004.003-5.432-4.289-2.022 1.625L12 14.316z"/><path d="M12 0l12 9.5-2.518 2L12 4.5 2.518 11.5 0 9.5 12 0z"/></svg>' 
+        }, 
+        link: 'https://juejin.cn/user/1451011080204040' 
+      }
+    ],
+
+    // ----- 搜索配置 -----
+    search: {
+      provider: 'local',
+      options: {
+        translations: {
+          button: {
+            buttonText: '搜索文档',
+            buttonAriaLabel: '搜索文档'
+          },
+          modal: {
+            noResultsText: '无法找到相关结果',
+            resetButtonTitle: '清除查询条件',
+            footer: {
+              selectText: '选择',
+              navigateText: '切换',
+              closeText: '关闭'
+            }
+          }
+        }
+      }
+    },
+
+    // ----- 编辑链接 -----
+    editLink: {
+      pattern: 'https://github.com/jinxi1334640772/jinxi1334640772.github.io/edit/master/docs/:path',
+      text: '在 GitHub 上编辑此页面'
+    },
+
+    // ----- 页脚配置 -----
+    footer: {
+      message: '基于 <a href="https://vitepress.dev/" target="_blank">VitePress</a> 构建的技术文档站点',
+      copyright: 'Copyright © 2024 <a href="https://github.com/jinxi1334640772" target="_blank">张进喜</a>'
+    },
+
+    // ----- 大纲配置 -----
+    outline: {
+      level: [2, 3],
+      label: '页面导航'
+    },
+
+    // ----- 返回顶部 -----
+    returnToTopLabel: '回到顶部',
+
+    // ----- 深色模式切换 -----
+    darkModeSwitchLabel: '主题',
+    lightModeSwitchTitle: '切换到浅色模式',
+    darkModeSwitchTitle: '切换到深色模式',
+
+    // ----- 侧边栏 -----
+    sidebarMenuLabel: '菜单',
+
+    // ----- 外部链接图标 -----
+    externalLinkIcon: true,
+
+    // ----- 最后更新时间 -----
+    lastUpdated: {
+      text: '最后更新于',
+      formatOptions: {
+        dateStyle: 'short',
+        timeStyle: 'medium'
+      }
+    },
+
+    // ----- 文档页脚 -----
+    docFooter: {
+      prev: '上一页',
+      next: '下一页'
+    }
   },
-});
+
+  // ===== Markdown 配置 =====
+  markdown: {
+    // 行号显示
+    lineNumbers: true,
+    
+    // 代码块主题
+    theme: {
+      light: 'github-light',
+      dark: 'github-dark'
+    },
+
+    // 容器配置
+    container: {
+      tipLabel: '提示',
+      warningLabel: '警告',
+      dangerLabel: '危险',
+      infoLabel: '信息',
+      detailsLabel: '详细信息'
+    }
+  },
+
+  // ===== 构建配置 =====
+  vite: {
+    // 静态资源处理
+    assetsInclude: ['**/*.awebp'],
+    
+    // 服务器配置
+    server: {
+      port: 9000,
+      open: true
+    },
+
+    // 构建优化
+    build: {
+      rollupOptions: {
+        output: {
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          entryFileNames: 'assets/js/[name]-[hash].js',
+          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
+        }
+      }
+    }
+  },
+
+  // ===== 站点地图 =====
+  sitemap: {
+    hostname: 'https://jinxi1334640772.github.io'
+  }
+})

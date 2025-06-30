@@ -1,116 +1,342 @@
-# Javascript
+---
+title: JavaScript 核心语言特性
+description: JavaScript 基础知识、语法特性和最佳实践指南
+outline: deep
+---
 
-## Javascript 简介
+# 💻 JavaScript 核心语言特性
 
-JavaScript（JS）是一种具有函数优先特性的轻量级、解释型或者说即时编译型的编程语言。虽然作为 Web 页面中的脚本语言被人所熟知，但是它也被用到了很多非浏览器环境中，例如 Node.js、Apache CouchDB、Adobe Acrobat 等。进一步说，JavaScript 是一种基于原型、多范式、单线程的动态语言，并且支持面向对象、命令式和声明式（如函数式编程）风格。
+JavaScript（JS）是一种具有函数优先特性的轻量级、解释型或者说即时编译型的编程语言。虽然作为 Web 页面中的脚本语言被人所熟知，但是它也被用到了很多非浏览器环境中，例如 Node.js、Apache CouchDB、Adobe Acrobat 等。
 
-JavaScript 的动态特性包括运行时对象的构造、变量参数列表、函数变量、动态脚本创建（通过 eval）、对象内枚举（通过 for...in 和 Object 工具方法）和源代码恢复（JavaScript 函数会存储其源代码文本，可以使用 toString() 进行检索）。
+::: tip 📚 本章内容
+学习 JavaScript 的基础语法、核心特性和最佳实践，为深入学习前端开发打下坚实基础。
+:::
 
-## JavaScript 对象
+## 🔍 JavaScript 简介
 
-在 JavaScript 中，大多数事物都是对象，从作为核心功能的字符串和数组，到建立在 JavaScript 之上的浏览器 API 。你甚至可以自己创建对象，将相关的函数和变量高效地封装打包成便捷的数据容器。
+JavaScript 是一种基于原型、多范式、单线程的动态语言，并且支持面向对象、命令式和声明式（如函数式编程）风格。
 
-JavaScript 内置了一些对象的标准库，比如数组（Array），日期（Date），数学（Math）和一套核心语句，包括运算符、流程控制符以及声明方式等。JavaScript 的核心部分可以通过添加对象来扩展语言以适应不同用途；例如：
+### ✨ 动态特性
 
-- 客户端的 JavaScript 通过提供对象，控制浏览器及其文档对象模型（DOM），来扩展语言核心。例如：客户端的拓展代码允许应用程序将元素放在某个 HTML 表单中，并且支持响应用户事件，比如鼠标点击、表单提交和页面导航。
-- 服务端的 JavaScript 则通过提供有关在服务器上运行 JavaScript 的对象来可扩展语言核心。例如：服务端版本直接支持应用和数据库通信，提供应用不同调用间的信息连续性，或者在服务器上执行文件操作。
+JavaScript 的动态特性包括：
 
-这意味着，在浏览器中，JavaScript 可以改变网页（DOM）的外观与样式。同样地，在服务器上，Node.js 中的 JavaScript 可以对浏览器上编写的代码发出的客户端请求做出响应。
+- 🏗️ **运行时对象构造** - 可以在运行时创建和修改对象
+- 📋 **变量参数列表** - 函数可以接受任意数量的参数
+- 🔧 **函数变量** - 函数可以作为变量传递和赋值
+- ⚡ **动态脚本创建** - 通过 `eval` 动态执行代码
+- 🔄 **对象内枚举** - 通过 `for...in` 和 `Object` 工具方法遍历对象
+- 📝 **源代码恢复** - 函数会存储其源代码文本，可以使用 `toString()` 检索
 
-## JavaScript 和 Java
+## 🎯 JavaScript 对象
 
-JavaScript 和 Java 有一些共性但是在另一些方面有着根本性区别。JavaScript 语言类似 Java 但是并没有 Java 的静态类型和强类型检查特性。JavaScript 遵循了 Java 的表达式语法，命名规范以及基础流程控制，这也是 JavaScript 从 LiveScript 更名的原因。
+在 JavaScript 中，大多数事物都是对象，从作为核心功能的字符串和数组，到建立在 JavaScript 之上的浏览器 API。你甚至可以自己创建对象，将相关的函数和变量高效地封装打包成便捷的数据容器。
 
-与 Java 通过声明的方式构建类的编译时系统不同，JavaScript 采用基于少量的数据类型如数字、布尔、字符串值的运行时系统。JavaScript 拥有基于原型的对象模型提供的动态继承；也就是说，独立对象的继承是可以改变的。JavaScript 支持匿名函数。函数也可以作为对象的属性被当做宽松的类型方式执行。
+### 🌐 内置对象标准库
 
-与 Java 相比，Javascript 是一门形式自由的语言。你不必声明所有的变量，类和方法。你不必关心方法是否是公有、私有或者受保护的，也不需要实现接口。无需显式指定变量、参数、方法返回值的数据类型。
+JavaScript 内置了一些对象的标准库：
 
-Java 是基于类的编程语言，设计的初衷就是为了确保快速执行和类型安全。类型安全，举个例子，你不能将一个 Java 整数变量转化为一个对象引用，或者由 Java 字节码访问专有存储器。Java 基于类的模型，意味着程序包含专有的类及其方法。Java 的类继承和强类型要求紧耦合的对象层级结构。这些要求使得 Java 编程比 JavaScript 要复杂的多。
+| 对象类型 | 说明 | 示例 |
+|----------|------|------|
+| **Array** | 数组操作 | `[1, 2, 3].map(x => x * 2)` |
+| **Date** | 日期时间 | `new Date().getFullYear()` |
+| **Math** | 数学运算 | `Math.random()`, `Math.PI` |
+| **String** | 字符串处理 | `"hello".toUpperCase()` |
+| **Object** | 对象操作 | `Object.keys({a: 1, b: 2})` |
 
-相比之下，JavaScript 传承了 HyperTalk 和 dBASE 语句精简、动态类型等精髓，这些脚本语言为更多开发者提供了一种语法简单、内置功能强大以及用最小需求创建对象的编程工具。
+### 🔧 语言扩展
 
-## JavaScript 和 ECMAScript 规范
+JavaScript 的核心部分可以通过添加对象来扩展语言以适应不同用途：
 
-JavaScript 的标准化组织是 ECMA——这个欧洲信息与通信系统标准化协会提供基于 Javascript 的标准化方案（ECMA 原先是欧洲计算机制造商协会的首字母缩写）。这种标准化版本的 JavaScript 被称作 ECMAScript，在所有支持该标准的应用中以相同的方式工作。公司可以使用开放标准语言来开发他们自己的 JavaScript 实现版本。ECMAScript 标准在 ECMA－262 规范中进行文档化。
+- **客户端 JavaScript** 
+  - 提供对象控制浏览器及其文档对象模型（DOM）
+  - 支持响应用户事件（鼠标点击、表单提交、页面导航）
+  - 允许应用程序将元素放在HTML表单中
 
-## 数据类型
+- **服务端 JavaScript**
+  - 提供有关在服务器上运行 JavaScript 的对象
+  - 支持应用和数据库通信
+  - 提供应用不同调用间的信息连续性
+  - 在服务器上执行文件操作
 
-最新的 ECMAScript 标准定义了 8 种数据类型：
+## 🆚 JavaScript vs Java
 
-七种基本数据类型：
+::: warning ⚠️ 注意区别
+JavaScript 和 Java 有一些共性但是在另一些方面有着根本性区别。
+:::
 
-1. Boolean，有 2 个值分别是：true 和 false。
-2. null，一个表明 null 值的特殊关键字。JavaScript 是大小写敏感的，因此 null 与 Null、NULL 或变体完全不同。
-3. undefined，和 null 一样是一个特殊的关键字，undefined 表示变量未赋值时的属性。
-4. Number，整数或浮点数，例如： 42 或者 3.14159。
-5. BigInt，任意精度的整数，可以安全地存储和操作大整数，甚至可以超过数字的安全整数限制。
-6. String，字符串是一串表示文本值的字符序列，例如："Howdy"。
-7. Symbol，一种实例是唯一且不可改变的数据类型。
+### 相同点 ✅
 
-引用类型：
+- 遵循相似的表达式语法
+- 相似的命名规范
+- 基础流程控制结构相似
 
-- Object
-  - Function
-  - Array
-  - Date
-  - RegExp
-  - Error
+### 不同点 ❌
 
-## label 语句
+| 特性 | JavaScript | Java |
+|------|------------|------|
+| **类型系统** | 动态类型，运行时确定 | 静态类型，编译时确定 |
+| **类定义** | 基于原型的动态继承 | 基于类的静态继承 |
+| **函数特性** | 支持匿名函数，函数是一等公民 | 方法必须属于类 |
+| **变量声明** | 无需显式声明类型 | 必须显式声明类型 |
+| **编译** | 解释执行或即时编译 | 编译为字节码 |
+| **内存管理** | 自动垃圾回收 | 自动垃圾回收 |
 
-一个 label 提供了一个让你在程序中其他位置引用它的标识符。例如，你可以用 label 标识一个循环，然后使用 break 或者 continue 来指出程序是否该停止循环还是继续循环。
+### 💡 设计理念对比
 
-```js
-var num = 0;
-outPoint: for (var i = 0; i < 10; i++) {
-  for (var j = 0; j < 10; j++) {
-    if (i == 5 && j == 5) {
-      // 在 i = 5，j = 5 时，跳出所有循环，而不是仅跳出j循环
-      // 返回到整个 outPoint 并继续执行
-      break outPoint;
+- **Java**: 设计初衷是确保快速执行和类型安全，要求紧耦合的对象层级结构
+- **JavaScript**: 传承精简、动态类型等特性，提供语法简单、内置功能强大的编程工具
+
+## 📊 ECMAScript 规范
+
+JavaScript 的标准化组织是 **ECMA**（欧洲信息与通信系统标准化协会），提供基于 JavaScript 的标准化方案。
+
+::: info 📋 标准化信息
+- **标准名称**: ECMAScript
+- **规范文档**: ECMA-262
+- **目标**: 在所有支持该标准的应用中以相同的方式工作
+- **开放性**: 公司可以使用开放标准语言开发自己的 JavaScript 实现版本
+:::
+
+## 🏷️ 数据类型
+
+最新的 ECMAScript 标准定义了 **8 种数据类型**：
+
+### 基本数据类型（7种）
+
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| **Boolean** | 布尔值 | `true`, `false` |
+| **null** | 空值 | `null` |
+| **undefined** | 未定义 | `undefined` |
+| **Number** | 数字 | `42`, `3.14159` |
+| **BigInt** | 大整数 | `123n`, `BigInt(123)` |
+| **String** | 字符串 | `"Hello World"` |
+| **Symbol** | 唯一标识符 | `Symbol('id')` |
+
+### 引用数据类型（1种）
+
+```javascript
+// Object 及其子类型
+const obj = {};           // 普通对象
+const arr = [];           // 数组
+const func = () => {};    // 函数
+const date = new Date();  // 日期对象
+const regex = /pattern/;  // 正则表达式
+```
+
+## 🏷️ Label 语句
+
+label 提供了一个让你在程序中其他位置引用它的标识符，通常与 `break` 或 `continue` 配合使用。
+
+```javascript
+let num = 0;
+
+// 使用 label 标记外层循环
+outLoop: for (let i = 0; i < 10; i++) {
+  for (let j = 0; j < 10; j++) {
+    if (i === 5 && j === 5) {
+      // 跳出所有循环，而不仅仅是内层循环
+      break outLoop;
     }
     num++;
   }
 }
 
-alert(num); // 输出 55
+console.log(num); // 输出: 55
 ```
 
-## 类和构造函数的区别
+::: tip 💡 使用建议
+Label 语句在复杂的嵌套循环中很有用，但在大多数情况下，使用函数来组织代码会更加清晰。
+:::
 
-- 类的调用必须使用 new 关键字
-- 类的声明不会被提升
-- 类的内部默认开启严格模式
+## 🏛️ 类 vs 构造函数
 
-## 严格模式
+### 相同点 ✅
 
-- 消除 js 语法中一些不合理，不严谨，不安全的问题，减少怪异行为，保证代码的运行安全
-- 提高编译器效率，提高运行效率
+- 都可以创建对象实例
+- 都支持继承机制
+- 都可以定义方法和属性
 
-**启用严格模式**:
+### 不同点 ❌
 
-> 不支持严格模式的浏览器会把 use strict 当作字符串处理,高版本浏览器都支持 use strict 严格模式
+| 特性 | 类（Class） | 构造函数（Function） |
+|------|-------------|---------------------|
+| **调用方式** | 必须使用 `new` 关键字 | 可以直接调用 |
+| **声明提升** | 不会被提升 | 会被提升 |
+| **严格模式** | 内部默认开启 | 需要手动开启 |
+| **原型设置** | 自动设置原型链 | 需要手动设置 |
 
-- 整个脚本启用严格模式，在顶部执行 use strict
-- 在函数中使用严格模式，在函数第一行添加 use strict
-- 在 eval 函数中使用严格模式，在头部添加'use strict'语句: eval("'use strict';var x = 43;")
-- class 内，默认开启严格模式
-- 模块内默认开启严格模式
+```javascript
+// 构造函数方式
+function Person(name) {
+  this.name = name;
+}
+Person.prototype.sayHello = function() {
+  console.log(`Hello, I'm ${this.name}`);
+};
 
-**严格模式的结果**:
+// 类方式（ES6+）
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  sayHello() {
+    console.log(`Hello, I'm ${this.name}`);
+  }
+}
+```
 
-1. 过失错误,由静默失败转成抛出异常
-   - 无法再意外创建全局变量
-   - 使引起静默失败的赋值操作抛出异常。比如给 NaN 赋值，删除不可删除的属性，给不可写和只读属性赋值，给不可扩展对象添加新属性等，在非严格模式下都是静默失败，开发者很难发现错误。严格模式下，会抛出异常，很容易发现错误。
-   - 对象属性名必须唯一。正常模式允许重名属性，最后的属性决定其属性值，当代码改变对象的属性值时，会改变第一个属性值，就会产生 bug
-   - 函数参数名唯一，否则报错
-   - 禁止八进制数字语法。
-2. 简化变量使用
-   - 禁用 with。with 会把块内的任何名称映射到传进来的对象的属性，这个虽然可以简化写法，但是如果这个对象没有这个属性，就会创建块内作用域变量，甚至全部变量，这一切都是在运行时决定的，还会产生性能问题。
-   - eval 不再为上层范围引入新变量。正常模式下，eval('val x = 43;')会创建一个变量 x，如果已经有了一个变量 x，就会引起问题，eval("'use strict';var x = 43;")，这样启用了严格模式，x 只能在 eval 内部使用。严格模式还会把 eval 和 arguments 作为关键词，减少怪异行为
-   - 禁止 delete 来删除声明的变量。例如 let x ;delete x，会报错
-   - 禁止 arguments 和 arguments.callee（指当前函数），对其读取和赋值都会报错
-3. js 运行更安全
-   - 通过 this 传递给一个函数的值不会被强制转成一个对象。console.assert(fun.bind(true)() === true);
-   - 一部分字符变成了保留关键字。implements,interface,let,package,private,protected,public,static,yield。
-   - 禁止不在脚本和函数层面上的函数声明。
+## 🔒 严格模式
+
+严格模式是一种在JavaScript中启用更严格的解析和错误处理的方式。
+
+### 🎯 目标
+
+- ✅ 消除JavaScript语法中一些不合理、不严谨、不安全的问题
+- ⚡ 提高编译器效率，提升运行速度
+- 🛡️ 减少怪异行为，保证代码运行安全
+
+### 📝 启用方式
+
+```javascript
+// 1. 整个脚本启用
+"use strict";
+
+// 2. 函数内启用
+function myFunction() {
+  "use strict";
+  // 函数体
+}
+
+// 3. 模块内（默认严格模式）
+// ES6 模块自动启用严格模式
+
+// 4. 类内（默认严格模式）
+class MyClass {
+  // 类内默认严格模式
+}
+```
+
+### 🚫 严格模式限制
+
+#### 变量和属性
+
+```javascript
+"use strict";
+
+// ❌ 无法创建全局变量
+// undeclaredVar = 10; // ReferenceError
+
+// ❌ 无法删除变量
+// let myVar = 10;
+// delete myVar; // SyntaxError
+
+// ❌ 对象属性名必须唯一
+// let obj = {
+//   prop: 1,
+//   prop: 2  // SyntaxError
+// };
+```
+
+#### 函数相关
+
+```javascript
+"use strict";
+
+// ❌ 函数参数名必须唯一
+// function myFunc(a, a) { } // SyntaxError
+
+// ❌ 禁用 arguments.callee
+// function myFunc() {
+//   arguments.callee(); // TypeError
+// }
+
+// ❌ 禁用 with 语句
+// with (obj) { } // SyntaxError
+```
+
+#### this 绑定
+
+```javascript
+"use strict";
+
+function myFunction() {
+  console.log(this); // undefined（非严格模式下是全局对象）
+}
+
+myFunction();
+```
+
+### 🔮 保留关键字
+
+严格模式下，以下单词成为保留关键字：
+
+```javascript
+// implements, interface, let, package, private, protected, public, static, yield
+```
+
+## 📚 最佳实践
+
+### 1. 🎯 始终使用严格模式
+
+```javascript
+"use strict";
+// 你的代码
+```
+
+### 2. 📝 使用现代语法
+
+```javascript
+// ✅ 使用 const/let 替代 var
+const PI = 3.14159;
+let count = 0;
+
+// ✅ 使用箭头函数
+const add = (a, b) => a + b;
+
+// ✅ 使用模板字符串
+const message = `Hello, ${name}!`;
+```
+
+### 3. 🔍 类型检查
+
+```javascript
+// ✅ 显式类型检查
+if (typeof value === 'string') {
+  // 处理字符串
+}
+
+// ✅ 使用 Array.isArray()
+if (Array.isArray(data)) {
+  // 处理数组
+}
+```
+
+### 4. 🛡️ 错误处理
+
+```javascript
+// ✅ 使用 try-catch
+try {
+  // 可能出错的代码
+  JSON.parse(jsonString);
+} catch (error) {
+  console.error('解析错误:', error.message);
+}
+```
+
+## 🔗 相关资源
+
+- [MDN JavaScript 指南](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide)
+- [ECMAScript 规范](https://tc39.es/ecma262/)
+- [JavaScript Info 教程](https://zh.javascript.info/)
+- [You Don't Know JS 系列](https://github.com/getify/You-Dont-Know-JS)
+
+---
+
+::: tip 🎉 下一步
+现在你已经了解了 JavaScript 的基础知识，可以继续学习：
+- [ES6+ 新特性](./object.md)
+- [异步编程](./async.md)
+- [原型和继承](./prototype.md)
+:::

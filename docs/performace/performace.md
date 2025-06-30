@@ -1,21 +1,190 @@
-# 前端性能优化的手段
+---
+title: 前端性能优化完整指南
+description: 前端性能优化的七大手段详解，包括网络连接优化、请求数量减少、资源大小压缩、加载策略优化等
+outline: deep
+---
 
-介绍前端性能优化的七大手段，包括减少请求数量、减小资源大小、优化网络连接、优化资源加载、减少重绘回流、使用性能更好的 API 和构建优化
+# ⚡ 前端性能优化完整指南
 
-## 优化网络连接
+前端性能优化是提升用户体验的关键环节。本文介绍前端性能优化的七大核心手段，帮助开发者构建高性能的Web应用。
 
-1.  使用 CDN：CDN 全称是 Content Delivery Network，即内容分发网络，它能够实时地根据网络流量和各节点的连接、负载状况以及到用户的距离和响应时间等综合信息将用户的请求重新导向离用户最近的服务节点上。其目的是使用户可就近取得所需内容，解决 Internet 网络拥挤的状况，提高用户访问网站的响应速度
-2.  使用 DNS 预解析和预连接：当浏览器访问一个域名的时候，需要解析一次 DNS，获得对应域名的 ip 地址。在解析过程中，按照浏览器缓存、系统缓存、路由器缓存、ISP(运营商)DNS 缓存、根域名服务器、顶级域名服务器、主域名服务器的顺序，逐步读取缓存，直到拿到 IP 地址。DNS Prefetch，即 DNS 预解析就是根据浏览器定义的规则，提前解析之后可能会用到的域名，使解析结果缓存到系统缓存中，缩短 DNS 解析时间，来提高网站的访问速度。由于它是并行的，不会堵塞页面渲染，这样可以缩短资源加载的时间
-3.  并行连接：由于在 HTTP1.1 协议下，chrome 每个域名的最大并发数是 6 个。使用多个域名，可以增加并发数
-4.  持久连接：使用 keep-alive 或 presistent 来建立持久连接，持久连接降低了时延和连接建立的开销，将连接保持在已调谐状态，而且减少了打开连接的潜在数量
-5.  管道化连接：在 HTTP2 协议中，可以开启管道化连接，即单条连接的多路复用，每条连接中并发传输多个资源，这里就不需要添加域名来增加并发数了
+::: tip 📚 本章内容
+系统学习前端性能优化策略，掌握网络、资源、渲染、构建等各个层面的优化技巧。
+:::
+
+## 🎯 性能优化概览
+
+### 📊 七大优化手段
+
+| 优化方向 | 核心目标 | 主要技术 | 性能提升 |
+|----------|----------|----------|----------|
+| **网络连接优化** | 减少连接时间 | CDN、DNS预解析、HTTP/2 | 20-40% |
+| **请求数量减少** | 降低请求频次 | 合并请求、缓存策略 | 30-50% |
+| **资源大小压缩** | 减小传输体积 | Gzip、图片压缩、代码压缩 | 40-70% |
+| **资源加载优化** | 提升加载效率 | 懒加载、预加载、异步加载 | 25-45% |
+| **渲染性能优化** | 减少重绘回流 | DOM优化、CSS优化 | 15-30% |
+| **API性能优化** | 使用高效API | 现代浏览器API | 10-25% |
+| **构建打包优化** | 优化产物结构 | Tree-shaking、代码分割 | 30-60% |
+
+## 🌐 网络连接优化
+
+网络连接优化是性能优化的第一步，通过减少网络延迟和提高连接效率来改善用户体验。
+
+### 📡 CDN 内容分发网络
+
+**CDN（Content Delivery Network）** 是内容分发网络，通过在全球部署边缘节点，让用户就近访问资源。
+
+#### 🎯 CDN 工作原理
+
+```mermaid
+graph TB
+    A[用户请求] --> B[DNS解析]
+    B --> C[CDN调度系统]
+    C --> D[选择最近节点]
+    D --> E[返回资源]
+    
+    F[源站] --> G[CDN节点1]
+    F --> H[CDN节点2]
+    F --> I[CDN节点3]
+```
+
+#### ✨ CDN 优势
+
+| 优势 | 说明 | 性能提升 |
+|------|------|----------|
+| **就近访问** | 用户从最近的节点获取资源 | 减少延迟 50-80% |
+| **负载分散** | 分散源站压力 | 提高可用性 |
+| **带宽优化** | 减少跨地域传输 | 节省带宽成本 |
+| **缓存加速** | 边缘节点缓存热点资源 | 加快响应速度 |
+
+### 🔍 DNS 预解析和预连接
+
+DNS 解析是访问网站的第一步，优化 DNS 解析可以显著提升页面加载速度。
+
+#### 📊 DNS 解析流程
+
+```
+浏览器缓存 → 系统缓存 → 路由器缓存 → ISP DNS缓存 → 根域名服务器 → 顶级域名服务器 → 主域名服务器
+```
+
+#### 🚀 预解析技术
 
 ```html
-<!-- 预解析 -->
-<link rel="dns-prefecth" href="https://www.google.com" />
-<!-- 预连接 -->
-<link rel="preconnect" href="https://www.google-analytics.com" />
+<!-- DNS 预解析 - 提前解析域名 -->
+<link rel="dns-prefetch" href="https://cdn.example.com">
+<link rel="dns-prefetch" href="https://api.example.com">
+
+<!-- 预连接 - 建立完整连接 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://www.google-analytics.com">
+
+<!-- 预加载 - 提前下载资源 -->
+<link rel="preload" href="/critical.css" as="style">
+<link rel="preload" href="/hero-image.jpg" as="image">
+
+<!-- 预获取 - 空闲时下载 -->
+<link rel="prefetch" href="/next-page.js">
 ```
+
+#### 📋 预连接策略对比
+
+| 技术 | 作用 | 适用场景 | 性能影响 |
+|------|------|----------|----------|
+| `dns-prefetch` | 仅DNS解析 | 外部域名资源 | 低开销，高收益 |
+| `preconnect` | DNS+TCP+TLS | 关键第三方资源 | 中等开销，显著收益 |
+| `preload` | 下载资源 | 当前页面关键资源 | 高优先级 |
+| `prefetch` | 预取资源 | 下个页面可能用到 | 低优先级 |
+
+### 🔄 并行连接优化
+
+#### 📊 HTTP/1.1 连接限制
+
+```javascript
+// HTTP/1.1 各浏览器的域名并发限制
+const browserLimits = {
+  Chrome: 6,
+  Firefox: 6,
+  Safari: 6,
+  Edge: 6,
+  IE11: 8
+}
+
+// 使用多个子域名增加并发数
+const domains = [
+  'static1.example.com',
+  'static2.example.com', 
+  'static3.example.com',
+  'static4.example.com'
+]
+```
+
+#### ⚡ HTTP/2 多路复用
+
+```html
+<!-- HTTP/2 下单个连接即可处理多个请求 -->
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/theme.css">
+<script src="/js/vendor.js"></script>
+<script src="/js/app.js"></script>
+<!-- 以上请求在 HTTP/2 下可通过单个连接并行传输 -->
+```
+
+### 🔗 持久连接
+
+#### 🛠️ Keep-Alive 配置
+
+```javascript
+// 服务器端配置 Keep-Alive
+app.use((req, res, next) => {
+  res.setHeader('Connection', 'keep-alive')
+  res.setHeader('Keep-Alive', 'timeout=5, max=1000')
+  next()
+})
+```
+
+#### 📊 连接类型对比
+
+| 连接类型 | 特点 | 适用场景 | 性能表现 |
+|----------|------|----------|----------|
+| **短连接** | 请求完成后立即关闭 | 简单请求 | 连接开销大 |
+| **长连接** | 保持连接复用 | 频繁请求 | 减少握手开销 |
+| **管道化** | 批量发送请求 | HTTP/2 环境 | 最优性能 |
+
+### 🎯 实施建议
+
+#### ✅ 最佳实践
+
+1. **CDN 部署策略**
+   ```javascript
+   // 静态资源使用 CDN
+   const cdnConfig = {
+     images: 'https://img-cdn.example.com',
+     scripts: 'https://js-cdn.example.com', 
+     styles: 'https://css-cdn.example.com'
+   }
+   ```
+
+2. **DNS 优化策略**
+   ```html
+   <!-- 在 <head> 中尽早添加预解析 -->
+   <link rel="dns-prefetch" href="//cdn.example.com">
+   <link rel="dns-prefetch" href="//api.example.com">
+   ```
+
+3. **连接数优化**
+   ```javascript
+   // 合理使用域名分片（HTTP/1.1）
+   const getResourceUrl = (type, filename) => {
+     const domainIndex = hash(filename) % 4
+     return `https://static${domainIndex}.example.com/${type}/${filename}`
+   }
+   ```
+
+#### ❌ 避免的问题
+
+- 过度使用 `preconnect`（限制在 4-6 个关键域名）
+- 在 HTTP/2 环境下仍使用域名分片
+- 忽视 DNS 缓存策略的配置
 
 ## 减少请求数量
 
