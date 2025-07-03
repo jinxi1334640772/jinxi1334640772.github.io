@@ -1,700 +1,779 @@
-# CSS 函数
+---
+title: CSS 函数详解
+description: 全面介绍 CSS 函数，包括计算函数、颜色函数、形状函数、滤镜函数等，掌握现代 CSS 函数的用法和技巧
+outline: deep
+---
 
-## attr()
+# 🎯 CSS 函数详解
 
-获取当前元素属性值，并用于其样式。用于伪元素，属性值采用伪元素所依附的元素。
+CSS 函数是现代 CSS 的重要组成部分，它们提供了强大的计算、变换和样式处理能力。本文将详细介绍各种 CSS 函数的用法和应用场景。
+
+## 📋 函数分类概览
+
+| 分类 | 主要函数 | 用途 | 兼容性 |
+|------|----------|------|--------|
+| **计算函数** | `calc()`, `clamp()`, `min()`, `max()` | 数值计算和约束 | ✅ 良好 |
+| **颜色函数** | `hsl()`, `color-mix()`, `light-dark()` | 颜色处理和主题 | ✅ 现代浏览器 |
+| **形状函数** | `circle()`, `polygon()`, `path()` | 图形绘制和裁剪 | ✅ 现代浏览器 |
+| **滤镜函数** | `blur()`, `brightness()`, `contrast()` | 图像效果处理 | ✅ 现代浏览器 |
+| **变换函数** | `perspective()`, `drop-shadow()` | 3D 变换和阴影 | ✅ 现代浏览器 |
+| **资源函数** | `url()`, `image()`, `image-set()` | 资源引用和优化 | ✅ 良好 |
+
+---
+
+## 🧮 计算函数
+
+### `calc()` - 动态计算
+
+允许在声明 CSS 属性值时执行数学计算，支持四则运算。
 
 ```css
-/* 简单用法 */
-attr(data-count);
-attr(title);
+/* 基础语法 */
+calc(<calc-sum>)
 
-/* 带类型 */
-attr(src url);
-attr(data-count number);
-attr(data-width px);
-
-/* 带回退值 */
-attr(data-count number, 0);
-attr(src url, "");
-attr(data-width px, inherit);
-attr(data-something, "default");
-
-/**用法 */
-<p data-foo="hello">world</p>
-p:before {
-  content: attr(data-foo) " "; /** hello world */
+/* 实际应用 */
+.container {
+  width: calc(100% - 80px);
+  height: calc(100vh - 60px);
+  margin: calc(1.5rem + 3vw);
+  font-size: calc(var(--base-size) * 1.2);
 }
 ```
 
-## blur()
+**适用场景**:
+- `<length>`, `<frequency>`, `<angle>`, `<time>`, `<percentage>`, `<number>`, `<integer>`
 
-模糊半径，值为`<length>`。它定义了高斯函数的标准偏差值，即屏幕上有多少像素相互融合
+::: tip 💡 计算规则
+- 运算符前后必须有空格：`calc(100% - 20px)` ✅
+- 不同单位可以混合计算：`calc(50% + 20px)` ✅
+- 支持嵌套：`calc(calc(100% / 2) - 10px)` ✅
+:::
 
-```css
-/* 简单用法 */
-blur(0)        /* No effect */
-blur(8px)      /* Blur with 8px radius */
-blur(1.17rem)  /* Blur with 1.17rem radius */
+### `calc-size()` - 内在尺寸计算
 
-filter: blur(1.5rem);
-```
-
-## brightness()
-
-将线性乘数应用于输入图像，使其看起来更亮或更暗
+允许对内在值（如 `auto`、`fit-content`）进行计算。
 
 ```css
-/* 简单用法 */
-brightness(0%)   /* 全黑 */
-brightness(0.4)  /* 40% 亮度 */
-brightness(1)    /* 无效果 */
-brightness(200%) /* 两倍亮度 */
-filter: brightness(50%);
-```
-
-## calc()
-
-函数允许在声明 CSS 属性值时执行一些计算。它可以用在如下场合：`<length>、<frequency>, <angle>、<time>、<percentage>、<number>、或 <integer>。`
-
-```css
- calc( <calc-sum> )
-
- calc(100% - 80px);
- calc(var(--widthB) / 2);
- calc(1.5rem + 3vw);
-```
-
-## calc-size()
-
-允许执行计算内有值，例如 auto、fit-content、min-content、max-content。这类值不支持 calc()函数。返回一个等于经`<calc-sum>`表达式修改后的`<calc-size-basis>`的值。
-
-```css
+/* 基础语法 */
 calc-size(<calc-size-basis>, <calc-sum>)
 
-/* 根据参考值计算结果 size代表前面的参考值*/
-calc-size(min-content, size + 100px) /** 返回min-content+100px */
-calc-size(fit-content, size / 2)
-calc-size(auto, round(up, size, 50px))
-
-section {
-  height: calc-size(calc-size(max-content, size), size + 2rem);
-  height: calc-size(var(--intrinsic-size), size + 2rem);
-  height: calc-size(any, 300px * 1.5); /* Returns 450px */
-  height: calc-size(300px + 2rem, size / 2);
+/* 实际应用 */
+.section {
+  height: calc-size(min-content, size + 100px);
+  width: calc-size(fit-content, size / 2);
+  height: calc-size(auto, round(up, size, 50px));
 }
 ```
 
-## circle()
+**参数说明**:
+- `<calc-size-basis>`: 参考值（`auto`、`min-content`、`max-content`、`fit-content`）
+- `size`: 代表前面的参考值
+- `<calc-sum>`: 基于参考值的计算表达式
 
-使用半径和位置来描述一个圆。它是 `<basic-shape>` 数据类型之一。
+### `clamp()` - 值约束
+
+将值限制在指定的最小值和最大值之间。
 
 ```css
-circle( <radial-size>? [ at <position> ]? )
+/* 基础语法 */
+clamp([<calc-sum> | none], <calc-sum>, [<calc-sum> | none])
 
-<radial-size> =
-  closest-corner   |
-  closest-side     |
-  farthest-corner  |
-  farthest-side                |
-  <length [0,∞]>                |
-  <length-percentage [0,∞]>{2}
-
-/* 简单用法 */
-shape-outside: circle(50%);
-clip-path: circle(6rem at 12rem 8rem);
+/* 实际应用 */
+.responsive-text {
+  font-size: clamp(1rem, 2.5vw, 2rem);
+  padding: clamp(1rem, 5%, 3rem);
+  width: clamp(300px, 50%, 800px);
+}
 ```
 
-## clamp()
-
-把一个值限制在一个上限和下限之间，接收三个参数：最小值、首选值、最大值。 clamp() 被用在`<length>、<frequency>、<angle>、<time>、<percentage>、<number>、<integer>`中都是被允许的。 clamp(MIN, VAL, MAX) 其实就是表示 max(MIN, min(VAL, MAX))。
-
+**等价关系**:
 ```css
-clamp( [ <calc-sum> | none ] , <calc-sum> , [ <calc-sum> | none ] )
-
-clamp(1.8rem, 2.5vw, calc(70% + 100px));
+/* clamp(MIN, VAL, MAX) 等同于 max(MIN, min(VAL, MAX)) */
+font-size: clamp(16px, 4vw, 32px);
+/* 相当于 */
+font-size: max(16px, min(4vw, 32px));
 ```
 
-## color-contrast()
+### `min()` / `max()` - 最值选择
 
-函数标记接收 color 值，并将其与其他的 color 值比较，从列表中选择最高对比度的颜色。
+从多个值中选择最小值或最大值。
 
 ```css
-color-contrast(color vs color-list)
-color-contrast(wheat vs tan, sienna, #d2691e)
-color-contrast(#008080 vs olive, var(--myColor), #d2691e)
+/* 基础语法 */
+min(<calc-sum>#)
+max(<calc-sum>#)
+
+/* 实际应用 */
+.responsive-container {
+  width: min(100%, 1200px);
+  height: max(300px, 50vh);
+  font-size: max(16px, 1.2vw);
+}
+
+/* 复杂组合 */
+.complex {
+  font-size: max(min(0.5vw, 0.5em), 1rem);
+}
 ```
 
-## color-mix()
+### `minmax()` - 网格范围
 
-标记接收两个`<color>`值，并返回在指定颜色空间、指定数量混合后的颜色
+在 Grid 布局中定义轨道的最小和最大尺寸。
 
 ```css
-/**method:指定插值颜色空间的 <color-interpolation-method> 值。 */
-/**p1,p2:0% 到 100% 之间的 <percentage> 值，指定每个颜色混合的数量 */
-color-mix(method, color1[ p1], color2[ p2])
-
-color-mix( <color-interpolation-method> , [ <color> && <percentage [0,100]>? ]#{2} )
-
-<color-interpolation-method> =
-  in [ <rectangular-color-space> | <polar-color-space> <hue-interpolation-method>? ]
-
-<rectangular-color-space> =
-  srgb          |
-  srgb-linear   |
-  display-p3    |
-  a98-rgb       |
-  prophoto-rgb  |
-  rec2020       |
-  lab           |
-  oklab         |
-  xyz           |
-  xyz-d50       |
-  xyz-d65
-
-<polar-color-space> =
-  hsl    |
-  hwb    |
-  lch    |
-  oklch
-
-<hue-interpolation-method> =
-  [ shorter | longer | increasing | decreasing ] hue
-
-color-mix(in lch, plum, pink);
-color-mix(in lch, plum 40%, pink);
-color-mix(in srgb, #34c9eb 20%, white);
-color-mix(in hsl longer hue, hsl(120 100% 50%) 20%, white);
+/* 网格应用 */
+.grid-container {
+  grid-template-columns: 
+    minmax(200px, 1fr) 
+    minmax(100px, 300px) 
+    minmax(min-content, max-content);
+}
 ```
 
-## contrast()
+---
 
-调整输入图像的对比度。结果是一个 `<filter-function>`.
+## 🎨 颜色函数
+
+### `hsl()` - HSL 颜色空间
+
+基于色相（Hue）、饱和度（Saturation）、明度（Lightness）定义颜色。
 
 ```css
-contrast(amount)
+/* 基础语法 */
+hsl(<hue> <saturation> <lightness> [/ <alpha>])
 
-contrast(0)     /* 完全灰色 */
-contrast(65%)   /* 65% 对比度 */
-contrast(1)     /* 无效果 */
-contrast(200%)  /* 两倍对比度 */
+/* 实际应用 */
+.color-examples {
+  background: hsl(120deg 75% 50%);        /* 绿色 */
+  border: hsl(240 100% 50% / 0.8);        /* 半透明蓝色 */
+  color: hsl(0 0% 20%);                   /* 深灰色 */
+}
 ```
 
-## drop-shadow()
+**参数说明**:
+- **色相**: `0-360deg` 或 `0-360`
+- **饱和度**: `0-100%`
+- **明度**: `0-100%`
+- **透明度**: `0-1` 或 `0-100%`
 
-投影实际上是输入图像的 alpha 蒙版的一个模糊的、偏移的版本，用特定的颜色绘制并合成在图像下面。
+### `lab()` - LAB 颜色空间
 
-> 这个函数有点类似于 box-shadow 属性。box-shadow 属性在元素的整个框后面创建一个矩形阴影，而 drop-shadow() 过滤器则是创建一个符合图像本身形状 (alpha 通道) 的阴影。
+在 CIE L*a*b* 颜色空间中表示颜色，覆盖人眼可见的全部颜色范围。
 
 ```css
-/* 双长度值 */
-/* drop-shadow( <length> <length> ) */
-drop-shadow(5px 5px)
+/* 基础语法 */
+lab(<lightness> <a> <b> [/ <alpha>])
 
-/* 三长度值 */
-/* drop-shadow( <length> <length> <length> ) */
-drop-shadow(5px 5px 15px)
-
-/* 双长度值加一个颜色值 */
-/* drop-shadow( <length> <length> <color> ) */
-drop-shadow(5px 5px red)
-
-/* 三长度值加一个颜色值 */
-/* drop-shadow( <length> <length> <length> <color> ) */
-drop-shadow(5px 5px 15px red)
-
-/* 可以改变颜色和长度值的顺序 */
-/* drop-shadow( <color> <length> <length> <length> ) */
-drop-shadow(#e23 0.5rem 0.5rem 1rem)
-drop-shadow(.5rem .5rem 1rem .3rem #e23)
+/* 实际应用 */
+.lab-colors {
+  color: lab(29.2345% 39.3825 20.0664);
+  background: lab(52.2345% 40.1645 59.9971 / 0.5);
+}
 ```
 
-## ellipse()
+### `color-mix()` - 颜色混合
 
-椭圆本质上是一个扁平的圆形，因此 ellipse() 的行为与 circle() 非常相似，只是我们需要指定两个半径 x 和 y。是 `<basic-shape>` 数据类型之一。
+混合两种颜色，返回指定比例的混合结果。
 
 ```css
-clip-path: ellipse(40% 50% at left);
-shape-outside: ellipse(closest-side farthest-side at 30%);
+/* 基础语法 */
+color-mix(<color-interpolation-method>, [<color> && <percentage>?]#{2})
+
+/* 实际应用 */
+.mixed-colors {
+  background: color-mix(in srgb, blue 70%, white);
+  border: color-mix(in lch, red 40%, yellow);
+  color: color-mix(in hsl longer hue, hsl(120 100% 50%) 20%, white);
+}
 ```
 
-## fit-content()
+**插值方法**:
+- **矩形空间**: `srgb`, `display-p3`, `lab`, `oklab`
+- **极坐标空间**: `hsl`, `hwb`, `lch`, `oklch`
 
-将给定大小夹紧为可用大小
+### `light-dark()` - 主题适配
 
-```css
-fit-content(200px)
-fit-content(5cm)
-fit-content(30vw)
-fit-content(100ch)
-fit-content(40%)
-
-/** 有点类似该clamp函数，判断中间值 */
-clamp(min-content, 10vw, max-content);
-```
-
-## grayscale()
-
-对图片进行灰度转换，它是 `<filter-function>` 的子属性。
+根据系统主题返回对应的颜色值。
 
 ```css
-grayscale(amount)
-
-grayscale(0)     /* 无效果 */
-grayscale(.7)    /* 70% 灰度 */
-grayscale(100%)  /* 灰度最大 */
-```
-
-## hsl()
-
-标记根据其色相、饱和度和明度来表达 sRGB 颜色。
-
-```css
-hsl(120deg 75% 25%)
-hsl(120deg 75% 25% / 0.6)
-```
-
-## image-set()
-
-让浏览器从 image-set 中，选择一个最合适的 CSS image，主要应对高像素屏幕。
-
-```css
-image-set("image1.jpg" 1x,"image2.jpg" 2x);
-
-image-set(url("image1.jpg") 1x,url("image2.jpg") 2x);
-
-image-set(linear-gradient(blue, white) 1x,linear-gradient(blue, green) 2x);
-
-/* 根据支持的格式选择图片 */
-background-image: image-set(url("image1.avif") type("image/avif"),url("image2.jpg") type("image/jpeg"));
-/** 不支持image-set时回退 */
-background-image: url("large-balloons.jpg");
-```
-
-## image()
-
-引入`<image>`图片
-
-```css
-/**不支持或者没发现image-src，将回退到color */
- image( <image-tags>? [ <image-src>? , <color>? ]! )
- /** 图片方向 */
- <image-tags> =
-  ltr  |
-  rtl
-/** 图片的url或者url() */
-<image-src> =
-  <url>     |
-  <string>
-
-/* 找不到图片，则回退到颜色rgb*/
-image(rgb(0 0 0 / 25%)), url("firefox.png");
-/**图片方向，图片URL，回退的颜色 */
-image(ltr,"sprite.png#xywh=32,64,16,16",red);
-
- /* 320x240 image at x=160 and y=120 */
-xywh=160,120,320,240
-/* 320x240 image at x=160 and y=120 */
-xywh=pixel:160,120,320,240
- /* 50%x50% image at x=25% and y=25% */
-xywh=percent:25,25,50,50
-```
-
-## inset()
-
-定义一个矩形，并指定每一边到容器内侧的距离。它是用于定义 `<basic-shape>` 数据类型之一。
-
-```css
-<inset()> = inset( <length-percentage>{1,4} [ round <border-radius> ]? )
-
-<length-percentage> = <length> | <percentage>
-
-<border-radius> = <length-percentage [0,∞]>{1,4} [ / <length-percentage [0,∞]>{1,4} ]?
-
-/**round：设置圆角半径 */
-shape-outside: inset(20px 50px 10px 0 round 50px);
-clip-path: inset(4rem 20% round 1rem 2rem 3rem 4rem);
-```
-
-## invert()
-
-反转颜色，filter-function
-
-```css
-invert(0)     /* No effect */
-invert(.6)    /* 60% inversion */
-invert(100%)  /* Completely inverted */
-```
-
-## lab()
-
-函数记号 lab() 在 `CIE L*a*b* `颜色空间中表示指定颜色。Lab 表示人可见的全部颜色的范围。
-
-```css
-lab(29.2345% 39.3825 20.0664);
-lab(52.2345% 40.1645 59.9971);
-lab(52.2345% 40.1645 59.9971 / .5);
-```
-
-## layer()
-
-配合@import 规则，将导入的外部样式定义为一个级联层
-
-```css
-@import url layer(layer-name);
-@import "dark.css" layer(framework.themes.dark);
-```
-
-## light-dark()
-
-指定两种颜色，返回匹配系统主题的颜色。为了支持 light-dark()，color-scheme 必须有 light dark 的值。在:root 设配置，如下：
-
-```css
+/* 配置主题支持 */
 :root {
   color-scheme: light dark;
 }
-body {
-  color: light-dark(#333b3c, #efefec);
-  color: light-dark(rgb(0 0 0), rgb(255 255 255));
-  color: light-dark(var(--light), var(--dark));
+
+/* 使用主题颜色 */
+.theme-adaptive {
+  color: light-dark(#333333, #ffffff);
+  background: light-dark(#ffffff, #1a1a1a);
+  border: light-dark(rgb(200 200 200), rgb(60 60 60));
 }
 ```
 
-## max() | min() | minmax()
+::: warning ⚠️ 使用前提
+使用 `light-dark()` 前必须设置 `color-scheme: light dark`
+:::
 
-从一个逗号分隔的表达式列表中选择` 最大|最小|范围` 的值作为属性的值。用于以下场合 `<length>, <frequency>, <angle>, <time>, <percentage>, <number>, 或 <integer> `。
+---
+
+## 🔍 滤镜函数
+
+### `blur()` - 模糊效果
+
+对元素应用高斯模糊效果。
 
 ```css
-h1.responsive {
-  font-size: max(4vw, 2em, 2rem);
-  font-size: max(min(0.5vw, 0.5em), 1rem);
+/* 基础语法 */
+blur(<length>)
+
+/* 实际应用 */
+.blur-effects {
+  filter: blur(0);        /* 无效果 */
+  filter: blur(5px);      /* 5px 模糊半径 */
+  filter: blur(1.5rem);   /* 1.5rem 模糊半径 */
 }
 
-minmax(200px, 1fr)
-minmax(400px, 50%)
-minmax(30%, 300px)
-minmax(100px, max-content)
-minmax(min-content, 400px)
-minmax(max-content, auto)
-minmax(auto, 300px)
-minmax(min-content, auto)
+/* 组合使用 */
+.image-overlay {
+  filter: blur(2px) brightness(0.8);
+}
 ```
 
-## mod()
+### `brightness()` - 亮度调节
 
-数学取模函数
+调整元素的亮度。
 
 ```css
-/* Unitless <number> */
-line-height: mod(7, 2); /* 1 */
-line-height: mod(14, 5); /* 4 */
-line-height: mod(3.5, 2); /* 1.5 */
+/* 基础语法 */
+brightness(<number> | <percentage>)
 
-/* Unit based <percentage> and <dimension> */
-margin: mod(15%, 2%); /* 1% */
-margin: mod(18px, 4px); /* 2px */
-margin: mod(19rem, 5rem); /* 4rem */
-margin: mod(29vmin, 6vmin); /* 5vmin */
-margin: mod(1000px, 29rem); /* 72px - if root font-size is 16px */
-
-/* Negative/positive values */
-rotate: mod(100deg, 30deg); /* 10deg */
-rotate: mod(135deg, -90deg); /* -45deg */
-rotate: mod(-70deg, 20deg); /* 10deg */
-rotate: mod(-70deg, -15deg); /* -10deg */
-
-/* Calculations */
-scale: mod(10 * 2, 1.7); /* 1.3 */
-rotate: mod(10turn, 18turn / 3); /* 4turn */
-transition-duration: mod(20s / 2, 3000ms * 2); /* 4s */
+/* 实际应用 */
+.brightness-effects {
+  filter: brightness(0%);     /* 全黑 */
+  filter: brightness(0.5);    /* 50% 亮度 */
+  filter: brightness(1);      /* 原始亮度 */
+  filter: brightness(150%);   /* 150% 亮度 */
+}
 ```
 
-## opacity()
+### `contrast()` - 对比度调节
 
-The 应用透明度属性，它的结果是一个 `<filter-function>`.
+调整元素的对比度。
 
 ```css
-opacity(0%)   /* 完全透明*/
-opacity(50%)  /* 50% 透明 */
-opacity(1)    /* 无效果 */
+/* 基础语法 */
+contrast(<number> | <percentage>)
+
+/* 实际应用 */
+.contrast-effects {
+  filter: contrast(0);      /* 完全灰色 */
+  filter: contrast(0.5);    /* 50% 对比度 */
+  filter: contrast(1);      /* 原始对比度 */
+  filter: contrast(200%);   /* 200% 对比度 */
+}
 ```
 
-## path()
+### `drop-shadow()` - 投影效果
 
-接受 SVG 路径字符串作为参数，用于 CSS 形状和运动路径模块中绘制形状。path() 函数是 `<basic-shape>` 数据类型的值。它可以用于 CSS 的 offset-path 和 clip-path 属性，以及 SVG 的 d 属性。
+创建符合元素形状的投影效果。
 
 ```css
-<path()> = path( <fill-rule>? , <string> )
+/* 基础语法 */
+drop-shadow(<length>{2,3} <color>?)
 
-<fill-rule> = nonzero  | evenodd
-
-path("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80");
-path(evenodd,"M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80");
+/* 实际应用 */
+.shadow-effects {
+  filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 4px 8px #00000040);
+  filter: drop-shadow(2px 2px 4px red);
+}
 ```
 
-## perspective()
+::: info 📝 与 box-shadow 的区别
+- `box-shadow`: 在元素的整个框后面创建矩形阴影
+- `drop-shadow()`: 创建符合元素实际形状（alpha 通道）的阴影
+:::
 
-配置透视距离
+### 其他滤镜函数
 
 ```css
-/**这个<length> 得到的是距离 0 坐标的距离 */
-perspective(d)
+/* 灰度效果 */
+.grayscale { filter: grayscale(100%); }
+
+/* 饱和度调节 */
+.saturate { filter: saturate(200%); }
+
+/* 色彩反转 */
+.invert { filter: invert(100%); }
+
+/* 棕褐色效果 */
+.sepia { filter: sepia(80%); }
+
+/* 透明度调节 */
+.opacity { filter: opacity(50%); }
 ```
 
-## polygon()
+---
 
-是` <basic-shape>` 数据类型之一。它用于通过提供一个或多个坐标对（每一个坐标代表形状的一个顶点）来绘制多边形。
+## 🎭 形状函数
+
+### `circle()` - 圆形
+
+使用半径和位置定义圆形。
 
 ```css
-<polygon()> =
-  polygon( <fill-rule>? [ round <length> ]? , [ <length-percentage> <length-percentage> ]# )
+/* 基础语法 */
+circle(<radial-size>? [at <position>]?)
 
-<fill-rule> = nonzero  | evenodd
-
-<length-percentage> = <length> | <percentage>
-
-/* 指定填充规则和坐标列表 */
-/* polygon(<fill-rule> <length-percentage> <length-percentage>, ... )*/
-polygon(nonzero, 0% 0%, 50% 50%, 0% 100%)
-polygon(evenodd, 0% 0%, 50% 50%, 0% 100%)
+/* 实际应用 */
+.circle-shapes {
+  clip-path: circle(50%);                    /* 圆形裁剪 */
+  clip-path: circle(100px at center);        /* 指定半径和位置 */
+  shape-outside: circle(6rem at 12rem 8rem); /* 文字环绕 */
+}
 ```
 
-## rect()
+**半径选项**:
+- `closest-corner` | `closest-side` | `farthest-corner` | `farthest-side`
+- `<length>` | `<percentage>`
 
-创建一个矩形，位于包含块的顶部和左侧边缘的指定距离处。它是 `<basic-shape>` 数据类型的基本形状函数。
+### `ellipse()` - 椭圆
+
+定义椭圆形状，需要指定 x 和 y 两个半径。
 
 ```css
-/**创建元素移动的矩形路径 */
-offset-path: rect(50px auto 200px 50px round 20%);
+/* 基础语法 */
+ellipse(<radial-size>{2} [at <position>]?)
 
-/** 裁剪区域的形状*/
-clip-path: rect(50px auto 200px 50px round 20%);
+/* 实际应用 */
+.ellipse-shapes {
+  clip-path: ellipse(40% 50% at left);
+  shape-outside: ellipse(closest-side farthest-side at 30%);
+}
 ```
 
-## rem()
+### `polygon()` - 多边形
 
-取余函数，可以参数带单位
+通过坐标点定义多边形。
 
 ```css
-/* Unitless <number> */
-line-height: rem(21, 2); /* 1 */
-line-height: rem(14, 5); /* 4 */
-line-height: rem(5.5, 2); /* 1.5 */
+/* 基础语法 */
+polygon(<fill-rule>?, [<length-percentage> <length-percentage>]#)
 
-/* Unit based <percentage> and <dimension> */
-margin: rem(14%, 3%); /* 2% */
-margin: rem(18px, 5px); /* 3px */
-margin: rem(10rem, 6rem); /* 4rem */
-margin: rem(26vmin, 7vmin); /* 5vmin */
-margin: rem(1000px, 29rem); /* 72px - if root font-size is 16px */
-
-/* Negative/positive values */
-rotate: rem(200deg, 30deg); /* 20deg */
-rotate: rem(140deg, -90deg); /* 50deg */
-rotate: rem(-90deg, 20deg); /* -10deg */
-rotate: rem(-55deg, -15deg); /* -10deg */
-
-/* Calculations */
-scale: rem(10 * 2, 1.7); /* 1.3 */
-rotate: rem(10turn, 18turn / 3); /* 4turn */
-transition-duration: rem(20s / 2, 3000ms * 2); /* 4s */
+/* 实际应用 */
+.polygon-shapes {
+  /* 三角形 */
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  
+  /* 六边形 */
+  clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+  
+  /* 星形 */
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
 ```
 
-## repeat()
+**填充规则**:
+- `nonzero`: 非零规则（默认）
+- `evenodd`: 奇偶规则
 
-定义 grid 布局中轨道的重复次数，允许以更紧凑的形式写入大量显示重复模式的列或行。
+### `inset()` - 矩形内缩
 
-> 用于 grid-template-columns 和 grid-template-rows 中配置重复轨道。
+定义一个内缩的矩形。
 
 ```css
-repeat(4, [col-start] min-content [col-end])
-repeat(4, [col-start] max-content [col-end])
-repeat(4, [col-start] auto [col-end])
-repeat(4, [col-start] minmax(100px, 1fr) [col-end])
-repeat(4, [col-start] fit-content(200px) [col-end])
-repeat(4, 10px [col-start] 30% [col-middle] auto [col-end])
-repeat(4, [col-start] min-content [col-middle] max-content [col-end])
+/* 基础语法 */
+inset(<length-percentage>{1,4} [round <border-radius>]?)
+
+/* 实际应用 */
+.inset-shapes {
+  clip-path: inset(20px 50px 10px 0);              /* 内缩矩形 */
+  clip-path: inset(1rem round 15px);               /* 带圆角 */
+  shape-outside: inset(20px 50px 10px 0 round 50px); /* 复杂圆角 */
+}
 ```
 
-## round()
+### `path()` - SVG 路径
 
-根据选择的舍入策略和舍入间隔，返回一个舍入数。
+使用 SVG 路径字符串定义复杂形状。
 
 ```css
-/**round(舍入策略, 要舍入的值, 舍入间隔) 四舍五入的间隔是5，*/
-<round()> =
-  round( <rounding-strategy>? , <calc-sum> , <calc-sum>? )
+/* 基础语法 */
+path(<fill-rule>?, <string>)
 
-<rounding-strategy> = nearest | up | down | to-zero
-
-width: round(var(--width), 50px);
-margin: round(nearest, 123, 5);
-width: round(up, 101px, var(--interval));
-width: round(down, var(--height), var(--interval));
-margin: round(to-zero, -105px, 10px);
+/* 实际应用 */
+.path-shapes {
+  clip-path: path("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80");
+  offset-path: path("M 20 20 L 80 80");
+}
 ```
 
-## saturate()
+---
 
-饱和度函数。返回 filter-function
+## 🔧 变换和尺寸函数
+
+### `perspective()` - 透视距离
+
+设置 3D 变换的透视距离。
 
 ```css
-saturate(0)     /* Completely unsaturated */
-saturate(.4)    /* 40% saturated */
-saturate(100%)  /* No effect */
-saturate(200%)  /* Double saturation */
+/* 基础语法 */
+perspective(<length>)
+
+/* 实际应用 */
+.perspective-container {
+  transform: perspective(1000px) rotateX(45deg);
+  transform: perspective(500px) rotateY(30deg) rotateX(15deg);
+}
 ```
 
-## scroll()
+### `fit-content()` - 内容适配
 
-与 animation-timeline 一起使用，指示一个可滚动的元素和滚动轴，这将为当前元素的动画化提供一个匿名的滚动进度时间表。滚动进度时间轴是通过在上下（或左右）之间滚动滚轮来进行的。滚动范围内的位置被转换为进度的百分比-开始时为 0%，结束时为 100%。
+将尺寸限制在内容大小和最大值之间。
 
 ```css
-scroll( [ <scroller> || <axis> ]? )
+/* 基础语法 */
+fit-content(<length-percentage>)
 
-<scroller> = root | nearest  | self
+/* 实际应用 */
+.fit-content-examples {
+  width: fit-content(300px);      /* 最大 300px */
+  height: fit-content(50vh);      /* 最大 50vh */
+  grid-template-columns: fit-content(200px) 1fr;
+}
 
-<axis> = block   | inline  | x | y
-
-animation-timeline: scroll();
-
-animation-timeline: scroll(nearest); /* Default */
-animation-timeline: scroll(root);
-animation-timeline: scroll(self);
-
-animation-timeline: scroll(block); /* Default */
-animation-timeline: scroll(inline);
-animation-timeline: scroll(y);
-animation-timeline: scroll(x);
-
-/* Examples that specify scroller and axis */
-animation-timeline: scroll(block nearest); /* Default */
-animation-timeline: scroll(inline root);
-animation-timeline: scroll(x self);
+/* 等价于 */
+.equivalent {
+  width: clamp(min-content, 300px, max-content);
+}
 ```
 
-## sepia()
+---
 
-将图像转换为棕褐色，使其具有更温暖、更黄/棕色的外观。其结果是一个`<filter-function>`。
+## 📁 资源函数
+
+### `url()` - 资源引用
+
+引用外部资源文件。
 
 ```css
-sepia(0)     /* No effect */
-sepia(.65)   /* 65% sepia */
-sepia(100%)  /* Completely sepia */
+/* 基础语法 */
+url(<string> | <url>)
+
+/* 实际应用 */
+.resource-examples {
+  background-image: url('images/bg.jpg');
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIHZpZXdCb3g9IjAgMCAxMCAxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjRTNFM0UzIi8+Cjwvc3ZnPgo=");
+  font-family: url('fonts/custom.woff2');
+  cursor: url('cursors/pointer.cur'), pointer;
+}
+
+/* 在其他函数中使用 */
+.advanced-usage {
+  background: cross-fade(20% url(first.png), url(second.png));
+  mask-image: image(url(mask.png), skyblue);
+}
 ```
 
-## shape()
+### `image()` - 图像处理
 
-定义 clip-path 和 offset-path 属性的形状。它结合了一个初始起点和一系列定义形状路径的形状命令。
+提供图像引用和回退处理。
 
 ```css
-/* <fill-rule> */
-clip-path: shape(nonzero from 0 0, line to 10px 10px);
+/* 基础语法 */
+image(<image-tags>? [<image-src>?, <color>?]!)
 
-/* <move-command>、<line-command> 和 close */
-offset-path: shape(from 10px 10px, move by 10px 5px, line by 20px 40%, close);
-
-/* <hvline-command> */
-offset-path: shape(from 10px 10px, hline by 50px, vline to 5rem);
-
-/* <curve-command> */
-offset-path: shape(from 10px 10px, curve to 80px 80px via 160px 1px 20% 16px);
-
-/* <smooth-command> */
-offset-path: shape(from 10px 10px, smooth to 100px 50pt);
-
-/* <arc-command> */
-offset-path: shape(
-  from 5% 0.5rem,
-  arc to 80px 1pt of 10% ccw large rotate 25deg
-);
-
-/* 使用 CSS 数学函数 */
-offset-path: shape(
-  from 5px -5%,
-  hline to 50px,
-  vline by calc(0% + 160px),
-  hline by 70.5px,
-  close,
-  vline by 60px
-);
-
-clip-path: shape(
-  nonzero from 10px 10px,
-  curve to 60px 20% via 40px 0,
-  smooth to 90px 0,
-  curve by -20px 60% via 10% 40px 20% 20px,
-  smooth by -40% -10px via -10px 70px
-);
+/* 实际应用 */
+.image-examples {
+  background: image(rgb(0 0 0 / 25%)), url("fallback.png");
+  background: image(ltr, "sprite.png#xywh=32,64,16,16", red);
+}
 ```
 
-## var()
+**图像标签**:
+- `ltr`: 从左到右
+- `rtl`: 从右到左
 
-获取 CSS 变量的值。CSS 变量以`--`开头：`--theme-color`。可以在:root 伪类中定义全局变量。
+### `image-set()` - 响应式图像
+
+为不同像素密度提供不同的图像。
 
 ```css
-/* var( <custom-property-name> , <declaration-value>? )  */
+/* 基础语法 */
+image-set(<image-set-option>#)
 
+/* 实际应用 */
+.responsive-images {
+  background-image: image-set(
+    url("image1.jpg") 1x,
+    url("image2.jpg") 2x,
+    url("image3.jpg") 3x
+  );
+  
+  /* 带格式支持检测 */
+  background-image: image-set(
+    url("image.avif") type("image/avif"),
+    url("image.webp") type("image/webp"),
+    url("image.jpg") type("image/jpeg")
+  );
+}
+```
+
+---
+
+## 🔄 数学函数
+
+### `mod()` - 取模运算
+
+返回除法运算的余数。
+
+```css
+/* 基础语法 */
+mod(<calc-sum>, <calc-sum>)
+
+/* 实际应用 */
+.math-examples {
+  line-height: mod(7, 2);        /* 1 */
+  margin: mod(15%, 2%);          /* 1% */
+  rotate: mod(100deg, 30deg);    /* 10deg */
+  scale: mod(10 * 2, 1.7);       /* 1.3 */
+}
+```
+
+### `rem()` - 余数运算
+
+计算余数，支持带单位的计算。
+
+```css
+/* 基础语法 */
+rem(<calc-sum>, <calc-sum>)
+
+/* 实际应用 */
+.remainder-examples {
+  line-height: rem(21, 2);       /* 1 */
+  margin: rem(14%, 3%);          /* 2% */
+  rotate: rem(200deg, 30deg);    /* 20deg */
+}
+```
+
+### `round()` - 四舍五入
+
+根据策略和间隔进行数值舍入。
+
+```css
+/* 基础语法 */
+round(<rounding-strategy>?, <calc-sum>, <calc-sum>?)
+
+/* 舍入策略 */
+.rounding-examples {
+  width: round(nearest, 123px, 10px);    /* 120px */
+  width: round(up, 101px, 50px);         /* 150px */
+  width: round(down, 156px, 50px);       /* 150px */
+  width: round(to-zero, -105px, 10px);   /* -100px */
+}
+```
+
+**舍入策略**:
+- `nearest`: 最接近（默认）
+- `up`: 向上舍入
+- `down`: 向下舍入  
+- `to-zero`: 向零舍入
+
+---
+
+## 🎬 动画函数
+
+### `scroll()` - 滚动时间轴
+
+为滚动驱动的动画提供时间轴。
+
+```css
+/* 基础语法 */
+scroll([<scroller> || <axis>]?)
+
+/* 实际应用 */
+.scroll-animations {
+  animation-timeline: scroll();
+  animation-timeline: scroll(nearest);    /* 最近的滚动容器 */
+  animation-timeline: scroll(root);       /* 根滚动容器 */
+  animation-timeline: scroll(self);       /* 自身滚动 */
+  
+  /* 指定滚动轴 */
+  animation-timeline: scroll(block);      /* 块轴方向 */
+  animation-timeline: scroll(inline);     /* 内联轴方向 */
+  animation-timeline: scroll(x);          /* X 轴 */
+  animation-timeline: scroll(y);          /* Y 轴 */
+}
+```
+
+---
+
+## 🔤 属性函数
+
+### `attr()` - 属性获取
+
+获取元素的属性值用于样式。
+
+```css
+/* 基础语法 */
+attr(<attr-name> <type-or-unit>?, <attr-fallback>?)
+
+/* 实际应用 */
+.attr-examples::before {
+  content: attr(data-label);              /* 获取属性值 */
+  content: attr(title, "默认标题");        /* 带回退值 */
+}
+
+.dynamic-sizing {
+  width: attr(data-width px, 100px);      /* 数值类型 */
+  color: attr(data-color color, blue);    /* 颜色类型 */
+}
+```
+
+**HTML 示例**:
+```html
+<div data-label="重要" data-width="200" data-color="red">内容</div>
+```
+
+### `var()` - CSS 变量
+
+获取 CSS 自定义属性的值。
+
+```css
+/* 定义变量 */
 :root {
-  --backup-bg-color: teal;
+  --primary-color: #3498db;
+  --spacing: 1rem;
+  --font-size: 16px;
 }
 
-body {
-  /*如果 backup-bg-color 没有被设置，将使用回退值 white。 */
-  color: var(--main-bg-color, var(--backup-bg-color, white));
+/* 使用变量 */
+.variable-examples {
+  color: var(--primary-color);
+  margin: var(--spacing);
+  font-size: var(--font-size, 14px);     /* 带回退值 */
+  
+  /* 嵌套回退 */
+  background: var(--bg-color, var(--fallback-color, white));
 }
 ```
 
-> var()允许使用逗号设置多个回退值。例如，var(--foo, red, blue)。
+::: tip 💡 变量最佳实践
+- 使用语义化的变量名
+- 在 `:root` 中定义全局变量
+- 为变量提供合理的回退值
+- 利用 CSS 变量实现主题切换
+:::
 
-## url()
+---
 
-用于包含文件。参数可以是绝对 URL、相对 URL、blob URL 或数据 URL。url() 函数可以作为其他 CSS 函数的参数传递，如 attr() 函数。所查找的资源可以是图像、字体或样式表。
+## 🎯 高级应用示例
 
-```css
-/* 简单用法 */
-url('https://example.com/images/myImg.jpg');
-url(https://example.com/images/myImg.jpg);
-url("data:image/jpg;base64,iRxVB0…");
-url(#IDofSVGpath);
-
-/* 相关属性 */
-background-image: url("star.gif");
-list-style-image: url('../images/bullet.jpg');
-content: url("pdficon.jpg");
-cursor: url(mycursor.cur);
-border-image-source: url(/media/diamonds.png);
-src: url('fantasticfont.woff');
-offset-path: url(#path);
-mask-image: url("masks.svg#mask1");
-
-/* 带回退的属性 */
-cursor: url(pointer.cur), pointer;
-
-/* 相关的简写属性 */
-background: url('star.gif') bottom right repeat-x blue;
-
-/* 作为另一个 CSS 函数的参数 */
-background-image: cross-fade(20% url(first.png), url(second.png));
-mask-image: image(url(mask.png), skyblue, linear-gradient(rgb(0 0 0 / 100%), transparent));
-
-/* 作为非简写多重数值的一部分 */
-content: url(star.svg) url(star.svg) url(star.svg);
-
-/* at 规则 */
-@document url("https://www.example.com/") { /* … */ }
-@import url("https://www.example.com/style.css");
-@namespace url(http://www.w3.org/1999/xhtml);
-```
-
-## xywh()
-
-使用与包含区块的左边缘（x）和顶部边缘（y）的指定距离，以及矩形的特定宽度（w）和高度（h）来创建一个矩形。
+### 响应式设计组合
 
 ```css
-/** 创建元素移动的矩形路径*/
-offset-path: xywh(0 1% 2px 3% round 0 1px 2% 3px);
-
-/**定义裁剪区域的形状 */
-clip-path: xywh(1px 2% 3px 4em round 0 1% 2px 3em);
+.responsive-card {
+  width: clamp(300px, 50vw, 800px);
+  padding: clamp(1rem, 4vw, 2rem);
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  
+  /* 动态间距 */
+  margin: calc(var(--base-margin) + 2vw);
+  
+  /* 主题适配 */
+  background: light-dark(
+    color-mix(in srgb, white 95%, var(--primary-color)),
+    color-mix(in srgb, black 90%, var(--primary-color))
+  );
+}
 ```
+
+### 复杂形状裁剪
+
+```css
+.complex-shape {
+  clip-path: polygon(
+    20% 0%,
+    80% 0%,
+    100% 20%,
+    100% 80%,
+    80% 100%,
+    20% 100%,
+    0% 80%,
+    0% 20%
+  );
+  
+  /* 带动画的形状变化 */
+  transition: clip-path 0.3s ease;
+}
+
+.complex-shape:hover {
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100% 100%,
+    0% 100%
+  );
+}
+```
+
+### 滤镜效果组合
+
+```css
+.image-effects {
+  filter: 
+    blur(0.5px)
+    brightness(1.1)
+    contrast(1.2)
+    saturate(1.3)
+    drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  
+  transition: filter 0.3s ease;
+}
+
+.image-effects:hover {
+  filter: 
+    blur(0)
+    brightness(1.2)
+    contrast(1.3)
+    saturate(1.5)
+    drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+}
+```
+
+---
+
+## 📚 总结与最佳实践
+
+### 🎯 函数选择指南
+
+| 需求 | 推荐函数 | 原因 |
+|------|----------|------|
+| **响应式尺寸** | `clamp()`, `min()`, `max()` | 自适应且有边界 |
+| **动态计算** | `calc()` | 灵活的数学运算 |
+| **颜色处理** | `color-mix()`, `hsl()` | 现代颜色管理 |
+| **图形裁剪** | `clip-path` + 形状函数 | 创意视觉效果 |
+| **图像效果** | 滤镜函数组合 | 丰富的视觉体验 |
+| **主题切换** | `light-dark()`, `var()` | 用户体验优化 |
+
+### 🚀 性能优化建议
+
+::: tip 🔧 优化技巧
+1. **减少重复计算**: 将复杂计算结果存储在 CSS 变量中
+2. **合理使用滤镜**: 避免过多滤镜函数导致性能问题
+3. **响应式优先**: 使用 `clamp()` 等函数减少媒体查询
+4. **渐进增强**: 为不支持的浏览器提供回退方案
+:::
+
+### 📈 发展趋势
+
+- ✅ **计算函数**日益完善，支持更多数学运算
+- ✅ **颜色函数**向更广色域发展
+- ✅ **形状函数**与 SVG 更深度集成
+- ✅ **动画函数**支持更复杂的时间轴控制
+
+::: info 🎓 学习建议
+1. **掌握基础**: 重点学习 `calc()`、`var()`、`clamp()` 等常用函数
+2. **实践应用**: 在项目中尝试使用新的 CSS 函数
+3. **关注兼容性**: 了解各函数的浏览器支持情况
+4. **组合使用**: 学会将多个函数组合使用以实现复杂效果
+:::

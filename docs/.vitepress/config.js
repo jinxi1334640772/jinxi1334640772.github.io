@@ -348,6 +348,7 @@ export default defineConfig({
             { text: '📦 NPM 发布', link: '/tools/questions/npmPublish' },
             { text: '🔍 NPM 镜像', link: '/tools/questions/npmHub' },
             { text: '📄 LeetCode', link: '/tools/questions/leetCode' },
+            { text: '🤖 Cursor AI 应用案例', link: '/tools/questions/cursorApply' },
             { text: '❓ 综合问题', link: '/tools/questions/questions' }
           ]
         },
