@@ -440,7 +440,9 @@ fetch('/api/batch', {
 ::: tip 🎯 下一步学习
 现在你已经掌握了 HTTP 协议的基础知识，可以继续学习：
 - [HTTP 状态码详解](./status.md)
-- [HTTP 头部字段](./headers.md)
+- [HTTP Accept 头部](./accept.md)
+- [HTTP 连接管理](./connection.md)
+- [MIME 类型详解](./mime.md)
 - [HTTPS 和安全](../httpSecure/https.md)
 - [网络请求实践](../ajaxAndFetch/fetch.md)
 :::

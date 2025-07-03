@@ -337,6 +337,7 @@ try {
 ::: tip 🎉 下一步
 现在你已经了解了 JavaScript 的基础知识，可以继续学习：
 - [ES6+ 新特性](./object.md)
-- [异步编程](./async.md)
-- [原型和继承](./prototype.md)
+- [JavaScript 对象深入](./object.md)
+- [正则表达式](./RegExp.md)
+- [JSON 数据处理](./json.md)
 :::

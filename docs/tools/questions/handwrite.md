@@ -672,7 +672,7 @@ console.log(cloned.self === cloned); // true
 
 ## 🔗 相关资源
 
-- [JavaScript 数组方法详解](../javascript/array.md)
-- [异步编程模式](../javascript/async.md)
-- [设计模式实现](../questions/designMode.md)
-- [算法题解析](../questions/algorithm.md)
+- [JavaScript 对象详解](../../frontEnd/javascript/object.md)
+- [JavaScript 正则表达式](../../frontEnd/javascript/RegExp.md)
+- [设计模式实现](./designMode.md)
+- [算法题解析](./algorithm.md)
