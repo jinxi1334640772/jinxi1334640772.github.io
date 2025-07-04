@@ -525,15 +525,15 @@ export default defineConfig({
     // 服务器配置
     server: {
       port: 9000,
-      open: true
+      open: false
     },
 
-    // 构建优化
+    // 构建优化:放开会build失败
     build: {
       rollupOptions: {
         output: {
           chunkFileNames: 'assets/js/[name]-[hash].js',
-          entryFileNames: 'assets/js/[name]-[hash].js',
+          // entryFileNames: 'assets/js/[name]-[hash].js',
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
         }
       }
