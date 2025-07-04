@@ -1,0 +1,79 @@
+import{_ as a,c as i,o as n,a3 as l}from"./chunks/framework.DqsPtFs4.js";const p="/assets/image-16.CPr815-_.png",g=JSON.parse('{"title":"🏗️ Lerna Monorepo 管理工具完全指南","description":"Lerna 多包管理工具的详细使用指南，包括项目初始化、依赖管理、版本控制、发布流程等最佳实践","frontmatter":{"title":"🏗️ Lerna Monorepo 管理工具完全指南","description":"Lerna 多包管理工具的详细使用指南，包括项目初始化、依赖管理、版本控制、发布流程等最佳实践","outline":"deep"},"headers":[],"relativePath":"tools/buildTools/lerna.md","filePath":"tools/buildTools/lerna.md","lastUpdated":1751271078000}'),e={name:"tools/buildTools/lerna.md"};function t(h,s,k,r,d,F){return n(),i("div",null,s[0]||(s[0]=[l(`<h1 id="🏗️-lerna-monorepo-管理工具完全指南" tabindex="-1">🏗️ Lerna Monorepo 管理工具完全指南 <a class="header-anchor" href="#🏗️-lerna-monorepo-管理工具完全指南" aria-label="Permalink to &quot;🏗️ Lerna Monorepo 管理工具完全指南&quot;">​</a></h1><blockquote><p>Lerna 是一个快速、领先的构建系统，用于管理和发布来自同一源码仓库（Monorepos）的多个 JavaScript/TypeScript 软件包。</p></blockquote><h2 id="🎯-lerna-简介" tabindex="-1">🎯 Lerna 简介 <a class="header-anchor" href="#🎯-lerna-简介" aria-label="Permalink to &quot;🎯 Lerna 简介&quot;">​</a></h2><p>Lerna 是一个快速、领先的构建系统，用于管理和发布来自同一源码仓库（Monorepos）的多个 JavaScript/TypeScript 软件包。</p><h3 id="✨-核心优势" tabindex="-1">✨ 核心优势 <a class="header-anchor" href="#✨-核心优势" aria-label="Permalink to &quot;✨ 核心优势&quot;">​</a></h3><p>Lerna 解决了 JavaScript/TypeScript 单一源码仓库（monorepos）的两大问题：</p><table tabindex="0"><thead><tr><th>功能</th><th>描述</th><th>优势</th></tr></thead><tbody><tr><td><strong>高效执行</strong></td><td>针对任意数量的项目运行命令</td><td>⚡ 以最高效的方式、正确的顺序运行</td></tr><tr><td><strong>发布管理</strong></td><td>管理从版本控制到 NPM 发布的完整流程</td><td>🚀 支持多种工作流程</td></tr><tr><td><strong>任务调度</strong></td><td>基于 Nx 任务运行程序</td><td>🔄 免费获得缓存和分布式运行</td></tr></tbody></table><div class="info custom-block"><p class="custom-block-title">📖 版本特性</p><p>从 v6+ 版本开始，Lerna 将任务调度工作委托给经过实战检验、业界领先的 Nx 任务运行程序，这意味着 <code>lerna run</code> 可以免费获得缓存和命令分布式运行所带来的好处！</p><p><strong>参考文档</strong>: <a href="https://www.lernajs.cn/docs/getting-started" target="_blank" rel="noreferrer">Lerna 官方文档</a></p></div><h3 id="🏗️-项目结构" tabindex="-1">🏗️ 项目结构 <a class="header-anchor" href="#🏗️-项目结构" aria-label="Permalink to &quot;🏗️ 项目结构&quot;">​</a></h3><p>新版本的 Lerna 统一改为使用包管理器（如：npm/yarn/pnpm）来管理依赖。</p><p>Lerna 仓库文件结构如下：<code>packages</code> 目录为子项目储存目录</p><div class="language-txt vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">txt</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>my-lerna-repo/</span></span>
+<span class="line"><span>  package.json</span></span>
+<span class="line"><span>  packages/</span></span>
+<span class="line"><span>    package-1/</span></span>
+<span class="line"><span>      package.json</span></span>
+<span class="line"><span>    package-2/</span></span>
+<span class="line"><span>      package.json</span></span></code></pre></div><h2 id="lerna-使用" tabindex="-1">Lerna 使用 <a class="header-anchor" href="#lerna-使用" aria-label="Permalink to &quot;Lerna 使用&quot;">​</a></h2><div class="language-bash vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">bash</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 全局安装lerna</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">npm</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> install</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> lerna</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> -g</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 创建一个空目录</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">mkdir</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> ./lerna-demo</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 进入到新创建的目录</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">cd</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> ./lerna-demo</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 初始化 lerna 新的源码仓库（使用 --dryRun 参数来预览更改）</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">npx</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> init</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --dryRun</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 在已有的源码仓库中初始化 lerna 时，它需要知道应该在哪些软件包上运行</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># --packages 参数，手动指定一组匹配模式来指定需要管理的软件包：</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 指定一个匹配模式：init后生成一个可正常使用的 git 仓库，包括 npm workspaces 功能</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">npx</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> init</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --packages=</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;packages/*&quot;</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 指定多个匹配模式</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">npx</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> init</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --packages=</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;foo/*&quot;</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --packages=</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;bar/*&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 在packages目录下创建child子项目，package name最好加上范围，类似@vue/cli</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> create</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> child</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 使用list命令可以查看被lerna管理的子项目</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> list</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> ls</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># v7版本之前，是可以使用这个命令可以为项目安装依赖。</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> add</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> lodash</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 之后版本使用包管理器安装 -w 给某个子项目安装依赖</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># v8版本后，所有依赖都放在最外层，避免node_modules的巨型体积问题</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">npm</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> install</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> lodash</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> -w</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> packages/child</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 子项目中相互依赖的包：子项目util依赖子项目child</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">npm</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> install</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> @lerna-demo/child</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> -w</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> packages/util</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 清空所有项目的依赖</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> clear</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 清空child和util的依赖</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> clean</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --scope</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> @lerna-demo/child</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --scope</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> @lerna-demo/util</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># exec执行终端命令：上下文正是packages目录下管理的子项目，并非是根目录。</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 查看core和util所有文件，</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> exec</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> ls</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 查看某子项目：</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> exec</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --scope</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> [pkgName] -- [stream]</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 执行npm script :执行所有子项目dev命令</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> run</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> dev</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 执行child子项目的build命令</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> run</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> build</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --scope</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> @lerna-demo/child</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 查看版本差异：前提是需要有commit记录</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> diff</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 更新项目版本号</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> version</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># publish命令会将项目发布到npm中：自定执行lerna version 并打一个tag</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> publish</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 打印本地环境的调试信息</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> info</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 生成任务运行器配置的交互式提示符</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> add-caching</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 列出自上一个带标签的版本以来已更改的本地包</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> changed</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 运行自动迁移以修复知识库的状态</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> repair</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 每当包或其依赖项更改时，运行命令</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> watch</span></span>
+<span class="line"><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"># 将包导入到带有提交历史记录的monorepo中</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">lerna</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> import</span></span></code></pre></div><p>以范围的方式发布包，需要提前建立好组织 <img src="`+p+'" alt="alt text"></p>',15)]))}const o=a(e,[["render",t]]);export{g as __pageData,o as default};
