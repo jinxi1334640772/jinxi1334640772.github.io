@@ -2,7 +2,34 @@
 title: Cursor AI 项目格式化应用案例
 description: 展示Cursor AI在VitePress技术文档项目中的格式化应用，包括代码规范化、文档结构优化、配置文件整理等实践经验
 outline: deep
+layout: doc
+navbar: false
+sidebar: false
+aside: true
 ---
+
+<style>
+.VPContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.VPDoc .container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.VPDoc .content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+</style>
 
 # 🤖 Cursor AI 项目格式化应用案例
 
@@ -78,7 +105,7 @@ outline: deep
 ```
 生成的项目rules文件：
 
-<<< @/.rules.md{5-10}
+<<< @/.rules.md{1-1}
 
 
 ### 📄 Markdown文档批量格式化
