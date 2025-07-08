@@ -1,12 +1,24 @@
-# HTML
+---
+title: HTML 基础与标签详解
+description: 系统梳理HTML常用标签、meta配置、媒体嵌入、SVG等核心知识，适合前端开发入门与进阶
+outline: deep
+---
+
+# 📝 HTML 基础与标签详解
 
 HTML（HyperText Markup Language，超文本标记语言）是一种用来告知浏览器如何组织页面的标记语言。HTML 由一系列的元素组成，这些元素可以用来包围或标记不同部分的内容，使其以某种方式呈现或者工作。
 
-## meta 元素
+---
 
-> 元数据就是描述数据的数据。
+## 1. meta 元素
 
-> 许多 `<meta>` 特性已经不再使用。例如，keyword` <meta>` 元素（`<meta name="keywords" content="fill, in, your, keywords, here">`，为搜索引擎提供关键词，用于确定该页面与不同搜索词的相关性）已经被搜索引擎忽略了，因为作弊者填充了大量关键词到 keyword，错误地引导搜索结果。
+::: info 元数据说明
+元数据就是描述数据的数据。
+:::
+
+::: warning SEO 提示
+许多 `<meta>` 特性已经不再使用。例如，`keywords` 元素已被主流搜索引擎忽略。
+:::
 
 ```html
 <!-- 声明文档使用的字符编码 -->
@@ -22,81 +34,47 @@ HTML（HyperText Markup Language，超文本标记语言）是一种用来告知
 <!-- 搜索引擎抓取 -->
 <meta name="robots" content="index,follow" />
 <!-- 为移动设备添加 viewport -->
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1, user-scalable=no" />
 
-<!-- iOS 设备 begin -->
+<!-- iOS 设备相关 -->
 <meta name="apple-mobile-web-app-title" content="标题" />
-<!-- 添加到主屏后的标题（iOS 6 新增） -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<!-- 是否启用 WebApp 全屏模式，删除苹果默认的工具栏和菜单栏 -->
-<meta
-  name="apple-itunes-app"
-  content="app-id=myAppStoreID, affiliate-data=myAffiliateData, app-argument=myURL" />
-<!-- 添加智能 App 广告条 Smart App Banner（iOS 6+ Safari） -->
+<meta name="apple-itunes-app" content="app-id=myAppStoreID, affiliate-data=myAffiliateData, app-argument=myURL" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-<!-- 设置苹果工具栏颜色 -->
 <meta name="format-detection" content="telphone=no, email=no" />
 
-<!-- 启用360浏览器的极速模式(webkit) -->
+<!-- 浏览器兼容性与优化 -->
 <meta name="renderer" content="webkit" />
-<!-- 避免IE使用兼容模式 -->
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<!-- 不让百度转码 -->
 <meta http-equiv="Cache-Control" content="no-siteapp" />
-<!-- 针对手持设备优化，主要是针对一些老的不识别viewport的浏览器，比如黑莓 -->
 <meta name="HandheldFriendly" content="true" />
-
-<!-- 微软的老式浏览器 -->
 <meta name="MobileOptimized" content="320" />
-<!-- uc强制竖屏 -->
 <meta name="screen-orientation" content="portrait" />
-<!-- QQ强制竖屏 -->
 <meta name="x5-orientation" content="portrait" />
-<!-- UC强制全屏 -->
 <meta name="full-screen" content="yes" />
-<!-- QQ强制全屏 -->
 <meta name="x5-fullscreen" content="true" />
-<!-- UC应用模式 -->
 <meta name="browsermode" content="application" />
-<!-- QQ应用模式 -->
 <meta name="x5-page-mode" content="app" />
-<!-- windows phone 点击无高光 -->
 <meta name="msapplication-tap-highlight" content="no" />
 
-<!-- 设置页面不缓存 -->
+<!-- 页面缓存控制 -->
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="cache-control" content="no-cache" />
-<meta http-equiv="expires" content="0″>
+<meta http-equiv="expires" content="0" />
 
-<!-- 含有高分辨率 Retina 显示屏的 iPad Pro：-->
-<link
-  rel="apple-touch-icon"
-  sizes="167x167"
-  href="/apple-touch-icon-167x167.png" />
-<!-- 三倍分辨率的 iPhone：-->
-<link
-  rel="apple-touch-icon"
-  sizes="180x180"
-  href="/apple-touch-icon-180x180.png" />
-<!-- 没有 Retina 的 iPad、iPad mini 等：-->
-<link
-  rel="apple-touch-icon"
-  sizes="152x152"
-  href="/apple-touch-icon-152x152.png" />
-<!-- 二倍分辨率的 iPhone 和其他设备：-->
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
 <link rel="apple-touch-icon" href="/apple-touch-icon-120x120.png" />
-<!-- 基本图标 -->
 <link rel="icon" href="/favicon.ico" />
 ```
 
-## 文档语言
+---
 
-HTML 设置文档的语言，会被搜索引擎更有效地索引
+## 2. 文档语言
 
-- 在特定于语言的结果中正确显示
-- 对于使用屏幕阅读器的视障人士友好（例如，法语和英语中都有“six”这个单词，但是发音却完全不同）。
+HTML 设置文档的语言，有助于搜索引擎索引和无障碍访问。
 
 ```html
 <!--为文档设置语言-->
@@ -106,35 +84,45 @@ HTML 设置文档的语言，会被搜索引擎更有效地索引
 </html>
 ```
 
-## HTML 标签
+---
 
-- blockquote 块级引用
-- q 行内引用
-- abbr 缩略语
-- address 包含联系方式
-- sup 上标
-- sub 下表
-- code 标记计算机通用代码
-- pre 用于保留空白字符
-- var 用于标记具体变量名
-- kbd 标记键盘输入
-- samp 标记计算机程序的输出
-- time 标记时间
-  - `<time datetime="2016-01-20">2016 年 1 月 20 日</time>`
-- br 换行
-- hr 水平分割线
-- figure 代表一段独立的内容，内容为图像、插图、图表、代码片段等
-- figcaption 定义 figure 元素的标题
-- col 定义一列或多列 有作为没有定义 span 属性的 `<colgroup>` 元素的子元素才有效。
-- colgroup 包含 col
-- data 将一个指定内容和机器可读的翻译联系在一起。`<data value='12'>中国</data>`
-- datalist 包含了一组 `<option>` 元素，这些元素表示其他表单控件可选值。
-- details 仅在被切换成展开状态时，它才会显示内含的信息
-- summary 为 details 提供概要和标签
-  - ![alt text](details.png)
-- fieldset 对表单中的控制元素进行分组（也包括 label 元素）。
-- legend 表示其父元素 `<fieldset>` 内容的标题。
-- hgroup 代表文档标题和与标题相关联的内容，它将一个 `<h1>–<h6> 元素与一个或多个 <p> 元素组合在一起。`
+## 3. 常用 HTML 标签
+
+| 标签 | 作用 | 说明 |
+|------|------|------|
+| blockquote | 块级引用 | 引用长文本 |
+| q | 行内引用 | 短文本引用 |
+| abbr | 缩略语 | 鼠标悬停显示全称 |
+| address | 联系方式 | 通常用于页脚 |
+| sup/sub | 上/下标 | 数学、化学公式 |
+| code/pre | 代码 | `pre` 保留空白，`code` 标记代码 |
+| var/kbd/samp | 变量/键盘/输出 | 语义化标记 |
+| time | 时间 | `<time datetime="2016-01-20">2016 年 1 月 20 日</time>` |
+| br/hr | 换行/分割线 | 结构辅助 |
+| figure/figcaption | 图文组合 | 图像、代码片段等 |
+| col/colgroup | 表格列 | 配合 `<table>` 使用 |
+| data | 机器可读数据 | `<data value='12'>中国</data>` |
+| datalist | 选项列表 | `<input list="datalist-id">` |
+| details/summary | 折叠面板 | 交互式内容 |
+| fieldset/legend | 表单分组 | 结构化表单 |
+| hgroup | 标题组合 | 组合主副标题 |
+| map/area | 图像映射 | 区域链接 |
+| menu | 菜单 | 语义化列表 |
+| meter | 进度/比例 | `<meter value="50">` |
+| optgroup | 下拉分组 | `<select>` 选项分组 |
+| output | 结果输出 | 计算结果 |
+| progress | 进度条 | `<progress value="70">` |
+| search | 搜索容器 | 语义化搜索 |
+| slot | Web组件插槽 | 组件开发 |
+| small | 小字 | 版权、法律文本 |
+| template | 模板 | JS动态渲染 |
+| track | 媒体字幕 | `<video>`/`<audio>` 字幕 |
+
+::: details details/summary 折叠面板示例
+![alt text](details.png){data-fancybox="gallery"}
+:::
+
+### hgroup 示例
 
 ```html
 <hgroup>
@@ -143,30 +131,25 @@ HTML 设置文档的语言，会被搜索引擎更有效地索引
 </hgroup>
 ```
 
-- map `<area>` 元素一起使用来定义一个图像映射（一个可点击的链接区域.，例如地图）。
-- menu HTML 规范中被描述为 `<ul>` 的语义替代
-- meter 已知范围内的标量值或分数值。
-  ```html
-  <meter id="fuel" min="0" max="100" low="33" high="66" optimum="80" value="50">
-    at 50/100
-  </meter>
-  ```
-- optgroup 为`<select>` 元素中的选项创建分组
-- output 表示计算或用户操作的结果
-- progress 显示一项任务的完成进度
-  - `<progress id="file" max="100" value="70">70%</progress>
-`
-- search 执行搜索和过滤功能的容器
-- slot web 组件内部的占位符，类似 vue 中 slot
-- small 代表旁注和小字印刷（如版权和法律文本），与其样式的呈现方式无关。默认情况下，它以比其中的文本小一号的字体大小呈现
-- template 是一种用于保存客户端内容机制，该内容在加载页面时不会呈现，但随后可以 (原文为 may be) 在运行时使用 JavaScript 实例化。将模板视为一个可存储在文档中以便后续使用的内容片段。虽然解析器在加载页面时确实会处理 `<template>` 元素的内容，但这样做只是为了确保这些内容有效；但元素内容不会被渲染。
-- track 被当作媒体元素—`<audio>` 和` <video>`的子元素来使用。它允许指定时序文本字幕（或者基于时间的数据），例如自动处理字幕。字幕格式有 WebVTT 格式（.vtt 格式文件）— Web 视频文本字幕格式，以及指时序文本标记语言（TTML）格式。track 给媒体元素添加的数据的类型在 kind 属性中设置，属性值可以是 subtitles, captions, descriptions, chapters 或 metadata。该元素指向当用户请求额外的数据时浏览器公开的包含定时文本的源文件。一个 media 元素的任意两个 track 子元素不能有相同的 kind, srclang, 和 label 属性。
+### meter 示例
 
-## audio 和 video
+```html
+<meter id="fuel" min="0" max="100" low="33" high="66" optimum="80" value="50">
+  at 50/100
+</meter>
+```
 
-audio 和 video 元素的使用方式几乎完全一致。区别：audio 不支持 width/height/poster 属性，因为没有视觉部件
+### progress 示例
 
-html 中引入视频
+```html
+<progress id="file" max="100" value="70">70%</progress>
+```
+
+---
+
+## 4. 媒体标签 audio 和 video
+
+audio 和 video 元素的使用方式几乎完全一致。区别：audio 不支持 width/height/poster 属性，因为没有视觉部件。
 
 ```html
 <video
@@ -181,49 +164,33 @@ html 中引入视频
   <source src="rabbit320.mp4" type="video/mp4" />
   <source src="rabbit320.webm" type="video/webm" />
   <track kind="subtitles" src="subtitles_es.vtt" srclang="es" label="Spanish" />
-  <track
-    default
-    kind="captions"
-    srclang="en"
-    src="/media/examples/friday.vtt" />
+  <track default kind="captions" srclang="en" src="/media/examples/friday.vtt" />
   <p>你的浏览器不支持此视频。可点击<a href="rabbit320.mp4">此链接</a>观看</p>
 </video>
 ```
 
-属性解释：
-
+::: tip 属性说明
 - controls 是否显示视频控件
 - autoplay 自动播放
 - loop 循环播放
 - muted 静音模式
-- preload 这个属性被用来缓冲较大的文件，有三个值可选：
-  - none 不缓冲文件
-  - auto 页面加载后缓存媒体文件
-  - metadata 仅缓冲文件的元数据
-- poster 视频播放前的默认海报
-- width 视频容器的宽
-- height 视频容器的高
+- preload 缓存策略（none/auto/metadata）
+- poster 视频封面
+- width/height 视频尺寸
+:::
 
-> 无论宽高如何，视频都会保持它原始的长宽比——也叫做纵横比。
+::: info
+source 标签可设置多个视频源，浏览器会按顺序选择支持的格式。
+:::
 
-source 标签引入视频资源，可以设置多个，视频源匹配从上到下首先支持的视频格式。type 属性是可选的，浏览器会通过检查这个属性，来跳过那些不支持的格式。如果没有 type 属性，浏览器会尝试加载每一个文件，直到找到一个能正确播放的格式，会消耗掉大量的时间和资源。
+::: details track 字幕说明
+- srclang：字幕语言
+- label：语言标签
+- kind：字幕类型（subtitles/captions/chapters/metadata/description/timedtext）
+- 一个 media 元素的任意两个 track 子元素不能有相同的 kind, srclang, 和 label 属性
+:::
 
-track 元素可以引入视频字幕文件，一般 webVTT 文件格式。包含了众多带有一些元数据的字符串 ： cue，描述这个字符串将会在视频中显示的时间、样式、定位信息。
-
-- srclang ：告诉浏览器是用什么语言来编写的 subtitles。
-- label： 帮助读者在查找时识别语言
-- kind 属性代表数据的类型:
-
-> 一个 media 元素的任意两个 track 子元素不能有相同的 kind, srclang, 和 label 属性。
-
-- subtitles 外语材料的翻译字幕，来帮助那些听不懂音频中说的什么的人理解音频当中的内容。
-- captions 同步翻译对白，或是描述一些有重要信息的声音，来帮助那些不能听音频的人理解音频中的内容。
-- chapters 介绍章节，比如电影、书籍等。
-- metadata 描述视频的元数据，比如作者、版权信息、视频的标题等。
-- description 介绍视频内容，比如视频中包含的场景、人物、事件等。
-- timedtext 同步文本
-
-一个典型的 web VTT 文件如下：
+#### WebVTT 字幕文件示例
 
 ```txt
 WEBVTT
@@ -237,62 +204,61 @@ WEBVTT
 第二段字幕
 ```
 
-## iframe 嵌入网页
+---
 
-属性：
+## 5. iframe 嵌入网页
 
-- border 配置边框
-- src 指向要嵌入的文档的 URL。
-- width & heigth 宽高
-- allowfullscreen 是否通过调用 `<iframe>` 的 requestFullscreen() 方法激活全屏模式。被 allow="fullscreen"替代
-- allow 配置权限策略(受限 api 在源上的访问性)
-  - none 禁用
-  - self 同源下可以使用
-  - allowlist 默认值，iframe 文件必须和 src 同源
+iframe 用于在页面中嵌入其他网页。
+
+| 属性 | 说明 |
+|------|------|
+| border | 边框 |
+| src | 嵌入文档URL |
+| width/height | 尺寸 |
+| allowfullscreen | 是否允许全屏 |
+| allow | 权限策略 |
+| sandbox | 沙箱限制 |
 
 ```html
-<!--任何源都阻止地理位置信息的访问-->
 <iframe src="https://example.com" allow="geolocation 'none'"></iframe>
 ```
 
-- sandbox 控制在 `<iframe>` 中的内容的限制。值为空会应用所有限制，也可以为空格分隔的标记以解除特定的限制。例如：控制是否可以提交表单、运行 js 等
-  - allow-forms 允许嵌入浏览器的上下文提交表单
-  - allow-modals 允许打开模态窗口
-  - allow-orientaton-lock 允许锁定屏幕方向
-  - allow-popups 允许弹窗
-  - allow-popups-to-escape-sandox 允许打开不继承沙箱的窗口
-  - allow-same-origin 将嵌入的上下文是为同源
-  - allow-scripts 允许运行脚本
-  - allow-storage-access-by-user-activation 允许经过用户同意后使用 Storage Access API
-  - allow-top-navigation 允许导航到顶级上下文
-  - allow-top-avigaton-by-user-activation 允许经过用户同意后导航到顶级上下文
-  - allow-downloads-without-user-activation 不经过用户同意也可以下载文件
+::: tip sandbox 常用值
+- allow-forms 允许表单提交
+- allow-modals 允许模态窗口
+- allow-orientation-lock 允许锁定屏幕方向
+- allow-popups 允许弹窗
+- allow-same-origin 视为同源
+- allow-scripts 允许运行脚本
+- allow-top-navigation 允许导航到顶级上下文
+:::
 
-> 最好在主内容完成加载后，再使用 JavaScript 设置 iframe 的 src 属性，以减少页面加载时间
+> 最好在主内容完成加载后，再用 JS 设置 iframe 的 src 属性，以减少页面加载时间
 
-## embed 和 object 元素
+---
+
+## 6. embed 和 object 元素
+
+用于嵌入 PDF、Flash、SVG 等外部资源。
 
 ```html
 <object data="mypdf.pdf" type="application/pdf" width="800" height="1200">
   不支持 PDF
 </object>
 
-<!--等同于object 区别是embed使用src引入文件-->
 <embed src="mypdf.pdf" type="application/pdf" width="800" height="1200">
   不支持 PDF
 </embed>
 ```
 
-## SVG 是什么
+---
 
-SVG 是用于描述矢量图形的 XML 标记。提供了许多不同的元素来定义图形的形状和效果。
+## 7. SVG 简介
 
-- 创建基本图形的元素，如 `<circle>` 和 `<rect>`，复杂一些的元素如 `<path>` 和 `<polygon>`。
-- 更高级的特性包括 `<feColorMatrix>`（使用变换矩阵转换颜色）
-- `<animate>`（矢量图形的动画部分）
-- `<mask>`（在图像上层应用蒙版）
+SVG（Scalable Vector Graphics）是一种用于描述矢量图形的 XML 标记。
 
-创建一个圆和一个矩形：
+- 支持基本图形（如 `<circle>`、`<rect>`）、复杂路径（`<path>`、`<polygon>`）
+- 支持滤镜、动画、蒙版等高级特性
 
 ```html
 <svg
@@ -306,4 +272,8 @@ SVG 是用于描述矢量图形的 XML 标记。提供了许多不同的元素�
 </svg>
 ```
 
-矢量图像中的文本可以访问，有利于 SEO。也可以很好的适应样式/脚本，因为图像的每个组件都是可以通过 CSS 或者通过 Javascript 设置样式。
+::: tip SVG 优势
+- 文本可访问，利于 SEO
+- 可用 CSS/JS 动态控制
+- 响应式自适应
+:::

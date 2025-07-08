@@ -36,7 +36,8 @@ export default defineConfig({
     nav: [
       { 
         text: '🏠 首页', 
-        link: '/home' 
+        link: '/home',
+        activeMatch: '^/home'
       },
       // { 
       //   text: '👤 简历', 
@@ -44,50 +45,56 @@ export default defineConfig({
       // },
       {
         text: '🎨 前端技术',
+        activeMatch: '^/frontEnd/',
         items: [
-          { text: '📝 HTML & CSS', link: '/frontEnd/css/dom' },
-          { text: '⚡ JavaScript', link: '/frontEnd/javascript/' },
-          { text: '🖥️ 浏览器 API', link: '/frontEnd/window/properties' },
-          { text: '🚀 现代框架', link: '/frontEnd/web/vue' }
+          { text: '📝 HTML & CSS', link: '/frontEnd/css/dom', activeMatch: '^/frontEnd/css/' },
+          { text: '⚡ JavaScript', link: '/frontEnd/javascript/', activeMatch: '^/frontEnd/javascript/' },
+          { text: '🖥️ 浏览器 API', link: '/frontEnd/window/properties', activeMatch: '^/frontEnd/window/' },
+          { text: '🚀 现代框架', link: '/frontEnd/web/vue', activeMatch: '^/frontEnd/web/' }
         ]
       },
       {
         text: '⚙️ 后端技术',
+        activeMatch: '^/afterEnd/',
         items: [
-          { text: '🟢 Node.js', link: '/afterEnd/node/module' },
-          { text: '🚂 Express 框架', link: '/afterEnd/express/server' },
-          { text: '🗄️ 数据库', link: '/afterEnd/database/mysql' },
-          { text: '🌐 服务器', link: '/afterEnd/server/nginx' }
+          { text: '🟢 Node.js', link: '/afterEnd/node/module', activeMatch: '^/afterEnd/node/' },
+          { text: '🚂 Express 框架', link: '/afterEnd/express/server', activeMatch: '^/afterEnd/express/' },
+          { text: '🗄️ 数据库', link: '/afterEnd/database/mysql', activeMatch: '^/afterEnd/database/' },
+          { text: '🌐 服务器', link: '/afterEnd/server/nginx', activeMatch: '^/afterEnd/server/' }
         ]
       },
       {
         text: '🌐 网络工程',
+        activeMatch: '^/network/',
         items: [
-          { text: '📡 HTTP 协议', link: '/network/http/' },
-          { text: '🔒 网络安全', link: '/network/httpSecure/https' },
-          { text: '📨 网络请求', link: '/network/ajaxAndFetch/ajax' }
+          { text: '📡 HTTP 协议', link: '/network/http/', activeMatch: '^/network/http/' },
+          { text: '🔒 网络安全', link: '/network/httpSecure/https', activeMatch: '^/network/httpSecure/' },
+          { text: '📨 网络请求', link: '/network/ajaxAndFetch/ajax', activeMatch: '^/network/ajaxAndFetch/' }
         ]
       },
       {
         text: '🛠️ 开发工具',
+        activeMatch: '^/tools/',
         items: [
-          { text: '📦 构建工具', link: '/tools/buildTools/vite' },
-          { text: '📚 常用包', link: '/tools/package/lodash' },
-          { text: '📋 开发规范', link: '/tools/stardard/git' },
-          { text: '❓ 问题集合', link: '/tools/questions/handwrite' }
+          { text: '📦 构建工具', link: '/tools/buildTools/vite', activeMatch: '^/tools/buildTools/' },
+          { text: '📚 常用包', link: '/tools/package/lodash', activeMatch: '^/tools/package/' },
+          { text: '📋 开发规范', link: '/tools/stardard/git', activeMatch: '^/tools/stardard/' },
+          { text: '❓ 问题集合', link: '/tools/questions/handwrite', activeMatch: '^/tools/questions/' }
         ]
       },
       {
         text: '📱 跨端开发',
+        activeMatch: '^/spanEnd/',
         items: [
-          { text: '🎯 Taro', link: '/spanEnd/Taro/' },
-          { text: '🦄 uni-app', link: '/spanEnd/uniapp/' },
-          { text: '💻 Electron', link: '/spanEnd/electron' }
+          { text: '🎯 Taro', link: '/spanEnd/Taro/', activeMatch: '^/spanEnd/Taro/' },
+          { text: '🦄 uni-app', link: '/spanEnd/uniapp/', activeMatch: '^/spanEnd/uniapp/' },
+          { text: '💻 Electron', link: '/spanEnd/electron', activeMatch: '^/spanEnd/electron' }
         ]
       },
       {
         text: '⚡ 性能优化',
-        link: '/performace/performace'
+        link: '/performace/performace',
+        activeMatch: '^/performace/'
       }
     ],
 

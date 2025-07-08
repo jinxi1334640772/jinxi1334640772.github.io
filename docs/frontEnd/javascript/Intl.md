@@ -1,704 +1,632 @@
-# Intl 国际化
+---
+title: JavaScript 国际化 - Intl 对象
+description: 详细介绍 JavaScript 中的 Intl 国际化 API，包括字符串比较、数字格式化、日期时间格式化、列表格式化等功能
+outline: deep
+---
 
-Intl 对象是 ECMAScript 国际化 API ，提供了：
+# JavaScript 国际化 - Intl 对象
 
-- 精确的字符串对比 Collator
-- 数字 NumberFormat
-- 日期时间 DataTimeFormat
-- 持续时间 DurationFormat
-- 相对时间 RelativeTimeFormat
-- 列表 ListFormat
-- 复数 PluralRules
-- 国家展示 DisplayNames
-- 语言片段 Segmentor
-- 区域标识 Locale
+Intl 对象是 ECMAScript 国际化 API 的命名空间，提供了语言敏感的字符串比较、数字格式化、日期时间格式化等功能。
 
-## Intl.Collator
+## 概述
 
-用于语言敏感的字符串比较。
+Intl 对象提供了以下国际化功能：
 
-```js
+| 功能 | 构造函数 | 用途 |
+|------|----------|------|
+| 字符串比较 | `Intl.Collator` | 语言敏感的字符串排序和比较 |
+| 数字格式化 | `Intl.NumberFormat` | 数字、货币、百分比格式化 |
+| 日期时间格式化 | `Intl.DateTimeFormat` | 日期和时间的本地化显示 |
+| 持续时间格式化 | `Intl.DurationFormat` | 时间段的格式化显示 |
+| 相对时间格式化 | `Intl.RelativeTimeFormat` | 相对当前时间的格式化 |
+| 列表格式化 | `Intl.ListFormat` | 列表数据的本地化连接 |
+| 复数规则 | `Intl.PluralRules` | 复数敏感的格式化 |
+| 显示名称 | `Intl.DisplayNames` | 语言、地区、货币等的本地化名称 |
+| 文本分割 | `Intl.Segmenter` | 语言敏感的文本分割 |
+| 区域标识 | `Intl.Locale` | Unicode 区域标识符 |
+
+::: info 国际化的重要性
+在全球化的今天，应用程序需要支持多种语言和地区。Intl API 提供了标准化的国际化功能，让开发者能够轻松创建适应不同文化和语言的应用程序。
+:::
+
+## Intl.Collator - 字符串比较
+
+`Intl.Collator` 用于语言敏感的字符串比较和排序，能够正确处理不同语言的排序规则。
+
+### 构造函数
+
+```javascript
 /**
- * @locales 缩写语言代码的字符串，或字符串数组
- * @options
- * localeMatcher 区域匹配算法。"lookup" 和 "best fit"默认值。
- * usage 用于排序还是用于搜索。默认值为 "sort" 和 "search"
- * sensitivity 字符串中的哪些差异应导致结果值为非零。可能的值为：
- *  base 只有字母不同的字符串比较不相等。例如：a ≠ b、a = á、a = A。
- *  accent 只有不同的基本字母或重音符号和其他变音符号的字符串比较为不相等。例如：a ≠ b、a ≠ á、a = A。
- *  case 只有不同的基本字母或大小写的字符串比较不相等。例如：a ≠ b、a = á、a ≠ A。
- *  variant 字符串的字母、重音和其他变音符号，或不同大小写比较不相等。也可以考虑其他差异。例如：a ≠ b、a ≠ á、a ≠ A。
- * ignorePunctuation 是否应忽略标点。默认false
- * numeric 是否应使用数字对照，使得“1”<“2”<“10”。默认值 false
- * caseFirst 是否优先根据大小写排序。可能的值为 "upper"、"lower" 和 "false"（使用区域的默认设置）
- * collation 一些区域的变体
+ * @param {string|string[]} locales - 语言代码字符串或数组
+ * @param {Object} options - 配置选项
  */
-
 new Intl.Collator(locales?, options?)
-
-Intl.Collator(locales, options)
 ```
 
-静态属性和方法：
+### 配置选项
 
-- `supportedLocalesOf()` 支持区域的数组
+| 选项 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| `localeMatcher` | string | `"best fit"` | 区域匹配算法 |
+| `usage` | string | `"sort"` | 用途：`"sort"` 或 `"search"` |
+| `sensitivity` | string | `"variant"` | 敏感度级别 |
+| `ignorePunctuation` | boolean | `false` | 是否忽略标点符号 |
+| `numeric` | boolean | `false` | 是否使用数字排序 |
+| `caseFirst` | string | `"false"` | 大小写优先级 |
 
-```js
-const locales1 = ["ban", "id-u-co-pinyin", "de-ID"];
-const options1 = { localeMatcher: "lookup" };
+### 使用示例
 
-console.log(Intl.Collator.supportedLocalesOf(locales1, options1));
-// ["id-u-co-pinyin", "de-ID"]
+```javascript
+// 基本比较
+const collator = new Intl.Collator();
+console.log(collator.compare("a", "c")); // -1
+console.log(collator.compare("c", "a")); // 1
+console.log(collator.compare("a", "a")); // 0
+
+// 语言特定排序
+console.log(new Intl.Collator("de").compare("ä", "z")); // -1
+console.log(new Intl.Collator("sv").compare("ä", "z")); // 1
+
+// 数字排序
+const items = ['item20', 'item19', 'item100', 'item9', 'item1'];
+console.log(items.sort(new Intl.Collator(undefined, { numeric: true }).compare));
+// ['item1', 'item9', 'item19', 'item20', 'item100']
 ```
 
-实例属性和方法：
+## Intl.DateTimeFormat - 日期时间格式化
 
-- `compare()` 根据配置选项，来比较两个字符串。
+`Intl.DateTimeFormat` 用于在特定语言环境下格式化日期和时间。
 
-```js
-console.log(new Intl.Collator().compare("a", "c")); // -1，或一些其他的负值
-console.log(new Intl.Collator().compare("c", "a")); // 1，或一些其他的正值
-console.log(new Intl.Collator().compare("a", "a")); // 0
+### 构造函数
 
-// 德语中，ä 使用 a 的排序
-console.log(new Intl.Collator("de").compare("ä", "z"));
-// -1，或一些其他的负值
-
-// 在瑞典语中，ä 排在 z 之后
-console.log(new Intl.Collator("sv").compare("ä", "z"));
-// 1，或一些其他的正值
-
-// 德语中，ä 使用 a 作为基本字母
-console.log(new Intl.Collator("de", { sensitivity: "base" }).compare("ä", "a"));
-// 0
-
-// 瑞典语中，ä 和 a 是单独的基本字母
-console.log(new Intl.Collator("sv", { sensitivity: "base" }).compare("ä", "a"));
-// 1，或一些其他的正值
-```
-
-- `resolvedOptions()` 获取配置参数
-
-## Intl.DataTimeFormat
-
-日期和时间在特定的语言环境下格式化
-
-```js
+```javascript
 /**
- * @locales
- * @options
- * localeMatcher
- * calender 使用的日历： "chinese", "gregory", "persian",
- * numberingSystem 数字系统："arab", "hans", "mathsans",
- * hour12 是否使用12小时制，还有24小时制
- * hourCycle 小时循环： "h11", "h12", "h23", and "h24".
- * timeZone 时区： "UTC", "Asia/Shanghai", "Asia/Kolkata"
+ * @param {string|string[]} locales - 语言代码
+ * @param {Object} options - 格式化选项
  */
-
-new Intl.DateTimeFormat(locales, options);
-
-Intl.DateTimeFormat(locales, options);
+new Intl.DateTimeFormat(locales?, options?)
 ```
 
-静态方法：
+### 配置选项
 
-- `supportedLocalesOf()` 返回支持的语言数组
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `calendar` | string | 日历类型：`"chinese"`, `"gregory"`, `"persian"` |
+| `numberingSystem` | string | 数字系统：`"arab"`, `"hans"`, `"latn"` |
+| `hour12` | boolean | 是否使用 12 小时制 |
+| `timeZone` | string | 时区：`"UTC"`, `"Asia/Shanghai"` |
+| `weekday` | string | 星期格式：`"long"`, `"short"`, `"narrow"` |
+| `year` | string | 年份格式：`"numeric"`, `"2-digit"` |
+| `month` | string | 月份格式：`"numeric"`, `"2-digit"`, `"long"`, `"short"` |
+| `day` | string | 日期格式：`"numeric"`, `"2-digit"` |
 
-实例方法：
+### 使用示例
 
-- `format()`根据配置选项格式化日期时间
+```javascript
+const date = new Date(2023, 11, 25, 15, 30, 0);
 
-```js
-const options1 = {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-};
-const date1 = new Date(2012, 5);
+// 不同语言的日期格式
+console.log(new Intl.DateTimeFormat('en-US').format(date));
+// "12/25/2023"
 
-const dateTimeFormat1 = new Intl.DateTimeFormat("sr-RS", options1);
-console.log(dateTimeFormat1.format(date1));
-// Expected output: "петак, 1. јун 2012."
+console.log(new Intl.DateTimeFormat('zh-CN').format(date));
+// "2023/12/25"
 
-const dateTimeFormat2 = new Intl.DateTimeFormat("en-GB", options1);
-console.log(dateTimeFormat2.format(date1));
-// Expected output: "Friday, 1 June 2012"
+console.log(new Intl.DateTimeFormat('de-DE').format(date));
+// "25.12.2023"
 
-const dateTimeFormat3 = new Intl.DateTimeFormat("en-US", options1);
-console.log(dateTimeFormat3.format(date1));
-// Expected output: "Friday, June 1, 2012"
-```
-
-- `formatToParts()` 返回代表日期时间各个部分的对象数组
-
-```js
-const date = new Date(2012, 5);
+// 详细格式
 const options = {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
 };
-const dateTimeFormat = new Intl.DateTimeFormat("en-US", options);
 
-const parts = dateTimeFormat.formatToParts(date);
-console.log(parts);
-/**
- * [
-    {
-        "type": "weekday",
-        "value": "Friday"
-    },
-    {
-        "type": "literal",
-        "value": ", "
-    },
-    {
-        "type": "month",
-        "value": "June"
-    },
-    {
-        "type": "literal",
-        "value": " "
-    },
-    {
-        "type": "day",
-        "value": "1"
-    },
-    {
-        "type": "literal",
-        "value": ", "
-    },
-    {
-        "type": "year",
-        "value": "2012"
-    }
-]
- */
+console.log(new Intl.DateTimeFormat('en-US', options).format(date));
+// "Monday, December 25, 2023 at 03:30 PM"
+
+console.log(new Intl.DateTimeFormat('zh-CN', options).format(date));
+// "2023年12月25日星期一 15:30"
 ```
 
-- `resolvedOptions()` 返回配置对象
+### 格式化部分
 
-```js
-const region1 = new Intl.DateTimeFormat("zh-CN", { timeZone: "UTC" });
-const options1 = region1.resolvedOptions();
-
-console.log(options1.locale);
-// Expected output: "zh-CN"
-
-console.log(options1.calendar);
-// Expected output: "gregory"
-
-console.log(options1.numberingSystem);
-// Expected output: "latn"
-```
-
-- `formatRange()`根据配置对象，格式化范围
-
-```js
-const options1 = {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-};
-const options2 = { year: "2-digit", month: "numeric", day: "numeric" };
-
-const startDate = new Date(Date.UTC(2007, 0, 10, 10, 0, 0));
-const endDate = new Date(Date.UTC(2008, 0, 10, 11, 0, 0));
-
-const dateTimeFormat = new Intl.DateTimeFormat("en", options1);
-console.log(dateTimeFormat.formatRange(startDate, endDate));
-// Expected output: "Wednesday, January 10, 2007 – Thursday, January 10, 2008"
-
-const dateTimeFormat2 = new Intl.DateTimeFormat("en", options2);
-console.log(dateTimeFormat2.formatRange(startDate, endDate));
-// Expected output: "1/10/07 – 1/10/08"
-```
-
-- `formatRangeToParts()`表示格式化范围的对象数组
-
-```js
-const date1 = new Date(Date.UTC(1906, 0, 10, 10, 0, 0)); // Wed, 10 Jan 1906 10:00:00 GMT
-const date2 = new Date(Date.UTC(1906, 0, 10, 11, 0, 0)); // Wed, 10 Jan 1906 11:00:00 GMT
-
-const fmt = new Intl.DateTimeFormat("en", {
-  hour: "numeric",
-  minute: "numeric",
+```javascript
+const formatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
 });
 
-console.log(fmt.formatRange(date1, date2)); // '10:00 – 11:00 AM'
-
-fmt.formatRangeToParts(date1, date2);
+const parts = formatter.formatToParts(date);
+console.log(parts);
 // [
-//   { type: 'hour',      value: '10',  source: "startRange" },
-//   { type: 'literal',   value: ':',   source: "startRange" },
-//   { type: 'minute',    value: '00',  source: "startRange" },
-//   { type: 'literal',   value: ' – ', source: "shared"     },
-//   { type: 'hour',      value: '11',  source: "endRange"   },
-//   { type: 'literal',   value: ':',   source: "endRange"   },
-//   { type: 'minute',    value: '00',  source: "endRange"   },
-//   { type: 'literal',   value: ' ',   source: "shared"     },
-//   { type: 'dayPeriod', value: 'AM',  source: "shared"     }
+//   { type: 'weekday', value: 'Monday' },
+//   { type: 'literal', value: ', ' },
+//   { type: 'month', value: 'December' },
+//   { type: 'literal', value: ' ' },
+//   { type: 'day', value: '25' },
+//   { type: 'literal', value: ', ' },
+//   { type: 'year', value: '2023' }
 // ]
 ```
 
-## Intl.NumberFormat
+## Intl.NumberFormat - 数字格式化
 
-特定的语言环境下，数字的格式化。
+`Intl.NumberFormat` 用于在特定语言环境下格式化数字、货币和百分比。
 
-```js
+### 构造函数
+
+```javascript
 /**
- * @locales
- * @options
- *  localeMatcher
- *  numberingSystem
- *  style
- *    decimal 格式化数字
- *    currency 格式化货币
- *    percent  格式化百分比
- *    unit  格式化单元
- *  currency 要格式的货币Code，例如：USD EUR CNY
- *  currencyDisplay 如何展示货币
- *    code Use the ISO currency code.
- *    symbol 本地化货币符号。例如€ ￥
- *    narrowSymbol 狭窄格式符号。"$100" rather than "US$100"
- *    name 本地货币名称。dollar
- *  currencySign 货币如何换行。可选standard默认，或者accounting
- *  unit  The unit to use in unit formatting,
- *  unitDisplay
- *    short 默认值。16 l.
- *    narrow 161
- *    long `16 litres`
- * digit options:
- *  minimumIntegerDigits
- *  minimumFractionDigits
- *  maximumFractionDigits
- *  minimumSignificantDigits
- *  ...
- * trailingZeroDisplay
- * ...
+ * @param {string|string[]} locales - 语言代码
+ * @param {Object} options - 格式化选项
  */
+new Intl.NumberFormat(locales?, options?)
+```
 
-new Intl.NumberFormat(locales, options);
+### 配置选项
 
-Intl.NumberFormat(locales, options);
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `style` | string | 格式化样式：`"decimal"`, `"currency"`, `"percent"`, `"unit"` |
+| `currency` | string | 货币代码：`"USD"`, `"EUR"`, `"CNY"` |
+| `currencyDisplay` | string | 货币显示：`"code"`, `"symbol"`, `"name"` |
+| `minimumFractionDigits` | number | 最小小数位数 |
+| `maximumFractionDigits` | number | 最大小数位数 |
+| `minimumSignificantDigits` | number | 最小有效数字 |
+| `maximumSignificantDigits` | number | 最大有效数字 |
 
+### 使用示例
+
+```javascript
 const number = 123456.789;
 
-new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(number);
-// Expected output: "123.456,79 €"
+// 基本数字格式化
+console.log(new Intl.NumberFormat('en-US').format(number));
+// "123,456.789"
 
-new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY" }).format(number);
-// Expected output: "￥123,457"
+console.log(new Intl.NumberFormat('de-DE').format(number));
+// "123.456,789"
 
-// 限制三位有效数字
-new Intl.NumberFormat("en-IN", { maximumSignificantDigits: 3 }).format(number);
-// Expected output: "1,23,000"
+console.log(new Intl.NumberFormat('zh-CN').format(number));
+// "123,456.789"
+
+// 货币格式化
+console.log(new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD'
+}).format(number));
+// "$123,456.79"
+
+console.log(new Intl.NumberFormat('de-DE', {
+  style: 'currency',
+  currency: 'EUR'
+}).format(number));
+// "123.456,79 €"
+
+console.log(new Intl.NumberFormat('zh-CN', {
+  style: 'currency',
+  currency: 'CNY'
+}).format(number));
+// "¥123,456.79"
+
+// 百分比格式化
+console.log(new Intl.NumberFormat('en-US', {
+  style: 'percent'
+}).format(0.75));
+// "75%"
+
+// 单位格式化
+console.log(new Intl.NumberFormat('en-US', {
+  style: 'unit',
+  unit: 'kilometer-per-hour'
+}).format(120));
+// "120 km/h"
 ```
 
-实例方法：
+## Intl.ListFormat - 列表格式化
 
-- `format()` 根据配置对象格式化数字
+`Intl.ListFormat` 用于格式化列表数据，根据不同语言的习惯连接列表项。
 
-```js
-const amount = 654321.987;
+### 构造函数
 
-new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB" }).format(amount);
-// Expected output: "654 321,99 ₽"
-
-new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
-// Expected output: "$654,321.99"
+```javascript
+/**
+ * @param {string|string[]} locales - 语言代码
+ * @param {Object} options - 格式化选项
+ */
+new Intl.ListFormat(locales?, options?)
 ```
 
-- `formatToParts()` 返回代表数字各部分的对象数组
+### 配置选项
 
-```js
-const amount = 654321.987;
-const parts = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).formatToParts(amount);
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `style` | string | 样式：`"long"`, `"short"`, `"narrow"` |
+| `type` | string | 类型：`"conjunction"`, `"disjunction"`, `"unit"` |
 
-console.log(parts);
+### 使用示例
 
-[
-  {
-    type: "currency",
-    value: "$",
-  },
-  {
-    type: "integer",
-    value: "654",
-  },
-  {
-    type: "group",
-    value: ",",
-  },
-  {
-    type: "integer",
-    value: "321",
-  },
-  {
-    type: "decimal",
-    value: ".",
-  },
-  {
-    type: "fraction",
-    value: "99",
-  },
-];
+```javascript
+const vehicles = ['Motorcycle', 'Bus', 'Car'];
+
+// 连接列表（and）
+console.log(new Intl.ListFormat('en', {
+  style: 'long',
+  type: 'conjunction'
+}).format(vehicles));
+// "Motorcycle, Bus, and Car"
+
+// 选择列表（or）
+console.log(new Intl.ListFormat('en', {
+  style: 'long',
+  type: 'disjunction'
+}).format(vehicles));
+// "Motorcycle, Bus, or Car"
+
+// 单位列表
+console.log(new Intl.ListFormat('en', {
+  style: 'narrow',
+  type: 'unit'
+}).format(vehicles));
+// "Motorcycle Bus Car"
+
+// 中文列表
+console.log(new Intl.ListFormat('zh-CN', {
+  style: 'long',
+  type: 'conjunction'
+}).format(vehicles));
+// "Motorcycle、Bus和Car"
 ```
 
-- `formatRange()` 根据配置对象格式化数字范围
+## Intl.RelativeTimeFormat - 相对时间格式化
 
-```js
-const nf = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
+`Intl.RelativeTimeFormat` 用于格式化相对于当前时间的时间表达。
+
+### 构造函数
+
+```javascript
+/**
+ * @param {string|string[]} locales - 语言代码
+ * @param {Object} options - 格式化选项
+ */
+new Intl.RelativeTimeFormat(locales?, options?)
+```
+
+### 配置选项
+
+| 选项 | 类型 | 描述 |
+|------|------|------|
+| `style` | string | 样式：`"long"`, `"short"`, `"narrow"` |
+| `numeric` | string | 数字显示：`"always"`, `"auto"` |
+
+### 使用示例
+
+```javascript
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+// 过去时间
+console.log(rtf.format(-1, 'day'));    // "yesterday"
+console.log(rtf.format(-2, 'day'));    // "2 days ago"
+console.log(rtf.format(-1, 'week'));   // "last week"
+console.log(rtf.format(-1, 'month'));  // "last month"
+
+// 未来时间
+console.log(rtf.format(1, 'day'));     // "tomorrow"
+console.log(rtf.format(2, 'day'));     // "in 2 days"
+console.log(rtf.format(1, 'week'));    // "next week"
+console.log(rtf.format(1, 'month'));   // "next month"
+
+// 中文相对时间
+const rtfCN = new Intl.RelativeTimeFormat('zh-CN', { numeric: 'auto' });
+console.log(rtfCN.format(-1, 'day'));  // "昨天"
+console.log(rtfCN.format(1, 'day'));   // "明天"
+console.log(rtfCN.format(-1, 'week')); // "上周"
+```
+
+## Intl.PluralRules - 复数规则
+
+`Intl.PluralRules` 用于确定数字的复数类别，支持不同语言的复数规则。
+
+### 使用示例
+
+```javascript
+const pr = new Intl.PluralRules('en');
+
+console.log(pr.select(0));   // "other"
+console.log(pr.select(1));   // "one"
+console.log(pr.select(2));   // "other"
+
+// 阿拉伯语复数规则
+const prAR = new Intl.PluralRules('ar');
+console.log(prAR.select(0));   // "zero"
+console.log(prAR.select(1));   // "one"
+console.log(prAR.select(2));   // "two"
+console.log(prAR.select(3));   // "few"
+console.log(prAR.select(11));  // "many"
+```
+
+## Intl.DisplayNames - 显示名称
+
+`Intl.DisplayNames` 用于获取语言、地区、货币等的本地化名称。
+
+### 使用示例
+
+```javascript
+// 地区名称
+const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+console.log(regionNames.of('US'));  // "United States"
+console.log(regionNames.of('CN'));  // "China"
+console.log(regionNames.of('DE'));  // "Germany"
+
+// 中文地区名称
+const regionNamesCN = new Intl.DisplayNames(['zh-CN'], { type: 'region' });
+console.log(regionNamesCN.of('US')); // "美国"
+console.log(regionNamesCN.of('CN')); // "中国"
+console.log(regionNamesCN.of('DE')); // "德国"
+
+// 语言名称
+const languageNames = new Intl.DisplayNames(['en'], { type: 'language' });
+console.log(languageNames.of('en')); // "English"
+console.log(languageNames.of('zh')); // "Chinese"
+console.log(languageNames.of('de')); // "German"
+
+// 货币名称
+const currencyNames = new Intl.DisplayNames(['en'], { type: 'currency' });
+console.log(currencyNames.of('USD')); // "US Dollar"
+console.log(currencyNames.of('EUR')); // "Euro"
+console.log(currencyNames.of('CNY')); // "Chinese Yuan"
+```
+
+## Intl.Locale - 区域标识符
+
+`Intl.Locale` 用于表示和操作 Unicode 区域标识符。
+
+### 使用示例
+
+```javascript
+// 创建区域标识符
+const locale = new Intl.Locale('zh-CN', {
+  calendar: 'chinese',
+  numberingSystem: 'hans'
 });
 
-console.log(nf.formatRange(3, 5)); // "$3 – $5"
+console.log(locale.language);        // "zh"
+console.log(locale.region);          // "CN"
+console.log(locale.calendar);        // "chinese"
+console.log(locale.numberingSystem); // "hans"
 
-console.log(nf.formatRange(2.9, 3.1)); // "~$3"
-
-const formatter = new Intl.NumberFormat("de-DE", {
-  style: "currency",
-  currency: "EUR",
-});
-
-console.log(formatter.formatRange(3500, 9500));
-// "3.500,00–9.500,00 €"
+// 获取区域信息
+console.log(locale.getCalendars());     // ["gregory", "chinese"]
+console.log(locale.getNumberingSystems()); // ["latn", "hans", "hansfin"]
+console.log(locale.getTimeZones());     // ["Asia/Shanghai", "Asia/Urumqi"]
 ```
 
-- `formatRangeToParts()` 代表范围各个部分的对象数组
+## Intl.Segmenter - 文本分割
 
-```js
-const formatter = new Intl.NumberFormat("de-DE", {
-  style: "currency",
-  currency: "EUR",
-});
-console.log(formatter.formatRangeToParts(startRange, endRange));
+`Intl.Segmenter` 用于语言敏感的文本分割，将文本分割成有意义的片段。
 
-[
-  { type: "integer", value: "3", source: "startRange" },
-  { type: "group", value: ".", source: "startRange" },
-  { type: "integer", value: "500", source: "startRange" },
-  { type: "decimal", value: ",", source: "startRange" },
-  { type: "fraction", value: "00", source: "startRange" },
-  { type: "literal", value: "–", source: "shared" },
-  { type: "integer", value: "9", source: "endRange" },
-  { type: "group", value: ".", source: "endRange" },
-  { type: "integer", value: "500", source: "endRange" },
-  { type: "decimal", value: ",", source: "endRange" },
-  { type: "fraction", value: "00", source: "endRange" },
-  { type: "literal", value: " ", source: "shared" },
-  { type: "currency", value: "€", source: "shared" },
-];
+### 使用示例
+
+```javascript
+// 按词分割
+const segmenter = new Intl.Segmenter('en', { granularity: 'word' });
+const segments = segmenter.segment('Hello world, how are you?');
+
+for (const segment of segments) {
+  console.log(segment);
+}
+// { segment: 'Hello', index: 0, input: 'Hello world, how are you?', isWordLike: true }
+// { segment: ' ', index: 5, input: 'Hello world, how are you?', isWordLike: false }
+// { segment: 'world', index: 6, input: 'Hello world, how are you?', isWordLike: true }
+// ...
+
+// 按句分割
+const sentenceSegmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
+const sentences = sentenceSegmenter.segment('Hello world. How are you? Fine, thank you.');
+
+for (const sentence of sentences) {
+  console.log(sentence.segment);
+}
+// "Hello world. "
+// "How are you? "
+// "Fine, thank you."
 ```
 
-- `resolvedOptions()` 返回配置对象
+## 实际应用场景
 
-```js
-const options1 = new Intl.NumberFormat('de-DE').resolvedOptions();
+### 1. 多语言电商网站
 
-console.log(options1);
-{
-    "locale": "de-DE",
-    "numberingSystem": "latn",
-    "style": "decimal",
-    "minimumIntegerDigits": 1,
-    "minimumFractionDigits": 0,
-    "maximumFractionDigits": 3,
-    "useGrouping": "auto",
-    "notation": "standard",
-    "signDisplay": "auto",
-    "roundingIncrement": 1,
-    "roundingMode": "halfExpand",
-    "roundingPriority": "auto",
-    "trailingZeroDisplay": "auto"
+```javascript
+// 价格格式化
+function formatPrice(price, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency
+  }).format(price);
+}
+
+console.log(formatPrice(1234.56, 'en-US', 'USD')); // "$1,234.56"
+console.log(formatPrice(1234.56, 'zh-CN', 'CNY')); // "¥1,234.56"
+console.log(formatPrice(1234.56, 'de-DE', 'EUR')); // "1.234,56 €"
+
+// 产品列表格式化
+function formatProductList(products, locale) {
+  return new Intl.ListFormat(locale, {
+    style: 'long',
+    type: 'conjunction'
+  }).format(products);
+}
+
+console.log(formatProductList(['iPhone', 'iPad', 'MacBook'], 'en-US'));
+// "iPhone, iPad, and MacBook"
+```
+
+### 2. 国际化日程应用
+
+```javascript
+// 事件时间格式化
+function formatEventTime(date, locale) {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+}
+
+const eventDate = new Date(2023, 11, 25, 14, 30);
+console.log(formatEventTime(eventDate, 'en-US'));
+// "Monday, December 25, 2023 at 02:30 PM"
+console.log(formatEventTime(eventDate, 'zh-CN'));
+// "2023年12月25日星期一 14:30"
+
+// 相对时间提醒
+function formatRelativeTime(value, unit, locale) {
+  return new Intl.RelativeTimeFormat(locale, {
+    numeric: 'auto'
+  }).format(value, unit);
+}
+
+console.log(formatRelativeTime(-1, 'day', 'en-US'));  // "yesterday"
+console.log(formatRelativeTime(1, 'hour', 'zh-CN'));  // "1小时后"
+```
+
+### 3. 搜索和排序功能
+
+```javascript
+// 多语言搜索排序
+function createSearchSorter(locale) {
+  return new Intl.Collator(locale, {
+    sensitivity: 'base',
+    numeric: true,
+    ignorePunctuation: true
+  });
+}
+
+const names = ['张三', '李四', '王五', 'Alice', 'Bob', 'Charlie'];
+const sorter = createSearchSorter('zh-CN');
+
+console.log(names.sort(sorter.compare));
+// 根据中文排序规则排序
+```
+
+### 4. 表单验证国际化
+
+```javascript
+// 数字验证
+function validateNumber(input, locale) {
+  const formatter = new Intl.NumberFormat(locale);
+  const parts = formatter.formatToParts(12345.67);
+  
+  // 获取千位分隔符和小数点
+  const groupSeparator = parts.find(part => part.type === 'group')?.value || ',';
+  const decimalSeparator = parts.find(part => part.type === 'decimal')?.value || '.';
+  
+  // 验证输入格式
+  const regex = new RegExp(`^\\d{1,3}(\\${groupSeparator}\\d{3})*(\\.\\d+)?$`);
+  return regex.test(input);
+}
+
+console.log(validateNumber('1,234.56', 'en-US')); // true
+console.log(validateNumber('1.234,56', 'de-DE')); // true
+```
+
+## 性能优化
+
+### 1. 重用格式化器
+
+```javascript
+// ❌ 每次都创建新的格式化器
+function formatCurrency(amount, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency
+  }).format(amount);
+}
+
+// ✅ 缓存格式化器
+const formatters = new Map();
+
+function getFormatter(locale, currency) {
+  const key = `${locale}-${currency}`;
+  if (!formatters.has(key)) {
+    formatters.set(key, new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency
+    }));
+  }
+  return formatters.get(key);
+}
+
+function formatCurrencyOptimized(amount, locale, currency) {
+  return getFormatter(locale, currency).format(amount);
 }
 ```
 
-## Intl.ListFormat
+### 2. 批量处理
 
-列表数据格式化
+```javascript
+// 批量格式化日期
+function formatDates(dates, locale) {
+  const formatter = new Intl.DateTimeFormat(locale);
+  return dates.map(date => formatter.format(date));
+}
 
-```js
-new Intl.ListFormat([locales[, options]])
-
-// 创建一个列表格式化器
-const vehicles = ['Motorcycle', 'Bus', 'Car'];
-
-const formatter = new Intl.ListFormat('en', {style: 'long',type: 'conjunction'});
-console.log(formatter.format(vehicles));
-// Expected output: "Motorcycle, Bus, and Car"
-
-const formatter2 = new Intl.ListFormat('de', {style: 'short',type: 'disjunction'});
-console.log(formatter2.format(vehicles));
-// Expected output: "Motorcycle, Bus oder Car"
-
-const formatter3 = new Intl.ListFormat('en', { style: 'narrow', type: 'unit' });
-console.log(formatter3.format(vehicles));
-// Expected output: "Motorcycle Bus Car"
-
-// 创建一个返回被格式化部分的列表格式化器
-new Intl.ListFormat("en-GB", {style: "long",type: "conjunction"}).formatToParts(vehicles),
-
-[
-  { "type": "element", "value": "Motorcycle" },
-  { "type": "literal", "value": ", " },
-  { "type": "element", "value": "Bus" },
-  { "type": "literal", "value": ", and " },
-  { "type": "element", "value": "Car" }
+const dates = [
+  new Date(2023, 0, 1),
+  new Date(2023, 1, 1),
+  new Date(2023, 2, 1)
 ];
+
+console.log(formatDates(dates, 'en-US'));
+// ["1/1/2023", "2/1/2023", "3/1/2023"]
 ```
 
-## Intl.PluralRules
+## 浏览器兼容性
 
-用于复数敏感的格式化
+::: warning 兼容性注意事项
+- **Intl.Segmenter** 是较新的 API，支持度有限
+- **Intl.DurationFormat** 仍在提案阶段
+- 某些选项在不同浏览器中可能有差异
+:::
 
-```js
-/**
- * @locales
- * @options
- *  localeMatcher
- *  type
- *    cardinal: For cardinal numbers
- *    ordinal:For ordinal number
- */
+```javascript
+// 功能检测
+function checkIntlSupport() {
+  const support = {
+    Collator: typeof Intl.Collator !== 'undefined',
+    DateTimeFormat: typeof Intl.DateTimeFormat !== 'undefined',
+    NumberFormat: typeof Intl.NumberFormat !== 'undefined',
+    ListFormat: typeof Intl.ListFormat !== 'undefined',
+    RelativeTimeFormat: typeof Intl.RelativeTimeFormat !== 'undefined',
+    PluralRules: typeof Intl.PluralRules !== 'undefined',
+    DisplayNames: typeof Intl.DisplayNames !== 'undefined',
+    Locale: typeof Intl.Locale !== 'undefined',
+    Segmenter: typeof Intl.Segmenter !== 'undefined'
+  };
+  
+  return support;
+}
 
-new Intl.PluralRules(locales?, options?);
+console.log(checkIntlSupport());
 ```
 
-实例方法：
+## 总结
 
-- `select(number)` 区域敏感的格式化的复数类别
+JavaScript 的 Intl API 为国际化提供了强大的支持：
 
-```js
-console.log(new Intl.PluralRules("ar-EG").select(0));
-// Expected output: "zero"
+- **字符串处理** - 支持多语言的排序和比较
+- **数字格式化** - 适应不同地区的数字、货币显示习惯
+- **日期时间** - 本地化的日期时间格式
+- **文本处理** - 智能的文本分割和列表格式化
+- **用户体验** - 提供符合用户文化习惯的界面
 
-console.log(new Intl.PluralRules("ar-EG").select(5));
-// Expected output: "few"
-
-console.log(new Intl.PluralRules("ar-EG").select(55));
-// Expected output: "many"
-
-console.log(new Intl.PluralRules("en").select(0));
-// Expected output: "other"
-```
-
-- `selectRange(startRange,endRange)` 区域敏感的格式化的复数类别。
-
-```js
-new Intl.PluralRules("sl").selectRange(102, 201); // 'few'
-
-new Intl.PluralRules("pt").selectRange(102, 102); // 'other'
-```
-
-## Intl.RelativeTimeFormat
-
-相对当前的时间格式化。
-
-```js
-/**
- * @locales
- * @options
- *  localeMathcher
- *  numberingStystem
- *    arab
- *    hans
- *    mathsans
- *    ...
- *  style
- *    long : E.g., "in 1 month"
- *    short : E.g., "in 1 mo."
- *    narrow:E.g., "in 1 mo." 比short更短
- *  numeric 是否应用数字再输出中。
- *    always 默认值。
- *    auto： 使用更多的惯用短语。例如："yesterday" instead of "1 day ago".
- */
-
-new Intl.RelativeTimeFormat(locales?, options?);
-
-const rtf1 = new Intl.RelativeTimeFormat("en", { style: "short" });
-
-console.log(rtf1.format(-1, "day"));
-// Expected output: "1 day ago"
-
-const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-
-rtf.formatToParts(-1, "day");
-// [{ type: "literal", value: "yesterday"}]
-
-rtf.formatToParts(100, "day");
-// [
-//   { type: "literal", value: "in " },
-//   { type: "integer", value: "100", unit: "day" },
-//   { type: "literal", value: " days" }
-// ]
-```
-
-实例方法：
-
-- `format(value, unit)` 根据 value 和 unit 格式化相对当前的时间
-- `formatToParts(value, unit)` 各个部分的对象数组
-
-## Intl.DisplayNames
-
-根据国家 code 码，支持语言、区域和脚本等，显示名称的一致翻译
-
-```js
-/**
- * @locales
- * @options
- *  localeMatcher
- *  style：long/short/narrow
- *  type:language/region/script/currency/calender/dateTimeField
- *  fallback:code/none
- *  languageDisplay:dialect/standerd
- */
-new Intl.DisplayNames([locales[, options]])
-
-new Intl.DisplayNames(['en'], { type: 'region' }).of('US')
-// Expected output: "United States"
-
-new Intl.DisplayNames(['zh-Hant'], {type: 'region'}).of('US')
-// Expected output: "美國"
-
-const usedOptions = new Intl.DisplayNames(["de-DE"], { type: "region" }).resolvedOptions()
-console.log(usedOptions.locale); // "de-DE"
-console.log(usedOptions.style); // "long"
-console.log(usedOptions.type); // "region"
-console.log(usedOptions.fallback); // "code"
-```
-
-## Intl.DurationFormat
-
-语言敏感的持续时间格式化
-
-实例方法：
-
-- `format(duration)`
-- `formatToParts(duration)`
-
-```js
-const duration = {
-  hours: 1,
-  minutes: 46,
-  seconds: 40,
-};
-
-new Intl.DurationFormat("en", { style: "short" }).format(duration);
-// "1 hr, 46 min and 40 sec"
-
-const duration = {
-  hours: 7,
-  minutes: 8,
-  seconds: 9,
-};
-
-new Intl.DurationFormat("en", { style: "long" }).formatToParts(duration);
-[
-  { type: "integer", value: "7", unit: "hour" },
-  { type: "literal", value: " ", unit: "hour" },
-  { type: "unit", value: "hours", unit: "hour" },
-  { type: "literal", value: ", " },
-  { type: "integer", value: "8", unit: "minute" },
-  { type: "literal", value: " ", unit: "minute" },
-  { type: "unit", value: "minutes", unit: "minute" },
-  { type: "literal", value: ", " },
-  { type: "integer", value: "9", unit: "second" },
-  { type: "literal", value: " ", unit: "second" },
-  { type: "unit", value: "seconds", unit: "second" },
-];
-```
-
-## Intl.Locale
-
-Unicode 区域标识符由语言标识符和扩展标记组成。语言标识符是区域 (locale) 的核心，包含了语言、脚本和地域子标记 (region subtags)。
-
-```js
-/**
- * @tag 地区标识符字符串
- * @options 配置本地化对象，可覆盖本地默认配置。实例属性和方法中获取配置对象
- *  language
- *  script
- *  region 区域
- *  calender 日历类型
- *  collation 排序规则
- *  numberingSystem 计数系统
- *  caseFirst
- *  hourCycle
- *  numeric
- */
-new Intl.Locale(tag, options?);
-
-const korean = new Intl.Locale("ko", {
-  script: "Kore",
-  region: "KR",
-  hourCycle: "h23",
-  calendar: "gregory",
-});
-
-const japanese = new Intl.Locale("ja-Jpan-JP-u-ca-japanese-hc-h12");
-
-console.log(korean.baseName, japanese.baseName);
-// Expected output: "ko-Kore-KR" "ja-Jpan-JP"
-
-console.log(korean.hourCycle, japanese.hourCycle);
-// Expected output: "h23" "h12"
-
-// 获取中国大陆的日历 : ["gregory", "chinese"];
-new Intl.Locale("zh-CN").getCalendars()
-```
-
-实例属性和方法：
-
-- Intl.Locale.prototype.baseName 当地简称
-- Intl.Locale.prototype.calender：当地支持的日历
-- Intl.Locale.prototype.caseFirst：大小写优先
-- Intl.Locale.prototype.collation ：当地支持的排序类型
-- Intl.Locale.prototype.hourCycle：时间周期
-- Intl.Locale.prototype.language
-- Intl.Locale.prototype.numberingSystem
-- Intl.Locale.prototype.numeric
-- Intl.Locale.prototype.region
-- Intl.Locale.prototype.script
-- Intl.Locale.prototype.getCalenders()
-- Intl.Locale.prototype.getCollations()
-- Intl.Locale.prototype.getNumberingSystems()
-- Intl.Locale.prototype.getTextInfo()
-- Intl.Locale.prototype.getTimeZones()
-- Intl.Locale.prototype.getWeekInfo()
-- Intl.Locale.prototype.maximize()
-- Intl.Locale.prototype.minimize()
-- Intl.Locale.prototype.toString()
-
-## Intl.Segmenter
-
-支持语言敏感的文本分割，将字符串分割成有意义的片段（字、词、句）。
-
-```js
-/**
- * @locales
- * @options
- *  localeMatcher
- *  granularity
- *    grapheme:默认值，按字划分边界
- *    word：按词划分边界。
- *    sentence：按句划分边界。
- */
-new Intl.Segmenter(locales?, options?);
-
-const segmenter = new Intl.Segmenter("en", { granularity: "word" });
-
-// 返回 Segments 实例，可迭代对象
-const Segments = segmenter.segment("hello world");
-console.log(Array.from(Segments));
-[
-  {segment: "hello",index: 0,input: "hello world",isWordLike: true,},
-  {segment: " ",index: 5,input: "hello world",isWordLike: false,},
-  {segment: "world",index: 6,input: "hello world",isWordLike: true,},
-];
-```
+合理使用 Intl API 可以让应用程序更好地适应全球用户的需求，提供更好的国际化体验。在实际开发中，应该根据目标用户群体选择合适的国际化策略，并注意性能优化和浏览器兼容性。 

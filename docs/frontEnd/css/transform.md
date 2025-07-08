@@ -1,183 +1,632 @@
-## CSS 变形
+---
+title: CSS 变形与渐变
+description: 深入学习CSS变形(transform)和渐变(gradient)技术，包括2D/3D变形、线性渐变、径向渐变、锥形渐变等高级特效
+outline: deep
+---
+
+# 🎨 CSS 变形与渐变
+
+<Badge type="info" text="CSS3" />
+<Badge type="tip" text="视觉效果" />
 
 CSS 提供的形变功能不仅可以平移元素，还能做很多其他的事情，比如旋转、缩放、翻转等，让页面的动画与交互看起来更加自然。
 
-- 变形元素：进行 transform3D 变形的元素，主要是 transform、transform-origin、backface-visibility 设置
-- 被透视元素：被观察者观察的元素，一般是变形元素的父级元素，主要是 perspective、perspective-origin 设置
+## 🏗️ 核心概念
 
-涉及到的属性主要是：
+### 📋 关键术语
 
-- transform ：变形配置
-- transform-origin：变形原点，默认中心点就是元素的正中心，通过该属性改变元素在 XYZ 轴的中心点
-- transform-style：变形风格，允许变形元素及其子元素在 3D 空间中呈现。有两个值 flat 默认是表示 2D 平面，perspective-3d 表示 3D 空间。当设置了 overflow 非 visible 或 clip 非 auto 时，transform-style：perspective-3d 失效。
-- perspective：透视距离，指观察者沿着平行于 Z 轴的视线到屏幕之间的距离，简称视距。值远大，表示距离越远，看来就越小。设置透视 perspective 属性的元素就是透视元素。设置在变形元素的父级元素上
-- perspective-origin：透视原点，观察者的位置。两个值，分别是 X 轴距离原点的偏移量和 Y 轴原点的偏移量，可以用关键字 left、right 和 center 表示，也可以 ongoing 数值和百分比表示，当用单个关键字表示时，另一个表示默认 center。这个属性必须定义在设置 perspective 的元素上,基点默认值是 50% 50%即 center
-- backface-visibility：背面是否可见,visible 和 hidden。如果一个元素覆盖在另一个元素上，不仅仅正面覆盖，背面也是覆盖的
+::: info 🎯 元素分类
+- **变形元素**: 进行 transform3D 变形的元素，主要设置 `transform`、`transform-origin`、`backface-visibility`
+- **被透视元素**: 被观察者观察的元素，一般是变形元素的父级元素，主要设置 `perspective`、`perspective-origin`
+:::
 
-## 2D 变形
+### 🔧 核心属性
 
-1. translate 平移 : transform: translate(0, 100px);
-   1. translate(x,y)
-   2. translateX(x)
-   3. translateY(y)
-2. scale 缩放
-   1. scale():第一个参数对应 X 轴，第二个参数对应 Y 轴。如果第二个参数未提供，则默认取第一个参数的值.scale 还能设负数，负数会先将元素反转再缩放
-   2. scaleX():指定对象 X 轴的（水平方向）缩放
-   3. scaleY():指定对象 Y 轴的（垂直方向）缩放
-3. rotate 旋转,旋转函数绕某个轴或者 3D 空间某个向量旋转。rotate X，rotate Y，rotateZ，rotate 都只接收一个值。
-   1. rotateX
-   2. rotateY
-   3. rotateZ
-   4. rotate = rotateY
-4. skew 倾斜。第一个参数对应 X 轴，第二个参数对应 Y 轴。如果第二个参数未提供，则默认值为 0
-   1. skew
-   2. skewX
-   3. skewY
-5. matrix 变换矩阵
+| 属性名 | 作用 | 说明 |
+|--------|------|------|
+| `transform` | 变形配置 | 定义元素的变形效果 |
+| `transform-origin` | 变形原点 | 默认中心点，可改变XYZ轴的中心点 |
+| `transform-style` | 变形风格 | `flat`(2D) 或 `preserve-3d`(3D) |
+| `perspective` | 透视距离 | 观察者到屏幕的距离，设置在父元素上 |
+| `perspective-origin` | 透视原点 | 观察者的位置，默认 `50% 50%` |
+| `backface-visibility` | 背面可见性 | `visible` 或 `hidden` |
 
-## 3D 变形
+::: warning ⚠️ 注意事项
+当设置了 `overflow` 非 `visible` 或 `clip` 非 `auto` 时，`transform-style: preserve-3d` 会失效。
+:::
 
-在 2D 平面基础上多出一个 z 轴，称之为三维立体。
+---
 
-- rotateX()
-- rotateY()
-- rotateZ()
-- rotate3d（X，Y，Z，Ndeg）:变形元素沿着（0,0,0）和（X,Y,Z）这两个点构成的直线为轴，进行旋转 Ndeg。
+## 🎲 2D 变形
 
-- perspective（）：透视函数 ，应用于变形元素本身，参数只能是长度值，并且只能是正数。例如 perspective（100px）
-- translate3d(tx,ty,tz) 其中 tz 的 Z 轴长度只能为 px 值，不能为%百分比
-- translateZ
-- scale3d(x,y,z)
-- scaleZ() 仅当元素有深度时，这两个函数才有效果
-- matrix3d() 3D 变形中和 2D 变形一样也有一个 3D 矩阵功能函数 matrix3d
-
-## 线性渐变
+### 📍 translate 平移
 
 ```css
-linear-gradient(direction,color1 position1,color2 position2,....)
+/* 基本语法 */
+transform: translate(x, y);
+
+/* 单轴平移 */
+transform: translateX(100px);
+transform: translateY(50px);
+
+/* 示例 */
+.move-element {
+  transform: translate(50px, 100px);
+  transition: transform 0.3s ease;
+}
 ```
 
-**direction:渐变方向**。两种表示方式
+::: tip 💡 实用技巧
+`translate` 不会影响其他元素的布局，常用于实现居中效果：
+```css
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+```
+:::
 
-1. 关键字描述：inear-gradient(to bottom,red,blue); 这是默认方向，从上到下
-   1. top
-   2. bottom
-   3. left
-   4. right
-2. 角度表示 : linear-gradient（80deg，yellow 50%，black 50%，blue）：中间有明显过渡线的效果
-   - deg:角度
-   - red：弧度
-   - trun:圈数
-   - grad:百分度，400grad 表示 360deg
-
-**color:渐变颜色**
-
-1.  颜色可以用任何模式表示，位置可以用百分比或者数数值表示
-2.  如果渐变只有两种颜色，且第一个颜色的位置为 n%，第二个颜色的位置为 m%，则浏览器会 0%~n%的范围设置为第一个颜色，m%~100%设置为后一个颜色，中间才是两个颜色的过渡，如果没有指定位置，会均匀过渡。
-
-**position:渐变位置**
-
-可以省略，浏览器默认把第一个颜色的位置设为 0%，最后一个位置设为 100%
-
-## 重复线性渐变
-
-只有首尾两颜色位置不在 0%和 100%时，才会有重复渐变效果
+### 📏 scale 缩放
 
 ```css
-repeating-linear-gradient(blue 20%， green 50%);
-repeating-linear-gradient(transparent, #4d9f0c 40px);
+/* 等比缩放 */
+transform: scale(1.5);
 
-repeating-linear-gradient(0.25turn, transparent, #3f87a6 20px);
-/* 从左到右重复五次的渐变，从红色开始，然后变绿，再变回红色 */
-repeating-linear-gradient(to right, red 0%, green 10%, red 20%);
+/* 不等比缩放 */
+transform: scale(1.5, 0.8);
+
+/* 单轴缩放 */
+transform: scaleX(1.2);
+transform: scaleY(0.8);
+
+/* 负值缩放（翻转+缩放） */
+transform: scale(-1, 1); /* 水平翻转 */
 ```
 
-## 径向渐变
+### 🔄 rotate 旋转
 
 ```css
-radial-gradient（shape,size,blue 20%，green 50%）；
-radial-gradient(farthest-corner at 40px 40px,#f35 0%,#43e 100%);
-/* 在容器中心的渐变，从红色开始，变成蓝色，最后变成绿色 */
-radial-gradient(circle at center, red 0, blue, green 100%)
+/* 2D旋转 */
+transform: rotate(45deg);
 
-radial-gradient(closest-side, #3f87a6, #ebf8e1, #f69d3c);
+/* 等同于 rotateZ */
+transform: rotateZ(45deg);
 
-radial-gradient(ellipse 50% 50px, #e66465, transparent),
-radial-gradient(ellipse at bottom, #4d9f0c, transparent);
+/* 旋转示例 */
+.rotate-box {
+  transform: rotate(45deg);
+  transform-origin: top left; /* 改变旋转中心 */
+}
 ```
 
-1. position: 控制椭圆的圆心,可以用关键字和数值，百分比以及单个关键字，表示圆心
-   1. top
-   2. botton
-   3. left
-   4. right
-   5. center
-   6. 20px 30px
-2. shape:控制形状。
-   1. circle：圆形
-   2. ellipse：椭圆形
-3. size：定义渐变半径的大小
-   1. farthest-side:半径从圆心到最远边，默认值
-   2. farthest-corner 半径从圆心到最远角
-   3. closest-side:半径从圆心到最近边
-   4. closest-corner:半径从圆心到最近角
-   5. 也可以用两个值分别表示水平直径和垂直直径
-   6. 对于圆，尺寸可以用 `<length> `提供，这就是圆的尺寸。
-      当位置处于 100%的色标没有占满渐变区域时，浏览器默认会使用最后一个颜色铺满渐变区域。
-
-## 重复径向渐变
+### 📐 skew 倾斜
 
 ```css
-repeating-radial-gradient(circle at center, red, yellow 10%, green 15%);
+/* 双轴倾斜 */
+transform: skew(15deg, 10deg);
 
-/* 接近容器左上角的ellipse椭圆形渐变，
-   由红色开始，改变为绿色，然后再变回红色，
-   在中心和右下角之之间重复五次，
-   在中心和左上角之间只重复一次 */
-repeating-radial-gradient(ellipse farthest-corner at 20% 20%, red 0, green, red 20%);
+/* 单轴倾斜 */
+transform: skewX(15deg);
+transform: skewY(10deg);
+
+/* 卡片倾斜效果 */
+.skew-card {
+  transform: skew(-5deg, 0);
+  transition: transform 0.3s ease;
+}
+
+.skew-card:hover {
+  transform: skew(0, 0);
+}
 ```
 
-## 锥形渐变
-
-conic-gradient() CSS 函数创建包含颜色围绕中心点旋转（而不是从中心点辐射）产生的渐变的图像。锥形渐变的例子包括了饼图和色轮，但是也可以用于创建棋盘格和其他有趣的效果。
-
-锥形渐变的语法和径向渐变的语法类似，但是色标是围绕渐变弧（圆的圆周）进行的，而不是从渐变中心出现的渐变线上，并且色标是百分比或度数：绝对长度无效。
-
-在径向渐变中，颜色从椭圆中心的位置在各个方向上向外过渡。在锥形渐变中，颜色围绕圆的中心在圆周上旋转过渡，从顶部开始，顺时针进行。类似于径向渐变，你可以设置渐变的中心。类似于线性渐变，你可以改变渐变的角度。
+### 🧮 matrix 变换矩阵
 
 ```css
-.conic-gradient {
-  /**和径向渐变类似，你可以使用关键词、百分比或者绝对长度，以及关键字“at”来设置锥形渐变的中心位置。 */
-  background: conic-gradient(at 0% 30%, red 10%, yellow 30%, #1e90ff 50%);
+/* 矩阵变换 */
+transform: matrix(a, b, c, d, tx, ty);
 
-  /**
-  默认情况下，你指定的不同色标是围绕着圆均等分布的。你可以在开始时使用“from”关键字以及一个角度或者长度以指定锥形渐变的起始点，然后你可以在后面包括角度或者长度以指定不同的位置。 */
-  .conic-gradient {
-    background: conic-gradient(from 45deg, red, orange 50%, yellow 85%, green);
+/* 等价于多个变换的组合 */
+transform: matrix(1, 0.5, -0.5, 1, 100, 50);
+```
+
+---
+
+## 🌐 3D 变形
+
+在2D平面基础上多出一个Z轴，构成三维立体空间。
+
+### 🔄 3D 旋转
+
+```css
+/* 3D旋转 */
+.cube {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.face {
+  transform: rotateX(90deg);
+  transform: rotateY(45deg);
+  transform: rotateZ(30deg);
+}
+
+/* 沿任意轴旋转 */
+.custom-rotate {
+  transform: rotate3d(1, 1, 0, 45deg);
+}
+```
+
+### 📦 3D 平移和缩放
+
+```css
+/* 3D平移 */
+transform: translate3d(50px, 100px, 75px);
+transform: translateZ(100px); /* 仅Z轴 */
+
+/* 3D缩放 */
+transform: scale3d(1.5, 1.2, 2);
+transform: scaleZ(1.5); /* 仅当元素有深度时有效 */
+```
+
+### 👁️ 透视效果
+
+```css
+/* 透视函数（应用于元素本身） */
+.perspective-self {
+  transform: perspective(500px) rotateY(45deg);
+}
+
+/* 透视属性（应用于父元素） */
+.perspective-parent {
+  perspective: 1000px;
+  perspective-origin: 50% 50%;
+}
+```
+
+::: details 💡 3D 立方体示例
+
+```css
+.cube-container {
+  perspective: 1000px;
+  width: 200px;
+  height: 200px;
+  margin: 100px auto;
+}
+
+.cube {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  transform-style: preserve-3d;
+  transform: rotateX(-30deg) rotateY(30deg);
+  animation: rotate 10s infinite linear;
+}
+
+.cube-face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 2px solid #333;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.front  { transform: translateZ(100px); }
+.back   { transform: rotateY(180deg) translateZ(100px); }
+.right  { transform: rotateY(90deg) translateZ(100px); }
+.left   { transform: rotateY(-90deg) translateZ(100px); }
+.top    { transform: rotateX(90deg) translateZ(100px); }
+.bottom { transform: rotateX(-90deg) translateZ(100px); }
+
+@keyframes rotate {
+  to { transform: rotateX(-30deg) rotateY(390deg); }
+}
+```
+
+:::
+
+---
+
+## 🌈 线性渐变
+
+### 📐 基本语法
+
+```css
+background: linear-gradient(direction, color1 position1, color2 position2, ...);
+```
+
+### 🧭 渐变方向
+
+**关键字方式**:
+```css
+/* 默认从上到下 */
+background: linear-gradient(to bottom, red, blue);
+
+/* 其他方向 */
+background: linear-gradient(to top, #ff6b6b, #4ecdc4);
+background: linear-gradient(to right, #667eea, #764ba2);
+background: linear-gradient(to bottom right, #ff9a9e, #fecfef);
+```
+
+**角度方式**:
+```css
+/* 角度渐变 */
+background: linear-gradient(45deg, red, blue);
+background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+
+/* 角度单位 */
+background: linear-gradient(0.25turn, yellow, black, blue);
+background: linear-gradient(180deg, #667eea, #764ba2);
+```
+
+### 🎨 颜色和位置
+
+```css
+/* 基础渐变 */
+background: linear-gradient(to right, red, yellow, green);
+
+/* 指定位置 */
+background: linear-gradient(to right, 
+  red 0%, 
+  yellow 50%, 
+  green 100%
+);
+
+/* 创建条纹效果 */
+background: linear-gradient(90deg, 
+  red 25%, 
+  transparent 25%, 
+  transparent 75%, 
+  red 75%
+);
+```
+
+::: tip 🎯 实用案例
+
+**渐变按钮**:
+```css
+.gradient-btn {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(45deg, #764ba2, #667eea);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+```
+
+:::
+
+### 🔄 重复线性渐变
+
+```css
+/* 基本重复渐变 */
+background: repeating-linear-gradient(
+  45deg,
+  transparent,
+  transparent 10px,
+  #4ecdc4 10px,
+  #4ecdc4 20px
+);
+
+/* 斜纹效果 */
+background: repeating-linear-gradient(
+  -45deg,
+  #ff6b6b,
+  #ff6b6b 10px,
+  #feca57 10px,
+  #feca57 20px
+);
+
+/* 进度条样式 */
+.progress-stripes {
+  background: repeating-linear-gradient(
+    45deg,
+    #007bff,
+    #007bff 10px,
+    #0056b3 10px,
+    #0056b3 20px
+  );
+}
+```
+
+---
+
+## ⭕ 径向渐变
+
+### 🎯 基本语法
+
+```css
+background: radial-gradient([shape size at position], color1, color2, ...);
+```
+
+### 🔵 形状和尺寸
+
+```css
+/* 圆形渐变 */
+background: radial-gradient(circle, red, blue);
+
+/* 椭圆渐变 */
+background: radial-gradient(ellipse, #ff6b6b, #4ecdc4);
+
+/* 指定尺寸 */
+background: radial-gradient(circle 100px, red, transparent);
+background: radial-gradient(ellipse 100px 50px, yellow, green);
+```
+
+### 📍 尺寸关键字
+
+| 关键字 | 描述 |
+|--------|------|
+| `closest-side` | 半径从圆心到最近边 |
+| `farthest-side` | 半径从圆心到最远边（默认） |
+| `closest-corner` | 半径从圆心到最近角 |
+| `farthest-corner` | 半径从圆心到最远角 |
+
+```css
+/* 尺寸关键字示例 */
+background: radial-gradient(circle closest-side, red, blue);
+background: radial-gradient(ellipse farthest-corner, yellow, green);
+```
+
+### 🎪 位置控制
+
+```css
+/* 位置关键字 */
+background: radial-gradient(circle at top left, red, blue);
+background: radial-gradient(ellipse at center, yellow, green);
+
+/* 精确位置 */
+background: radial-gradient(circle at 30% 70%, #ff6b6b, #4ecdc4);
+background: radial-gradient(ellipse at 100px 50px, red, transparent);
+```
+
+::: details 🌟 径向渐变案例
+
+**聚光灯效果**:
+```css
+.spotlight {
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.4) 30%,
+    rgba(0, 0, 0, 0.8) 70%
+  );
+}
+```
+
+**按钮光晕效果**:
+```css
+.glow-button {
+  background: radial-gradient(
+    ellipse at center,
+    #667eea 0%,
+    #764ba2 100%
+  );
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+}
+```
+
+:::
+
+### 🔄 重复径向渐变
+
+```css
+/* 同心圆效果 */
+background: repeating-radial-gradient(
+  circle,
+  red 0%,
+  red 10%,
+  transparent 10%,
+  transparent 20%
+);
+
+/* 雷达扫描效果 */
+.radar {
+  background: repeating-radial-gradient(
+    circle at center,
+    transparent 0,
+    transparent 20px,
+    rgba(0, 255, 0, 0.3) 20px,
+    rgba(0, 255, 0, 0.3) 22px
+  );
+}
+```
+
+---
+
+## 🌪️ 锥形渐变
+
+<Badge type="tip" text="CSS4" />
+
+锥形渐变创建围绕中心点旋转的颜色渐变，类似饼图效果。
+
+### 🎡 基本语法
+
+```css
+background: conic-gradient([from angle] [at position], color1, color2, ...);
+```
+
+### 🎨 基础应用
+
+```css
+/* 基本锥形渐变 */
+background: conic-gradient(red, yellow, green, blue, red);
+
+/* 指定起始角度 */
+background: conic-gradient(from 45deg, red, blue);
+
+/* 指定中心位置 */
+background: conic-gradient(at 30% 70%, red, yellow, green);
+
+/* 组合使用 */
+background: conic-gradient(
+  from 90deg at 50% 50%,
+  #ff6b6b 0deg,
+  #4ecdc4 120deg,
+  #45b7d1 240deg,
+  #ff6b6b 360deg
+);
+```
+
+::: details 🍕 实用案例
+
+**饼图效果**:
+```css
+.pie-chart {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #ff6b6b 0deg 72deg,     /* 20% */
+    #4ecdc4 72deg 144deg,   /* 20% */
+    #45b7d1 144deg 216deg,  /* 20% */
+    #feca57 216deg 288deg,  /* 20% */
+    #ff9ff3 288deg 360deg   /* 20% */
+  );
+}
+```
+
+**色轮效果**:
+```css
+.color-wheel {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    hsl(0, 100%, 50%),
+    hsl(60, 100%, 50%),
+    hsl(120, 100%, 50%),
+    hsl(180, 100%, 50%),
+    hsl(240, 100%, 50%),
+    hsl(300, 100%, 50%),
+    hsl(360, 100%, 50%)
+  );
+}
+```
+
+:::
+
+---
+
+## 🎛️ 控制渐变过程
+
+### 🎯 颜色提示
+
+通过颜色提示可以控制两个色标之间的插值过程：
+
+```css
+/* 默认均匀过渡 */
+background: linear-gradient(to right, lime, cyan);
+
+/* 使用颜色提示控制过渡 */
+background: linear-gradient(to right, lime 20%, cyan);
+```
+
+**对比效果**:
+
+![控制渐变过程](./image-9.png)
+
+### 🔄 多重渐变
+
+```css
+/* 渐变叠加 */
+background: 
+  linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.5) 30%),
+  linear-gradient(to right, #ff6b6b, #4ecdc4);
+
+/* 复杂图案 */
+.complex-pattern {
+  background:
+    radial-gradient(circle at 25% 25%, transparent 20%, rgba(255,255,255,0.3) 21%),
+    linear-gradient(45deg, #667eea, #764ba2);
+}
+```
+
+---
+
+## 🛠️ 实战技巧
+
+### ⚡ 性能优化
+
+::: warning 🚀 性能建议
+1. **使用 `transform` 而非改变 `position`** - GPU加速
+2. **避免频繁改变复杂渐变** - 考虑使用图片
+3. **使用 `will-change` 提示浏览器优化**:
+   ```css
+   .animated-element {
+     will-change: transform;
+   }
+   ```
+:::
+
+### 🔧 兼容性处理
+
+```css
+/* 渐变兼容性写法 */
+.gradient-bg {
+  background: #667eea; /* 降级方案 */
+  background: -webkit-linear-gradient(45deg, #667eea, #764ba2);
+  background: linear-gradient(45deg, #667eea, #764ba2);
+}
+
+/* 功能检测 */
+@supports (background: conic-gradient(red, blue)) {
+  .modern-gradient {
+    background: conic-gradient(from 45deg, red, blue);
   }
 }
 ```
 
-输出图像：
-
-![alt text](image-10.png)
-
-## 控制渐变过程
-
-默认情况下，渐变在两个相邻的色标之间都是均匀推进的，两个色标之间的中点是颜色值的中点。你可以控制两个色标之间的插值，或者过程，方法是添加一个颜色提示位置。在这个例子中，颜色在渐变过程的 20% 而不是 50% 的位置到达黄绿色和青色之间的中点。第二个例子没有提示，因此可以通过对比看出颜色提示的效果。
+### 🎨 设计模式
 
 ```css
-.colorhint-gradient {
-  background: linear-gradient(to top, lime, 20%, cyan);
+/* 卡片悬浮效果 */
+.hover-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.regular-progression {
-  background: linear-gradient(to top, lime, cyan);
+
+.hover-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* 加载动画 */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: rotate 1s linear infinite;
 }
 ```
 
-输出结果：
-![alt text](image-9.png)
+---
 
-> 渐变可以叠加和堆叠
+## 📚 参考资源
 
-参考：https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_images/Using_CSS_gradients
+- [MDN - 使用CSS渐变](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_images/Using_CSS_gradients)
+- [CSS Transform属性详解](https://developer.mozilla.org/zh-CN/docs/Web/CSS/transform)
+- [CSS3 3D变换详解](https://3dtransforms.desandro.com/)
+
+::: tip 💡 学习建议
+1. **循序渐进**: 先掌握2D变形，再学习3D效果
+2. **实践为主**: 通过制作实际案例来理解概念
+3. **性能意识**: 关注动画性能，合理使用GPU加速
+4. **创意发挥**: 组合不同效果创造独特的视觉体验
+:::
