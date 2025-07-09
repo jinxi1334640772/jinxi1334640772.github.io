@@ -1,250 +1,663 @@
-# navigator 方法
+# Navigator 方法开发指南
 
-## setAppBadge&clearAppBadge
+Navigator 对象提供了丰富的浏览器和设备功能访问接口，本文档详细介绍了各种 Navigator 方法的使用方法和最佳实践。
 
-setAppBadge() 方法在与此应用关联的图标上设置徽章。如果将值传递给该方法，则该值将被设置为徽章的值。否则，徽章将显示为点或平台定义的其他指示器。
+## 目录导航
 
-clearAppBadge() 方法通过将当前应用程序图标设置为 nothing 来清除当前应用程序图标上的徽章。
+1. [概述](#1-概述)
+2. [应用徽章管理](#2-应用徽章管理)
+3. [原生分享功能](#3-原生分享功能)
+4. [媒体播放策略](#4-媒体播放策略)
+5. [设备状态监控](#5-设备状态监控)
+6. [游戏控制器支持](#6-游戏控制器支持)
+7. [应用程序检测](#7-应用程序检测)
+8. [协议处理程序](#8-协议处理程序)
+9. [媒体加密访问](#9-媒体加密访问)
+10. [MIDI 设备控制](#10-midi-设备控制)
+11. [数据传输 API](#11-数据传输-api)
+12. [设备振动控制](#12-设备振动控制)
 
-```js
+## 1. 概述
+
+Navigator 对象是浏览器提供的全局对象，包含了关于浏览器和设备的信息以及各种功能的访问接口。通过 Navigator 的方法，开发者可以访问设备硬件、管理应用状态、处理媒体内容等。
+
+## 2. 应用徽章管理
+
+### 2.1 setAppBadge & clearAppBadge
+
+应用徽章功能允许 Web 应用在应用图标上显示通知数量或状态指示器。
+
+#### 2.1.1 功能说明
+
+- `setAppBadge()` 方法在与此应用关联的图标上设置徽章
+- `clearAppBadge()` 方法清除当前应用程序图标上的徽章
+
+#### 2.1.2 方法签名
+
+| 方法 | 参数 | 返回值 | 描述 |
+|------|------|--------|------|
+| `setAppBadge()` | 无 | Promise&lt;void&gt; | 显示默认徽章（通常为点） |
+| `setAppBadge(count)` | number | Promise&lt;void&gt; | 显示指定数字的徽章 |
+| `clearAppBadge()` | 无 | Promise&lt;void&gt; | 清除徽章显示 |
+
+#### 2.1.3 使用示例
+
+```javascript
 /**
- * @number 一个将用作徽章值的数值。如果为 0，表示清除徽章。
+ * 设置应用徽章
+ * @param {number} count - 徽章显示的数值，如果为 0 表示清除徽章
  */
-setAppBadge();
-setAppBadge(number);
+// 显示默认徽章
+navigator.setAppBadge();
 
+// 显示数字徽章
+navigator.setAppBadge(5);
+
+// 清除徽章
 navigator.clearAppBadge();
 ```
 
-## canshare & share
+## 3. 原生分享功能
 
-canShare() 方法测试共享是否将会成功，必须由 UI 事件触发（瞬态激活状态）
+### 3.1 canShare & share
 
-share() 方法调用设备的本机共享机制来共享文本、URL 或文件等数据。可用的共享目标取决于设备，但可能包括剪贴板、联系人和电子邮件应用程序、网站、蓝牙等。需要被授予 `web-share` 权限
+原生分享功能允许 Web 应用调用设备的原生分享机制来共享内容。
 
-> 此项功能仅在一些支持的浏览器的安全上下文（HTTPS）中可用
+#### 3.1.1 功能说明
 
-```js
+- `canShare()` 方法测试共享是否将会成功，必须由 UI 事件触发（瞬态激活状态）
+- `share()` 方法调用设备的本机共享机制来共享文本、URL 或文件等数据
+
+> **注意**：此功能仅在安全上下文（HTTPS）中可用，并需要 `web-share` 权限。
+
+#### 3.1.2 数据格式
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `url` | string | 要共享的 URL |
+| `text` | string | 要共享的文本内容 |
+| `title` | string | 要共享的标题 |
+| `files` | File[] | 要共享的文件数组 |
+
+#### 3.1.3 使用示例
+
+```javascript
 /**
- * @data 包含要共享的数据的对象。至少指定一个已知的数据属性。
-    url 表示要共享的 URL 的字符串。
-    text 表示要共享的文本的字符串。
-    title 表示要共享的标题的字符串。
-    files 共享的文件的 File 对象数组
+ * 原生分享功能实现
+ * @param {Object} data - 包含要共享的数据对象
  */
-navigator.share(data);
+async function shareContent() {
+  const shareData = {
+    files: [/* File objects */],
+    title: "图像",
+    text: "美丽的图像",
+    url: "https://example.com"
+  };
 
-// 检测 navigator.canShare() 特性和检测 navigator.share() 特性是一样的
-if (navigator.canShare && navigator.canShare({ files })) {
-  try {
-    await navigator.share({
-      files,
-      title: "图像",
-      text: "美丽的图像",
-    });
-  } catch (error) {}
-} else {
-  console.log("您的系统不支持共享这些文件。");
+  // 检测分享功能支持
+  if (navigator.canShare && navigator.canShare(shareData)) {
+    try {
+      await navigator.share(shareData);
+      console.log("分享成功");
+    } catch (error) {
+      console.error("分享失败:", error);
+    }
+  } else {
+    console.log("您的系统不支持共享这些文件");
+  }
 }
 ```
 
-## getAutoplayPolicy
+## 4. 媒体播放策略
 
-检测自动播放特定类型或内容项的策略。
+### 4.1 getAutoplayPolicy
 
-```js
+检测浏览器对特定媒体内容的自动播放策略。
+
+#### 4.1.1 方法重载
+
+| 方法签名 | 参数类型 | 描述 |
+|----------|----------|------|
+| `getAutoplayPolicy(type)` | string | 检测媒体类型的自动播放策略 |
+| `getAutoplayPolicy(element)` | HTMLMediaElement | 检测特定媒体元素的策略 |
+| `getAutoplayPolicy(context)` | AudioContext | 检测音频上下文的策略 |
+
+#### 4.1.2 参数说明
+
+**type 参数值**：
+- `mediaelement`: 获取文档中媒体元素的自动播放策略
+- `audiocontext`: 获取 Web Audio API 播放器的自动播放策略
+
+**返回值**：
+- `allowed`: 允许自动播放
+- `allowed-muted`: 仅允许静音媒体自动播放
+- `disallowed`: 不允许自动播放
+
+#### 4.1.3 使用示例
+
+```javascript
 /**
- * @type
- *  mediaelement 获取文档中媒体元素的自动播放策略。
- *  audiocontext 在文档中获取 Web Audio API 播放器的自动播放策略。
- * @element  特定的媒体元素。 这必须是 HTMLMediaElement，包括派生元素
- * @context 特定的 AudioContext。
- * @return 指示指定媒体功能类型、元素或上下文的自动播放策略。
- *  allowed 允许自动播放。
- *  allowed-muted 仅允许对听不见的媒体进行自动播放。 这包括没有音轨或音频已静音的媒体。
- *  disallowed 不允许自动播放。
+ * 检测媒体自动播放策略
  */
-getAutoplayPolicy(type);
-getAutoplayPolicy(element);
-getAutoplayPolicy(context);
-
 const video = document.getElementById("video_element_id");
-if (navigator.getAutoplayPolicy(video) === "allowed") {
-  // 允许自动播放。
+
+// 检测特定视频元素的自动播放策略
+const policy = navigator.getAutoplayPolicy(video);
+
+switch (policy) {
+  case "allowed":
+    console.log("允许自动播放");
+    video.play();
+    break;
+  case "allowed-muted":
+    console.log("仅允许静音自动播放");
+    video.muted = true;
+    video.play();
+    break;
+  case "disallowed":
+    console.log("不允许自动播放，需要用户交互");
+    break;
 }
 ```
 
-## getBattery
+## 5. 设备状态监控
 
-返回包含电池信息 BatteryManager 对象，提供有关系统电池电量水平的信息
+### 5.1 getBattery
 
-> 需要提前授予电池权限
+获取设备电池状态信息，返回 BatteryManager 对象用于监控电池状态。
 
-```js
+> **注意**：需要提前授予电池访问权限。
+
+#### 5.1.1 BatteryManager 属性
+
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `charging` | boolean | 电池是否正在充电 |
+| `level` | number | 电池电量（0-1） |
+| `chargingTime` | number | 充满电所需时间（秒） |
+| `dischargingTime` | number | 电池续航时间（秒） |
+
+#### 5.1.2 BatteryManager 事件
+
+| 事件 | 描述 |
+|------|------|
+| `chargingchange` | 充电状态改变时触发 |
+| `levelchange` | 电量水平改变时触发 |
+| `chargingtimechange` | 充电时间改变时触发 |
+| `dischargingtimechange` | 续航时间改变时触发 |
+
+#### 5.1.3 使用示例
+
+```javascript
+/**
+ * 电池状态监控
+ */
 navigator.getBattery().then(battery => {
+  // 监听充电状态变化
   battery.addEventListener("chargingchange", () => {
     console.log(`电池是否充电中？${battery.charging ? "是" : "否"}`);
   });
 
+  // 监听电量变化
   battery.addEventListener("levelchange", () => {
-    console.log(`电池电量：${battery.level * 100}%`);
+    console.log(`电池电量：${Math.round(battery.level * 100)}%`);
   });
 
+  // 监听充电时间变化
   battery.addEventListener("chargingtimechange", () => {
-    console.log(`电池充电时间：${battery.chargingTime}秒`);
+    const hours = Math.floor(battery.chargingTime / 3600);
+    const minutes = Math.floor((battery.chargingTime % 3600) / 60);
+    console.log(`充电时间：${hours}小时${minutes}分钟`);
   });
 
+  // 监听续航时间变化
   battery.addEventListener("dischargingtimechange", () => {
-    console.log(`电池续航时间：${battery.dischargingTime}秒`);
+    const hours = Math.floor(battery.dischargingTime / 3600);
+    const minutes = Math.floor((battery.dischargingTime % 3600) / 60);
+    console.log(`续航时间：${hours}小时${minutes}分钟`);
   });
 });
 ```
 
-## getGamepads
+## 6. 游戏控制器支持
 
-Navigator.getGamepads() 方法返回一个包含 Gamepad 数组对象，每个对象代表与设备相连的一个游戏手柄。
+### 6.1 getGamepads
 
-```js
-window.addEventListener("gamepadconnected", e => {
-  const gp = navigator.getGamepads()[e.gamepad.index];
-  console.log(
-    `游戏手柄在索引 ${gp.index} 处已连接：其 ID 为 ${gp.id}，具有 ${gp.buttons.length} 个按键和 ${gp.axes.length} 个轴。`
-  );
-});
-```
+获取连接到设备的游戏手柄信息，返回 Gamepad 对象数组。
 
-## getInstalledRelatedApps
+#### 6.1.1 Gamepad 对象属性
 
-返回用户已安装的任何相关的特定于平台的应用程序或渐进式 Web 应用程序数组。
+| 属性 | 类型 | 描述 |
+|------|------|------|
+| `id` | string | 游戏手柄标识符 |
+| `index` | number | 游戏手柄索引 |
+| `connected` | boolean | 是否已连接 |
+| `buttons` | GamepadButton[] | 按钮状态数组 |
+| `axes` | number[] | 摇杆轴状态数组 |
 
-```js
-const relatedApps = await navigator.getInstalledRelatedApps();
+#### 6.1.2 使用示例
 
-// 寻找出特定app
-const psApp = relatedApps.find(app => app.id === "com.example.myapp");
-```
-
-## registerProtocolHandler
-
-registerProtocolHandler() 方法让 web 站点为自身注册用于打开或处理特定 URL 方案（又名协议）的能力。
-
-unregisterProtocolHandler（） 删除给定 URL 方案的协议处理程序。
-
-> 此项功能仅在一些支持的浏览器的安全上下文（HTTPS）中可用。
-
-```js
+```javascript
 /**
- * @scheme 协议字符串。自定义方案的名称：在 web+ 前缀之后至少包含一个小写的 ASCII 字母。否则必须是规定的值之一：ftp,geo,bitcoin,mailto,mms,news,nntp,sftp,tel,ssh.....
- * @url 同源 URL 字符串。该 URL 必须包含 %s（作为占位符）
-  @return undefined
+ * 游戏手柄连接检测
  */
-registerProtocolHandler(scheme, url);
+window.addEventListener("gamepadconnected", event => {
+  const gamepad = navigator.getGamepads()[event.gamepad.index];
+  
+  console.log(`游戏手柄已连接：
+    索引：${gamepad.index}
+    ID：${gamepad.id}
+    按键数：${gamepad.buttons.length}
+    轴数：${gamepad.axes.length}`);
+});
 
-// 为自定义协议注册处理器
+// 游戏手柄断开连接
+window.addEventListener("gamepaddisconnected", event => {
+  console.log(`游戏手柄已断开：${event.gamepad.id}`);
+});
+
+/**
+ * 游戏手柄状态监控
+ */
+function pollGamepads() {
+  const gamepads = navigator.getGamepads();
+  
+  for (let i = 0; i < gamepads.length; i++) {
+    const gamepad = gamepads[i];
+    if (gamepad) {
+      // 检查按钮状态
+      gamepad.buttons.forEach((button, index) => {
+        if (button.pressed) {
+          console.log(`按钮 ${index} 被按下`);
+        }
+      });
+      
+      // 检查摇杆状态
+      gamepad.axes.forEach((axis, index) => {
+        if (Math.abs(axis) > 0.1) {
+          console.log(`轴 ${index} 值：${axis.toFixed(2)}`);
+        }
+      });
+    }
+  }
+  
+  requestAnimationFrame(pollGamepads);
+}
+```
+
+## 7. 应用程序检测
+
+### 7.1 getInstalledRelatedApps
+
+检测用户已安装的相关原生应用程序或 PWA 应用。
+
+#### 7.1.2 使用示例
+
+```javascript
+/**
+ * 检测已安装的相关应用
+ */
+async function checkInstalledApps() {
+  try {
+    const relatedApps = await navigator.getInstalledRelatedApps();
+    
+    console.log("已安装的相关应用：", relatedApps);
+    
+    // 查找特定应用
+    const targetApp = relatedApps.find(app => app.id === "com.example.myapp");
+    
+    if (targetApp) {
+      console.log("目标应用已安装：", targetApp);
+    } else {
+      console.log("目标应用未安装，建议用户下载");
+    }
+  } catch (error) {
+    console.error("检测应用失败：", error);
+  }
+}
+```
+
+## 8. 协议处理程序
+
+### 8.1 registerProtocolHandler
+
+注册和管理自定义 URL 协议处理程序。
+
+> **注意**：此功能仅在安全上下文（HTTPS）中可用。
+
+#### 8.1.1 方法说明
+
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `registerProtocolHandler(scheme, url)` | string, string | 注册协议处理程序 |
+| `unregisterProtocolHandler(scheme, url)` | string, string | 取消注册协议处理程序 |
+
+#### 8.1.2 参数说明
+
+- **scheme**: 协议字符串。自定义协议需 `web+` 前缀，或使用标准协议（如 `mailto`、`ftp` 等）
+- **url**: 同源 URL 字符串，必须包含 `%s` 作为占位符
+
+#### 8.1.3 使用示例
+
+```javascript
+/**
+ * 注册自定义协议处理程序
+ */
+// 注册自定义协议
 navigator.registerProtocolHandler(
   "web+burger",
   "https://burgers.example.org/?burger=%s"
 );
-// 导航到 https://burgers.example.org/?burger=web+burger:cheeseburger。
-<a href="web+burger:cheeseburger">芝士汉堡</a>;
 
-// 取消注册
+// 注册邮件协议
+navigator.registerProtocolHandler(
+  "mailto",
+  "https://mail.example.org/compose?to=%s"
+);
+
+// 使用自定义协议
+// <a href="web+burger:cheeseburger">芝士汉堡</a>
+// 将导航到 https://burgers.example.org/?burger=web+burger:cheeseburger
+
+/**
+ * 取消注册协议处理程序
+ */
 navigator.unregisterProtocolHandler(
   "web+burger",
-  "https://burgers.example.com/?burger=%s"
+  "https://burgers.example.org/?burger=%s"
 );
 ```
 
-## requestMediaKeySystemAccess
+## 9. 媒体加密访问
 
-返回兑现为 MediaKeySystemAccess 对象的 promise，用于访问特定的媒体密钥系统，又可用于创建解密媒体流的密钥。提供对加密媒体和受 DRM 保护的视频的支持。
+### 9.1 requestMediaKeySystemAccess
 
-```js
-requestMediaKeySystemAccess(keySystem, supportedConfigurations);
+提供对加密媒体和受 DRM 保护内容的访问支持。
 
-const clearKeyOptions = [
-  {
-    initDataTypes: ["keyids", "webm"],
-    audioCapabilities: [
-      { contentType: 'audio/webm; codecs="opus"' },
-      { contentType: 'audio/webm; codecs="vorbis"' },
-    ],
-    videoCapabilities: [
-      { contentType: 'video/webm; codecs="vp9"' },
-      { contentType: 'video/webm; codecs="vp8"' },
-    ],
-  },
-];
+#### 9.1.1 方法签名
 
-navigator
-  .requestMediaKeySystemAccess("org.w3.clearkey", clearKeyOptions)
-  .then(keySystemAccess => {
-    /* use the access to get create keys */
-  });
+```javascript
+requestMediaKeySystemAccess(keySystem, supportedConfigurations)
 ```
 
-## requestMIDIAccess
+#### 9.1.2 使用示例
 
-访问用户系统上的 MIDI 设备。提供访问、枚举和操作 MIDI 设备的方法。需要`midi`权限
-
-```js
-navigator.permissions.query({ name: "midi", sysex: true }).then(result => {
-  if (result.state === "granted") {
-    navigator.requestMIDIAccess().then(access => {
-      // 获取可用MIDI controllers列表
-      const inputs = access.inputs.values();
-      const outputs = access.outputs.values();
-    });
-  }
-});
-```
-
-## Beacon API
-
-Beacon API 通过 HTTP POST 将少量数据 异步 传输到 Web 服务器。用于发送异步和非阻塞请求到服务器。这类请求不需要响应。与 XMLHttpRequest 或 Fetch API 请求不同，浏览器会保证在页面卸载前，将信标请求初始化并运行完成。
-
-主要用于满足统计和诊断代码的需要，这些代码通常尝试在卸载（unload）文档之前向 Web 服务器发送数据。过早的发送数据可能导致错过收集数据的机会。然而，对于开发者来说保证在文档卸载期间发送数据一直是一个困难。因为用户代理通常会忽略在 unload 事件处理器中产生的异步 XMLHttpRequest。
-
-> Beacon API 在 Web Worker 中是不可用的（没有通过 WorkerNavigator 暴露出来）。
-
-使用 sendBeacon() 方法会使用户代理在有机会时异步地向服务器发送数据，同时不会延迟页面的卸载或影响下一导航的载入性能，
-
-```js
+```javascript
 /**
- * @url data 将要被发送到的网络地址。
- * @data 将要发送的 ArrayBuffer、ArrayBufferView、Blob、DOMString、FormData 或 URLSearchParams 类型的数据。
- * @return 当用户代理成功把数据加入传输队列时,将会返回 true，否则返回 false。
+ * 请求媒体密钥系统访问权限
  */
-navigator.sendBeacon(url);
-navigator.sendBeacon(url, data);
+async function setupDRMSupport() {
+  const clearKeyOptions = [
+    {
+      initDataTypes: ["keyids", "webm"],
+      audioCapabilities: [
+        { contentType: 'audio/webm; codecs="opus"' },
+        { contentType: 'audio/webm; codecs="vorbis"' },
+      ],
+      videoCapabilities: [
+        { contentType: 'video/webm; codecs="vp9"' },
+        { contentType: 'video/webm; codecs="vp8"' },
+      ],
+    },
+  ];
+
+  try {
+    const keySystemAccess = await navigator.requestMediaKeySystemAccess(
+      "org.w3.clearkey",
+      clearKeyOptions
+    );
+    
+    console.log("DRM 系统访问成功");
+    // 创建媒体密钥并配置解密
+    const mediaKeys = await keySystemAccess.createMediaKeys();
+    return mediaKeys;
+  } catch (error) {
+    console.error("DRM 系统访问失败：", error);
+  }
+}
+```
+
+## 10. MIDI 设备控制
+
+### 10.1 requestMIDIAccess
+
+访问和控制用户系统上的 MIDI 设备。
+
+> **注意**：需要 `midi` 权限。
+
+#### 10.1.1 使用示例
+
+```javascript
+/**
+ * MIDI 设备访问和控制
+ */
+async function setupMIDI() {
+  try {
+    // 检查权限
+    const permission = await navigator.permissions.query({ 
+      name: "midi", 
+      sysex: true 
+    });
+    
+    if (permission.state === "granted") {
+      const midiAccess = await navigator.requestMIDIAccess();
+      
+      // 获取 MIDI 输入设备
+      const inputs = Array.from(midiAccess.inputs.values());
+      const outputs = Array.from(midiAccess.outputs.values());
+      
+      console.log(`发现 ${inputs.length} 个 MIDI 输入设备`);
+      console.log(`发现 ${outputs.length} 个 MIDI 输出设备`);
+      
+      // 监听 MIDI 消息
+      inputs.forEach(input => {
+        input.addEventListener("midimessage", event => {
+          console.log("MIDI 消息：", event.data);
+        });
+      });
+      
+      return { inputs, outputs };
+    } else {
+      console.log("MIDI 权限未授予");
+    }
+  } catch (error) {
+    console.error("MIDI 访问失败：", error);
+  }
+}
+```
+
+## 11. 数据传输 API
+
+### 11.1 Beacon API
+
+Beacon API 提供异步、非阻塞的数据传输功能，特别适用于页面卸载时的数据发送。
+
+#### 11.1.1 功能特点
+
+- **异步传输**：通过 HTTP POST 异步传输数据到服务器
+- **非阻塞**：不会影响页面卸载或下一页面的加载性能
+- **可靠性**：浏览器保证在页面卸载前完成数据传输
+
+> **注意**：Beacon API 在 Web Worker 中不可用。
+
+#### 11.1.2 方法签名
+
+| 方法 | 参数 | 返回值 | 描述 |
+|------|------|--------|------|
+| `sendBeacon(url)` | string | boolean | 发送空数据到指定 URL |
+| `sendBeacon(url, data)` | string, any | boolean | 发送数据到指定 URL |
+
+#### 11.1.3 支持的数据类型
+
+- `ArrayBuffer`
+- `ArrayBufferView`
+- `Blob`
+- `DOMString`
+- `FormData`
+- `URLSearchParams`
+
+#### 11.1.4 使用示例
+
+```javascript
+/**
+ * 页面分析数据发送
+ */
+const analyticsData = JSON.stringify({
+  userId: "12345",
+  pageViews: 10,
+  timeSpent: 30000,
+  timestamp: Date.now()
+});
 
 /**
- * 网站通常希望在用户完成页面浏览后向服务器发送分析或诊断数据，最可靠的方法是在 visibilitychange 事件发生时发送数据：
+ * 在页面卸载时发送分析数据
+ * 推荐使用 visibilitychange 事件而不是 unload 事件
  */
 document.addEventListener("visibilitychange", function logData() {
   if (document.visibilityState === "hidden") {
-    navigator.sendBeacon("/log", analyticsData);
+    const success = navigator.sendBeacon("/analytics", analyticsData);
+    
+    if (success) {
+      console.log("分析数据发送成功");
+    } else {
+      console.log("分析数据发送失败");
+    }
   }
 });
+
+/**
+ * 错误报告发送
+ */
+function reportError(error) {
+  const errorData = new FormData();
+  errorData.append("error", error.message);
+  errorData.append("stack", error.stack);
+  errorData.append("url", window.location.href);
+  errorData.append("timestamp", Date.now());
+  
+  navigator.sendBeacon("/error-report", errorData);
+}
+
+// 全局错误处理
+window.addEventListener("error", reportError);
 ```
 
-## vibrate
+## 12. 设备振动控制
 
-使设备上的振动硬件发出振动（如果存在此类硬件）。
+### 12.1 vibrate
 
-```js
+控制设备的振动硬件，提供触觉反馈功能。
+
+#### 12.1.1 方法签名
+
+```javascript
+navigator.vibrate(pattern)
+```
+
+#### 12.1.2 参数说明
+
+- **pattern**: `number | number[]` - 振动和暂停间隔的模式
+  - 单个数字：振动指定毫秒数
+  - 数组：交替表示振动和暂停的时间间隔
+  - 默认间隔：100ms
+
+#### 12.1.3 特殊值
+
+- `0`：停止当前振动
+- `[]`：停止当前振动
+- 全零数组：停止当前振动
+
+#### 12.1.4 使用示例
+
+```javascript
 /**
- * @pattern 提供振动和暂停间隔的模式。number或number数组。默认间隔100ms。
- * 提供0、空数组或元素全部为0的数组，将取消任何当前正在进行的振动模式
+ * 基本振动控制
  */
-vibrate(pattern);
+// 振动 200 毫秒
+navigator.vibrate(200);
 
-navigator.vibrate(200); // 振动 200ms
+// 停止振动
+navigator.vibrate(0);
 
-// 用摩斯密码振动“SOS”
+/**
+ * 复杂振动模式
+ */
+// 摩斯密码 "SOS"
 navigator.vibrate([
-  100, 30, 100, 30, 100, 30, 200, 30, 200, 30, 200, 30, 100, 30, 100, 30, 100,
+  100, 30, 100, 30, 100, 30,  // S: 短短短
+  200, 30, 200, 30, 200, 30,  // O: 长长长
+  100, 30, 100, 30, 100       // S: 短短短
 ]);
 
-navigator.vibrate(0); // 取消振动
+/**
+ * 交互反馈振动
+ */
+function hapticFeedback(type) {
+  switch (type) {
+    case "success":
+      navigator.vibrate([50, 50, 50]);
+      break;
+    case "error":
+      navigator.vibrate([100, 50, 100, 50, 100]);
+      break;
+    case "warning":
+      navigator.vibrate([200, 100, 200]);
+      break;
+    case "click":
+      navigator.vibrate(50);
+      break;
+    default:
+      navigator.vibrate(100);
+  }
+}
+
+/**
+ * 游戏中的振动反馈
+ */
+class GameVibration {
+  static explosion() {
+    navigator.vibrate([100, 30, 100, 30, 200]);
+  }
+  
+  static hit() {
+    navigator.vibrate(75);
+  }
+  
+  static powerUp() {
+    navigator.vibrate([50, 25, 50, 25, 50, 25, 100]);
+  }
+  
+  static gameOver() {
+    navigator.vibrate([200, 100, 200, 100, 400]);
+  }
+}
 ```
+
+## 总结
+
+Navigator 对象提供了丰富的浏览器和设备功能访问接口，通过本文档的学习，您应该能够：
+
+1. **应用状态管理**：使用徽章 API 管理应用通知状态
+2. **原生功能集成**：调用设备的原生分享和振动功能
+3. **媒体内容处理**：检测自动播放策略、处理加密媒体内容
+4. **设备状态监控**：监控电池状态、检测游戏控制器
+5. **协议处理**：注册自定义 URL 协议处理程序
+6. **设备控制**：访问 MIDI 设备、控制设备振动
+7. **数据传输优化**：使用 Beacon API 进行可靠的数据传输
+
+这些 API 为现代 Web 应用提供了接近原生应用的用户体验，是构建高质量 PWA 应用的重要基础。
+
+### 最佳实践建议
+
+1. **权限管理**：合理请求和管理各种设备权限
+2. **功能检测**：在使用前检测 API 可用性
+3. **优雅降级**：为不支持的设备提供备选方案
+4. **性能优化**：合理使用异步 API，避免阻塞主线程
+5. **用户体验**：提供清晰的功能说明和反馈
+
+### 参考资料
+
+- [MDN Web Docs - Navigator](https://developer.mozilla.org/zh-CN/docs/Web/API/Navigator)
+- [W3C Web Platform APIs](https://www.w3.org/standards/webdesign/webplatform)
+- [PWA 最佳实践指南](https://web.dev/progressive-web-apps/)
+- [Web 权限管理](https://developer.mozilla.org/zh-CN/docs/Web/API/Permissions_API)

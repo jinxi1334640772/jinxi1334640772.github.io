@@ -1,444 +1,651 @@
-# window 事件集锦
+# Window 事件详解
 
-## beforeprint&afterprint
+Window 对象提供了丰富的事件处理机制，涵盖了页面生命周期、用户交互、设备状态、网络连接等各个方面。本文档详细介绍了 Window 对象的各种事件及其用法。
 
-beforeprint 事件会在相关联的文档即将打印或预览打印时触发。
+## 目录
 
-afterprint 在关联的文档开始打印或关闭打印预览后，将触发 afterprint 事件。
+1. [页面生命周期事件](#1-页面生命周期事件)
+2. [用户交互事件](#2-用户交互事件)
+3. [设备和方向事件](#3-设备和方向事件)
+4. [网络状态事件](#4-网络状态事件)
+5. [导航和历史事件](#5-导航和历史事件)
+6. [错误处理和Promise事件](#6-错误处理和promise事件)
+7. [打印和应用安装事件](#7-打印和应用安装事件)
+8. [消息和存储事件](#8-消息和存储事件)
+9. [游戏手柄事件](#9-游戏手柄事件)
+10. [窗口和滚动事件](#10-窗口和滚动事件)
 
-beforeprint 和 afterprint 事件允许页面在打印开始之前更改其内容（例如，也许是移除 banner）然后在打印完成后还原这些更改。一般来说，你应该更倾向于使用 @media print CSS at 规则，但在某些情况下可能有必要使用这些事件。
+## 1. 页面生命周期事件
 
-```js
-addEventListener("beforeprint", event => {});
-onbeforeprint = event => {};
+### 1.1 load
 
-addEventListener("afterprint", event => {
-  console.log(event);
+`load` 事件在整个页面及所有依赖资源（如样式表和图片）都已完成加载时触发。它与 `DOMContentLoaded` 不同，后者只要页面 DOM 加载完成就触发，无需等待依赖资源的加载。
+
+```javascript
+addEventListener("load", (event) => {
+  console.log("页面完全加载完成");
 });
-onafterprint = event => {};
-```
 
-## onappinstalled
-
-Window 对象的 onappinstalled 属性用于处理 appinstalled 事件，该事件是一个实现了 Event 接口的简单事件，会在网页应用成功安装为渐进式网页应用时立即触发。
-
-```js
-window.onappinstalled = function (ev) {
-  console.log("The application was installed.");
+onload = (event) => {
+  console.log("页面完全加载完成");
 };
 ```
 
-## beforeinstallprompt
+### 1.2 beforeunload
 
-Window.onbeforeinstallprompt 属性是一个事件处理程序，用于处理一个 beforeinstallprompt，当一个 Web 清单存在时，它将在移动设备上发送，但是在提示用户将网站保存到主屏幕之前。
+当浏览器窗口关闭或者刷新时，会触发 `beforeunload` 事件。根据规范，要显示确认对话框，事件处理程序需要在事件上调用 `preventDefault()`。
 
-```js
-window.addEventListener("beforeinstallprompt", function(event) { ... });
-
-window.onbeforeinstallprompt = function(event) { ...};
-```
-
-## beforeunload
-
-当浏览器窗口关闭或者刷新时，会触发 beforeunload 事件。当前页面不会直接关闭，可以点击确定按钮关闭或刷新，也可以取消关闭或刷新。
-根据规范，要显示确认对话框，事件处理程序需要在事件上调用 preventDefault()。
-
-```js
-window.addEventListener("beforeunload", event => {
-  // Cancel the event as stated by the standard.
+```javascript
+window.addEventListener("beforeunload", (event) => {
+  // 根据标准取消事件
   event.preventDefault();
-  // Chrome requires returnValue to be set.
+  // Chrome 需要设置 returnValue
   event.returnValue = "";
 });
 ```
 
-## blur&focus
+### 1.3 unload
 
-window 失去焦点和聚集时触发。
+当文档或一个子资源正在被卸载时，触发 `unload` 事件。它在 `beforeunload` 和 `pagehide` 事件后被触发。
 
-```js
-window.addEventListener("blur", pause);
-window.addEventListener("focus", play);
+```javascript
+window.addEventListener("unload", (event) => {
+  console.log("页面正在卸载");
+});
 ```
 
-## copy&cut&paste
+### 1.4 pagehide & pageshow
 
-当用户通过浏览器的用户界面发起一个复制动作时，将触发 copy 事件。
+- `pagehide` - 当浏览器从展示会话历史中的另一个页面过程中隐藏当前页面时触发
+- `pageshow` - 当一条会话历史记录被执行时触发（包括后退/前进按钮操作）
 
-当用户通过浏览器的用户界面发起一个“剪切”动作时，将触发 cut 事件。
-
-当用户通过浏览器的用户界面发起一个“粘贴”动作时，将触发 paste 事件。
-
-事件的原始目标是 Element，它是复制动作的预期目标。你可以在 Window 接口上监听这个事件，以便在捕获或冒泡阶段处理它
-
-```js
-addEventListener("copy", event => {});
-
-oncopy = event => {};
-
-addEventListener("cut", event => {});
-
-oncut = event => {};
-
-addEventListener("paste", event => {});
-
-onpaste = event => {};
-```
-
-## devicemotion
-
-devicemotion 事件每隔一定时间触发一次，显示设备当时在包括/不包括重力的作用下的加速度大小。如果有的话，它还会提供有关旋转速率的信息。
-
-该事件不可取消，也不会冒泡。
-
-> 此项功能仅在一些支持的浏览器的安全上下文（HTTPS）中可用。
-
-```js
-addEventListener("devicemotion", event => {
-  // 一个 DeviceMotionEvent，继承于 Event。属性有：
-  //acceleration 给出设备在 x、y、z 三轴上的加速度。加速度用 m/s² 表示。
-  //accelarationIncludingGravity 在重力作用下，给出设备在 x、y、z 三个轴上的加速度的对象。加速度单位为 m/s²。
-  //rotationRage 一个给出设备绕三个方向轴（阿尔法轴、贝塔轴和伽马轴）的旋转速率的对象。旋转速率以度每秒表示
-  //interval 代表从设备获取数据的时间间隔（毫秒）的数字。
+```javascript
+addEventListener("pagehide", (event) => {
+  console.log("页面隐藏", event.persisted);
 });
 
-ondevicemotion = event => {};
-```
-
-## deviceorientation
-
-deviceorientation 事件在方向传感器输出新数据的时候触发。其数据系传感器与地球坐标系相比较所得，也就是说在设备上可能会采用设备地磁计的数据。该事件不可取消也不会冒泡。
-
-```js
-addEventListener("deviceorientation", event => {
-  //一个 DeviceOrientationEvent。继承了 Event。
-  //absolute 一个布尔值，表示设备是否提供了方向数据。
-  //alpha 一个数字，表示设备围绕 z 轴的转动度数，范围为 0（含）到 360（不含）。
-  //beta 一个数字，表示设备围绕 x 轴的转动度数，范围为 -180（含）到 180（不含）。表示设备的前后运动。
-  //gamma 一个数字，表示设备围绕 y 轴的转动度数，范围为 -90（含）到 90（不含）。表示设备的左右运动。
+addEventListener("pageshow", (event) => {
+  console.log("页面显示", event.persisted);
 });
 
-ondeviceorientation = event => {};
+// 执行顺序示例
+window.addEventListener("load", () => {
+  console.log("1. load 事件");
+});
+
+window.addEventListener("pageshow", (event) => {
+  console.log("2. pageshow 事件:", event);
+});
+```
+
+### 1.5 pagereveal
+
+`pagereveal` 事件在首次呈现文档时触发，无论是从网络加载新文档还是激活文档（从后退/前进缓存或预呈现）。这在跨文档视图过渡的情况下非常有用。
+
+```javascript
+addEventListener("pagereveal", (event) => {
+  console.log("页面首次呈现");
+});
+
+onpagereveal = (event) => {
+  console.log("页面首次呈现");
+};
+```
+
+### 1.6 pageswap
+
+`pageswap` 事件在跨文档导航时触发，当前一个文档即将卸载时。这在跨文档视图过渡的情况下非常有用。
+
+```javascript
+addEventListener("pageswap", (event) => {
+  console.log("页面即将切换");
+});
+
+onpageswap = (event) => {
+  console.log("页面即将切换");
+};
+```
+
+## 2. 用户交互事件
+
+### 2.1 blur & focus
+
+- `blur` - window 失去焦点时触发
+- `focus` - window 获得焦点时触发
+
+```javascript
+window.addEventListener("blur", () => {
+  console.log("窗口失去焦点");
+  // 可以在这里暂停游戏或视频
+});
+
+window.addEventListener("focus", () => {
+  console.log("窗口获得焦点");
+  // 可以在这里恢复游戏或视频
+});
+```
+
+### 2.2 剪贴板事件
+
+当用户通过浏览器的用户界面发起复制、剪切或粘贴动作时触发相应事件。
+
+```javascript
+addEventListener("copy", (event) => {
+  console.log("复制操作");
+});
+
+addEventListener("cut", (event) => {
+  console.log("剪切操作");
+});
+
+addEventListener("paste", (event) => {
+  console.log("粘贴操作");
+});
+
+// 也可以使用属性方式
+oncopy = (event) => {
+  console.log("复制操作");
+};
+
+oncut = (event) => {
+  console.log("剪切操作");
+};
+
+onpaste = (event) => {
+  console.log("粘贴操作");
+};
+```
+
+## 3. 设备和方向事件
+
+### 3.1 devicemotion
+
+`devicemotion` 事件每隔一定时间触发一次，显示设备当时的加速度大小和旋转速率信息。
+
+> **注意：** 此功能仅在安全上下文（HTTPS）中可用。
+
+```javascript
+addEventListener("devicemotion", (event) => {
+  // DeviceMotionEvent 对象属性：
+  // acceleration - 设备在 x、y、z 三轴上的加速度（m/s²）
+  // accelerationIncludingGravity - 包含重力的加速度（m/s²）
+  // rotationRate - 设备绕三个轴的旋转速率（度/秒）
+  // interval - 从设备获取数据的时间间隔（毫秒）
+  
+  console.log("加速度:", event.acceleration);
+  console.log("包含重力的加速度:", event.accelerationIncludingGravity);
+  console.log("旋转速率:", event.rotationRate);
+  console.log("时间间隔:", event.interval);
+});
+
+ondevicemotion = (event) => {
+  console.log("设备运动检测");
+};
+```
+
+### 3.2 deviceorientation
+
+`deviceorientation` 事件在方向传感器输出新数据时触发。
+
+```javascript
+addEventListener("deviceorientation", (event) => {
+  // DeviceOrientationEvent 对象属性：
+  // absolute - 布尔值，表示设备是否提供了绝对方向数据
+  // alpha - 设备围绕 z 轴的转动度数（0-360）
+  // beta - 设备围绕 x 轴的转动度数（-180 到 180）
+  // gamma - 设备围绕 y 轴的转动度数（-90 到 90）
+  
+  console.log("Alpha（z轴）:", event.alpha);
+  console.log("Beta（x轴）:", event.beta);
+  console.log("Gamma（y轴）:", event.gamma);
+});
+
+// 检查是否支持设备方向事件
 if (window.DeviceOrientationEvent) {
-  window.addEventListener(
-    "deviceorientation",
-    function (event) {
-      // alpha: rotation around z-axis
-      var rotateDegrees = event.alpha;
-      // gamma: left to right
-      var leftToRight = event.gamma;
-      // beta: front back motion
-      var frontToBack = event.beta;
-    },
-    true
-  );
+  window.addEventListener("deviceorientation", (event) => {
+    // alpha: 围绕 z 轴旋转
+    const rotateDegrees = event.alpha;
+    // gamma: 左右倾斜
+    const leftToRight = event.gamma;
+    // beta: 前后倾斜
+    const frontToBack = event.beta;
+    
+    console.log(`旋转: ${rotateDegrees}°, 左右: ${leftToRight}°, 前后: ${frontToBack}°`);
+  }, true);
 }
 ```
 
-## deviceorientationabsolute
+### 3.3 deviceorientationabsolute
 
-deviceorientationabsolute 事件在绝对设备方向更改时触发。
+`deviceorientationabsolute` 事件在绝对设备方向更改时触发。
 
-此事件不可取消，也不会冒泡。
+> **注意：** 此功能仅在安全上下文（HTTPS）中可用。
 
-> 此功能仅在安全上下文 （HTTPS） 中可用，在部分或全部支持的浏览器中可用。
-
-```js
-addEventListener("deviceorientationabsolute", event => {});
-
-ondeviceorientationabsolute = event => {};
-```
-## error事件
-当资源加载失败或无法使用时，会在 Window 对象触发 error 事件。例如：script 执行时报错。
-
-> 如果它是由用户界面元素生成的，或者是由事件实例生成的，那么此事件是 UIEvent 实例。
-
-```js
-const log = document.querySelector(".event-log-contents");
-
-window.addEventListener("error", event => {
-  log.textContent = log.textContent + `${event.type}: ${event.message}\n`;
-  console.log(event);
+```javascript
+addEventListener("deviceorientationabsolute", (event) => {
+  console.log("绝对设备方向变化");
 });
 
-const scriptError = document.querySelector("#script-error");
-scriptError.addEventListener("click", () => {
-  const badCode = "const s;";
-  eval(badCode);
+ondeviceorientationabsolute = (event) => {
+  console.log("绝对设备方向变化");
+};
+```
+
+### 3.4 orientationchange
+
+`orientationchange` 事件在设备的纵横方向改变时触发。
+
+```javascript
+window.addEventListener("orientationchange", () => {
+  console.log(`设备方向现在是 ${screen.orientation.angle}°`);
+  console.log(`方向类型: ${screen.orientation.type}`);
 });
 ```
 
-## gamepadconnected&gamepaddisconnected
+## 4. 网络状态事件
 
-gamepadconnected 事件会在浏览器检测到游戏控制器第一次连接或者第一次按下游戏键/摇杆的时候触发
+### 4.1 online & offline
 
-```js
-// 请注意，在实现该 API 的浏览器中，该 API 仍为供应商前缀
-window.addEventListener("gamepadconnected", function (event) {
-  // 所有按钮和轴值均可通过以下方式访问
-  event.gamepad;
+- `online` - 当浏览器能够访问网络时触发
+- `offline` - 当浏览器失去网络连接时触发
+
+```javascript
+// 网络连接事件
+window.addEventListener("online", (event) => {
+  console.log("网络已连接");
+  // 可以在这里恢复网络相关功能
 });
 
-window.addEventListener("gamepaddisconnected", event => {
-  console.log("Lost connection with the gamepad.");
-});
-```
-
-## hashchange
-
-当 URL 的片段标识符（以 # 符号开头和之后的 URL 部分）更改时，将触发 hashchange 事件。除了 Window 接口以外，事件处理器属性 onhashchange 同样可以用于以下目标：
-
-- HTMLBodyElement
-- HTMLFrameSetElement
-- SVGSVGElement
-
-```js
-addEventListener("hashchange", event => {
-  // newURL 一个字符串，表示窗口导航到的新 URL。
-  // oldURL 一个字符串，表示导航窗口的上一个 URL。
-});
-onhashchange = event => {};
-```
-
-## languagechange
-
-languagechange 事件在用户首选语言发生变化时，在全局对象作用域上触发。
-除了 Window 接口以外，事件处理器属性 onhashchange 同样可以用于以下目标：
-
-- HTMLBodyElement
-- HTMLFrameSetElement
-- SVGSVGElement
-
-```js
-addEventListener("languagechange", event => {});
-onlanguagechange = event => {};
-```
-
-## load
-
-load 事件在整个页面及所有依赖资源如样式表和图片都已完成加载时触发。它与 DOMContentLoaded 不同，后者只要页面 DOM 加载完成就触发，无需等待依赖资源的加载。该事件不可取消，也不会冒泡。
-
-```js
-addEventListener("load", event => {});
-
-onload = event => {};
-```
-
-## message
-
-message 事件是在窗口接受到消息（例如，从另一个浏览器上下文中调用 Window.postMessage()）时，在 Window 对象上触发的事件。
-
-```js
-window.addEventListener('message', function(event) { ... })
-window.onmessage = function(event) { ... }
-```
-
-## onmessageerror
-
-WindowEventHandlers 接口的 onmessageerror 事件处理器是一个 EventListener，每当一个类型为 messageerror 的 EventListener 事件在一个窗口被触发 --也就是说，当它收到的消息不能是 deserialized 。
-
-```js
-window.onmessageerror = function() { ... };
-```
-
-## online&offline
-
-当浏览器能够访问网络，且 Navigator.onLine 的值被设为 true 时，Window 接口的 online 事件将被触发。
-
-offline 事件在浏览器失去网络连接时，在 Window 接口上触发。并且 Navigator.onLine 的值变为 false。
-
-```js
-// addEventListener version
-window.addEventListener("online", event => {
-  console.log("You are now connected to the network.");
+window.addEventListener("offline", (event) => {
+  console.log("网络已断开");
+  // 可以在这里切换到离线模式
 });
 
-// ononline version
-window.ononline = event => {
-  console.log("You are now connected to the network.");
+// 也可以使用属性方式
+window.ononline = (event) => {
+  console.log("网络已连接");
 };
 
-addEventListener("offline", event => {});
-onoffline = event => {};
+window.onoffline = (event) => {
+  console.log("网络已断开");
+};
 ```
 
-## orientationchange
+## 5. 导航和历史事件
 
-orientationchange 事件在设备的纵横方向改变时触发。
+### 5.1 hashchange
 
-```js
-window.addEventListener("orientationchange", function () {
-  console.log(
-    "the orientation of the device is now " + screen.orientation.angle
-  );
+当 URL 的片段标识符（以 # 符号开头的部分）更改时，将触发 `hashchange` 事件。
+
+```javascript
+addEventListener("hashchange", (event) => {
+  console.log("新URL:", event.newURL);
+  console.log("旧URL:", event.oldURL);
 });
 
-window.addEventListener("orientationchange", function () {
-  console.log(
-    "the orientation of the device is now " + screen.orientation.angle
-  );
-});
+onhashchange = (event) => {
+  console.log(`URL hash 从 ${event.oldURL} 变为 ${event.newURL}`);
+};
 ```
 
-## pagehide&pageshow
+### 5.2 popstate
 
-当浏览器从展示会话历史中的另一个页面过程中隐藏当前页面时，会向 Window 发送 pagehide 事件。
+每当激活同一文档中不同的历史记录条目时，`popstate` 事件就会触发。
 
-当一条会话历史记录被执行的时候将会触发页面显示 (pageshow) 事件。(这包括了后退/前进按钮操作，同时也会在 onload 事件触发后初始化页面时触发)
+> **注意：** 调用 `history.pushState()` 或 `history.replaceState()` 不会触发 `popstate` 事件。
 
-```js
-addEventListener("pagehide", event => {});
-onpagehide = event => {};
-
-window.addEventListener("pageshow", function (event) {
-  console.log("after , pageshow :", event);
-});
-
-window.addEventListener("load", function () {
-  console.log("before");
-});
-```
-
-## pagereveal
-
-pagereveal 事件在首次呈现文档时触发，无论是从网络加载新文档还是激活文档（从后退/前进缓存 （bfcache） 或预呈现）。
-
-这在跨文档 （MPA） 视图过渡的情况下非常有用，用于处理来自导航入站页面的活动过渡。例如，您可能希望跳过过渡，或通过 JavaScript 自定义集客过渡动画。
-
-```js
-addEventListener("pagereveal", event => {});
-onpagereveal = event => {};
-```
-
-## pageswap
-
-pageswap 事件在跨文档导航时触发，当前一个文档即将卸载时。
-
-这在跨文档 （MPA） 视图过渡的情况下非常有用，用于从导航的出站页面处理活动过渡。例如，您可能希望跳过过渡，或通过 JavaScript 自定义叫客过渡动画。
-
-它还提供对导航类型以及当前和目标文档历史记录条目的访问。
-
-```js
-addEventListener("pageswap", event => {});
-onpageswap = event => {};
-```
-
-## popstate
-
-每当激活同一文档中不同的历史记录条目时，popstate 事件就会在对应的 window 对象上触发。如果当前处于激活状态的历史记录条目是由 history.pushState() 方法创建的或者是由 history.replaceState() 方法修改的，则 popstate 事件的 state 属性包含了这个历史记录条目的 state 对象的一个拷贝。
-
-> 调用 history.pushState() 或者 history.replaceState() 不会触发 popstate 事件。popstate 事件只会在浏览器某些行为下触发，比如点击后退按钮（或者在 JavaScript 中调用 history.back() 方法）。即，在同一文档的两个历史记录条目之间导航会触发该事件。
-
-```js
-window.onpopstate = function (event) {
-  alert(
-    "location: " + document.location + ", state: " + JSON.stringify(event.state)
-  );
+```javascript
+window.onpopstate = (event) => {
+  console.log(`location: ${document.location}, state: ${JSON.stringify(event.state)}`);
 };
 
+// 示例：历史记录操作
 history.pushState({ page: 1 }, "title 1", "?page=1");
 history.pushState({ page: 2 }, "title 2", "?page=2");
 history.replaceState({ page: 3 }, "title 3", "?page=3");
-history.back(); // 弹出 "location: http://example.com/example.html?page=1, state: {"page":1}"
-history.back(); // 弹出 "location: http://example.com/example.html, state: null
-history.go(2); // 弹出 "location: http://example.com/example.html?page=3, state: {"page":3}
+
+// 这些操作会触发 popstate 事件
+history.back(); // 弹出 "location: http://example.com?page=1, state: {"page":1}"
+history.back(); // 弹出 "location: http://example.com, state: null"
+history.go(2);  // 弹出 "location: http://example.com?page=3, state: {"page":3}"
 ```
 
-## rejectionhandled
+### 5.3 languagechange
 
-当 Promise 被 rejected 且有 rejection 处理器时会在全局触发 rejectionhandled 事件 (通常是发生在 window 下，但是也可能发生在 Worker 中)。应用于调试一般应用回退。当 Promise 被 rejected 且没有 rejection 处理器处理时会触发 unhandledrejection 事件。这两个事件协同工作。
+`languagechange` 事件在用户首选语言发生变化时触发。
 
-```js
-window.addEventListener(
-  "rejectionhandled",
-  event => {
-    console.log("Promise rejected; reason: " + event.reason);
-  },
-  false
-);
-```
-
-## unhandledrejection
-
-当 Promise 被 reject 且没有 reject 处理器的时候，会触发 unhandledrejection 事件；这可能发生在 window 下，但也可能发生在 Worker 中。这对于调试和为意外情况提供后备错误处理非常有用。
-
-许多环境 (例如 Node.js ) 默认情况下会向控制台打印未处理的 Promise rejections。你可以通过为 unhandledrejection 事件添加一个处理程序来避免这种情况的发生，该处理程序除了执行你希望执行的任何其他任务之外，还可以调用 preventDefault() 来取消该事件，从而阻止该事件冒泡并由运行时的日志代码处理。这种方法之所以有效，是因为 unhandledrejection 事件是可以取消的。
-
-```js
-window.addEventListener("unhandledrejection", event => {
-  console.warn(`UNHANDLED PROMISE REJECTION: ${event.reason}`);
+```javascript
+addEventListener("languagechange", (event) => {
+  console.log("用户首选语言已变化");
+  // 可以在这里更新页面语言
 });
 
-window.onunhandledrejection = event => {
-  console.warn(`UNHANDLED PROMISE REJECTION: ${event.reason}`);
-  // 阻止默认处理（例如将错误输出到控制台）
-  event.preventDefault();
+onlanguagechange = (event) => {
+  console.log("用户首选语言已变化");
 };
 ```
 
-## resize
+## 6. 错误处理和Promise事件
 
-resize 事件在文档视图（窗口）调整大小时触发。这个事件不可取消，不会冒泡。虽然现在 resize 事件只针对窗口触发，但你可以使用 ResizeObserver API 获得其他元素的尺寸调整通知。
+### 6.1 error
 
-```js
-addEventListener("resize", event => {});
+当资源加载失败或无法使用时，会在 Window 对象触发 `error` 事件。
 
-onresize = event => {};
-```
-
-## scrollsnapchange
-
-当选择新的滚动对齐目标时，Window 界面的 scrollsnapchange 事件将在滚动操作结束时触发。
-
-此事件的工作方式与 Element 接口的 scrollsnapchange 事件大致相同，只是必须将整个 HTML 文档设置为滚动对齐容器（即，在 `<html>` 元素上设置 scroll-snap-type）。
-
-```js
-addEventListener("scrollsnapchange", event => {});
-
-onscrollsnapchange = event => {};
-```
-
-## scrollsnapchanging
-
-当浏览器确定新的滚动对齐目标处于待处理状态时，将触发 Window 界面的 scrollsnapchanging 事件，即当当前滚动手势结束时，将选择该目标
-
-此事件的工作方式与 Element 接口的 scrollsnapchange 事件大致相同，只是必须将整个 HTML 文档设置为滚动对齐容器（即，在 `<html>` 元素上设置 scroll-snap-type）。
-
-```js
-addEventListener("scrollsnapchanging", event => {});
-
-onscrollsnapchanging = event => {};
-```
-
-## storage
-
-当存储区域（localStorage 或 sessionStorage）被修改时，将触发 storage 事件。
-
-```js
-addEventListener("storage", event => {});
-onstorage = event => {};
-```
-
-## unload
-
-当文档或一个子资源正在被卸载时，触发 unload 事件。
-
-它在下面两个事件后被触发：
-
-- beforeunload (可取消默认行为的事件)
-- pagehide
-- 文档处于以下状态：
-
-- 所有资源仍存在 (图片，iframe 等.)
-- 对于终端用户所有资源均不可见
-- 界面交互无效 (window.open, alert, confirm 等.)
-- 错误不会停止卸载文档的过程
-
-```js
-window.addEventListener("beforeunload", function (event) {
-  console.log("I am the 2nd one.");
+```javascript
+window.addEventListener("error", (event) => {
+  console.error(`错误类型: ${event.type}`);
+  console.error(`错误信息: ${event.message}`);
+  console.error(`错误文件: ${event.filename}`);
+  console.error(`错误行号: ${event.lineno}`);
+  console.error(`错误列号: ${event.colno}`);
 });
-window.addEventListener("unload", function (event) {
-  console.log("I am the 4th and last one…");
+
+// 示例：触发错误
+const scriptError = document.querySelector("#script-error");
+scriptError?.addEventListener("click", () => {
+  const badCode = "const s;";
+  eval(badCode); // 这会触发错误
 });
 ```
+
+### 6.2 unhandledrejection
+
+当 Promise 被 reject 且没有 reject 处理器时，会触发 `unhandledrejection` 事件。
+
+```javascript
+window.addEventListener("unhandledrejection", (event) => {
+  console.warn(`未处理的 Promise 拒绝: ${event.reason}`);
+  
+  // 阻止默认处理（例如将错误输出到控制台）
+  event.preventDefault();
+});
+
+window.onunhandledrejection = (event) => {
+  console.warn(`未处理的 Promise 拒绝: ${event.reason}`);
+};
+```
+
+### 6.3 rejectionhandled
+
+当 Promise 被 rejected 且有 rejection 处理器时会触发 `rejectionhandled` 事件。
+
+```javascript
+window.addEventListener("rejectionhandled", (event) => {
+  console.log(`Promise 拒绝已处理; 原因: ${event.reason}`);
+}, false);
+```
+
+## 7. 打印和应用安装事件
+
+### 7.1 beforeprint & afterprint
+
+- `beforeprint` - 在相关联的文档即将打印或预览打印时触发
+- `afterprint` - 在关联的文档开始打印或关闭打印预览后触发
+
+```javascript
+addEventListener("beforeprint", (event) => {
+  console.log("即将打印");
+  // 可以在这里修改页面内容，例如隐藏不需要打印的元素
+});
+
+addEventListener("afterprint", (event) => {
+  console.log("打印完成");
+  // 可以在这里恢复页面内容
+});
+
+// 也可以使用属性方式
+onbeforeprint = (event) => {
+  console.log("即将打印");
+};
+
+onafterprint = (event) => {
+  console.log("打印完成");
+};
+```
+
+### 7.2 appinstalled
+
+当网页应用成功安装为渐进式网页应用时触发 `appinstalled` 事件。
+
+```javascript
+window.onappinstalled = (event) => {
+  console.log("应用已安装");
+};
+```
+
+### 7.3 beforeinstallprompt
+
+当一个 Web 清单存在时，在提示用户将网站保存到主屏幕之前触发。
+
+```javascript
+window.addEventListener("beforeinstallprompt", (event) => {
+  console.log("准备显示安装提示");
+  // 可以在这里自定义安装提示的时机
+});
+
+window.onbeforeinstallprompt = (event) => {
+  console.log("准备显示安装提示");
+};
+```
+
+## 8. 消息和存储事件
+
+### 8.1 message
+
+当窗口接收到消息时触发 `message` 事件（例如，从另一个浏览器上下文中调用 `Window.postMessage()`）。
+
+```javascript
+window.addEventListener("message", (event) => {
+  console.log("收到消息:", event.data);
+  console.log("来源:", event.origin);
+  console.log("发送者:", event.source);
+});
+
+window.onmessage = (event) => {
+  // 安全检查：验证来源
+  if (event.origin !== "https://trusted-domain.com") {
+    return;
+  }
+  
+  console.log("收到可信消息:", event.data);
+};
+```
+
+### 8.2 messageerror
+
+当窗口收到无法反序列化的消息时触发 `messageerror` 事件。
+
+```javascript
+window.onmessageerror = (event) => {
+  console.error("消息反序列化错误");
+};
+```
+
+### 8.3 storage
+
+当存储区域（localStorage 或 sessionStorage）被修改时，将触发 `storage` 事件。
+
+```javascript
+addEventListener("storage", (event) => {
+  console.log("存储变化:");
+  console.log("键:", event.key);
+  console.log("旧值:", event.oldValue);
+  console.log("新值:", event.newValue);
+  console.log("URL:", event.url);
+  console.log("存储区域:", event.storageArea);
+});
+
+onstorage = (event) => {
+  console.log("存储区域被修改");
+};
+```
+
+## 9. 游戏手柄事件
+
+### 9.1 gamepadconnected & gamepaddisconnected
+
+- `gamepadconnected` - 当浏览器检测到游戏控制器连接时触发
+- `gamepaddisconnected` - 当游戏控制器断开连接时触发
+
+```javascript
+// 游戏手柄连接事件
+window.addEventListener("gamepadconnected", (event) => {
+  console.log("游戏手柄已连接");
+  console.log("手柄信息:", event.gamepad);
+  
+  // 可以通过 event.gamepad 访问所有按钮和轴值
+  const gamepad = event.gamepad;
+  console.log("手柄ID:", gamepad.id);
+  console.log("按钮数量:", gamepad.buttons.length);
+  console.log("轴数量:", gamepad.axes.length);
+});
+
+window.addEventListener("gamepaddisconnected", (event) => {
+  console.log("游戏手柄已断开连接");
+});
+```
+
+## 10. 窗口和滚动事件
+
+### 10.1 resize
+
+`resize` 事件在文档视图（窗口）调整大小时触发。
+
+```javascript
+addEventListener("resize", (event) => {
+  console.log("窗口大小已改变");
+  console.log("新尺寸:", window.innerWidth, "x", window.innerHeight);
+});
+
+onresize = (event) => {
+  console.log("窗口大小已改变");
+};
+```
+
+### 10.2 scrollsnapchange
+
+当选择新的滚动对齐目标时，在滚动操作结束时触发。
+
+> **注意：** 必须将整个 HTML 文档设置为滚动对齐容器（在 `<html>` 元素上设置 `scroll-snap-type`）。
+
+```javascript
+addEventListener("scrollsnapchange", (event) => {
+  console.log("滚动对齐目标已改变");
+});
+
+onscrollsnapchange = (event) => {
+  console.log("滚动对齐目标已改变");
+};
+```
+
+### 10.3 scrollsnapchanging
+
+当浏览器确定新的滚动对齐目标处于待处理状态时触发。
+
+```javascript
+addEventListener("scrollsnapchanging", (event) => {
+  console.log("滚动对齐目标正在改变");
+});
+
+onscrollsnapchanging = (event) => {
+  console.log("滚动对齐目标正在改变");
+};
+```
+
+## 11. 最佳实践
+
+### 11.1 事件处理器的选择
+
+```javascript
+// 推荐：使用 addEventListener
+window.addEventListener("load", handleLoad);
+
+// 避免：使用 on* 属性可能覆盖其他处理器
+window.onload = handleLoad;
+```
+
+### 11.2 性能优化
+
+```javascript
+// 对于频繁触发的事件，使用节流或防抖
+function throttle(func, delay) {
+  let timeoutId;
+  let lastExecTime = 0;
+  
+  return function (...args) {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastExecTime > delay) {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
+}
+
+// 使用节流处理 resize 事件
+window.addEventListener("resize", throttle(() => {
+  console.log("窗口大小改变");
+}, 100));
+```
+
+### 11.3 错误处理
+
+```javascript
+// 全局错误处理
+window.addEventListener("error", (event) => {
+  // 记录错误信息
+  console.error("全局错误:", event.error);
+  
+  // 发送错误报告到服务器
+  fetch("/api/error-report", {
+    method: "POST",
+    body: JSON.stringify({
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      error: event.error?.stack
+    })
+  });
+});
+
+// Promise 错误处理
+window.addEventListener("unhandledrejection", (event) => {
+  console.error("未处理的 Promise 拒绝:", event.reason);
+  
+  // 阻止默认的错误输出
+  event.preventDefault();
+});
+```
+
+### 11.4 安全考虑
+
+```javascript
+// 消息事件的安全处理
+window.addEventListener("message", (event) => {
+  // 验证来源
+  const allowedOrigins = ["https://trusted-domain.com", "https://another-trusted.com"];
+  if (!allowedOrigins.includes(event.origin)) {
+    console.warn("来自不信任源的消息:", event.origin);
+    return;
+  }
+  
+  // 处理消息
+  handleTrustedMessage(event.data);
+});
+```
+
+## 12. 参考资料
+
+- [MDN - Window 事件](https://developer.mozilla.org/zh-CN/docs/Web/API/Window#事件)
+- [MDN - 事件参考](https://developer.mozilla.org/zh-CN/docs/Web/Events)
+- [MDN - 页面生命周期 API](https://developer.mozilla.org/zh-CN/docs/Web/API/Page_Lifecycle_API)
+- [MDN - 设备方向事件](https://developer.mozilla.org/zh-CN/docs/Web/API/DeviceOrientationEvent)
+- [MDN - 历史 API](https://developer.mozilla.org/zh-CN/docs/Web/API/History_API)
+- [MDN - 错误处理](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Control_flow_and_error_handling)
