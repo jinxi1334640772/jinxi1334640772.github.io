@@ -1,20 +1,40 @@
-## jQuery 简介
+---
+title: jQuery 技术指南
+description: jQuery 完整开发指南，包含选择器、事件处理、动画效果、Ajax、插件开发等核心特性
+outline: deep
+---
 
-一个快速、小巧、功能丰富的 JavaScript 库。利用一些容易上手的 API，它使一些任务，譬如 HTML 文档遍历和操纵、事件处理、动画，以及 Ajax 更简单，并能跨浏览器起作用。jQuery 库包含以下功能：
+# 📚 jQuery 技术指南
 
-- HTML 元素选取
-- HTML 元素操作
-- HTML 事件函数
-- HTML DOM 遍历和修改
-- CSS 操作
-- JavaScript 特效和动画
-- AJAX
-- Utilities
+jQuery 是一个快速、小巧、功能丰富的 JavaScript 库。利用一些容易上手的 API，它使一些任务，譬如 HTML 文档遍历和操纵、事件处理、动画，以及 Ajax 更简单，并能跨浏览器起作用。
 
-jQuery 使用 `$` 符号和 `jQuery` 对象，会注入 window 全局对象。但可能其他框架也使用 $ 符号，这样就会引发冲突（但 jQuery 也可以照常使用）。使用 `noConflict()`方法避免这个问题。
+::: tip 📖 本章内容
+深入学习 jQuery 的核心功能，掌握高效的 DOM 操作和事件处理技巧。
+:::
 
-```js
-// 使用noConflict()，释放对 $ 标识符的控制，返回值相当于起了个别名
+## 1. jQuery 简介
+
+### 1.1 功能概述
+
+jQuery 库包含以下核心功能：
+
+| 功能分类 | 描述 | 主要用途 |
+|---------|------|----------|
+| **HTML 元素选取** | 强大的选择器引擎 | 快速定位 DOM 元素 |
+| **HTML 元素操作** | DOM 操作和修改 | 动态改变页面内容 |
+| **HTML 事件函数** | 事件绑定和处理 | 响应用户交互 |
+| **HTML DOM 遍历和修改** | DOM 树遍历 | 查找相关元素 |
+| **CSS 操作** | 样式操作 | 动态修改元素样式 |
+| **JavaScript 特效和动画** | 动画效果 | 创建流畅的用户体验 |
+| **Ajax** | 异步通信 | 与服务器数据交互 |
+| **Utilities** | 工具方法 | 常用辅助功能 |
+
+### 1.2 版本兼容性
+
+jQuery 使用 `$` 符号和 `jQuery` 对象，会注入 window 全局对象。但可能其他框架也使用 $ 符号，这样就会引发冲突（但 jQuery 也可以照常使用）。使用 `noConflict()` 方法避免这个问题。
+
+```javascript
+// 使用 noConflict()，释放对 $ 标识符的控制，返回值相当于起了个别名
 var jq = $.noConflict();
 jq(document).ready(function () {
   jq("button").click(function () {
@@ -23,43 +43,9 @@ jq(document).ready(function () {
 });
 ```
 
-## jQuery 选择器
+### 1.3 文档就绪事件
 
-jQuery 选择器基于元素的 id、类、类型、属性、属性值等"查找"（或选择）HTML 元素。 传入任何 CSS 选择器即可选中该元素，返回该元素的 jQuery 对象。
-
-伪类选择器：
-
-- `:contains(text)`选择所有包含指定文本的元素。
-- `:has(selector)`选择至少包含指定选择器的元素。
-- `:empty`选择所有没有子元素的元素（包括文本节点）。
-- `:parent`选择有子元素或者文本的元素。empty 相反
-
-- `:it(index)`所有索引值小于给定 index 参数的元素
-- `:eq(index)`所有索引值等于给定 index 参数的元素
-- `:gt(index)`所有索引值大于给定 index 参数的元素
-- `:even`偶数元素
-- `:odd`奇数元素
-
-jQuery 对象的方法：
-
-- `.filter(selector|element|function(index))`过滤器
-- `.first()`
-- `.last()`
-- `.is(selector|element|function(index))`
-- `.not(selector|element|function(index))`
-- `.has(selector)`有相匹配的选择器或 DOM 元素的后代元素的元素
-- `.map(callback(index, domElement))`返回新 jQuery 对象
-- `.slice()`根据指定的下标范围，过滤匹配的元素集合，并生成一个新的 jQuery 对象
-
-- `contents()`筛选包括文字和注释节点的元素
-- `add(selector)`添加元素到匹配的元素集合。
-- `find()`通过一个选择器，jQuery 对象，或元素过滤，得到当前匹配的元素集合中每个元素的后代。
-- `children(selector)`获得匹配元素集合中每个元素的子元素，选择器选择性筛选。
-- `closest(selector)`返回最先匹配的祖先元素
-- `offsetParent()`取得离指定元素最近的含有定位信息的祖先元素
-- `end()`终止在当前链的最新过滤操作，并返回匹配的元素的以前状态。
-
-```js
+```javascript
 // 通过选择器selector选中元素，然后执行相应的action操作
 $(selector).action();
 
@@ -67,376 +53,750 @@ $(selector).action();
 $(document).ready(function () {
   // 开始写 jQuery 代码...
 });
-// 上述解析语法：
+
+// 上述解析语法的简写形式：
 $(function () {
   // 开始写 jQuery 代码...
 });
-
-//选取 class 为 intro 的 <p> 元素
-$("p.intro");
-
-//选取每个 <ul> 元素的第一个 <li> 元素
-$("ul li:first-child");
 ```
 
-## jQuery 事件
+## 2. jQuery 选择器
+
+### 2.1 基本选择器
+
+jQuery 选择器基于元素的 id、类、类型、属性、属性值等"查找"（或选择）HTML 元素。传入任何 CSS 选择器即可选中该元素，返回该元素的 jQuery 对象。
+
+```javascript
+// 选取 class 为 intro 的 <p> 元素
+$("p.intro");
+
+// 选取每个 <ul> 元素的第一个 <li> 元素
+$("ul li:first-child");
+
+// 根据 ID 选择
+$("#myId");
+
+// 根据标签选择
+$("div");
+
+// 根据属性选择
+$("[data-role='button']");
+```
+
+### 2.2 伪类选择器
+
+jQuery 提供了丰富的伪类选择器：
+
+#### 内容过滤
+- `:contains(text)` - 选择所有包含指定文本的元素
+- `:has(selector)` - 选择至少包含指定选择器的元素
+- `:empty` - 选择所有没有子元素的元素（包括文本节点）
+- `:parent` - 选择有子元素或者文本的元素，与 empty 相反
+
+#### 位置过滤
+- `:lt(index)` - 所有索引值小于给定 index 参数的元素
+- `:eq(index)` - 所有索引值等于给定 index 参数的元素
+- `:gt(index)` - 所有索引值大于给定 index 参数的元素
+- `:even` - 偶数元素
+- `:odd` - 奇数元素
+
+```javascript
+// 选择包含特定文本的元素
+$("div:contains('Hello')");
+
+// 选择有子元素的 div
+$("div:has(p)");
+
+// 选择第一个和最后一个
+$("li:first");
+$("li:last");
+
+// 选择偶数位置的元素
+$("tr:even");
+```
+
+### 2.3 jQuery 对象方法
+
+```javascript
+// 过滤方法
+$(".item").filter(".active");          // 过滤器
+$(".item").first();                    // 第一个元素
+$(".item").last();                     // 最后一个元素
+$(".item").eq(2);                      // 指定索引的元素
+$(".item").is(".active");              // 检查是否匹配
+$(".item").not(".disabled");           // 排除指定元素
+$(".item").has("span");                // 包含指定子元素的元素
+
+// 集合操作
+$(".item").slice(1, 3);                // 根据指定的下标范围过滤
+$(".item").add(".new-item");           // 添加元素到匹配的元素集合
+
+// 遍历方法
+$(".item").map(function(index, element) {
+  return $(element).text();
+});
+
+// DOM 树遍历
+$(".item").find("span");               // 查找后代元素
+$(".item").children(".child");         // 获取直接子元素
+$(".item").closest(".container");      // 查找最近的祖先元素
+$(".item").offsetParent();             // 获取最近的已定位祖先元素
+$(".item").contents();                 // 获取包括文字和注释节点的所有内容
+
+// 链式操作控制
+$(".item").find("span").addClass("highlight").end().addClass("processed");
+```
+
+## 3. 事件处理
+
+### 3.1 事件类型
 
 页面对不同访问者的响应叫做事件。事件处理程序指的是当 HTML 元素发生某些事件时所调用的方法。
 
-常用的事件类型有：
+#### 鼠标事件
+- `click` - 单击事件
+- `dblclick` - 双击事件
+- `mouseenter` - 鼠标进入
+- `mouseleave` - 鼠标离开
+- `mousemove` - 鼠标移动
+- `mouseout` - 鼠标移出
+- `hover` - 鼠标悬停
 
-鼠标事件：
+#### 键盘事件
+- `keydown` - 按键按下
+- `keyup` - 按键释放
+- `keypress` - 按键按下并释放
 
-- `click`
-- `dbclick`
-- `mouseenter`
-- `mousemove`
-- `mouseleave`
-- `mouseout`
-- `hover`
+#### 表单事件
+- `submit` - 表单提交
+- `change` - 值改变
+- `input` - 输入事件
+- `focus` - 获得焦点
+- `blur` - 失去焦点
 
-键盘事件：
+#### 文档事件
+- `load` - 页面加载完成
+- `resize` - 窗口大小改变
+- `scroll` - 滚动事件
 
-- `keydown`
-- `keyup`
+### 3.2 事件绑定方法
 
-表单事件：
-
-- `submit`
-- `change`
-- `input`
-- `focus`
-- `blur`
-
-文档事件：
-
-- `load`
-- `resize`
-- `scroll`
-
-附加处理程序的类型：
-
-- `bind(eventType [, eventData ], handler(eventObject) )`绑定一个事件处理程序
-- `unbind(eventType [, eventData ], handler(eventObject) )`删除一个事件处理程序
-- `on(events [, selector ] [, data ], handler(eventObject))`绑定一个或多个事件处理函数
-- `one( events [, selector ] [, data ], handler(eventObject))`只会执行一次的事件处理器
-- `off(events [, selector ] [, handler(eventObject) ])`移除一个事件处理函数。
-
-- `delegate(selector, eventType, eventData, handler(eventObject))`绑定一个或多个事件处理函数
-- `undelegate(selector, eventType, handler(eventObject))`删除事件处理程序
-- `trigger(customEventName)`触发给定事件类型所有的处理程序
-- `triggerHandler( eventType [, extraParameters ] )`为一个事件执行所有处理程序。
-
-给元素添加事件：
-
-```js
-//eventData对象，它包含的数据键值对映射将被传递给事件处理程序
-delegate(selector, eventType, eventData, handler(eventObject));
-//一个对象，包含一个或多个DOM事件类型和函数并执行它们。
-delegate(selector, events);
-
-$("table").delegate("td", "click", function () {
-  $(this).toggleClass("chosen");
-});
-
-// 给选中的p元素田间click事件处理器
+```javascript
+// 基本事件绑定
 $("p").click(function () {
-  // 动作触发后执行的代码!!
+  // 动作触发后执行的代码
+  console.log("段落被点击了");
 });
 
-// 给#p1元素添加hover事件，参数分别是hover进入和离开的回调
-$("#p1").hover(
-  function () {
-    alert("你进入了 p1!");
+// on() 方法 - 推荐使用
+$("p").on("click", function() {
+  console.log("使用 on 方法绑定事件");
+});
+
+// 绑定多个事件
+$("p").on("click mouseenter", function() {
+  console.log("点击或鼠标进入");
+});
+
+// 事件代理
+$("table").on("click", "td", function() {
+  $(this).toggleClass("selected");
+});
+
+// 传递数据
+$("button").on("click", {name: "张进喜"}, function(event) {
+  alert("Hello " + event.data.name);
+});
+```
+
+### 3.3 高级事件处理
+
+```javascript
+// 只执行一次的事件
+$("button").one("click", function() {
+  alert("这个事件只会执行一次");
+});
+
+// 事件解绑
+$("button").off("click");
+$("button").off("click", handlerFunction);
+
+// 触发事件
+$("button").trigger("click");
+$("button").triggerHandler("click");
+
+// hover 事件的特殊处理
+$("#element").hover(
+  function() {
+    // 鼠标进入时执行
     $(this).css("background-color", "#cccccc");
   },
-  function () {
-    alert("拜拜! 现在你离开了 p1!");
+  function() {
+    // 鼠标离开时执行
     $(this).css("background-color", "#ffffff");
   }
 );
+
+// 阻止默认行为和冒泡
+$("a").click(function(event) {
+  event.preventDefault();  // 阻止默认行为
+  event.stopPropagation(); // 阻止事件冒泡
+  return false; // 同时阻止默认行为和冒泡
+});
 ```
 
-## jQuery 效果
+## 4. 动画效果
 
-隐藏、显示、切换，滑动，淡入淡出，以及动画。。。。。。
+### 4.1 基本显示隐藏
 
-- `show(speed,callback)`显示
-- `hide(speed,callback)`隐藏
-- `toggle(speed,callback)`切换显示/隐藏
+jQuery 提供了丰富的动画效果，包括隐藏、显示、切换，滑动，淡入淡出，以及自定义动画。
 
-- `fadeIn(speed,callback)`淡入
-- `fadeOut(speed,callback)`淡出
-- `fadeTo(speed,opacity,callback)` 渐变为给定的不透明度（值介于 0 与 1 之间）。
-- `fadeToggle(speed,callback)`切换淡入/淡出
+```javascript
+// 显示隐藏动画
+$("div").show();                    // 立即显示
+$("div").show(1000);               // 1秒内显示
+$("div").show("slow");             // 慢速显示
+$("div").show("fast");             // 快速显示
 
-- `slideDown(speed,callback)`向下滑入
-- `slideUp(speed,callback)`向上滑出
-- `slideToggle(speed,callback)`切换滑入/滑出
+$("div").hide(1000);               // 隐藏动画
+$("div").toggle(1000);             // 切换显示/隐藏
 
-- `animate({params},speed,callback)`创建自定义动画
-- `stop(stopAll,goToEnd)`停止动画
-- `delay(duration [, queueName ] )`设置一个延时来推迟执行队列中后续的项。
-- `finish( [queue ])`停止当前正在运行的动画，删除所有排队的动画，并完成匹配元素所有的动画
+// 带回调函数
+$("div").show(1000, function() {
+  console.log("显示动画完成");
+});
+```
 
-```js
-$(document).ready(function () {
-  /**
-   * @params 定义形成动画的 CSS 属性
-   * @speed 动画速度
-   * @callback 结束的回调
-   *
-   */
-  $("div").animate({
-    left: "250px",
-    opacity: "0.5",
-    height: "toggle", //可以设置为 "show"、"hide" 或 "toggle"：
-    height: "+=150px", //可以是相对值
-    width: "+=150px",
+### 4.2 淡入淡出效果
+
+```javascript
+// 淡入淡出
+$("div").fadeIn();                 // 淡入
+$("div").fadeIn(1000);            // 1秒淡入
+$("div").fadeOut();               // 淡出
+$("div").fadeToggle();            // 切换淡入/淡出
+
+// 淡化到指定透明度
+$("div").fadeTo(1000, 0.5);       // 1秒内淡化到50%透明度
+
+// 链式调用
+$("div").fadeOut(500).delay(1000).fadeIn(500);
+```
+
+### 4.3 滑动效果
+
+```javascript
+// 滑动效果
+$("div").slideDown();             // 向下滑入
+$("div").slideDown(1000);         // 1秒内向下滑入
+$("div").slideUp();               // 向上滑出
+$("div").slideToggle();           // 切换滑入/滑出
+
+// 完整示例
+$("button").click(function() {
+  $("div").slideToggle("slow", function() {
+    console.log("滑动动画完成");
   });
+});
+```
 
-  /**停止动画
-   * @stopAll 是否应该清除动画队列.默认是 false，即仅停止活动的动画，
-   * 允许任何排入队列的动画向后执行。
-   * @goToEnd 是否立即完成当前动画。默认是 false
-   */
-  $("div").stop();
+### 4.4 自定义动画
 
-  $(".hidebtn").click(function () {
-    /**
-     * @1000:显示/隐藏速度1000ms，也可以用slow、fast关键字
-     * @linear：运动曲线 linear\swing，也可以使用其他插件提供的运动曲线
-     * @callback:运动结束后的回调函数
-     */
-    $("div").hide(1000, "linear", function () {
-      alert("Hide() 方法已完成!");
+```javascript
+// 基本自定义动画
+$("div").animate({
+  left: "250px",
+  opacity: 0.5,
+  height: "150px",
+  width: "150px"
+}, 1000);
+
+// 相对值动画
+$("div").animate({
+  left: "+=50px",     // 相对当前位置移动50px
+  height: "+=100px",  // 高度增加100px
+  width: "-=50px"     // 宽度减少50px
+}, 2000);
+
+// 使用预定义值
+$("div").animate({
+  height: "toggle",   // 可以设置为 "show"、"hide" 或 "toggle"
+  opacity: "toggle"
+}, 1000);
+
+// 队列动画
+$("div")
+  .animate({left: "100px"}, 1000)
+  .animate({top: "100px"}, 1000)
+  .animate({left: "0px"}, 1000)
+  .animate({top: "0px"}, 1000);
+
+// 同时进行多个动画
+$("div").animate({
+  left: "100px",
+  top: "100px",
+  opacity: 0.5
+}, {
+  duration: 1000,
+  easing: "swing",
+  complete: function() {
+    console.log("动画完成");
+  }
+});
+```
+
+### 4.5 动画控制
+
+```javascript
+// 停止动画
+$("div").stop();                  // 停止当前动画
+$("div").stop(true);              // 停止所有动画
+$("div").stop(true, true);        // 停止所有动画并跳到结束状态
+
+// 延迟执行
+$("div").delay(1000).fadeIn(500); // 延迟1秒后淡入
+
+// 完成所有动画
+$("div").finish();                // 立即完成所有动画
+
+// 检查是否在动画中
+if ($("div").is(":animated")) {
+  console.log("元素正在动画中");
+}
+```
+
+## 5. DOM 操作
+
+### 5.1 内容操作
+
+```javascript
+// 获取和设置内容
+$("p").text();                    // 获取文本内容
+$("p").text("新的文本内容");       // 设置文本内容
+$("p").html();                    // 获取HTML内容
+$("p").html("<strong>加粗文本</strong>"); // 设置HTML内容
+
+// 获取和设置表单值
+$("input").val();                 // 获取表单元素的值
+$("input").val("新值");           // 设置表单元素的值
+
+// 批量设置
+$("input[type='text']").val(function(index, currentValue) {
+  return "Item " + (index + 1);
+});
+```
+
+### 5.2 属性操作
+
+```javascript
+// 属性操作
+$("img").attr("src");             // 获取属性值
+$("img").attr("src", "new.jpg");  // 设置属性值
+$("img").attr({                   // 设置多个属性
+  "src": "new.jpg",
+  "alt": "新图片",
+  "title": "图片标题"
+});
+
+$("img").removeAttr("title");     // 移除属性
+
+// 数据属性
+$("div").data("key", "value");    // 设置数据属性
+$("div").data("key");             // 获取数据属性
+$("div").removeData("key");       // 移除数据属性
+```
+
+### 5.3 CSS 类操作
+
+```javascript
+// CSS 类操作
+$("div").addClass("highlight");        // 添加类
+$("div").removeClass("highlight");     // 移除类
+$("div").toggleClass("highlight");     // 切换类
+$("div").hasClass("highlight");        // 检查是否有类
+
+// 添加多个类
+$("div").addClass("class1 class2 class3");
+
+// 条件性添加类
+$("div").addClass(function(index, currentClass) {
+  return index % 2 === 0 ? "even" : "odd";
+});
+```
+
+### 5.4 CSS 样式操作
+
+```javascript
+// CSS 样式操作
+$("div").css("color");                 // 获取样式值
+$("div").css("color", "red");          // 设置样式值
+$("div").css({                         // 设置多个样式
+  "color": "red",
+  "background-color": "yellow",
+  "font-size": "16px"
+});
+
+// 获取计算后的样式
+$("div").css("width");                 // 返回如 "200px"
+
+// 相对值设置
+$("div").css("fontSize", "+=2px");     // 字体大小增加2px
+```
+
+### 5.5 尺寸操作
+
+```javascript
+// 尺寸获取和设置
+$("div").width();                      // 获取宽度
+$("div").width(200);                   // 设置宽度
+$("div").height();                     // 获取高度
+$("div").height(100);                  // 设置高度
+
+// 包含padding的尺寸
+$("div").innerWidth();                 // 宽度 + padding
+$("div").innerHeight();                // 高度 + padding
+
+// 包含padding和border的尺寸
+$("div").outerWidth();                 // 宽度 + padding + border
+$("div").outerHeight();                // 高度 + padding + border
+
+// 包含margin的尺寸
+$("div").outerWidth(true);             // 宽度 + padding + border + margin
+$("div").outerHeight(true);            // 高度 + padding + border + margin
+```
+
+## 6. Ajax 操作
+
+### 6.1 基本 Ajax 方法
+
+```javascript
+// 基本的 Ajax 请求
+$.ajax({
+  url: "/api/data",
+  type: "GET",
+  dataType: "json",
+  success: function(data) {
+    console.log("请求成功", data);
+  },
+  error: function(xhr, status, error) {
+    console.log("请求失败", error);
+  }
+});
+
+// 简化的 GET 请求
+$.get("/api/data", function(data) {
+  console.log("GET 请求成功", data);
+});
+
+// 简化的 POST 请求
+$.post("/api/data", {name: "张进喜", age: 25}, function(data) {
+  console.log("POST 请求成功", data);
+});
+
+// 加载 JSON 数据
+$.getJSON("/api/data.json", function(data) {
+  console.log("JSON 数据", data);
+});
+```
+
+### 6.2 表单序列化
+
+```javascript
+// 表单序列化
+$("#myForm").serialize();              // 序列化为查询字符串
+$("#myForm").serializeArray();         // 序列化为对象数组
+
+// 示例
+var formData = $("#myForm").serialize();
+console.log(formData); // "name=张进喜&email=zhang@example.com"
+
+var formArray = $("#myForm").serializeArray();
+console.log(formArray); 
+// [
+//   {name: "name", value: "张进喜"},
+//   {name: "email", value: "zhang@example.com"}
+// ]
+```
+
+### 6.3 Ajax 全局事件
+
+```javascript
+// Ajax 全局事件处理
+$(document).ajaxStart(function() {
+  console.log("Ajax 请求开始");
+  $("#loading").show();
+});
+
+$(document).ajaxStop(function() {
+  console.log("Ajax 请求结束");
+  $("#loading").hide();
+});
+
+$(document).ajaxSuccess(function(event, xhr, settings) {
+  console.log("Ajax 请求成功");
+});
+
+$(document).ajaxError(function(event, xhr, settings, error) {
+  console.log("Ajax 请求错误", error);
+});
+```
+
+## 7. 插件开发
+
+### 7.1 基本插件结构
+
+```javascript
+// 基本插件模板
+(function($) {
+  $.fn.myPlugin = function(options) {
+    // 默认设置
+    var defaults = {
+      color: 'red',
+      fontSize: '14px'
+    };
+    
+    // 合并设置
+    var settings = $.extend({}, defaults, options);
+    
+    // 返回 jQuery 对象以支持链式调用
+    return this.each(function() {
+      var $this = $(this);
+      
+      // 插件逻辑
+      $this.css({
+        'color': settings.color,
+        'font-size': settings.fontSize
+      });
     });
+  };
+})(jQuery);
 
-    //可以链式调用
-    $("#div2").fadeToggle("slow").delay(800).fadeToggle(3000).fadeTo("slow", 0.7).slideUp();
-  });
+// 使用插件
+$('p').myPlugin({
+  color: 'blue',
+  fontSize: '16px'
 });
 ```
 
-## jQuery 内容操作
+### 7.2 高级插件开发
 
-jQuery 中非常重要的部分，就是操作 DOM 的能力。提供一系列与 DOM 相关的方法，这使访问和操作元素和属性变得很容易。
-
-- `text()`设置或返回文本内容
-- `html()`设置或返回内容（包括 HTML 标签）
-- `val()`设置或返回表单字段的
-- `attr()`获取或设置属性值
-- `removeAttr()`
-- `prop()`获取或设置特性值
-- `removeProp()`
-- `clone()`创建一个匹配的元素集合的深度拷贝副本。
-- `wrap(wrappingElement)`在每个匹配的元素外层包上一个 html 元素。
-- `wrapAll(wrappingElement)`在所有匹配元素外面包一层 HTML 结构。
-- `wrapInner(wrappingElement)`在匹配元素里的内容外包一层结构。
-- `unwrap()`将匹配元素集合的父级元素删除
-
-- `data(name,value)`添加自定义数据
-- `hasData()`判断是否有数据
-- `removeData()`移除数据
-- `dequeue()`执行匹配元素队列的下一个函数。
-- `queue()`显示在匹配的元素上的已经执行的函数列队
-- `clearQueue()`从列队中移除所有未执行的项。
-
-- `append()`在被选元素的结尾插入内容
-- `appendTo()`把被选元素插入到指定元素最后面
-- `prepend()`
-- `prependTo()`
-- `before()`
-- `insertBefore()`
-- `after()`在被选元素之后插入内容
-- `insertAfter()`把被选元素插入指定元素之后
-- `replaceAll(target)`匹配元素替换每个目标元素
-- `replaceWith(newContent)`用内容替换匹配的元素并且返回被删除元素的集合。
-
-- `remove()`删除被选元素（及其子元素）
-- `empty()`从被选元素中删除子元素
-- `detach()`从 DOM 中去掉所有匹配的元素
-
-- `addClass()`向被选元素添加一个或多个类
-- `hasClass()`否有被分配给定的（样式）类
-- `removeClass()`从被选元素删除一个或多个类
-- `toggleClass()`对被选元素进行添加/删除类的切换操作
-- `css()`设置或返回样式属性
-
-- `width()`设置或返回元素的宽度
-- `height()`
-- `innerWidth()`
-- `innerHeight()`
-- `outerWidth()`
-- `outerHeight()`
-- `offset()`获取和设置第一个元素的当前坐标，坐标相对于文档
-- `position()`获取匹配元素中第一个元素的当前坐标，相对于 offset parent 的坐标
-- `scrollLeft()`获取和设置每个匹配元素的水平滚动条位置
-- `scrollTop()`
-
-```js
-$("button").click(function () {
-  $("p").css("background-color", "yellow").css("background-color");
-  $("p").css({ "background-color": "yellow", "font-size": "200%" });
-  $("body div:first").addClass("important blue");
-  $("body").append(txt1, txt2, txt3); // 追加新元素
-
-  $("#idname").attr("href", "http://www.baidu.com/jquery");
-
-  //设置多个属性值
-  $("#runoob").attr({
-    href: "http://www.runoob.com/jquery",
-    title: "jQuery 教程",
-  });
-
-  //用回调函数返回值设置属性值，参数：被选元素列表中当前元素的下标，以及原始（旧的）值
-  $("#runoob").attr("href", function (i, origValue) {
-    return origValue + "/jquery";
-  });
-});
-```
-
-![alt text](jquery.png)
-
-## jQuery 遍历
-
-- `length`在 jQuery 对象中元素的数量
-- `selector`返回传给 jQuery()的原始选择器。
-- `jquery`一个包含了 jQuery 版本号的字符串。
-- `context`传给 jQuery()的原始的 DOM 节点的内容；如果没有东西被传递，那么上下文将可能是该文档（document）
-
-- `parent()`返回被选元素的直接父元素。
-- `parents()`返回被选元素的所有祖先元素
-- `parentsUntil(refParent)`返回介于给定元素之间的所有祖先元素
-- `children(selector)`返回被选元素的所有直接子元素。
-- `find()`返回被选元素的后代元素，一路向下直到最后一个后代
-
-- `siblings(selector)`返回被选元素的所有同胞元素
-- `next()`返回被选元素的下一个同胞元素。
-- `nextAll()`所有跟随的同胞元素。
-- `nextUntil()`给定参数之间的所有跟随的同胞元素
-- `prev()`
-- `prevAll()`
-- `prevUntil()`
-
-- `first()`返回被选元素的首个元素
-- `last()`返回被选元素的最后一个元素。
-- `eq()`返回被选元素中带有指定索引号的元素，从 0 开始
-- `filter(selector)`匹配的元素会被返回
-- `not(selector)`返回不匹配的所有元素
-
-- `get( [index ] )`获取一个对应 index 的 DOM 元素
-- `index(selector|element)`从匹配的元素中搜索给定元素的索引值，从 0 开始计数。
-- `size()`匹配的 DOM 元素的数量
-- `toArray()`返回一个包含 jQuery 对象集合中的所有 DOM 元素的数组。
-- `each(callback(index, Element))`为每个匹配元素执行一个函数。
-- `jQuery.param( obj, traditional )`创建一个数组或对象序列化的的字符串，适用于一个 URL 地址查询字符串或 Ajax 请求
-
-```js
-$("div").children();
-$("div").children("p.1");
-$("div").find("span");
-
-$("h2").nextUntil("h6");
-
-$("p").eq(1);
-$("p").filter(".url");
-$("p").not(".url");
-```
-
-## jQuery 全局函数
-
-- `dequeue()`执行匹配元素队列的下一个函数
-- `clearQueue()`取得离指定元素最近的含有定位信息的祖先元素
-- `contains()`检查一个 DOM 元素是另一个 DOM 元素的后代。
-- `data(element, name, value)`存储任意数据到指定的元素,返回设置的值
-- `each()`一个通用的迭代函数，它可以用来无缝迭代对象和数组
-- `extend()`将两个或更多对象的内容合并到第一个对象。
-- `fn.extend()`一个对象的内容合并到 jQuery 的原型，以提供新的 jQuery 实例方法。
-- `globalEval()`在全局上下文下执行一些 JavaScript 代码。
-- `grep()`查找满足过滤函数的数组元素。原始数组不受影响。
-- `inArray()`在数组中查找指定值并返回它的索引（如果没有找到，则返回-1）。
-- `isArray()`确定的参数是一个数组。
-- `isEmpryObject()`检查对象是否为空（不包含任何属性）。
-- `isFunction()`确定参数是否为一个 Javascript 函数。
-
-- `isNumeric()`确定它的参数是否是一个数字。
-
-- `isPlainObject()`测试对象是否是纯粹的对象（通过 "{}" 或者 "new Object" 创建的）
-
-- `isWindow()`确定参数是否为一个 window 对象。
-
-- `makeArray()`转换一个类似数组的对象成为真正的 JavaScript 数组。
-
-- `map()`将一个数组中的所有元素转换到另一个数组中。
-
-- `merge()`合并两个数组内容到第一个数组。
-
-- `noop()`一个空函数
-
-- `now()`返回一个数字，表示当前时间。
-
-- `parseHTML()`将字符串解析到一个 DOM 节点的数组中。
-
-- `proxy()`接受一个函数，然后返回一个新函数，并且这个新函数始终保持了特定的上下文语境。
-
-- `queue()`显示在匹配的元素上的已经执行的函数列队。操作匹配元素上将要执行的函数队列。
-
-- `removeData()`删除一个先前存储的数据片段。
-
-- `trim()`去掉字符串起始和结尾的空格。
-
-- `type()`确定 JavaScript 对象的类型[[Class]] 。
-
-- `unique()`删除数组中重复元素。只处理删除 DOM 元素数组，而不能处理字符串或者数字数组。
-
-- `uniqueSort()`去重并排序数组
-
-## jQuery AJAX
-
-通过 jQuery AJAX 方法，使用 HTTP Get 和 HTTP Post 从远程服务器上请求文本、HTML、XML 或 JSON - 同时您能够把这些外部数据直接载入网页的被选元素中。
-
-- `load(URL,data,callback(responseTxt,statusTxt,xhr))` 从服务器加载数据，并放入被选元素中。
-- `get( URL [, data ] [, callback ] [, dataType ] )`
-- `post( URL [, data ] [, callback ] [, dataType ] )`
-
-```js
-$("#div1").load("demo_test.txt");
-// "demo_test.txt" 文件中 id="p1" 的元素的内容
-$("#div1").load("demo_test.txt #p1");
-
-/** jQuery AJAX配置对象参数：
- * @url 规定发送请求的 URL。默认是当前页面。
- * @type 规定请求的类型（GET 或 POST）。
- * @data 规定要发送到服务器的数据。
- * @dataType 预期的服务器响应的数据类型。
- * @dataFilter(data,type) 用于处理 XMLHttpRequest 原始响应数据的函数。
- * @contentType 内容类型。默认是："application/x-www-form-urlencoded"。
- * @async 布尔值，表示请求是否异步处理。默认是 true。
- * @beforeSend(xhr) 发送请求前运行的函数。
- * @complete(xhr,status) 请求完成时运行的函数，无论成功或失败
- * @success(result,status,xhr) 当请求成功时运行的函数
- * @error(xhr,status,error) 请求失败要运行的函数。
- * @cache 布尔值，表示浏览器是否缓存被请求页面。默认是 true。
- * @context 为所有 AJAX 相关的回调函数规定 "this" 值。
- * @global 是否为请求触发全局 AJAX 事件处理程序。默认是 true
- * @ifModified 是否仅在最后一次请求以来响应发生改变时才请求成功。默认是 false
- * @jsonp 在一个 jsonp 中重写回调函数的字符串。
- * @jsonpCallback 在一个 jsonp 中规定回调函数的名称。
- * @username 规定在 HTTP 访问认证请求中使用的用户名。
- * @password 规定在 HTTP 访问认证请求中使用的密码。
- * @processData 请求发送的数据是否转换为查询字符串。默认是 true。
- * @scriptCharset 规定请求的字符集。
- * @timeout 设置本地的请求超时时间（以毫秒计）。
- * @traditional 是否使用参数序列化的传统样式。
- * @xhr 用于创建 XMLHttpRequest 对象的函数。
- */
-$("button").click(function () {
-  $.ajax({
-    url: "demo_test.txt",
-    success: function (result) {
-      $("#div1").html(result);
+```javascript
+// 高级插件模板
+(function($) {
+  // 插件构造函数
+  function MyPlugin(element, options) {
+    this.element = element;
+    this.$element = $(element);
+    this.options = $.extend({}, MyPlugin.DEFAULTS, options);
+    this.init();
+  }
+  
+  // 默认设置
+  MyPlugin.DEFAULTS = {
+    color: 'red',
+    speed: 300
+  };
+  
+  // 插件原型方法
+  MyPlugin.prototype = {
+    init: function() {
+      this.bindEvents();
+      this.render();
     },
-  });
+    
+    bindEvents: function() {
+      var self = this;
+      this.$element.on('click', function() {
+        self.toggle();
+      });
+    },
+    
+    render: function() {
+      this.$element.css('color', this.options.color);
+    },
+    
+    toggle: function() {
+      this.$element.toggle(this.options.speed);
+    },
+    
+    destroy: function() {
+      this.$element.off('click');
+      this.$element.removeData('myPlugin');
+    }
+  };
+  
+  // jQuery 插件接口
+  $.fn.myPlugin = function(option) {
+    return this.each(function() {
+      var $this = $(this);
+      var data = $this.data('myPlugin');
+      var options = typeof option === 'object' && option;
+      
+      if (!data) {
+        $this.data('myPlugin', (data = new MyPlugin(this, options)));
+      }
+      
+      if (typeof option === 'string') {
+        data[option]();
+      }
+    });
+  };
+  
+})(jQuery);
+
+// 使用高级插件
+$('div').myPlugin({color: 'blue'});
+$('div').myPlugin('toggle');
+$('div').myPlugin('destroy');
+```
+
+## 8. 最佳实践
+
+### 8.1 性能优化
+
+```javascript
+// 缓存 jQuery 对象
+var $container = $('#container');
+$container.addClass('active');
+$container.css('color', 'red');
+
+// 使用事件代理
+$('#container').on('click', '.button', function() {
+  // 处理点击事件
+});
+
+// 链式调用
+$('#element')
+  .addClass('active')
+  .css('color', 'red')
+  .fadeIn(300);
+
+// 批量DOM操作
+var html = '';
+for (var i = 0; i < 100; i++) {
+  html += '<div>Item ' + i + '</div>';
+}
+$('#container').html(html);
+```
+
+### 8.2 代码组织
+
+```javascript
+// 使用立即执行函数表达式(IIFE)
+(function($) {
+  'use strict';
+  
+  // 私有变量和方法
+  var privateVar = 'private';
+  
+  function privateMethod() {
+    return 'This is private';
+  }
+  
+  // 公共API
+  window.MyApp = {
+    init: function() {
+      this.bindEvents();
+    },
+    
+    bindEvents: function() {
+      $('.button').on('click', this.handleClick);
+    },
+    
+    handleClick: function() {
+      console.log('Button clicked');
+    }
+  };
+  
+})(jQuery);
+
+// 初始化应用
+$(document).ready(function() {
+  MyApp.init();
 });
 ```
+
+### 8.3 错误处理
+
+```javascript
+// Ajax 错误处理
+$.ajax({
+  url: '/api/data',
+  type: 'GET',
+  dataType: 'json'
+})
+.done(function(data) {
+  console.log('Success:', data);
+})
+.fail(function(xhr, status, error) {
+  console.error('Error:', error);
+  // 显示用户友好的错误信息
+  $('#error-message').text('数据加载失败，请稍后重试').show();
+})
+.always(function() {
+  // 无论成功还是失败都会执行
+  $('#loading').hide();
+});
+
+// 检查元素是否存在
+if ($('#element').length > 0) {
+  $('#element').doSomething();
+}
+```
+
+## 9. 常见问题
+
+### 9.1 文档就绪 vs 窗口加载
+
+```javascript
+// DOM 就绪（推荐）
+$(document).ready(function() {
+  // DOM 结构已加载完成，但图片等资源可能还在加载
+});
+
+// 窗口完全加载
+$(window).load(function() {
+  // 所有资源（包括图片）都已加载完成
+});
+```
+
+### 9.2 this 的使用
+
+```javascript
+$('.button').click(function() {
+  // this 指向原生 DOM 元素
+  console.log(this.tagName);
+  
+  // $(this) 是 jQuery 对象
+  $(this).addClass('clicked');
+});
+```
+
+### 9.3 命名空间事件
+
+```javascript
+// 使用命名空间便于管理
+$('#element').on('click.myNamespace', function() {
+  console.log('Namespaced click event');
+});
+
+// 移除特定命名空间的事件
+$('#element').off('.myNamespace');
+```
+
+## 10. 参考资料
+
+### 10.1 官方资源
+- [jQuery 官方网站](https://jquery.com/)
+- [jQuery API 文档](https://api.jquery.com/)
+- [jQuery 学习中心](https://learn.jquery.com/)
+
+### 10.2 社区资源
+- [jQuery UI](https://jqueryui.com/) - 官方 UI 库
+- [jQuery Mobile](https://jquerymobile.com/) - 移动端框架
+- [jQuery 插件库](https://plugins.jquery.com/) - 官方插件仓库
+
+### 10.3 相关工具
+- [jQuery CDN](https://code.jquery.com/) - 官方 CDN 服务
+- [jQuery Migrate](https://github.com/jquery/jquery-migrate) - 版本迁移工具
+- [jQuery Builder](https://jquery.com/download/) - 自定义构建工具

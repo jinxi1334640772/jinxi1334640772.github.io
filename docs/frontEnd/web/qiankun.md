@@ -1,86 +1,437 @@
-## 微前端
+---
+title: 微前端 qiankun 框架
+description: 微前端架构与 qiankun 框架完整指南，包含概念、实现、通信、部署等核心内容
+outline: deep
+---
 
-微前端是一种类似于微服务的架构，它将微服务的理念应用于浏览器端，即将 Web 应用由单一的单体应用转变为多个小型前端应用聚合为一的应用。各个前端应用还可以独立运行、独立开发、独立部署。  
-微前端优点：
+# 微前端 qiankun 框架
 
-- 技术栈无关 ：主框架不限制接入应用的技术栈，微应用具备完全自主权
-- 独立开发、独立部署 ：微应用仓库独立，前后端可独立开发，部署完成后主框架自动完成同步更新
-- 增量升级 ：在面对各种复杂场景时，很难对一个已经存在的系统做全量的技术栈升级或重构，而微前端是一种非常好的实施渐进式重构的手段和策略
-- 独立运行时 ： 每个微应用之间状态隔离，运行时状态不共享
+## 1. 概述
 
-  ![alt text](image-1.png)
+### 1.1 什么是微前端
 
-微前端的挑战：
+微前端是一种类似于微服务的架构，它将微服务的理念应用于浏览器端，即将 Web 应用由单一的单体应用转变为多个小型前端应用聚合为一的应用。各个前端应用还可以独立运行、独立开发、独立部署。
 
-- 性能问题： 如果不同的微前端应用使用了不同的库或框架，可能会导致加载和运行的性能问题。
-- 一致性： 保持不同的微前端应用在用户体验、设计和行为上的一致性可能会比较困难。
-- 状态共享： 在微前端应用之间共享状态可能会比较复杂，需要使用特殊的工具或模式。
-- 复杂性： 尽管微前端可以解决大型项目的复杂性问题，但是它自身也带来了一些复杂性，比如需要管理和协调多个独立的应用。
-- 安全性： 微前端架构可能会增加跨域等安全问题。
+<img src="./image-1.png" alt="微前端架构示意图" data-fancybox="gallery" />
 
-## qiankun 微前端
+### 1.2 微前端优势
 
-基于 single-spa 的微前端实现库。孵化自蚂蚁金融科技，能更简单、无痛的构建一个生产可用微前端架构系统。特性有：
+#### 技术栈无关
+主框架不限制接入应用的技术栈，微应用具备完全自主权。可以使用 React、Vue、Angular 等不同技术栈。
 
-- 📦 基于 single-spa 封装，提供了更加开箱即用的 API。
-- 📱 技术栈无关，任意技术栈的应用均可 使用/接入，不论是 React/Vue/Angular/JQuery 还是其他等框架。
-- 💪 HTML Entry 接入方式，让你接入微应用像使用 iframe 一样简单。
-- 🛡​ 样式隔离
-  - sandbox:true，启用沙箱。
-  - 通过 shadow dom 启用 strictStyleIsolation:true，开启严格的样式隔离模式。
-  - 通过 experimentalStyleIsolation：true，给样式添加命名空间。
-- 🧳 JS 沙箱，通过 Proxy 对象创建了一个 JavaScript 沙箱，用于隔离子应用的全局变量，防止子应用之间的全局变量污染
-- ⚡️ 资源预加载，在浏览器空闲时间预加载未打开的微应用资源，加速微应用打开速度。
-- 🔌 umi 插件，提供了 @umijs/plugin-qiankun 供 umi 应用一键切换成微前端架构系统。
+#### 独立开发、独立部署
+- **独立开发**: 各个微应用可以独立开发，不受其他应用影响
+- **独立部署**: 微应用可以独立部署，主框架自动完成同步更新
+- **团队独立**: 不同团队可以独立维护各自的微应用
 
-## qiankun 应用之间的通信方式
+#### 增量升级
+在面对各种复杂场景时，很难对一个已经存在的系统做全量的技术栈升级或重构，而微前端是一种非常好的实施渐进式重构的手段和策略。
 
-1. localStorage 和 sessionStorage  
-   子应用使用不同的域名也是可以的，因为在 qiankun 中，主应用是通过 fetch 来拉取子应用的模板，然后渲染在主应用的 dom 上的，说白了还是运行在主应用上，所以还是运行在同一个域名上，也就是主应用的域名。
+#### 独立运行时
+每个微应用之间状态隔离，运行时状态不共享，避免全局状态污染。
 
-2. 路由参数  
-   因为只有一个 url，不管子应用还是主应用给 url 上拼接一些参数，那么父子应用都可以通过 route 来获取到。
+### 1.3 微前端挑战
 
-3. Actions 通信
-   qiankun 内部提供了 initGlobalState 方法用于注册 MicroAppStateActions 实例用于通信，该实例有三个方法，分别是：
+#### 性能问题
+- **重复依赖**: 不同微应用可能加载相同的库
+- **包体积**: 多个应用同时加载可能导致总体积增大
+- **网络请求**: 增加了额外的网络开销
 
-   - setGlobalState：设置 globalState - 设置新的值时，内部将执行 浅检查，如果检查到 globalState 发生改变则触发通知，通知到所有的 观察者 函数。
-   - onGlobalStateChange：注册 观察者 函数 - 响应 globalState 变化，在 globalState 发生改变时触发该 观察者 函数。
-   - offGlobalStateChange：取消 观察者 函数 - 该实例不再响应 globalState 变化。
+#### 一致性问题
+- **用户体验**: 保持不同微应用间的一致性
+- **设计系统**: 统一的 UI 组件和设计规范
+- **交互行为**: 确保一致的用户交互体验
 
-4. 状态管理库(Vuex)维护一个状态池  
-   通过 shared 实例暴露一些方法给子应用使用。同时，子应用需要单独维护一份 shared 实例，在独立运行时使用自身的 shared 实例，在嵌入主应用时使用主应用的 shared 实例，这样就可以保证在使用和表现上的一致性
-   - 在主应用中维护一个公共状态池，暴露 set、get 方法，在定义子应用的时候通过 props 传递给子应用
-   - 子应用接受 prop，并在自己代码库中维护一套相同的空状态池(目的是为了可以独立运行)
-   - 子应用调用方法获取修改。
+#### 状态共享复杂性
+- **数据同步**: 微应用间的数据同步机制
+- **状态管理**: 全局状态和局部状态的管理
+- **事件通信**: 跨应用的事件传递
 
-## 为何不用 iframe
+#### 开发复杂性
+- **调试困难**: 多个应用同时运行时的调试
+- **版本管理**: 多个微应用的版本协调
+- **构建部署**: 复杂的构建和部署流程
 
-iframe 最大的特性就是提供了浏览器原生的硬隔离方案，不论是样式隔离、js 隔离这类问题统统都能被完美解决。但他的最大问题也在于他的隔离性无法被突破，导致应用间上下文无法被共享，随之带来的开发体验、产品体验的问题。
+#### 安全性问题
+- **跨域问题**: 不同域名下的应用交互
+- **数据安全**: 敏感数据的隔离和保护
+- **权限控制**: 统一的权限管理机制
 
-1. url 不同步。浏览器刷新 iframe url 状态丢失、后退前进按钮无法使用。
-2. UI 不同步，DOM 结构不共享。想象一下屏幕右下角 1/4 的 iframe 里来一个带遮罩层的弹框，同时我们要求这个弹框要浏览器居中显示，还要浏览器 resize 时自动居中..
-3. 全局上下文完全隔离，内存变量不共享。iframe 内外系统的通信、数据同步等需求，主应用的 cookie 要透传到根域名都不同的子应用中实现免登效果。
-4. 慢。每次子应用进入都是一次浏览器上下文重建、资源重新加载的过程。
+## 2. qiankun 框架介绍
 
-## JS entry 和 HTML entry 区别
+### 2.1 功能介绍
 
-- JS entry：子应用将资源打成一个 entry script。子应用的所有资源打包到一个 js bundle 里，包括 css、图片等资源。除了打出来的包可能体积庞大之外的问题之外，资源的并行加载等特性也无法利用上。
-- HTML entry：将子应用打出来 HTML 作为入口，主框架可以通过 fetch html 的方式获取子应用的静态资源，同时将 HTML document 作为子节点塞到主框架的容器中。减少主应用的接入成本，子应用的开发方式及打包方式基本上也不需要调整，而且可以天然的解决子应用之间样式隔离的问题。
-  - 加载 HTML 入口文件：html entry 内部是通过 import-html-entry 包实现，它会通过创建一个 标签来加载子应用的 HTML 入口文件。这样可以确保子应用的资源得到正确加载，并在加载完成后进行处理。
-  - 解析 HTML 入口文件：一旦 HTML 入口文件加载完成，import-html-entry 将解析该文件的内容，提取出子应用的 JavaScript 和 CSS 资源的 URL。
-  - 动态加载 JavaScript 和 CSS 资源：import-html-entry 使用动态创建 `<script>` 和 `<link>` 标签的方式，按照正确的顺序加载子应用的 JavaScript 和 CSS 资源。
-  - 创建沙箱环境：在加载子应用的 JavaScript 资源时，import-html-entry 会通过 Proxy 创建一个沙箱环境（sandbox），用于隔离子应用的全局变量和运行环境，防止子应用之间的冲突和污染。
-  - 返回子应用的入口模块：最后，import-html-entry 返回一个可以加载子应用的 JavaScript 模块。这个模块通常是一个包含子应用初始化代码的函数，可以在主应用中调用以加载和启动子应用。
+qiankun 是一个基于 single-spa 的微前端实现库，孵化自蚂蚁金融科技，能更简单、无痛的构建一个生产可用微前端架构系统。
 
-## 使用 qiankun
+### 2.2 核心特性
 
-### 主应用适配
+#### 📦 基于 single-spa 封装
+提供了更加开箱即用的 API，简化了微前端的接入和使用。
 
-1. 安装 qiankun，运行命令：`yarn add qiankun # 或者 npm i qiankun -S`
-2. 在主应用中注册微应用
+#### 📱 技术栈无关
+任意技术栈的应用均可使用/接入，不论是 React/Vue/Angular/jQuery 还是其他框架。
 
-```js
+#### 💪 HTML Entry 接入方式
+让你接入微应用像使用 iframe 一样简单，无需复杂的配置。
+
+#### 🛡️ 样式隔离
+- **sandbox**: 启用沙箱模式
+- **strictStyleIsolation**: 通过 shadow dom 开启严格样式隔离
+- **experimentalStyleIsolation**: 通过命名空间添加样式隔离
+
+#### 🧳 JS 沙箱
+通过 Proxy 对象创建了一个 JavaScript 沙箱，用于隔离子应用的全局变量，防止子应用之间的全局变量污染。
+
+#### ⚡️ 资源预加载
+在浏览器空闲时间预加载未打开的微应用资源，加速微应用打开速度。
+
+#### 🔌 umi 插件
+提供了 @umijs/plugin-qiankun 供 umi 应用一键切换成微前端架构系统。
+
+### 2.3 架构原理
+
+qiankun 的实现原理基于以下几个核心概念：
+
+#### HTML Entry
+- 通过 `import-html-entry` 加载子应用
+- 解析 HTML 文件，提取 JS 和 CSS 资源
+- 动态创建 script 和 link 标签加载资源
+
+#### 沙箱机制
+- **快照沙箱**: 记录和恢复全局状态
+- **代理沙箱**: 通过 Proxy 拦截全局变量访问
+- **多例沙箱**: 支持多个子应用同时运行
+
+#### 样式隔离
+- **Shadow DOM**: 严格的样式隔离
+- **CSS 命名空间**: 为样式添加前缀
+- **CSS-in-JS**: 运行时样式隔离
+
+## 3. 为何不用 iframe
+
+### 3.1 iframe 的优势
+
+iframe 最大的特性就是提供了浏览器原生的硬隔离方案，不论是样式隔离、JS 隔离这类问题统统都能被完美解决。
+
+### 3.2 iframe 的问题
+
+#### URL 不同步
+- 浏览器刷新 iframe url 状态丢失
+- 后退前进按钮无法使用
+- 无法保持路由状态
+
+#### UI 不同步
+- DOM 结构不共享
+- 弹框无法居中显示
+- 无法实现全屏遮罩效果
+
+#### 全局上下文完全隔离
+- 内存变量不共享
+- 数据同步困难
+- 无法共享全局状态
+
+#### 性能问题
+- 每次子应用进入都是浏览器上下文重建
+- 资源重新加载
+- 启动速度慢
+
+## 4. JS entry 和 HTML entry 区别
+
+### 4.1 JS Entry
+
+#### 工作原理
+子应用将资源打成一个 entry script，所有资源打包到一个 js bundle 里。
+
+#### 优势
+- 配置简单
+- 资源集中管理
+- 加载逻辑清晰
+
+#### 劣势
+- 包体积庞大
+- 无法利用资源并行加载
+- 难以实现样式隔离
+
+### 4.2 HTML Entry
+
+#### 工作原理
+将子应用打出来的 HTML 作为入口，主框架通过 fetch HTML 的方式获取子应用的静态资源。
+
+#### 实现机制
+1. **加载 HTML 入口文件**: 通过 `import-html-entry` 加载子应用 HTML
+2. **解析 HTML 内容**: 提取 JavaScript 和 CSS 资源的 URL
+3. **动态加载资源**: 按正确顺序加载 JS 和 CSS 资源
+4. **创建沙箱环境**: 通过 Proxy 创建沙箱，隔离全局变量
+5. **返回入口模块**: 返回可以加载子应用的模块
+
+#### 优势
+- 减少主应用接入成本
+- 天然的样式隔离
+- 支持资源并行加载
+- 接近原生的开发体验
+
+## 5. qiankun 应用间通信
+
+### 5.1 通信方式概述
+
+qiankun 提供了多种应用间通信方式，可以根据不同场景选择合适的方案。
+
+### 5.2 localStorage 和 sessionStorage
+
+#### 使用场景
+- 简单的数据存储
+- 跨应用数据共享
+- 持久化存储需求
+
+#### 代码示例
+
+```javascript
+// 主应用中设置数据
+localStorage.setItem('user', JSON.stringify({
+  id: 1,
+  name: '张进喜',
+  role: 'admin'
+}))
+
+// 子应用中获取数据
+const user = JSON.parse(localStorage.getItem('user') || '{}')
+console.log('当前用户:', user)
+```
+
+### 5.3 路由参数通信
+
+#### 使用场景
+- 页面间参数传递
+- 状态持久化
+- 页面刷新后状态保持
+
+#### 代码示例
+
+```javascript
+// 主应用中设置路由参数
+const params = new URLSearchParams(window.location.search)
+params.set('userId', '123')
+params.set('theme', 'dark')
+window.history.pushState({}, '', `${window.location.pathname}?${params}`)
+
+// 子应用中获取路由参数
+const urlParams = new URLSearchParams(window.location.search)
+const userId = urlParams.get('userId')
+const theme = urlParams.get('theme')
+```
+
+### 5.4 Actions 通信
+
+#### 工作原理
+qiankun 内部提供了 `initGlobalState` 方法用于注册 MicroAppStateActions 实例进行通信。
+
+#### 核心方法
+- **setGlobalState**: 设置 globalState
+- **onGlobalStateChange**: 注册观察者函数
+- **offGlobalStateChange**: 取消观察者函数
+
+#### 主应用实现
+
+```javascript
+import { initGlobalState } from 'qiankun'
+
+// 初始化全局状态
+const actions = initGlobalState({
+  user: {
+    id: 1,
+    name: '张进喜',
+    role: 'admin'
+  },
+  theme: 'light',
+  language: 'zh-CN'
+})
+
+// 监听状态变化
+actions.onGlobalStateChange((state, prev) => {
+  console.log('主应用状态变化:', state, prev)
+})
+
+// 设置状态
+actions.setGlobalState({
+  user: {
+    id: 2,
+    name: '李四',
+    role: 'user'
+  }
+})
+
+// 注册微应用时传递 actions
+registerMicroApps([
+  {
+    name: 'sub-app',
+    entry: '//localhost:8080',
+    container: '#subapp-container',
+    activeRule: '/subapp',
+    props: {
+      actions // 传递给子应用
+    }
+  }
+])
+```
+
+#### 子应用实现
+
+```javascript
+// 子应用生命周期函数
+export async function mount(props) {
+  const { actions } = props
+  
+  if (actions) {
+    // 监听全局状态变化
+    actions.onGlobalStateChange((state, prev) => {
+      console.log('子应用接收到状态变化:', state, prev)
+      // 更新子应用状态
+      updateLocalState(state)
+    })
+    
+    // 向主应用发送状态
+    actions.setGlobalState({
+      subAppReady: true,
+      subAppData: { message: '子应用已准备就绪' }
+    })
+  }
+}
+
+export async function unmount() {
+  // 清理监听器
+  if (actions) {
+    actions.offGlobalStateChange()
+  }
+}
+```
+
+### 5.5 状态管理库通信
+
+#### 工作原理
+通过 shared 实例暴露方法给子应用使用，子应用维护独立的状态管理实例。
+
+#### 主应用 Vuex 实现
+
+```javascript
+// store/index.js
+import { createStore } from 'vuex'
+
+const store = createStore({
+  state: {
+    user: null,
+    theme: 'light',
+    sharedData: {}
+  },
+  mutations: {
+    SET_USER(state, user) {
+      state.user = user
+    },
+    SET_THEME(state, theme) {
+      state.theme = theme
+    },
+    SET_SHARED_DATA(state, data) {
+      state.sharedData = { ...state.sharedData, ...data }
+    }
+  },
+  actions: {
+    updateUser({ commit }, user) {
+      commit('SET_USER', user)
+    },
+    updateTheme({ commit }, theme) {
+      commit('SET_THEME', theme)
+    },
+    updateSharedData({ commit }, data) {
+      commit('SET_SHARED_DATA', data)
+    }
+  }
+})
+
+// 暴露给子应用的方法
+window.sharedStore = {
+  getState: () => store.state,
+  dispatch: store.dispatch,
+  commit: store.commit,
+  subscribe: store.subscribe
+}
+
+export default store
+```
+
+#### 子应用状态管理
+
+```javascript
+// 子应用中使用共享状态
+const sharedStore = window.sharedStore
+
+if (sharedStore) {
+  // 获取主应用状态
+  const mainAppState = sharedStore.getState()
+  
+  // 监听主应用状态变化
+  sharedStore.subscribe((mutation, state) => {
+    console.log('主应用状态变化:', mutation, state)
+    // 同步到子应用
+    syncToSubApp(state)
+  })
+  
+  // 向主应用发送数据
+  sharedStore.dispatch('updateSharedData', {
+    subAppId: 'sub-app-1',
+    data: { message: '来自子应用的数据' }
+  })
+}
+```
+
+### 5.6 自定义事件通信
+
+#### 实现原理
+基于浏览器原生事件系统实现跨应用通信。
+
+#### 代码示例
+
+```javascript
+// 主应用中监听事件
+window.addEventListener('subAppMessage', (event) => {
+  console.log('接收到子应用消息:', event.detail)
+  // 处理子应用消息
+  handleSubAppMessage(event.detail)
+})
+
+// 子应用中发送事件
+const sendMessageToMain = (data) => {
+  const event = new CustomEvent('subAppMessage', {
+    detail: {
+      type: 'USER_ACTION',
+      payload: data,
+      timestamp: Date.now()
+    }
+  })
+  window.dispatchEvent(event)
+}
+
+// 使用示例
+sendMessageToMain({
+  action: 'userLogin',
+  userId: 123,
+  userName: '张进喜'
+})
+```
+
+## 6. qiankun 使用指南
+
+### 6.1 主应用配置
+
+#### 安装依赖
+
+```bash
+npm install qiankun
+# 或
+yarn add qiankun
+```
+
+#### 注册微应用
+
+```javascript
 import {
   registerMicroApps,
   start,
@@ -90,221 +441,435 @@ import {
   runAfterFirstMounted,
   addGlobalUncaughtErrorHandler,
   removeGlobalUncaughtErrorHandler,
-  initGlobalState,
-  MicroAppStateActions
-  } from "qiankun";
+  initGlobalState
+} from 'qiankun'
 
-/** 添加全局的未捕获异常处理器。
- * @handler - (...args: any[]) => void - 必选
- */
-addGlobalUncaughtErrorHandler((event) => console.log(event));
+// 全局错误处理
+addGlobalUncaughtErrorHandler((event) => {
+  console.error('微应用错误:', event)
+})
 
-/** 移除全局的未捕获异常处理器。
- * @handler - (...args: any[]) => void - 必选
- */
-removeGlobalUncaughtErrorHandler(handler);
+// 初始化全局状态
+const actions = initGlobalState({
+  user: null,
+  theme: 'light'
+})
 
-/** 调用initGlobalState(state)，初始化 state，应用间共享数据
- * return MicroAppStateActions实例，该实例可通过props传给微应用，用于应用间通讯
- */
-const actions: MicroAppStateActions = initGlobalState(state);
-// 修改state数据
-actions.setGlobalState(state);
-// 监听state数据变动，拿到新老state数据
-actions.onGlobalStateChange((state, oldState) => {
-  // state: 变更后的状态; oldState 变更前的状态
-  console.log(state, oldState);
-});
-// 卸载监听器
-actions.offGlobalStateChange();
-
-//可选，主应用可以拿到微应用的全局生命周期钩子
-const lifeCyle = {
-  beforeLoad : Lifecycle | Array<Lifecycle>,
-  beforeMount : Lifecycle | Array<Lifecycle>,
-  afterMount : Lifecycle | Array<Lifecycle>,
-  beforeUnmount : Lifecycle | Array<Lifecycle>,
-  afterUnmount : Lifecycle | Array<Lifecycle>
-}
+// 注册微应用
 registerMicroApps([
   {
-    name: "react app", // 必选，微应用的名称，微应用之间必须确保唯一。
-    // 必选，微应用的入口。entry: "//localhost:7100"
-    entry:string | { scripts?: string[]; styles?: string[]; html?: string },
-    // 必选，微应用的容器节点的选择器或者 Element 实例。例如："#yourContainer"
-    container: string | HTMLElement,
-    //string | (location: Location) => boolean | Array<string | (location: Location) => boolean> - 必选，微应用的激活规则
-    activeRule: "/yourActiveRule",
-    //可选，loading 状态发生变化时会调用的方法。
-    loader:(loading: boolean) => void,
-    //object 可选，主应用需要传递给微应用的数据：传递actions给微应用，应用间通信
-    props:{actions}
+    name: 'react-app',
+    entry: '//localhost:7100',
+    container: '#react-container',
+    activeRule: '/react',
+    props: {
+      actions,
+      data: { appName: 'react-app' }
+    }
   },
   {
-    name: "vue app",
-    entry: { scripts: ["//localhost:7100/main.js"] },
-    container: "#yourContainer2",
-    activeRule: "/yourActiveRule2",
+    name: 'vue-app',
+    entry: '//localhost:7200',
+    container: '#vue-container',
+    activeRule: '/vue',
+    props: {
+      actions,
+      data: { appName: 'vue-app' }
+    }
+  }
+], {
+  // 生命周期钩子
+  beforeLoad: (app) => {
+    console.log('准备加载应用:', app.name)
   },
-],lifeCyle);
+  beforeMount: (app) => {
+    console.log('准备挂载应用:', app.name)
+  },
+  afterMount: (app) => {
+    console.log('应用挂载完成:', app.name)
+  },
+  beforeUnmount: (app) => {
+    console.log('准备卸载应用:', app.name)
+  },
+  afterUnmount: (app) => {
+    console.log('应用卸载完成:', app.name)
+  }
+})
 
+// 启动 qiankun
 start({
-  //可选，是否开启预加载，默认为 true。
-  prefetch:boolean | 'all' | string[] | (( apps: RegistrableApp[] ) => { criticalAppNames: string[]; minorAppsName: string[] }),
-  //可选，是否开启沙箱，默认为 true。
-  sandbox:boolean | { strictStyleIsolation?: boolean, experimentalStyleIsolation?: boolean },
-  //可选，是否为单实例场景，单实例指的是同一时间只会渲染一个微应用。默认为 true
-  singular:boolean | ((app: RegistrableApp<any>) => Promise<boolean>),
-  //可选，自定义的 fetch 方法。
-  fetch:Function,
-  //可选，参数是微应用的 entry 值。
-  getPublicPath:(entry: Entry) => string ,
-  // 参数微应用HTML模板
-  getTemplate:(tpl: string) => string,
-  //可选，指定部分特殊的动态加载的微应用资源（css/js) 不被 qiankun 劫持处理。
-  excludeAssetFilter:(assetUrl: string) => boolean
-});
+  // 预加载策略
+  prefetch: 'all',
+  // 沙箱配置
+  sandbox: {
+    strictStyleIsolation: true,
+    experimentalStyleIsolation: true
+  },
+  // 单实例模式
+  singular: false,
+  // 自定义 fetch
+  fetch: window.fetch
+})
 
-/**
- * 如果微应用不是直接跟路由关联的时候，也可以选择手动加载微应用的方式：
- * @return 微应用实例
- */
-loadMicroApp({
-  name: "app",
-  entry: "//localhost:7100",
-  container: "#yourContainer",
-  props:{name:zhangjinxi,desciption:'传递给微应用的数据'}
-},configuration['为start()的参数对象']);
+// 设置默认应用
+setDefaultMountApp('/react')
 
-
-/**手动预加载指定的微应用静态资源。仅手动加载微应用场景需要，
- * 基于路由自动激活场景直接配置 prefetch 属性即可。
- * @apps  预加载的应用列表{name,entry}
- * @importEntryOpts?  加载配置
- */
+// 预加载应用
 prefetchApps([
-  { name: 'app1', entry: '//localhost:7001' },
-  { name: 'app2', entry: '//localhost:7002' },
-]);
+  { name: 'react-app', entry: '//localhost:7100' },
+  { name: 'vue-app', entry: '//localhost:7200' }
+])
 
-/**
- * 参数appLink，设置主应用启动后默认进入的微应用。
- */
-setDefaultMountApp('/homeApp');
-
-/** 第一个微应用 mount 后需要调用的方法，比如开启一些监控或者埋点脚本
- * @effect - () => void - 必选
- */
-runAfterFirstMounted(() => startMonitor());
+// 第一个应用挂载后的回调
+runAfterFirstMounted(() => {
+  console.log('第一个应用已挂载')
+})
 ```
 
-当微应用信息注册完之后，一旦浏览器的 url 发生变化，便会自动触发 qiankun 的匹配逻辑，所有 activeRule 规则匹配上的微应用就会被插入到指定的 container 中，同时依次调用微应用暴露出的生命周期钩子。
+#### 手动加载微应用
 
-### 微应用适配
+```javascript
+// 手动加载微应用
+const microApp = loadMicroApp({
+  name: 'manual-app',
+  entry: '//localhost:7300',
+  container: '#manual-container',
+  props: {
+    data: { mode: 'manual' }
+  }
+})
 
-微应用不需要额外安装任何其他依赖即可接入 qiankun 主应用。
+// 卸载微应用
+microApp.unmount()
+```
 
-1. 导出相应的生命周期钩子  
-   微应用需要在自己的入口 js (通常就是你配置的 webpack 的 entry js) 导出 bootstrap、mount、unmount 三个生命周期钩子，以供主应用在适当的时机调用。
+### 6.2 子应用配置
 
-```js
-import "./public-path";
-import Vue from "vue";
-import VueRouter from "vue-router";
-import App from "./App.vue";
-import routes from "./router";
-import store from "./store";
+#### 导出生命周期函数
 
-Vue.config.productionTip = false;
+```javascript
+// public-path.js
+if (window.__POWERED_BY_QIANKUN__) {
+  __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__
+}
 
-let router = null;
-let instance = null;
+// main.js
+import './public-path'
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import store from './store'
+
+let app = null
 
 function render(props = {}) {
-  const { container } = props;
-  router = new VueRouter({
-    // 在主应用中运行时，需要添加主应用的publicPath
-    base: window.__POWERED_BY_QIANKUN__ ? "/app-vue/" : "/",
-    mode: "history",
-    routes,
-  });
-
-  instance = new Vue({
-    router,
-    store,
-    render: h => h(App),
-    //为了避免根 id #app 与其他的 DOM 冲突，需要限制查找范围。
-  }).$mount(container ? container.querySelector("#app") : "#app");
+  const { container } = props
+  
+  app = createApp(App)
+  app.use(store)
+  app.use(router)
+  app.mount(container ? container.querySelector('#app') : '#app')
 }
 
 // 独立运行时
 if (!window.__POWERED_BY_QIANKUN__) {
-  render();
+  render()
 }
 
-/**
- * bootstrap 只会在微应用初始化的时候调用一次，下次微应用重新进入时
- * 会直接调用 mount 钩子，不会再重复触发 bootstrap。
- * 通常我们可以在这里做一些全局变量的初始化，比如不会在 unmount 阶段被销毁的应用级别的缓存等。
- */
+// 导出 qiankun 生命周期函数
 export async function bootstrap() {
-  console.log("[vue] vue app bootstraped");
+  console.log('子应用 bootstrap')
 }
 
-/**
- * 应用每次进入都会调用 mount 方法，通常我们在这里触发应用的渲染方法
- * 从props拿到actions，可用于应用间通讯
- */
 export async function mount(props) {
-  console.log("[vue] props from main framework", props);
-  render(props);
-  props.actions.onGlobalStateChange((state, prev) => {
-    // state: 变更后的状态; prev 变更前的状态
-    console.log(state, prev);
-  });
-
-  props.actions.setGlobalState(state);
+  console.log('子应用 mount', props)
+  render(props)
 }
 
-/**
- * 应用每次 切出/卸载 会调用的方法，通常在这里我们会卸载微应用的应用实例
- */
 export async function unmount() {
-  instance.$destroy();
-  instance.$el.innerHTML = "";
-  instance = null;
-  router = null;
-}
-
-/**
- * 可选生命周期钩子，仅使用 loadMicroApp 方式加载微应用时生效
- */
-export async function update(props) {
-  console.log("update props", props);
+  console.log('子应用 unmount')
+  app?.unmount()
+  app = null
 }
 ```
 
-2. 配置微应用的打包工具  
-   除了代码中暴露出相应的生命周期钩子之外，为了让主应用能正确识别微应用暴露出来的一些信息，微应用的打包工具需要增加如下配置：
+#### Webpack 配置
 
-```js
-const packageName = require("./package.json").name;
-
+```javascript
+// webpack.config.js
 module.exports = {
   output: {
-    library: `${packageName}-[name]`,
-    //// 把微应用打包成 umd 库格式
-    libraryTarget: "umd",
-    chunkLoadingGlobal: `webpackJsonp_${packageName}`, //webpack v5:
-    jsonpFunction: `webpackJsonp_${packageName}`, //webpack v4:
+    library: 'subApp',
+    libraryTarget: 'umd',
+    jsonpFunction: `webpackJsonp_subApp`
   },
-};
-```
-
-3. 在 src 目录新增 public-path.js 文件：
-
-```js
-if (window.__POWERED_BY_QIANKUN__) {
-  __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__;
+  devServer: {
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
+  }
 }
 ```
+
+#### Vue CLI 配置
+
+```javascript
+// vue.config.js
+module.exports = {
+  outputDir: 'dist',
+  assetsDir: 'static',
+  filenameHashing: true,
+  publicPath: process.env.NODE_ENV === 'production' ? '/subapp/' : '/',
+  devServer: {
+    port: 8080,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
+  },
+  configureWebpack: {
+    output: {
+      library: 'subApp',
+      libraryTarget: 'umd',
+      jsonpFunction: `webpackJsonp_subApp`
+    }
+  }
+}
+```
+
+## 7. 样式隔离方案
+
+### 7.1 CSS 命名空间
+
+#### 原理
+为每个子应用的样式添加唯一的命名空间前缀。
+
+#### 配置方法
+
+```javascript
+// 主应用配置
+start({
+  sandbox: {
+    experimentalStyleIsolation: true
+  }
+})
+```
+
+#### 效果展示
+
+```css
+/* 原始样式 */
+.header {
+  background-color: #fff;
+}
+
+/* 添加命名空间后 */
+.qiankun-subapp .header {
+  background-color: #fff;
+}
+```
+
+### 7.2 Shadow DOM 隔离
+
+#### 原理
+使用 Shadow DOM 创建完全隔离的样式环境。
+
+#### 配置方法
+
+```javascript
+// 主应用配置
+start({
+  sandbox: {
+    strictStyleIsolation: true
+  }
+})
+```
+
+#### 注意事项
+- 可能影响一些第三方库的样式
+- 弹框等组件可能需要特殊处理
+- 调试时需要特别注意 Shadow DOM 结构
+
+### 7.3 CSS-in-JS 方案
+
+#### 使用 styled-components
+
+```javascript
+// 子应用中使用
+import styled from 'styled-components'
+
+const StyledHeader = styled.header`
+  background-color: #fff;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+`
+
+const Header = () => {
+  return (
+    <StyledHeader>
+      <h1>应用标题</h1>
+    </StyledHeader>
+  )
+}
+```
+
+## 8. 最佳实践
+
+### 8.1 应用拆分原则
+
+#### 按业务域拆分
+- 用户管理模块
+- 订单管理模块
+- 商品管理模块
+- 数据分析模块
+
+#### 按团队拆分
+- 前端团队负责主应用
+- 各业务团队负责各自的微应用
+- 公共组件团队负责基础组件库
+
+### 8.2 技术选型建议
+
+#### 主应用技术栈
+- 选择团队最熟悉的技术栈
+- 考虑长期维护性
+- 注重性能和稳定性
+
+#### 微应用技术栈
+- 可以选择不同的技术栈
+- 优先考虑业务需求
+- 注意与主应用的兼容性
+
+### 8.3 开发流程
+
+#### 本地开发
+1. 主应用和微应用同时启动
+2. 使用代理配置简化开发
+3. 统一的构建和部署流程
+
+#### 测试策略
+1. 单元测试：各应用独立测试
+2. 集成测试：应用间交互测试
+3. 端到端测试：完整用户流程测试
+
+#### 部署策略
+1. 独立部署：各应用独立部署
+2. 版本管理：统一的版本发布策略
+3. 灰度发布：逐步替换旧版本
+
+## 9. 常见问题与解决方案
+
+### 9.1 资源加载问题
+
+#### 问题描述
+子应用的静态资源加载失败。
+
+#### 解决方案
+```javascript
+// 子应用配置 public-path
+if (window.__POWERED_BY_QIANKUN__) {
+  __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__
+}
+```
+
+### 9.2 路由冲突问题
+
+#### 问题描述
+主应用和子应用路由冲突。
+
+#### 解决方案
+```javascript
+// 子应用路由配置
+const router = new VueRouter({
+  mode: 'history',
+  base: window.__POWERED_BY_QIANKUN__ ? '/subapp/' : '/',
+  routes
+})
+```
+
+### 9.3 全局状态污染
+
+#### 问题描述
+子应用污染全局状态。
+
+#### 解决方案
+```javascript
+// 使用沙箱模式
+start({
+  sandbox: {
+    strictStyleIsolation: true,
+    experimentalStyleIsolation: true
+  }
+})
+```
+
+## 10. 性能优化
+
+### 10.1 资源预加载
+
+```javascript
+// 预加载策略
+start({
+  prefetch: 'all' // 预加载所有微应用
+})
+
+// 自定义预加载
+prefetchApps([
+  { name: 'app1', entry: '//localhost:7001' },
+  { name: 'app2', entry: '//localhost:7002' }
+])
+```
+
+### 10.2 代码分割
+
+```javascript
+// 子应用代码分割
+const LazyComponent = lazy(() => import('./components/LazyComponent'))
+
+// 路由级别的代码分割
+const routes = [
+  {
+    path: '/lazy',
+    component: lazy(() => import('./pages/LazyPage'))
+  }
+]
+```
+
+### 10.3 缓存策略
+
+```javascript
+// 主应用缓存配置
+start({
+  fetch: (url, options) => {
+    // 添加缓存逻辑
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Cache-Control': 'max-age=3600'
+      }
+    })
+  }
+})
+```
+
+## 11. 总结
+
+### 11.1 核心价值
+
+qiankun 作为成熟的微前端解决方案，提供了：
+
+- **技术栈无关**: 支持多种前端框架
+- **开发体验**: 简化微前端开发流程
+- **生产就绪**: 经过大规模生产验证
+- **生态完善**: 丰富的插件和工具支持
+
+### 11.2 适用场景
+
+- **大型企业应用**: 多团队协作开发
+- **遗留系统改造**: 渐进式技术升级
+- **多产品集成**: 统一的用户体验
+- **快速迭代**: 独立部署和发布
+
+### 11.3 发展前景
+
+随着微前端概念的普及和 qiankun 的不断完善，它将在大型前端应用开发中发挥更重要的作用，帮助企业构建更加灵活、可维护的前端架构。

@@ -165,14 +165,14 @@ export default defineConfig({
           text: '🚀 现代框架',
           collapsed: false,
           items: [
-            { text: '💚 Vue.js 框架', link: '/frontEnd/web/vue' },
+            { text: '⚡ VitePress 静态站点', link: '/frontEnd/web/VitePress' },
             { text: '🔷 TypeScript 语言', link: '/frontEnd/web/TypeScript' },
-            { text: '⚡ VitePress 文档', link: '/frontEnd/web/VitePress' },
+            { text: '💚 Vue.js 框架', link: '/frontEnd/web/vue' },
             { text: '🎭 Svelte 框架', link: '/frontEnd/web/svelte' },
             { text: '💎 jQuery 库', link: '/frontEnd/web/jQuery' },
             { text: '🚀 Nuxt.js 框架', link: '/frontEnd/web/nuxt' },
-            { text: '🔧 无代码开发', link: '/frontEnd/web/lessCode' },
-            { text: '🏗️ 微前端 qiankun 框架', link: '/frontEnd/web/qiankun' }
+            { text: '🔧 Amis 低代码框架', link: '/frontEnd/web/lessCode' },
+            { text: '🏗️ qiankun 微前端框架', link: '/frontEnd/web/qiankun' }
           ]
         }
       ],

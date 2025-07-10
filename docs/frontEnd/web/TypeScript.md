@@ -1,637 +1,609 @@
-## TypeScript 简介
+---
+title: TypeScript 开发指南
+description: TypeScript 完整开发指南，包含类型系统、泛型、接口、高级类型、装饰器等核心特性
+outline: deep
+---
 
-TypeScript 属于 Javascript 的超集，兼容 Javascript 所有语法的基础上，支持使用 JavaScript 的最新语法，还扩展了很多其他功能，并且添加了类型标注、类型推断、类型验证功能，也有了更好的语法提示。TypeScript 在编译阶段就可以抛出一些容易被 JavaScript 忽略的错误，提升了代码健壮性。
+# 🔷 TypeScript 开发指南
 
-## 基础类型
+TypeScript 是 JavaScript 的超集，兼容 JavaScript 所有语法的基础上，支持使用 JavaScript 的最新语法，还扩展了很多其他功能，并且添加了类型标注、类型推断、类型验证功能，也有了更好的语法提示。TypeScript 在编译阶段就可以抛出一些容易被 JavaScript 忽略的错误，提升了代码健壮性。
 
-- `string`
-- `number`
-- `boolean`
-- `bigint`
-- `symbol`
+::: tip 📖 本章内容
+掌握 TypeScript 的类型系统、高级特性和最佳实践，提升代码质量和开发效率。
+:::
 
-- `any`任何类型
-- `null`不存在的值，任何类型子类
-- `undefined`未初始化的值，任何类型子类
-- `never`不可能出现的值，任何类型子类
-- `void`声明返回 undefined 的函数或其他值
+## 1. 概述
 
-```ts
-let num: number = 123;
-let str: string = "12132";
-let bool: boolean = true;
+### 1.1 什么是 TypeScript
 
-// bigint类型
-const oneHundred: bigint = BigInt(100);
-const anotherHundred: bigint = 100n;
-// symbol类型
-const symbolName: symbol = Symbol("name");
-// any类型
-let name: any = 2323;
-name = "1212";
-// 函数类型
-function getName(name: string): void {
-  console.log("void类型，修饰不返回任何内容的函数");
+TypeScript 是 Microsoft 开发的一门编程语言，它是 JavaScript 的超集，为 JavaScript 添加了静态类型定义。TypeScript 代码需要编译成 JavaScript 代码才能在浏览器或 Node.js 环境中运行。
+
+### 1.2 核心特性
+
+| 特性 | 描述 | 优势 |
+|------|------|------|
+| **静态类型检查** | 编译时类型验证 | 提前发现错误，提高代码质量 |
+| **类型推断** | 自动推断变量类型 | 减少显式类型声明，提高开发效率 |
+| **IDE 支持** | 强大的智能提示 | 更好的开发体验和代码补全 |
+| **现代语法** | 支持最新 ES 特性 | 使用先进的 JavaScript 功能 |
+| **渐进式采用** | 兼容现有 JavaScript | 可以逐步迁移现有项目 |
+
+### 1.3 环境搭建
+
+```bash
+# 全局安装 TypeScript
+npm install -g typescript
+
+# 检查版本
+tsc --version
+
+# 编译 TypeScript 文件
+tsc hello.ts
+
+# 初始化 TypeScript 项目
+tsc --init
+
+# 使用 ts-node 直接运行 TypeScript
+npm install -g ts-node
+ts-node hello.ts
+```
+
+## 2. 基础类型
+
+### 2.1 原始类型
+
+#### 基本原始类型
+
+```typescript
+// 字符串类型
+let name: string = "张进喜";
+let message: string = `Hello, ${name}!`;
+
+// 数字类型
+let age: number = 25;
+let price: number = 99.99;
+let hex: number = 0xf00d;
+let binary: number = 0b1010;
+let octal: number = 0o744;
+
+// 布尔类型
+let isActive: boolean = true;
+let isComplete: boolean = false;
+
+// 大整数类型
+const bigNumber: bigint = BigInt(100);
+const anotherBig: bigint = 100n;
+
+// 符号类型
+const id: symbol = Symbol("id");
+const anotherId: symbol = Symbol("id");
+console.log(id === anotherId); // false
+```
+
+#### 特殊类型
+
+```typescript
+// any 类型 - 任何类型（不推荐使用）
+let value: any = 42;
+value = "hello";
+value = true;
+
+// unknown 类型 - 类型安全的 any
+let userInput: unknown;
+userInput = 5;
+userInput = "hello";
+
+// 使用 unknown 需要类型检查
+if (typeof userInput === "string") {
+  console.log(userInput.toUpperCase());
 }
 
-//null，undefined是任何类型子类型
-let name: null | undefined = "124";
+// void 类型 - 无返回值
+function logMessage(message: string): void {
+  console.log(message);
+}
 
-/**启用 strictNullChecks 时，当值为 null 或 undefined 时，你需要在对该值
- * 使用方法或属性之前测试这些值。就像在使用可选属性之前检查 undefined 一样，
- * 我们可以使用缩小来检查可能是 null 的值： */
+// never 类型 - 永不返回
+function throwError(message: string): never {
+  throw new Error(message);
+}
+
+// null 和 undefined
+let nullValue: null = null;
+let undefinedValue: undefined = undefined;
+
+// 严格空值检查
 function doSomething(x: string | null) {
   if (x === null) {
-    // do nothing
+    console.log("Value is null");
   } else {
-    console.log("Hello, " + x.toUpperCase());
+    console.log(x.toUpperCase());
   }
 }
 
-//表达式之后写 ! 实际上是一个类型断言，该值不是 null 或 undefined：
+// 非空断言操作符
 function liveDangerously(x?: number | null) {
-  console.log(x!.toFixed());
+  console.log(x!.toFixed()); // 断言 x 不为 null 或 undefined
 }
 ```
 
-- `枚举`
+### 2.2 数组和元组
 
-```ts
-// 数字枚举，默认索引从0开始。这里修改默认从1开始
+#### 数组类型
+
+```typescript
+// 数组类型的两种声明方式
+let numbers: number[] = [1, 2, 3, 4, 5];
+let strings: Array<string> = ["hello", "world"];
+
+// 联合类型数组
+let mixed: (number | string)[] = [1, "hello", 2, "world"];
+
+// 只读数组
+let readonlyNumbers: readonly number[] = [1, 2, 3];
+let readonlyStrings: ReadonlyArray<string> = ["a", "b", "c"];
+
+// 多维数组
+let matrix: number[][] = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+];
+```
+
+#### 元组类型
+
+```typescript
+// 基本元组
+let person: [string, number] = ["张进喜", 25];
+
+// 可选元素
+let optional: [string, number?] = ["hello"];
+
+// 剩余元素
+let rest: [string, ...number[]] = ["hello", 1, 2, 3];
+
+// 只读元组
+type StringNumberBooleans = readonly [string, number, ...boolean[]];
+const tuple: StringNumberBooleans = ["world", 3, true, false, true];
+
+// 命名元组
+type Range = [start: number, end: number];
+let range: Range = [0, 100];
+
+// 元组解构
+let [name, age] = person;
+console.log(`姓名: ${name}, 年龄: ${age}`);
+```
+
+### 2.3 枚举类型
+
+```typescript
+// 数字枚举
 enum Direction {
   Up = 1,
   Down,
   Left,
-  Right,
+  Right
 }
-console.log("Direction.Down === 2", Direction.Down === 2);
+
+console.log(Direction.Up);    // 1
+console.log(Direction.Down);  // 2
+console.log(Direction[1]);    // "Up"
 
 // 字符串枚举
-enum Direction {
-  Up = "UP",
-  Down = "DOWN",
-  Left = "LEFT",
-  Right = "RIGHT",
+enum Color {
+  Red = "#ff0000",
+  Green = "#00ff00",
+  Blue = "#0000ff"
 }
 
-// 枚举的key和value，可以互相引用
-let up = Direction.Up; // UP
-console.log("Direction[up] === 'Up'", Direction[up] === "Up");
+// 常量枚举（编译时内联）
+const enum Sizes {
+  Small = "S",
+  Medium = "M",
+  Large = "L"
+}
+
+// 计算成员
+enum FileAccess {
+  None,
+  Read = 1 << 1,
+  Write = 1 << 2,
+  ReadWrite = Read | Write
+}
+
+// 反向映射
+enum Status {
+  Active = "ACTIVE",
+  Inactive = "INACTIVE"
+}
+
+// 使用枚举
+function setDirection(dir: Direction) {
+  console.log(`Moving ${Direction[dir]}`);
+}
+
+setDirection(Direction.Up);
 ```
 
-- `函数`
+## 3. 函数类型
 
-```ts
-// Function函数类型
-function doSomething(f: Function) {
-  return f(1, 2, 3);
-}
-// 参数默认值，剩余参数 ，返回值为string类型
-function getName(name: string = "zhangjinix", ...m: number[]): string {
-  return name.toUpperCase();
-}
-// 参数为没有返回值的函数
-function greeter(fn: (a: string) => void): string {
-  return "当前greeter函数返回值类型为string";
+### 3.1 函数声明和表达式
+
+```typescript
+// 函数声明
+function add(x: number, y: number): number {
+  return x + y;
 }
 
-// 返回 Promise 类型的函数，兑现为number
-async function getFavoriteNumber(): Promise<number> {
-  return 26;
+// 函数表达式
+const multiply = function(x: number, y: number): number {
+  return x * y;
+};
+
+// 箭头函数
+const divide = (x: number, y: number): number => x / y;
+
+// 函数类型
+type MathOperation = (x: number, y: number) => number;
+
+const subtract: MathOperation = (x, y) => x - y;
+```
+
+### 3.2 参数类型
+
+```typescript
+// 可选参数
+function greet(name: string, greeting?: string): string {
+  return `${greeting || "Hello"}, ${name}!`;
 }
 
-// 对象类型的参数，z参数可选
-function printCoord(pt: { x: number; y: number = 12; z?: number }): number {
-  console.log("The coordinate's x value is " + pt.x);
-  console.log("The coordinate's y value is " + pt.y);
-  return 124;
+// 默认参数
+function createUser(name: string, age: number = 18): object {
+  return { name, age };
 }
+
+// 剩余参数
+function sum(...numbers: number[]): number {
+  return numbers.reduce((total, num) => total + num, 0);
+}
+
 // 参数解构
-function printCoord({ a, b, c }: { a: number; b: number; c: number }): number {
-  return a + b + c;
-}
-```
-
-## 复杂类型
-
-- `数组`
-
-```ts
-let numArray: number[] = [1, 2, 3];
-let stringArray: string[] = ["11", "aha", "zhangjinxi"];
-
-// 使用泛型
-let numArray: Array<number> = [1, 2, 3];
-let numArray: Array<number | string> = [1, "zhangjinxi", 23243, "ewr"];
-```
-
-- `元组`
-
-元组类型是另一种 Array 类型，它确切地知道它包含多少个元素，以及它在特定位置包含哪些类型。
-
-```ts
-// readonly元组，剩余参数
-type StringNumberBooleans = readonly [string, number, ...boolean[]];
-const c: StringNumberBooleans = ["world", 3, true, false, true, false, true];
-
-type StringNumberPair<T> = [string, number, T];
-let stringArray: StringNumberPair<boolean> = ["11", 11, true];
-```
-
-- `object`
-
-```ts
-let obj: object = { name: "zhangjinxi", age: 23 };
-let obj: { name: string; age: number } = { name: "zhangjinxi", age: 23 };
-```
-
-- `联合类型`
-
-```ts
-let name: string | number = "我可以是string类型，也可以是number类型";
-name = 124;
-```
-
-- `交叉类型`
-
-```ts
-type Animal = { name: string };
-type Bear = { honey: boolean };
-type ListType: Animal & Bear
-let bear:ListType== { name: "我是Animal，同时也是Bear类型", honey: true };
-```
-
-- `类型别名`
-
-```ts
-type otherName = Array<boolean>;
-type point = number | string;
-type Point = {
-  x: number;
-  y: string;
-  z: boolean;
-};
-type Box<Type> = {
-  contents: Type;
-};
-```
-
-- `类型断言`
-
-```ts
-let div: HTMLDivElement = document.getElementById("myDiv");
-
-// 使用断言
-let div = document.getElementById("myDiv") as HTMLDivElement;
-```
-
-- `接口`
-
-```ts
-// <T>:泛型，readonly:只读参数，new:构造函数，?:可选参数，[params: string]:不定参数
-interface Person<T> {
-  readonly name: string;
-  age: T;
-  skin:'white'|'black';
-  hobbies: Array<string>;
-  new (s: string): SomeObject;
-  func(someArg: number)?: boolean;
-  option?: string;
-  [index: number]: string;
-  [params: string]: string;
+function printUser({ name, age }: { name: string; age: number }): void {
+  console.log(`Name: ${name}, Age: ${age}`);
 }
 
-type personAlias = Person;
-
-// extends继承
-interface student extends Person {
-  class: number;
-  height: number;
+// 函数重载
+function combine(a: string, b: string): string;
+function combine(a: number, b: number): number;
+function combine(a: any, b: any): any {
+  return a + b;
 }
-let person: Person<number> = {
-  name: "zhangjinxi",
-  age: 23,
-  skin:'white',
-  hobbies: ["爬山", "游泳", "打球"],
-  option:'我是可选参数，有没有都可以'
-};
-let otherPerson:Person;
-new otherPerson('会调用Person接口声明里的new构造函数')
+
+console.log(combine("Hello, ", "World"));  // "Hello, World"
+console.log(combine(1, 2));                // 3
 ```
 
-- `字面类型`
+### 3.3 高级函数类型
 
-```ts
-let name: "小明" | "小花" = "小明";
-function printText(s: string, alignment: "left" | "right" | "center") {
-  // ...
-}
-printText("Hello", "left");
-printText("world", "我不属于字面类型指定的值，会报错"); // 报错
-```
-
-## 泛型：类型变量
-
-把类型当作变量，参数的类型取决于传进来的类型。
-
-```js
-// 传入泛型Type
-function identity<Type>(arg: Type): Type {
+```typescript
+// 泛型函数
+function identity<T>(arg: T): T {
   return arg;
 }
-let output = identity<string>("myString");
 
-//用泛型定义函数类型
-let myIdentity: <Type>(arg: Type) => Type = identity;
+let output1 = identity<string>("hello");
+let output2 = identity(42); // 类型推断
 
-// 定义泛型接口
-interface GenericIdentityFn {
-  <Type>(arg: Type): Type;
-}
-let myIdentity: GenericIdentityFn = identity;
-
-//定义泛型类
-class GenericNumber<NumType> {
-  zeroValue: NumType;
-  make(): NumType;
-  add: (x: NumType, y: NumType) => NumType;
-}
-
-let myGenericNumber = new GenericNumber<number>();
-myGenericNumber.zeroValue = 0;
-myGenericNumber.add = function (x, y) {
-  return x + y;
-};
-
-// 泛型约束：约束泛型Type，只能是具有 .length 属性的所有类型
+// 约束泛型
 interface Lengthwise {
   length: number;
 }
 
-function loggingIdentity<Type extends Lengthwise>(arg: Type): Type {
+function logLength<T extends Lengthwise>(arg: T): T {
   console.log(arg.length);
   return arg;
 }
 
-//在泛型约束中使用类型参数：Key类型只能是Type类型中的一个属性
-function getProperty<Type, Key extends keyof Type>(obj: Type, key: Key) {
+logLength("hello");     // ✓
+logLength([1, 2, 3]);   // ✓
+// logLength(123);      // ✗ Error
+
+// 条件类型和工具类型
+type NonNullable<T> = T extends null | undefined ? never : T;
+
+// 异步函数
+async function fetchData(): Promise<string> {
+  return "data";
+}
+
+// 回调函数类型
+type EventCallback<T> = (event: T) => void;
+
+function addEventListener<T>(
+  event: string, 
+  callback: EventCallback<T>
+): void {
+  // 实现...
+}
+```
+
+## 4. 对象类型
+
+### 4.1 对象类型声明
+
+```typescript
+// 对象类型
+let user: {
+  name: string;
+  age: number;
+  isActive?: boolean;  // 可选属性
+  readonly id: number; // 只读属性
+} = {
+  name: "张进喜",
+  age: 25,
+  id: 1
+};
+
+// 索引签名
+interface StringDictionary {
+  [key: string]: string;
+}
+
+interface NumberArray {
+  [index: number]: number;
+}
+
+// 混合类型
+interface Counter {
+  (start: number): string;
+  interval: number;
+  reset(): void;
+}
+
+function createCounter(): Counter {
+  let counter = function(start: number) {
+    return `Started at ${start}`;
+  } as Counter;
+  
+  counter.interval = 123;
+  counter.reset = function() { /* reset logic */ };
+  
+  return counter;
+}
+```
+
+### 4.2 接口定义
+
+```typescript
+// 基本接口
+interface Person {
+  readonly id: number;
+  name: string;
+  age: number;
+  email?: string;
+}
+
+// 继承接口
+interface Employee extends Person {
+  employeeId: string;
+  department: string;
+  salary: number;
+}
+
+// 多重继承
+interface Developer extends Employee {
+  skills: string[];
+  level: 'junior' | 'senior' | 'lead';
+}
+
+// 泛型接口
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: number;
+}
+
+interface User {
+  id: number;
+  name: string;
+}
+
+let userResponse: ApiResponse<User> = {
+  data: { id: 1, name: "张进喜" },
+  message: "Success",
+  status: 200
+};
+
+// 函数接口
+interface SearchFunc {
+  (source: string, subString: string): boolean;
+}
+
+let mySearch: SearchFunc = function(src, sub) {
+  return src.search(sub) > -1;
+};
+```
+
+## 5. 联合和交叉类型
+
+### 5.1 联合类型
+
+```typescript
+// 基本联合类型
+let value: string | number = "hello";
+value = 42; // ✓
+
+// 联合类型的类型守卫
+function padLeft(value: string, padding: string | number) {
+  if (typeof padding === "number") {
+    return Array(padding + 1).join(" ") + value;
+  }
+  if (typeof padding === "string") {
+    return padding + value;
+  }
+  throw new Error(`Expected string or number, got '${padding}'.`);
+}
+
+// 字面量类型联合
+type Theme = "light" | "dark" | "auto";
+type Size = "small" | "medium" | "large";
+
+function setTheme(theme: Theme): void {
+  document.body.className = theme;
+}
+
+// 可辨识联合
+interface Square {
+  kind: "square";
+  size: number;
+}
+
+interface Rectangle {
+  kind: "rectangle";
+  width: number;
+  height: number;
+}
+
+interface Circle {
+  kind: "circle";
+  radius: number;
+}
+
+type Shape = Square | Rectangle | Circle;
+
+function getArea(shape: Shape): number {
+  switch (shape.kind) {
+    case "square":
+      return shape.size * shape.size;
+    case "rectangle":
+      return shape.width * shape.height;
+    case "circle":
+      return Math.PI * shape.radius ** 2;
+    default:
+      const exhaustiveCheck: never = shape;
+      return exhaustiveCheck;
+  }
+}
+```
+
+### 5.2 交叉类型
+
+```typescript
+// 基本交叉类型
+interface Colorful {
+  color: string;
+}
+
+interface Circle {
+  radius: number;
+}
+
+type ColorfulCircle = Colorful & Circle;
+
+let cc: ColorfulCircle = {
+  color: "red",
+  radius: 42
+};
+
+// 混入（Mixin）模式
+class Timestamped {
+  timestamp = Date.now();
+}
+
+class Tagged {
+  tag = "default";
+}
+
+// 混入函数
+function extend<T, U>(first: T, second: U): T & U {
+  const result = {} as T & U;
+  for (const prop in first) {
+    if (first.hasOwnProperty(prop)) {
+      (result as T)[prop] = first[prop];
+    }
+  }
+  for (const prop in second) {
+    if (second.hasOwnProperty(prop)) {
+      (result as U)[prop] = second[prop];
+    }
+  }
+  return result;
+}
+
+const mixed = extend(new Timestamped(), new Tagged());
+console.log(mixed.timestamp, mixed.tag);
+```
+
+## 6. 泛型
+
+### 6.1 泛型基础
+
+```typescript
+// 泛型函数
+function identity<T>(arg: T): T {
+  return arg;
+}
+
+// 泛型接口
+interface GenericIdentityFn<T> {
+  (arg: T): T;
+}
+
+let myIdentity: GenericIdentityFn<number> = identity;
+
+// 泛型类
+class GenericNumber<T> {
+  zeroValue: T;
+  add: (x: T, y: T) => T;
+  
+  constructor(zeroValue: T, addFn: (x: T, y: T) => T) {
+    this.zeroValue = zeroValue;
+    this.add = addFn;
+  }
+}
+
+let myGenericNumber = new GenericNumber<number>(0, (x, y) => x + y);
+let stringNumeric = new GenericNumber<string>("", (x, y) => x + y);
+```
+
+### 6.2 泛型约束
+
+```typescript
+// 基本约束
+interface Lengthwise {
+  length: number;
+}
+
+function loggingIdentity<T extends Lengthwise>(arg: T): T {
+  console.log(arg.length);
+  return arg;
+}
+
+// 在泛型约束中使用类型参数
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
   return obj[key];
 }
-//在泛型中使用类类型:使用泛型创建工厂时，需要通过其构造函数引用类类型
-function create<Type>(c: { new (): Type }): Type {
-  return new c();
-}
- //使用原型属性来推断和约束构造函数和类类型的实例端之间的关系
- class ZooKeeper {
-  nametag: string = "Mikle";
-}
 
-class Animal {
-  numLegs: number = 4;
-}
- class Lion extends Animal {
-  keeper: ZooKeeper = new ZooKeeper();
-}
-// A继承自Animal，并且也是c类构造函数返回值类型;U继承HTMLElement默认值为HTMLDivElement
-function createInstance<A extends Animal,U extends HTMLElement = HTMLDivElement>(c: new () => A): A {
-  return new c();
-}
+let person = { name: "张进喜", age: 25, city: "北京" };
+let name = getProperty(person, "name");
+let age = getProperty(person, "age");
 
-createInstance(Lion).keeper.nametag;
+// 条件类型
+type NonNullable<T> = T extends null | undefined ? never : T;
+type Flatten<T> = T extends any[] ? T[number] : T;
 
-//Cat expends Animal。 Cat 和 Animal作为泛型使用时，
-// 协变：接受Animal的地方也能接受Cat——兼容子类
-// 逆变：接受Cat的地方也能接受Animal——兼容父类
-
-// 逆变注释：Contravariant annotation
-interface Consumer<in T> {
-  consume: (arg: T) => void;
-}
-// 协变注释：Covariant annotation
-interface Producer<out T> {
-  make(): T;
-}
-// 不变注释：Invariant annotation
-interface ProducerConsumer<in out T> {
-  consume: (arg: T) => void;
-  make(): T;
-}
-```
-
-## keyof：键映射
-
-keyof 运算符采用对象类型并生成其键的字符串或数字字面联合。keyof 类型在与映射类型结合使用时变得特别有用
-
-```ts
-type Point = { x: number; y: number };
-type P = keyof Point; // P = "x" | "y"
-
-type Arrayish = { [n: number]: unknown };
-type A = keyof Arrayish; // A = number
-
-//因为 JavaScript 对象键总是被强制转换为字符串
-type Mapish = { [k: string]: boolean };
-type M = keyof Mapish; //M = string | number
-```
-
-## typeof：类型引用
-
-TypeScript 添加了一个 typeof 运算符，你可以在类型上下文中使用它来引用变量或属性的类型：
-
-```ts
-let s = "hello";
-let n: typeof s; // string
-
-//预定义类型 ReturnType<T> ，接受一个函数类型并产生函数的返回类型
-type Predicate = (x: unknown) => boolean;
-type K = ReturnType<Predicate>; // boolean：函数返回类型是Boolean
-
-function f() {
-  return { x: 10, y: 3 };
-}
-//报错：ReturnType需要传函数类型，这里f是值。
-type P = ReturnType<f>;
-
-//值和类型不是一回事。要引用值 f 所具有的类型，我们使用 typeof
-type P = ReturnType<typeof f>; //type P = { x: number; y: number };
-```
-
-## Type[index]：类型索引
-
-可以使用索引访问类型来查找另一种类型的特定属性：
-
-```ts
-type Person = { age: number; name: string; alive: boolean };
-
-type Age = Person["age"]; //type Age = number
-
-//索引类型本身就是一种类型，可使用联合、keyof 或其他类型：
-type I1 = Person["age" | "name"];//type I1 = string | number
-
-type I2 = Person[keyof Person];//type I2 = string | number | boolean
-
-type AliveOrName = "alive" | "name";
-type I3 = Person[AliveOrName];//type I3 = string | boolean
-
-//使用 number 来获取数组元素的类型。我们可以将它与 typeof 结合起来，以方便地捕获数组字面量的元素类型：
-const MyArray = [
-  { name: "Alice", age: 15 },
-  { name: "Bob", age: 23 },
-  { name: "Eve", age: 38 },
-];
- //type Person = {name: string;age: number}  可以不加括号
-type Person = typeof (MyArray[number]);
-
-type Age = typeof (MyArray[number]["age"]);//type Age = number
-
-```
-
-## 三目运算：条件类型
-
-类型根据输入做出决定
-
-```ts
-// 语法类似：
-SomeType extends OtherType ? TrueType : FalseType;
-
-interface Animal {
-  live(): void;
-}
-interface Dog extends Animal {
-  woof(): void;
-}
-//type Example1 = number
-type Example1 = Dog extends Animal ? number : string;
-
-//type Example2 = string
-type Example2 = RegExp extends Animal ? number : string;
-
-// 从联合类型选择
-type NameOrId<T extends number | string> = T extends number
-  ? IdLabel
-  : NameLabel;
-type name =  NameOrId<number> //type name = IdLabel
-
-
-// 类型约束 T类型必须要有message属性
-type MessageOf<T extends { message: unknown }> = T["message"];
-
-// T有message属性返回T["message"]，否则返回never
-type MessageOf<T> = T extends { message: unknown } ? T["message"] : never;
-
-// 在条件类型中推断：使用 infer 关键字引入并推断新变量，Return：函数返回类型
-type GetReturnType<Type> = Type extends (...args: never[]) => infer Return
-  ? Return
-  : never;
-
-// Type：() => number，返回number类型，推断为true，则返回number
-type Num = GetReturnType<() => number>;//type Num = number
-
-type Str = GetReturnType<(x: string) => string>;//type Str = string
-
-//type Bools = boolean[]  Type函数返回boolean[]类型，
-type Bools = GetReturnType<(a: boolean, b: boolean) => boolean[]>;
-
-//分布式条件类型
-type ToArray<Type> = Type extends any ? Type[] : never;
-//这里把string | number分开传入了，结果：type StrArrOrNumArr = string[] | number[]
-type StrArrOrNumArr = ToArray<string | number>;
-
-// [Type] [any]都用中括号包起来，此时string | number作为一个整体
-type ToArrayNonDist<Type> = [Type] extends [any] ? Type[] : never;
-
-// type ArrOfStrOrNum = (string | number)[]
-type ArrOfStrOrNum = ToArrayNonDist<string | number>;
-```
-
-## in：映射类型
-
-有时一种类型需要基于另一种类型，就不需要重复自己了。映射类型是一种泛型类型，它使用 PropertyKey 的联合（经常创建的 通过 keyof）来迭代键来创建类型：
-
-```ts
-// keyof Type结果为联合字面量：'darkMode'|'newUserProfile'
-// 通过in关键字，遍历联合字面量：'darkMode'|'newUserProfile'
-type OptionsFlags<Type> = {
-  [Property in keyof Type]: boolean;
-};
-type Features = {
-  darkMode: () => void;
-  newUserProfile: () => void;
+// 映射类型
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P];
 };
 
-type FeatureOptions = OptionsFlags<Features>;
-type FeatureOptions = {
-  darkMode: boolean;
-  newUserProfile: boolean;
-};
-// 映射修饰符：readonly 和 ? 分别影响可变性和可选性。 as 给键重命名，Exclude排除键
-// 通过添加前缀 - 或 + 来移除或添加这些修饰符。如果你不添加前缀，则假定为 +。
-
-// 添加-前缀，移除readonly修饰符，移除？修饰符，as重命名键，as+Exclude排除键
-type CreateMutable<Type> = {
-  -readonly [Property in keyof Type as Exclude<Property, "kind">
-   as `get${Capitalize<string & Property>}`]-?: Type[Property];
+type Partial<T> = {
+  [P in keyof T]?: T[P];
 };
 
-type LockedAccount = {
-  readonly id: string;
-  readonly name: string;
-  age?: number;
-};
-
-type UnlockedAccount = CreateMutable<LockedAccount>;
-
-type UnlockedAccount = {
-  getId: string;
-  getAge: number;
-};
-```
-
-## class 类
-
-与其他 JavaScript 语言功能一样，TypeScript 添加了类型注释和其他语法，以允许你表达类和其他类型之间的关系。
-
-> `strictPropertyInitialization` 设置控制类字段是否需要在构造函数中初始化。
-
-```ts
-class Point<T> {
-  public x: number = 123; // public 成员可以在任何地方访问
-  protected y: number; // protected成员在类和子类中可见
-  // Not initialized, but no error
-  private name!: string; //private成员只在当前类可见
-  readonly age: T; //只读属性
-  static height: number; //静态成功，通过Point.height获取
-  // 参数名和类属性x,y重名，将赋值给类属性值
-  constructor(x: number, y: number);
-  // 类可以声明索引签名；这些工作与 其他对象类型的索引签名 相同：
-  [s: string]: boolean | ((s: string) => boolean);
-  check(s: string) {
-    return this[s] as boolean;
-  }
-}
-
-// 构造函数签名:给定类本身的类型，InstanceType 工具类型会对此操作进行建模。
-type PointInstance = InstanceType<typeof Point>;
-const pt: PointInstance = new Point();
-pt.x = 0;
-pt.y = 0;
-
-// implements 检查一个类是否满足特定的 interface
-// extends继承其他类
-class Sonar extends Animal implements Point, Point2 {
-  ping() {
-    console.log("ping!");
-  }
-}
-
-//当 target >= ES2022 或 useDefineForClassFields 为 true 时，
-//想为继承的字段重新声明更准确的类型时，会报错。通过 declare 表明这个字段声明不应该有运行时影响。
-// abstract抽象类只能被继承不能实例化，类似interface接口
-abstract class AnimalHouse {
-  resident: Animal;
-  constructor(animal: Animal) {
-    this.resident = animal;
-  }
-}
-
-class DogHouse extends AnimalHouse {
-  // 子类的resident不必和父类的resident类型保持一致
-  declare resident: Dog;
-  constructor(dog: Dog) {
-    super(dog);
-  }
-}
-```
-
-## 工具类型
-
-TypeScript 提供了几种工具类型来促进常见的类型转换。这些工具在全局作用域内可用。
-
-- `Awaited<Type>`
-
-此类型旨在对 async 函数中的 await 或 Promise 中的 .then() 方法等操作进行建模 - 具体来说，他们递归地解开 Promise 的方式。
-
-```ts
-type A = Awaited<Promise<string>>; //type A = string
-
-type B = Awaited<Promise<Promise<number>>>; //type B = number
-
-type C = Awaited<boolean | Promise<number>>; //type C = number | boolean
-```
-
-- `Partial<Type>`
-
-构造一个将 Type 的所有属性设置为可选的类型。此工具将返回一个表示给定类型的所有子集的类型。
-
-```ts
-interface Todo {
-  title: string;
-  description: string;
-}
-type optionTodo = Partial<Todo>;
-// 转变为：
-type optionTodo = {
-  title?: string;
-  description?: string;
-};
-```
-
-- `Required<Type>`
-
-构造一个由设置为 required 的 Type 的所有属性组成的类型。与 Partial 相反。
-
-```ts
-interface Todo {
-  title?: string;
-  description?: string;
-}
-type optionTodo = Required<Todo>;
-// 转变为：
-type optionTodo = {
-  title: string;
-  description: string;
-};
-```
-
-- `Readonly<Type>`
-  构造一个将 Type 的所有属性设置为 readonly 的类型，这意味着构造类型的属性不能重新分配
-
-```ts
-interface Todo {
-  title?: string;
-  description?: string;
-}
-type optionTodo = Readonly<Todo>
-// 转变为：
-type optionTodo = {
-  Readonly title:string;
-  Readonly description:string
-}
-```
-
-- `Record<Keys, Type>`
-  构造一个对象类型，其属性键为 Keys，其属性值为 Type。此工具可用于将一种类型的属性映射到另一种类型。
-
-```ts
-type CatName = "miffy" | "boris" | "mordred";
-
-interface CatInfo {
-  age: number;
-  breed: string;
-}
-
-const cats: Record<CatName, CatInfo> = {
-  miffy: { age: 10, breed: "Persian" },
-  boris: { age: 5, breed: "Maine Coon" },
-  mordred: { age: 16, breed: "British Shorthair" },
-};
-```
-
-- `Pick<Type, Keys>`
-
-通过从 Type 中选取一组属性 Keys（字符串字面或字符串字面的并集）来构造一个类型。
-
-```ts
+// 实用工具类型
 interface Todo {
   title: string;
   description: string;
@@ -639,481 +611,781 @@ interface Todo {
 }
 
 type TodoPreview = Pick<Todo, "title" | "completed">;
-
-const todo: TodoPreview = {
-  title: "Clean room",
-  completed: false,
-};
+type TodoUpdate = Partial<Todo>;
+type TodoRequired = Required<Todo>;
 ```
 
-- `Omit<Type, Keys>`
+## 7. 类和继承
 
-通过从 Type 中选择所有属性然后删除 Keys（字符串字面或字符串字面的并集）来构造一个类型。与 Pick 相反。
+### 7.1 类的基本语法
 
-```ts
-interface Todo {
-  title: string;
-  description: string;
-  completed: boolean;
-  createdAt: number;
-}
-
-type TodoPreview = Omit<Todo, "description">;
-
-const todo: TodoPreview = {
-  title: "Clean room",
-  completed: false,
-  createdAt: 1615544252770,
-};
-```
-
-- `Exclude<UnionType, ExcludedMembers>`
-
-通过从 UnionType 中排除所有可分配给 ExcludedMembers 的联合成员来构造一个类型。
-
-```ts
-type T0 = Exclude<"a" | "b" | "c", "a">; //type T0 = "b" | "c"
-
-//type T2 = string | number
-type T2 = Exclude<string | number | (() => void), Function>;
-
-type Shape = { kind: "circle"; radius: number } | { kind: "square"; x: number } | { kind: "triangle"; x: number; y: number };
-
-type T3 = Exclude<Shape, { kind: "circle" }>;
-type T3 =
-  | {
-      kind: "square";
-      x: number;
+```typescript
+// 基本类定义
+class Animal {
+  // 属性声明
+  private _name: string;
+  protected age: number;
+  public species: string;
+  
+  // 构造函数
+  constructor(name: string, age: number, species: string) {
+    this._name = name;
+    this.age = age;
+    this.species = species;
+  }
+  
+  // 方法
+  public getName(): string {
+    return this._name;
+  }
+  
+  protected getAge(): number {
+    return this.age;
+  }
+  
+  // 静态方法
+  static createDog(name: string, age: number): Animal {
+    return new Animal(name, age, "Dog");
+  }
+  
+  // getter/setter
+  get name(): string {
+    return this._name;
+  }
+  
+  set name(value: string) {
+    if (value.length > 0) {
+      this._name = value;
     }
-  | {
-      kind: "triangle";
-      x: number;
-      y: number;
-    };
-```
-
-- `Extract<Type, Union>`
-
-通过从 Type 中提取所有可分配给 Union 的联合成员来构造一个类型。`Exclude<UnionType, ExcludedMembers>`相反
-
-```ts
-type T0 = Extract<"a" | "b" | "c", "a" | "f">; //type T0 = "a"
-
-//type T1 = () => void
-type T1 = Extract<string | number | (() => void), Function>;
-```
-
-- `NonNullable<Type>`
-
-通过从 Type 中排除 null 和 undefined 来构造一个类型。
-
-```ts
-//type T0 = string | number
-type T0 = NonNullable<string | number | undefined>;
-```
-
-- `Parameters<Type>`
-  从函数类型 Type 的参数中使用的类型构造元组类型。
-
-```ts
-type T0 = Parameters<() => string>; //type T0 = []
-
-type T1 = Parameters<(s: string) => void>; //type T1 = [s: string]
-
-declare function f1(arg: { a: number; b: string }): void;
-type T3 = Parameters<typeof f1>;
-type T3 = [
-  arg: {
-    a: number;
-    b: string;
   }
-];
-```
-
-- `ConstructorParameters<Type>`
-
-从构造函数类型的类型构造元组或数组类型。它生成一个包含所有参数类型的元组类型（如果 Type 不是函数，则生成类型 never）。
-
-```ts
-//type T0 = [message?: string]
-type T0 = ConstructorParameters<ErrorConstructor>;
-
-//type T1 = string[]
-type T1 = ConstructorParameters<FunctionConstructor>;
-
-//type T2 = [pattern: string | RegExp, flags?: string]
-type T2 = ConstructorParameters<RegExpConstructor>;
-
-class C {
-  constructor(a: number, b: string) {}
-}
-//type T3 = [a: number, b: string]
-type T3 = ConstructorParameters<typeof C>;
-```
-
-- `ReturnType<Type>`
-
-构造一个由函数 Type 的返回类型组成的类型。
-
-```ts
-declare function f1(): { a: number; b: string };
-
-type T4 = ReturnType<typeof f1>;
-
-type T4 = {
-  a: number;
-  b: string;
-};
-```
-
-- `InstanceType<Type>`
-
-构造一个由 Type 中的构造函数的实例类型组成的类型。
-
-```ts
-class C {
-  x = 0;
-  y = 0;
 }
 
-type T0 = InstanceType<typeof C>;
-
-type T0 = C;
-```
-
-- `NoInfer<Type>`
-
-阻止对所包含类型的推断。除了阻止推断之外，`NoInfer<Type>` 与 Type 相同。
-
-```ts
-function createStreetLight<C extends string>(colors: C[], defaultColor?: NoInfer<C>) {
-  // ...
-}
-createStreetLight(["red", "yellow", "green"], "red"); // OK
-createStreetLight(["red", "yellow", "green"], "blue"); // Error
-```
-
-- `ThisParameterType<Type>`
-
-提取函数类型的 this 参数的类型，如果函数类型没有 this 参数，则提取 unknown。
-
-```ts
-function toHex(this: Number) {
-  return this.toString(16);
-}
-
-function numberToString(n: ThisParameterType<typeof toHex>) {
-  return toHex.apply(n);
-}
-```
-
-- `OmitThisParameter<Type>`
-  从 Type 中删除 this 参数。如果 Type 没有显式声明的 this 参数，则结果只是 Type。否则，将从 Type 创建一个没有 this 参数的新函数类型。泛型被删除，只有最后一个重载签名被传播到新的函数类型中。
-
-```ts
-function toHex(this: Number) {
-  return this.toString(16);
-}
-
-// const fiveToHex:()=>string
-const fiveToHex: OmitThisParameter<typeof toHex> = toHex.bind(5);
-
-console.log(fiveToHex());
-```
-
-- `ThisType<Type>`
-  此工具不返回转换后的类型。相反，它用作上下文 this 类型的标记。请注意，必须启用 noImplicitThis 标志才能使用此工具。
-
-```ts
-type ObjectDescriptor<D, M> = {
-  data?: D;
-  methods?: M & ThisType<D & M>; // Type of 'this' in methods is D & M
-};
-
-function makeObject<D, M>(desc: ObjectDescriptor<D, M>): D & M {
-  let data: object = desc.data || {};
-  let methods: object = desc.methods || {};
-  return { ...data, ...methods } as D & M;
-}
-
-let obj = makeObject({
-  data: { x: 0, y: 0 }, //是D
-  //methods作用域内上下文this的类型：this:D & M
-  // 即{ x: number, y: number } & { moveBy(dx: number, dy: number)
-  methods: {
-    //是M
-    moveBy(dx: number, dy: number) {
-      this.x += dx;
-      this.y += dy;
-    },
-  },
-});
-
-obj.x = 10;
-obj.y = 20;
-obj.moveBy(5, 5);
-```
-
-- `Uppercase<StringType>`转为大写
-- `Lowercase<StringType>`转为小写
-- `Capitalize<StringType>`首字母大写
-- `Uncapitalize<StringType>`首字母小写
-
-## 装饰器
-
-**_装饰器_**:是一种特殊的声明，可以附加到 类声明、方法、accessor、属性 或 参数。装饰器使用 @expression 形式，其中 expression 必须评估为一个函数，该函数将在运行时调用，可以在不修改原始类的情况下更改、扩展类的功能。装饰器提供了一种为类声明和成员添加注释和元编程语法的方法。
-
-要启用对装饰器的实验性支持，你必须在命令行或 tsconfig.json 中启用 experimentalDecorators 编译器选项：
-
-```bash
-tsc --target ES5 --experimentalDecorators
-```
-
-tsconfig.json：
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES5",
-    "experimentalDecorators": true
+// 继承
+class Dog extends Animal {
+  private breed: string;
+  
+  constructor(name: string, age: number, breed: string) {
+    super(name, age, "Dog");
+    this.breed = breed;
+  }
+  
+  public bark(): string {
+    return `${this.getName()} says woof!`;
+  }
+  
+  // 重写方法
+  public getName(): string {
+    return `Dog: ${super.getName()}`;
   }
 }
 ```
 
-装饰器函数大致这样：
+### 7.2 抽象类和接口实现
 
-```ts
-function sealed(target) {
-  // do something with 'target' ...
+```typescript
+// 抽象类
+abstract class Shape {
+  abstract getArea(): number;
+  
+  protected displayInfo(): void {
+    console.log(`Area: ${this.getArea()}`);
+  }
+}
+
+class Rectangle extends Shape {
+  constructor(private width: number, private height: number) {
+    super();
+  }
+  
+  getArea(): number {
+    return this.width * this.height;
+  }
+}
+
+// 接口实现
+interface Flyable {
+  fly(): void;
+}
+
+interface Swimmable {
+  swim(): void;
+}
+
+class Duck implements Flyable, Swimmable {
+  fly(): void {
+    console.log("Duck is flying");
+  }
+  
+  swim(): void {
+    console.log("Duck is swimming");
+  }
+}
+
+// 类实现接口
+interface ClockInterface {
+  currentTime: Date;
+  setTime(d: Date): void;
+}
+
+class Clock implements ClockInterface {
+  currentTime: Date = new Date();
+  
+  setTime(d: Date) {
+    this.currentTime = d;
+  }
+  
+  constructor(h: number, m: number) {
+    // 构造逻辑
+  }
 }
 ```
 
-## 装饰器工厂
+## 8. 模块系统
 
-装饰器工厂只是一个函数，返回装饰器函数
+### 8.1 模块导出和导入
 
-> 多个装饰器工厂函数从上到下执行，但返回的装饰器函数却是从下到上执行
-
-```ts
-/**
- * 方法装饰器应用于方法的属性描述符，可用于观察、修改或替换方法定义
- * @target 静态成员的类的构造函数，或者实例成员的类的原型。
- * @propertyKey 成员的名称。
- * @descriptor 成员的属性描述符
- */
-function first() {
-  console.log("first(): factory evaluated");
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    console.log("first(): called");
-  };
+```typescript
+// math.ts - 命名导出
+export function add(x: number, y: number): number {
+  return x + y;
 }
 
-function second() {
-  console.log("second(): factory evaluated");
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    console.log("second(): called");
-  };
+export function subtract(x: number, y: number): number {
+  return x - y;
 }
 
-/**
- * 访问器装饰器应用于访问器的属性描述符，可用于观察、修改或替换访问器的定义
- * @target 静态成员的类的构造函数，或者实例成员的类的原型。
- * @propertyKey 成员的名称。
- * @descriptor 成员的属性描述符
- */
-function configurable(value: boolean) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    descriptor.configurable = value;
-  };
-}
- /**
-  * 类装饰器应用于类的构造函数，可用于观察、修改或替换类定义
-  * @constructor:类的构造函数
-  */
- function sealed(constructor: Function) {
-  Object.seal(constructor);
-  Object.seal(constructor.prototype);
+export const PI = 3.14159;
+
+// 默认导出
+export default function multiply(x: number, y: number): number {
+  return x * y;
 }
 
-/**
- * 属性装饰器的表达式将在运行时作为函数调用
- * @target 静态成员的类的构造函数，或者实例成员的类的原型。
- * @propertyKey 成员的名称。
- */
-function format(formatString: string) {
-  return function (target: any, propertyKey: string) {
-    descriptor.configurable = value;
-  };
+// calculator.ts - 导入使用
+import multiply, { add, subtract, PI } from './math';
+import * as math from './math';
+
+console.log(add(1, 2));
+console.log(multiply(3, 4));
+console.log(math.PI);
+
+// 重新导出
+export { add as addition } from './math';
+export * from './math';
+
+// 动态导入
+async function loadMath() {
+  const mathModule = await import('./math');
+  return mathModule.add(1, 2);
 }
-
-/**
- * 参数装饰器应用于类构造函数或方法声明的函数
- * @target 静态成员的类的构造函数，或者实例成员的类的原型。
- * @propertyKey 成员的名称。
- * @parameterIndex 函数参数列表中参数的序号索引。
- */
-function required(target: Object, propertyKey: string | symbol, parameterIndex: number) {
-  console.log(targent,propertyKey,parameterIndex)
-}
-
-
-@sealed  // 类装饰器
-class ExampleClass {
-  @format("Hello, %s") //属性装饰器工厂
-  greeting: string;
-  constructor(t: string) {
-    this.title = t;
-  }
-   @configurable(false) // 访问装饰器工厂
-  get x() {
-    return this._x;
-  }
-
-  @first() // 多个方法装饰器工厂
-  @second()
-  method(@required name:stringr):string {
-    return name //@required参数装饰器
-  }
-}
-
-// 方法装饰器工厂函数输出值：
-first(): factory evaluated
-second(): factory evaluated
-second(): called
-first(): called
 ```
 
-## 命名空间
+### 8.2 命名空间
 
-“内部模块” 现在称为 “命名空间”。此外，在声明内部模块时使用 module 关键字的任何地方，都可以并且应该使用 namespace 关键字。这通过使用类似名称的术语使新用户重载来避免混淆新用户。使用方式：
-
-Validation.ts：定义类型基类：
-
-```ts
+```typescript
+// 命名空间定义
 namespace Validation {
   export interface StringValidator {
     isAcceptable(s: string): boolean;
   }
-  // 命名空间嵌套命名空间
-  export namespace Polygons {
-    export class Triangle {}
-    export class Square {}
-  }
-}
-// 同一个文件内，使用命名空间内的StringValidator接口
-let validators: { [s: string]: Validation.StringValidator } = {};
-
-// 使用import关键字，为指定符号创建别名
-import polygons = Validation.Polygons;
-// Same as 'new Validation.Polygons.Square()'
-let sq = new polygons.Square();
-```
-
-LettersValidator.ts：引入基类的声明文件，并使用定义的接口
-
-```ts
-/// <reference path="Validation.ts" />
-
-// reference它用作文件之间依赖的声明。引入同名命名空间，进行合并
-namespace Validation {
+  
   const lettersRegexp = /^[A-Za-z]+$/;
+  const numberRegexp = /^[0-9]+$/;
+  
   export class LettersOnlyValidator implements StringValidator {
     isAcceptable(s: string) {
       return lettersRegexp.test(s);
     }
   }
+  
+  export class ZipCodeValidator implements StringValidator {
+    isAcceptable(s: string) {
+      return s.length === 5 && numberRegexp.test(s);
+    }
+  }
+}
+
+// 使用命名空间
+let validators: { [s: string]: Validation.StringValidator; } = {};
+validators["ZIP code"] = new Validation.ZipCodeValidator();
+validators["Letters only"] = new Validation.LettersOnlyValidator();
+
+// 多文件命名空间
+/// <reference path="Validation.ts" />
+namespace Validation {
+  export class NumberValidator implements StringValidator {
+    isAcceptable(s: string) {
+      return /^[0-9]+$/.test(s);
+    }
+  }
 }
 ```
 
-Test.ts：同时引入两个类型定义文件
+## 9. 高级类型
 
-```ts
-/// <reference path="Validation.ts" />
-/// <reference path="LettersValidator.ts" />
+### 9.1 类型操作符
 
-// 引入两个同名命名空间，内容会合并
-let validators: { [s: string]: Validation.StringValidator } = {};
-validators["Letters only"] = new Validation.LettersOnlyValidator();
+```typescript
+// keyof 操作符
+interface Person {
+  name: string;
+  age: number;
+  location: string;
+}
+
+type PersonKeys = keyof Person; // "name" | "age" | "location"
+
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+// typeof 操作符
+let person = {
+  name: "张进喜",
+  age: 25
+};
+
+type PersonType = typeof person; // { name: string; age: number; }
+
+// in 操作符
+type Keys = "a" | "b" | "c";
+
+type Obj = {
+  [K in Keys]: string;
+}; // { a: string; b: string; c: string; }
+
+// 条件类型
+type TypeName<T> = 
+  T extends string ? "string" :
+  T extends number ? "number" :
+  T extends boolean ? "boolean" :
+  T extends undefined ? "undefined" :
+  T extends Function ? "function" :
+  "object";
+
+type T1 = TypeName<string>;    // "string"
+type T2 = TypeName<number>;    // "number"
+type T3 = TypeName<boolean>;   // "boolean"
 ```
 
-## 三斜杠指令
+### 9.2 实用工具类型
 
-三斜杠指令是包含单个 XML 标记的单行注释。注释的内容用作编译器指令。
+```typescript
+// 内置工具类型示例
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  age: number;
+}
 
-三斜杠指令仅在其包含文件的顶部有效。三斜杠指令前只能有单行或多行注释，包括其他三斜杠指令。如果在语句或声明之后遇到它们，它们将被视为常规单行注释，并且没有特殊含义。
+// Partial - 所有属性可选
+type PartialUser = Partial<User>;
+// { id?: number; name?: string; email?: string; age?: number; }
 
-如果指定了编译器标志 noResolve，则忽略三斜杠引用；它们既不会导致添加新文件，也不会更改所提供文件的顺序。
+// Required - 所有属性必需
+type RequiredUser = Required<PartialUser>;
 
-- `/// <reference path="..." />`
+// Pick - 选择特定属性
+type UserPreview = Pick<User, "name" | "email">;
+// { name: string; email: string; }
 
-它用作文件之间依赖的声明，指示编译器在编译过程中包含其他文件。
+// Omit - 排除特定属性
+type UserWithoutId = Omit<User, "id">;
+// { name: string; email: string; age: number; }
 
-- `/// <reference types="..." />`
+// Record - 创建记录类型
+type UserRoles = Record<string, User>;
+// { [key: string]: User; }
 
-与用作依赖声明的 `/// <reference path="..." />` 指令类似，`/// <reference types="..." />` 指令声明对包的依赖。
+// Exclude 和 Extract
+type T1 = Exclude<"a" | "b" | "c", "a">; // "b" | "c"
+type T2 = Extract<"a" | "b" | "c", "a" | "f">; // "a"
 
-解析这些包名的过程类似于在 import 语句中解析模块名的过程。将三斜杠引用类型指令视为声明包的 import 的一种简单方法。
+// ReturnType - 获取函数返回类型
+function createUser(): User {
+  return { id: 1, name: "张进喜", email: "zhang@example.com", age: 25 };
+}
 
-例如，在声明文件中包含 `/// <reference types="node" />` 声明该文件使用 @types/node/index.d.ts 中声明的名称；因此，这个包需要与声明文件一起包含在编译中。
+type UserReturnType = ReturnType<typeof createUser>; // User
 
-> 仅当你手动创作 d.ts 文件时才使用这些指令。要在 .ts 文件中声明对 @types 包的依赖，请在命令行或 tsconfig.json 中使用 types。
+// Parameters - 获取函数参数类型
+type CreateUserParams = Parameters<typeof createUser>; // []
+```
 
-- `/// <reference lib="..." />`
+## 10. 装饰器
 
-该指令允许文件显式包含现有的内置 lib 文件。
+### 10.1 类装饰器
 
-内置 lib 文件的引用方式与 tsconfig.json 中的 lib 编译器选项相同（例如，使用 lib="es2015" 而不是 lib="lib.es2015.d.ts" 等）。
+```typescript
+// 启用装饰器支持需要在 tsconfig.json 中设置
+// "experimentalDecorators": true
 
-对于依赖内置类型的声明文件作者，例如建议使用 DOM API 或内置 JS 运行时构造函数，如 Symbol 或 Iterable，三斜杠引用 lib 指令。以前这些 .d.ts 文件必须添加此类类型的前向/重复声明。
+// 类装饰器
+function sealed(constructor: Function) {
+  Object.seal(constructor);
+  Object.seal(constructor.prototype);
+}
 
-例如，将 `/// <reference lib="es2017.string" />` 添加到编译中的某个文件中，相当于使用 --lib es2017.string 进行编译。
+@sealed
+class Greeter {
+  greeting: string;
+  
+  constructor(message: string) {
+    this.greeting = message;
+  }
+  
+  greet() {
+    return `Hello, ${this.greeting}`;
+  }
+}
 
-- `/// <reference no-default-lib="true" />`
+// 装饰器工厂
+function classDecorator<T extends { new(...args: any[]): {} }>(constructor: T) {
+  return class extends constructor {
+    newProperty = "new property";
+    hello = "override";
+  };
+}
 
-该指令将文件标记为默认库。你将在 lib.d.ts 及其不同变体的顶部看到此注释。
+@classDecorator
+class MyClass {
+  property = "property";
+  hello: string;
+  
+  constructor(m: string) {
+    this.hello = m;
+  }
+}
+```
 
-该指令指示编译器不在编译中包含默认库（即 lib.d.ts）。这里的影响类似于在命令行中传递 noLib。
+### 10.2 方法和属性装饰器
 
-另请注意，当传递 skipDefaultLibCheck 时，编译器只会跳过检查具有 `/// <reference no-default-lib="true"/>` 的文件。
+```typescript
+// 方法装饰器
+function enumerable(value: boolean) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    descriptor.enumerable = value;
+  };
+}
 
-- `/// <amd-module />`
+// 属性装饰器
+function format(formatString: string) {
+  return function (target: any, propertyKey: string): any {
+    let value = target[propertyKey];
+    
+    const getter = () => {
+      return `${formatString} ${value}`;
+    };
+    
+    const setter = (newVal: string) => {
+      value = newVal;
+    };
+    
+    return {
+      get: getter,
+      set: setter,
+      enumerable: true,
+      configurable: true
+    };
+  };
+}
 
-默认情况下，AMD 模块是匿名生成的。当使用其他工具来处理生成的模块时，这可能会导致问题，例如打包器（例如 r.js）。
+class Person {
+  @format("Hello")
+  name: string;
+  
+  constructor(name: string) {
+    this.name = name;
+  }
+  
+  @enumerable(false)
+  greet() {
+    return `Hello, ${this.name}`;
+  }
+}
 
-amd-module 指令允许将可选模块名称传递给编译器：`/// <amd-module name="NamedModule"/>`
+// 参数装饰器
+function required(target: any, propertyKey: string, parameterIndex: number) {
+  console.log(`Required parameter in ${propertyKey} at index ${parameterIndex}`);
+}
 
-例如，将 `/// <reference lib="es2017.string" />` 添加到编译中的某个文件中，相当于使用 --lib es2017.string 进行编译。
+class Calculator {
+  add(@required x: number, @required y: number): number {
+    return x + y;
+  }
+}
+```
 
-## tsconfig.json
+## 11. 配置和最佳实践
 
-tsconfig.json 文件指定编译项目所需的根文件和编译器选项。作用类似 JavaScript 项目的 jsconfig.json 文件
+### 11.1 TypeScript 配置
 
 ```json
+// tsconfig.json 配置示例
 {
-  "extends": "@tsconfig/node12/tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "noImplicitAny": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "sourceMap": true
+    // 基本选项
+    "target": "ES2020",                    // 编译目标
+    "module": "commonjs",                  // 模块系统
+    "lib": ["ES2020", "DOM"],             // 包含的库文件
+    "outDir": "./dist",                    // 输出目录
+    "rootDir": "./src",                    // 源文件根目录
+    
+    // 严格类型检查选项
+    "strict": true,                        // 启用所有严格类型检查
+    "noImplicitAny": true,                // 禁止隐式 any
+    "strictNullChecks": true,             // 严格空值检查
+    "strictFunctionTypes": true,          // 严格函数类型
+    "noImplicitReturns": true,            // 禁止隐式返回
+    "noImplicitThis": true,               // 禁止隐式 this
+    
+    // 模块解析选项
+    "moduleResolution": "node",           // 模块解析策略
+    "baseUrl": "./",                      // 基础路径
+    "paths": {                            // 路径映射
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"]
+    },
+    "esModuleInterop": true,              // ES 模块互操作
+    "allowSyntheticDefaultImports": true, // 允许合成默认导入
+    
+    // 其他选项
+    "experimentalDecorators": true,       // 实验性装饰器
+    "emitDecoratorMetadata": true,        // 装饰器元数据
+    "skipLibCheck": true,                 // 跳过库文件检查
+    "forceConsistentCasingInFileNames": true, // 强制文件名大小写一致
+    "declaration": true,                  // 生成声明文件
+    "sourceMap": true                     // 生成源映射
   },
-  "include": ["src/**/*"],
-  "exclude": ["**/*.spec.ts"]
-  "files": [
-    "core.ts",
-    "sys.ts",
-    "types.ts",
-    "scanner.ts",
-    "parser.ts",
-    "utilities.ts",
-    "binder.ts",
-    "checker.ts",
-    "emitter.ts",
-    "program.ts",
-    "commandLineParser.ts",
-    "tsc.ts",
-    "diagnosticInformationMap.generated.ts"
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts"
   ]
 }
 ```
+
+### 11.2 类型声明文件
+
+```typescript
+// types/global.d.ts - 全局类型声明
+declare global {
+  interface Window {
+    myGlobalFunction: () => void;
+  }
+  
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV: 'development' | 'production' | 'test';
+      API_URL: string;
+    }
+  }
+}
+
+// 模块声明
+declare module "*.vue" {
+  import { DefineComponent } from 'vue';
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}
+
+// 第三方库声明
+declare module "my-library" {
+  export function doSomething(param: string): number;
+  export interface MyInterface {
+    prop: string;
+  }
+}
+
+// 环境声明
+declare const API_URL: string;
+declare function gtag(command: string, ...args: any[]): void;
+```
+
+### 11.3 最佳实践
+
+```typescript
+// 1. 使用明确的类型而不是 any
+// ❌ 不好
+function processData(data: any): any {
+  return data.toString();
+}
+
+// ✅ 更好
+function processData(data: string | number): string {
+  return data.toString();
+}
+
+// 2. 使用类型守卫
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function processValue(value: unknown) {
+  if (isString(value)) {
+    // 这里 TypeScript 知道 value 是 string
+    console.log(value.toUpperCase());
+  }
+}
+
+// 3. 利用工具类型
+interface ApiConfig {
+  url: string;
+  timeout: number;
+  retries: number;
+  headers: Record<string, string>;
+}
+
+// 创建部分配置
+function createConfig(config: Partial<ApiConfig>): ApiConfig {
+  return {
+    url: 'http://localhost',
+    timeout: 5000,
+    retries: 3,
+    headers: {},
+    ...config
+  };
+}
+
+// 4. 使用断言函数
+function assertIsNumber(value: unknown): asserts value is number {
+  if (typeof value !== 'number') {
+    throw new Error('Expected number');
+  }
+}
+
+function calculate(input: unknown) {
+  assertIsNumber(input);
+  // TypeScript 现在知道 input 是 number
+  return input * 2;
+}
+
+// 5. 品牌类型（Branded Types）
+type UserId = string & { readonly brand: unique symbol };
+type EmailAddress = string & { readonly brand: unique symbol };
+
+function createUserId(id: string): UserId {
+  return id as UserId;
+}
+
+function createEmail(email: string): EmailAddress {
+  if (!email.includes('@')) {
+    throw new Error('Invalid email');
+  }
+  return email as EmailAddress;
+}
+
+// 这样可以防止类型混淆
+function sendEmail(userId: UserId, email: EmailAddress) {
+  // 实现...
+}
+
+// sendEmail(createEmail('test@example.com'), createUserId('123')); // ❌ 类型错误
+```
+
+## 12. 与 React 集成
+
+### 12.1 React 组件类型
+
+```typescript
+import React, { FC, ReactNode, useState, useEffect } from 'react';
+
+// 函数组件 Props 类型
+interface ButtonProps {
+  children: ReactNode;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary';
+  disabled?: boolean;
+}
+
+const Button: FC<ButtonProps> = ({ 
+  children, 
+  onClick, 
+  variant = 'primary',
+  disabled = false 
+}) => {
+  return (
+    <button 
+      onClick={onClick} 
+      disabled={disabled}
+      className={`btn btn-${variant}`}
+    >
+      {children}
+    </button>
+  );
+};
+
+// Hook 类型
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+function useUser(userId: number) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/users/${userId}`);
+        const userData: User = await response.json();
+        setUser(userData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchUser();
+  }, [userId]);
+  
+  return { user, loading, error };
+}
+
+// 事件处理类型
+interface FormProps {
+  onSubmit: (data: { name: string; email: string }) => void;
+}
+
+const ContactForm: FC<FormProps> = ({ onSubmit }) => {
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onSubmit({ name, email });
+  };
+  
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input 
+        type="text" 
+        value={name} 
+        onChange={handleNameChange}
+        placeholder="姓名" 
+      />
+      <input 
+        type="email" 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="邮箱" 
+      />
+      <Button onClick={() => {}}>提交</Button>
+    </form>
+  );
+};
+```
+
+## 13. 调试和测试
+
+### 13.1 类型调试
+
+```typescript
+// 类型调试工具
+type Debug<T> = { [K in keyof T]: T[K] };
+
+// 展开复杂类型
+type ComplexType = Debug<Pick<User, 'name' | 'email'> & { age: number }>;
+
+// 条件类型调试
+type IsString<T> = T extends string ? true : false;
+type Test1 = IsString<string>;  // true
+type Test2 = IsString<number>;  // false
+
+// 使用注释来理解类型
+interface ApiResponse<T> {
+  data: T;
+  // ^? T 是什么类型？
+  status: number;
+  message: string;
+}
+
+// 类型断言调试
+function assertType<T>(_value: T): void {
+  // 这个函数在运行时什么都不做，但可以帮助验证类型
+}
+
+const user = { name: "张进喜", age: 25 };
+assertType<{ name: string; age: number }>(user); // 验证类型是否正确
+```
+
+### 13.2 单元测试
+
+```typescript
+// 使用 Jest 和 TypeScript
+import { add, User } from './math';
+
+describe('Math functions', () => {
+  test('add function should return correct sum', () => {
+    expect(add(2, 3)).toBe(5);
+    expect(add(-1, 1)).toBe(0);
+  });
+  
+  test('should handle edge cases', () => {
+    expect(add(0, 0)).toBe(0);
+    expect(add(Number.MAX_VALUE, 1)).toBeGreaterThan(Number.MAX_VALUE);
+  });
+});
+
+// 类型安全的模拟
+interface UserService {
+  getUser(id: number): Promise<User>;
+  createUser(userData: Omit<User, 'id'>): Promise<User>;
+}
+
+const mockUserService: jest.Mocked<UserService> = {
+  getUser: jest.fn(),
+  createUser: jest.fn(),
+};
+
+describe('UserService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  
+  test('should get user by id', async () => {
+    const expectedUser: User = { id: 1, name: '张进喜', email: 'zhang@example.com' };
+    mockUserService.getUser.mockResolvedValue(expectedUser);
+    
+    const user = await mockUserService.getUser(1);
+    
+    expect(user).toEqual(expectedUser);
+    expect(mockUserService.getUser).toHaveBeenCalledWith(1);
+  });
+});
+```
+
+## 14. 参考资料
+
+### 14.1 官方文档
+- [TypeScript 官方网站](https://www.typescriptlang.org/)
+- [TypeScript 手册](https://www.typescriptlang.org/docs/)
+- [TypeScript 发布说明](https://www.typescriptlang.org/docs/handbook/release-notes/overview.html)
+
+### 14.2 学习资源
+- [TypeScript Deep Dive](https://basarat.gitbook.io/typescript/)
+- [Type Challenges](https://github.com/type-challenges/type-challenges)
+- [TypeScript Playground](https://www.typescriptlang.org/play)
+
+### 14.3 工具和库
+- [ts-node](https://github.com/TypeStrong/ts-node) - 直接运行 TypeScript
+- [tsc-watch](https://github.com/gilamran/tsc-watch) - TypeScript 编译器监视模式
+- [typescript-eslint](https://typescript-eslint.io/) - TypeScript ESLint 规则
+
+### 14.4 社区资源
+- [Definitely Typed](https://github.com/DefinitelyTyped/DefinitelyTyped) - 第三方库类型定义
+- [TypeScript Community Discord](https://discord.gg/typescript)
+- [r/typescript](https://www.reddit.com/r/typescript/) - Reddit 社区 
