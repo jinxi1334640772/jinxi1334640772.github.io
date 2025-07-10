@@ -896,7 +896,7 @@ class ObserverManager {
   
   cleanup() {
     this.observers.forEach(observer => {
-      observer.disconnect();
+observer.disconnect();
     });
     this.observers.clear();
   }
@@ -1095,7 +1095,7 @@ class SmartContentCard {
       this.element.className = 'card compact';
     } else if (width < 600) {
       this.element.className = 'card normal';
-    } else {
+  } else {
       this.element.className = 'card expanded';
     }
   }

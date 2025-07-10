@@ -304,7 +304,7 @@ console.log("Resource timing details:", {
 /**
  * 获取资源时序信息
  */
-const performanceResourceTimingEntry = performance.getEntriesByType('resource')[0];
+  const performanceResourceTimingEntry = performance.getEntriesByType('resource')[0];
 console.log(performanceResourceTimingEntry);
 
 // 输出示例：
@@ -330,8 +330,8 @@ console.log(performanceResourceTimingEntry);
 //   serverTiming: [],
 //   startTime: 138.11499997973442,
 //   transferSize: 0,
-//   workerStart: 0
-// }
+    //   workerStart: 0
+    // }
 ```
 
 ## 6. PerformancePaintTiming 绘制时序
@@ -453,10 +453,10 @@ const eventObserver = new PerformanceObserver((list) => {
   list.getEntries().forEach((entry) => {
     // 总持续时间
     const duration = entry.duration;
-    
+
     // 输入延迟时间：从用户交互到事件处理器响应之前
     const delay = entry.processingStart - entry.startTime;
-    
+
     // 事件处理程序运行时间（同步任务）
     const eventHandlerTime = entry.processingEnd - entry.processingStart;
     
@@ -601,8 +601,8 @@ const layoutShiftObserver = new PerformanceObserver((list) => {
             currentRect,
             previousRect,
           });
-        }
       }
+    }
     }
     
     console.log("Full layout shift entry:", entry);

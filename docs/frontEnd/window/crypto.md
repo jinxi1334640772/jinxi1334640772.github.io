@@ -195,8 +195,8 @@ class AESCTRCrypto {
         name: 'AES-CTR',
         counter: counter,
         length: 128 // 计数器位长度
-      },
-      key,
+    },
+    key,
       encodedText
     );
     
@@ -272,9 +272,9 @@ class RSAOAEPCrypto {
       {
         name: 'RSA-OAEP'
       },
-      privateKey,
-      ciphertext
-    );
+    privateKey,
+    ciphertext
+  );
     
     return new TextDecoder().decode(decryptedBuffer);
   }
@@ -434,7 +434,7 @@ class RSASignature {
     try {
       const signature = await this.subtle.sign(
         'RSASSA-PKCS1-v1_5',
-        privateKey,
+  privateKey,
         encodedMessage
       );
       
@@ -453,8 +453,8 @@ class RSASignature {
         {
           name: 'RSA-PSS',
           saltLength: 32 // 盐长度
-        },
-        privateKey,
+  },
+  privateKey,
         encodedMessage
       );
       
@@ -510,7 +510,7 @@ async function demonstrateRSASignature() {
     // 验证签名
     const isValid = await rsaSign.verify(
       keyPair.publicKey, 
-      signature, 
+  signature,
       message, 
       'RSA-PSS'
     );
@@ -584,9 +584,9 @@ class ECDSASignature {
         {
           name: 'ECDSA',
           hash: { name: hashAlgorithm }
-        },
-        publicKey,
-        signature,
+  },
+  publicKey,
+  signature,
         encodedMessage
       );
       

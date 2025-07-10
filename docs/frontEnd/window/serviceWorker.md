@@ -1550,7 +1550,7 @@ class CacheManager {
    */
   async cacheResource(request, response) {
     const cache = await caches.open(this.cacheName);
-    await cache.put(request, response);
+  await cache.put(request, response);
     console.log(`✅ 资源缓存成功: ${request.url}`);
   }
 
@@ -2162,344 +2162,7 @@ self.addEventListener('sync', (event) => {
 });
 ```
 
----
-
-## 7. 实际应用示例
-
-### 7.1 离线应用
-
-```javascript
-/**
- * 离线应用示例
- */
-const offlineApp = {
-  /**
-   * 缓存关键资源
-   */
-  async cacheResources() {
-    const staticResources = [
-      '/',
-      '/index.html',
-      '/styles/main.css',
-      '/scripts/app.js',
-      '/manifest.json',
-      '/icons/icon-192.png'
-    ];
-
-    try {
-      const cache = await caches.open('app-cache');
-      await cache.addAll(staticResources);
-      console.log('✅ 静态资源缓存完成');
-    } catch (error) {
-      console.error('❌ 缓存资源失败:', error);
-    }
-  },
-
-  /**
-   * 监听离线事件
-   */
-  setupOfflineListeners() {
-    self.addEventListener('offline', () => {
-      console.log('�� 网络已断开');
-      // 可以在这里显示离线页面或提示用户
-    });
-
-    self.addEventListener('online', () => {
-      console.log('�� 网络已恢复');
-      // 可以在这里重新尝试发送离线请求
-    });
-  },
-
-  /**
-   * 监听推送事件
-   */
-  setupPushListeners() {
-    self.addEventListener('push', (event) => {
-      if (event.data) {
-        const data = event.data.json();
-        console.log('📧 收到推送数据:', data);
-        if (data.type === 'NEW_MESSAGE') {
-          self.registration.showNotification('新消息', {
-            body: `来自 ${data.sender}: ${data.message}`,
-            icon: '/icons/icon-192.png'
-          });
-        }
-      }
-    });
-  },
-
-  /**
-   * 监听后台同步事件
-   */
-  setupSyncListeners() {
-    self.addEventListener('sync', (event) => {
-      if (event.tag === 'sync-messages') {
-        console.log('🔄 收到后台同步事件: sync-messages');
-        // 可以在这里执行同步逻辑，例如发送请求到服务器
-      }
-    });
-  }
-};
-
-// 注册 Service Worker
-offlineApp.cacheResources().catch(console.error);
-offlineApp.setupOfflineListeners();
-offlineApp.setupPushListeners();
-offlineApp.setupSyncListeners();
-```
-
-### 7.2 性能优化
-
-```javascript
-/**
- * 性能优化示例
- */
-const performanceOptimizer = {
-  /**
-   * 缓存资源
-   */
-  async cacheResources() {
-    const staticResources = [
-      '/',
-      '/index.html',
-      '/styles/main.css',
-      '/scripts/app.js',
-      '/manifest.json',
-      '/icons/icon-192.png'
-    ];
-
-    try {
-      const cache = await caches.open('app-cache');
-      await cache.addAll(staticResources);
-      console.log('✅ 静态资源缓存完成');
-    } catch (error) {
-      console.error('❌ 缓存资源失败:', error);
-    }
-  },
-
-  /**
-   * 监听 fetch 事件
-   */
-  setupFetchListeners() {
-    self.addEventListener('fetch', (event) => {
-      event.respondWith(
-        this.cacheFirst({
-          request: event.request,
-          preloadResponsePromise: event.preloadResponse,
-          fallbackUrl: '/offline.html' // 离线降级页面
-        })
-      );
-    });
-  },
-
-  /**
-   * 缓存优先策略
-   */
-  async cacheFirst({ request, preloadResponsePromise, fallbackUrl }) {
-    const responseFromCache = await caches.match(request);
-    if (responseFromCache) {
-      return responseFromCache;
-    }
-
-    const preloadResponse = await preloadResponsePromise;
-    if (preloadResponse) {
-      await caches.open('dynamic-cache').then(cache => cache.put(request, preloadResponse.clone()));
-      return preloadResponse;
-    }
-
-    try {
-      const responseFromNetwork = await fetch(request);
-      await caches.open('dynamic-cache').then(cache => cache.put(request, responseFromNetwork.clone()));
-      return responseFromNetwork;
-    } catch (error) {
-      const fallbackResponse = await caches.match(fallbackUrl);
-      if (fallbackResponse) {
-        return fallbackResponse;
-      }
-      return new Response("Network error happened", {
-        status: 408,
-        headers: { "Content-Type": "text/plain" },
-      });
-    }
-  }
-};
-
-// 注册 Service Worker
-performanceOptimizer.cacheResources().catch(console.error);
-performanceOptimizer.setupFetchListeners();
-```
-
-### 7.3 推送通知
-
-```javascript
-/**
- * 推送通知示例
- */
-const pushNotificationApp = {
-  /**
-   * 请求推送权限
-   */
-  async requestPermission() {
-    if ('Notification' in window && Notification.permission !== 'granted') {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        console.log('✅ 推送权限已授予');
-        this.pushManager = await self.registration.pushManager;
-        this.subscription = await this.pushManager.getSubscription();
-        console.log('✅ 推送订阅成功');
-      } else {
-        console.warn('❌ 推送权限未授予');
-      }
-    } else {
-      console.log('✅ 推送权限已授予');
-      this.pushManager = await self.registration.pushManager;
-      this.subscription = await this.pushManager.getSubscription();
-      console.log('✅ 推送订阅成功');
-    }
-  },
-
-  /**
-   * 订阅推送服务
-   */
-  async subscribe() {
-    if (!this.pushManager) {
-      console.warn('❌ PushManager 未初始化');
-      return null;
-    }
-
-    try {
-      this.subscription = await this.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlB64ToUint8Array(
-          'YOUR_VAPID_PUBLIC_KEY' // 替换为你的 VAPID 公钥
-        )
-      });
-      console.log('✅ 推送订阅成功');
-      return this.subscription;
-    } catch (error) {
-      console.error('❌ 推送订阅失败:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * 发送推送通知
-   */
-  async sendNotification(title, options = {}) {
-    if (!this.pushManager) {
-      console.warn('❌ PushManager 未初始化');
-      return;
-    }
-
-    try {
-      await this.pushManager.sendNotification(title, options);
-      console.log('✅ 推送通知发送成功');
-    } catch (error) {
-      console.error('❌ 推送通知发送失败:', error);
-    }
-  },
-
-  /**
-   * 监听推送事件
-   */
-  setupPushListeners() {
-    self.addEventListener('push', (event) => {
-      if (event.data) {
-        const data = event.data.json();
-        console.log('📧 收到推送数据:', data);
-        if (data.type === 'NEW_MESSAGE') {
-          self.registration.showNotification('新消息', {
-            body: `来自 ${data.sender}: ${data.message}`,
-            icon: '/icons/icon-192.png'
-          });
-        }
-      }
-    });
-  }
-};
-
-// 注册 Service Worker
-pushNotificationApp.requestPermission().catch(console.error);
-pushNotificationApp.subscribe().then(subscription => {
-  if (subscription) {
-    console.log('推送订阅 ID:', subscription.toJSON());
-  }
-}).catch(console.error);
-pushNotificationApp.sendNotification('测试推送', { body: '这是一条测试推送' }).catch(console.error);
-pushNotificationApp.setupPushListeners();
-```
-
-### 7.4 后台同步
-
-```javascript
-/**
- * 后台同步示例
- */
-const backgroundSyncApp = {
-  /**
-   * 注册后台同步任务
-   */
-  async registerSyncTask(tag, data) {
-    if (!this.syncManager) {
-      console.warn('❌ SyncManager 未初始化');
-      return;
-    }
-
-    try {
-      await this.syncManager.register(tag, data);
-      console.log(`✅ 后台同步任务 "${tag}" 注册成功`);
-    } catch (error) {
-      console.error('❌ 注册后台同步任务失败:', error);
-    }
-  },
-
-  /**
-   * 获取后台同步任务状态
-   */
-  async getSyncStatus(tag) {
-    if (!this.syncManager) {
-      console.warn('❌ SyncManager 未初始化');
-      return null;
-    }
-
-    try {
-      const status = await this.syncManager.get(tag);
-      console.log(`✅ 后台同步任务 "${tag}" 状态:`, status);
-      return status;
-    } catch (error) {
-      console.error('❌ 获取后台同步任务状态失败:', error);
-      return null;
-    }
-  },
-
-  /**
-   * 监听后台同步事件
-   */
-  setupSyncListeners() {
-    self.addEventListener('sync', (event) => {
-      if (event.tag === 'sync-messages') {
-        console.log('🔄 收到后台同步事件: sync-messages');
-        // 可以在这里执行同步逻辑，例如发送请求到服务器
-      }
-    });
-  }
-};
-
-// 注册 Service Worker
-backgroundSyncApp.registerSyncTask('sync-messages', { message: 'Hello from SW' }).catch(console.error);
-backgroundSyncApp.getSyncStatus('sync-messages').then(status => {
-  if (status) {
-    console.log('后台同步任务 "sync-messages" 状态:', status);
-  }
-}).catch(console.error);
-backgroundSyncApp.setupSyncListeners();
-```
-
----
-
-## 6. 高级功能应用
-
-### 6.1 推送通知系统
+### 6.5 推送通知系统
 
 ```javascript
 /**
@@ -2682,7 +2345,7 @@ self.addEventListener('notificationclick', (event) => {
 });
 ```
 
-### 6.2 后台同步功能
+### 6.6 后台同步功能
 
 ```javascript
 /**
@@ -2826,7 +2489,7 @@ async function removeStoredMessage(messageId) {
 }
 ```
 
-### 6.3 离线优先应用
+### 6.7 离线优先应用
 
 ```javascript
 /**
@@ -3027,12 +2690,342 @@ self.addEventListener('fetch', (event) => {
   }
 });
 ```
-
 ---
 
 ## 7. 实际应用示例
 
-### 7.1 新闻阅读应用
+### 7.1 离线应用
+
+```javascript
+/**
+ * 离线应用示例
+ */
+const offlineApp = {
+  /**
+   * 缓存关键资源
+   */
+  async cacheResources() {
+    const staticResources = [
+      '/',
+      '/index.html',
+      '/styles/main.css',
+      '/scripts/app.js',
+      '/manifest.json',
+      '/icons/icon-192.png'
+    ];
+
+    try {
+      const cache = await caches.open('app-cache');
+      await cache.addAll(staticResources);
+      console.log('✅ 静态资源缓存完成');
+    } catch (error) {
+      console.error('❌ 缓存资源失败:', error);
+    }
+  },
+
+  /**
+   * 监听离线事件
+   */
+  setupOfflineListeners() {
+    self.addEventListener('offline', () => {
+      console.log('�� 网络已断开');
+      // 可以在这里显示离线页面或提示用户
+    });
+
+    self.addEventListener('online', () => {
+      console.log('�� 网络已恢复');
+      // 可以在这里重新尝试发送离线请求
+    });
+  },
+
+  /**
+   * 监听推送事件
+   */
+  setupPushListeners() {
+    self.addEventListener('push', (event) => {
+      if (event.data) {
+        const data = event.data.json();
+        console.log('📧 收到推送数据:', data);
+        if (data.type === 'NEW_MESSAGE') {
+          self.registration.showNotification('新消息', {
+            body: `来自 ${data.sender}: ${data.message}`,
+            icon: '/icons/icon-192.png'
+          });
+        }
+      }
+    });
+  },
+
+  /**
+   * 监听后台同步事件
+   */
+  setupSyncListeners() {
+    self.addEventListener('sync', (event) => {
+      if (event.tag === 'sync-messages') {
+        console.log('🔄 收到后台同步事件: sync-messages');
+        // 可以在这里执行同步逻辑，例如发送请求到服务器
+      }
+    });
+  }
+};
+
+// 注册 Service Worker
+offlineApp.cacheResources().catch(console.error);
+offlineApp.setupOfflineListeners();
+offlineApp.setupPushListeners();
+offlineApp.setupSyncListeners();
+```
+
+### 7.2 性能优化
+
+```javascript
+/**
+ * 性能优化示例
+ */
+const performanceOptimizer = {
+  /**
+   * 缓存资源
+   */
+  async cacheResources() {
+    const staticResources = [
+      '/',
+      '/index.html',
+      '/styles/main.css',
+      '/scripts/app.js',
+      '/manifest.json',
+      '/icons/icon-192.png'
+    ];
+
+    try {
+      const cache = await caches.open('app-cache');
+      await cache.addAll(staticResources);
+      console.log('✅ 静态资源缓存完成');
+    } catch (error) {
+      console.error('❌ 缓存资源失败:', error);
+    }
+  },
+
+  /**
+   * 监听 fetch 事件
+   */
+  setupFetchListeners() {
+    self.addEventListener('fetch', (event) => {
+      event.respondWith(
+        this.cacheFirst({
+          request: event.request,
+          preloadResponsePromise: event.preloadResponse,
+          fallbackUrl: '/offline.html' // 离线降级页面
+        })
+      );
+    });
+  },
+
+  /**
+   * 缓存优先策略
+   */
+  async cacheFirst({ request, preloadResponsePromise, fallbackUrl }) {
+  const responseFromCache = await caches.match(request);
+  if (responseFromCache) {
+    return responseFromCache;
+  }
+
+  const preloadResponse = await preloadResponsePromise;
+  if (preloadResponse) {
+      await caches.open('dynamic-cache').then(cache => cache.put(request, preloadResponse.clone()));
+    return preloadResponse;
+  }
+
+  try {
+    const responseFromNetwork = await fetch(request);
+      await caches.open('dynamic-cache').then(cache => cache.put(request, responseFromNetwork.clone()));
+    return responseFromNetwork;
+  } catch (error) {
+    const fallbackResponse = await caches.match(fallbackUrl);
+    if (fallbackResponse) {
+      return fallbackResponse;
+    }
+    return new Response("Network error happened", {
+      status: 408,
+      headers: { "Content-Type": "text/plain" },
+    });
+    }
+  }
+};
+
+// 注册 Service Worker
+performanceOptimizer.cacheResources().catch(console.error);
+performanceOptimizer.setupFetchListeners();
+```
+
+### 7.3 推送通知
+
+```javascript
+/**
+ * 推送通知示例
+ */
+const pushNotificationApp = {
+  /**
+   * 请求推送权限
+   */
+  async requestPermission() {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        console.log('✅ 推送权限已授予');
+        this.pushManager = await self.registration.pushManager;
+        this.subscription = await this.pushManager.getSubscription();
+        console.log('✅ 推送订阅成功');
+      } else {
+        console.warn('❌ 推送权限未授予');
+      }
+    } else {
+      console.log('✅ 推送权限已授予');
+      this.pushManager = await self.registration.pushManager;
+      this.subscription = await this.pushManager.getSubscription();
+      console.log('✅ 推送订阅成功');
+    }
+  },
+
+  /**
+   * 订阅推送服务
+   */
+  async subscribe() {
+    if (!this.pushManager) {
+      console.warn('❌ PushManager 未初始化');
+      return null;
+    }
+
+    try {
+      this.subscription = await this.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array(
+          'YOUR_VAPID_PUBLIC_KEY' // 替换为你的 VAPID 公钥
+        )
+      });
+      console.log('✅ 推送订阅成功');
+      return this.subscription;
+    } catch (error) {
+      console.error('❌ 推送订阅失败:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * 发送推送通知
+   */
+  async sendNotification(title, options = {}) {
+    if (!this.pushManager) {
+      console.warn('❌ PushManager 未初始化');
+      return;
+    }
+
+    try {
+      await this.pushManager.sendNotification(title, options);
+      console.log('✅ 推送通知发送成功');
+    } catch (error) {
+      console.error('❌ 推送通知发送失败:', error);
+    }
+  },
+
+  /**
+   * 监听推送事件
+   */
+  setupPushListeners() {
+    self.addEventListener('push', (event) => {
+      if (event.data) {
+        const data = event.data.json();
+        console.log('📧 收到推送数据:', data);
+        if (data.type === 'NEW_MESSAGE') {
+          self.registration.showNotification('新消息', {
+            body: `来自 ${data.sender}: ${data.message}`,
+            icon: '/icons/icon-192.png'
+          });
+        }
+      }
+    });
+  }
+};
+
+// 注册 Service Worker
+pushNotificationApp.requestPermission().catch(console.error);
+pushNotificationApp.subscribe().then(subscription => {
+  if (subscription) {
+    console.log('推送订阅 ID:', subscription.toJSON());
+  }
+}).catch(console.error);
+pushNotificationApp.sendNotification('测试推送', { body: '这是一条测试推送' }).catch(console.error);
+pushNotificationApp.setupPushListeners();
+```
+
+### 7.4 后台同步
+
+```javascript
+/**
+ * 后台同步示例
+ */
+const backgroundSyncApp = {
+  /**
+   * 注册后台同步任务
+   */
+  async registerSyncTask(tag, data) {
+    if (!this.syncManager) {
+      console.warn('❌ SyncManager 未初始化');
+      return;
+    }
+
+    try {
+      await this.syncManager.register(tag, data);
+      console.log(`✅ 后台同步任务 "${tag}" 注册成功`);
+    } catch (error) {
+      console.error('❌ 注册后台同步任务失败:', error);
+    }
+  },
+
+  /**
+   * 获取后台同步任务状态
+   */
+  async getSyncStatus(tag) {
+    if (!this.syncManager) {
+      console.warn('❌ SyncManager 未初始化');
+      return null;
+    }
+
+    try {
+      const status = await this.syncManager.get(tag);
+      console.log(`✅ 后台同步任务 "${tag}" 状态:`, status);
+      return status;
+    } catch (error) {
+      console.error('❌ 获取后台同步任务状态失败:', error);
+      return null;
+    }
+  },
+
+  /**
+   * 监听后台同步事件
+   */
+  setupSyncListeners() {
+    self.addEventListener('sync', (event) => {
+      if (event.tag === 'sync-messages') {
+        console.log('🔄 收到后台同步事件: sync-messages');
+        // 可以在这里执行同步逻辑，例如发送请求到服务器
+      }
+    });
+  }
+};
+
+// 注册 Service Worker
+backgroundSyncApp.registerSyncTask('sync-messages', { message: 'Hello from SW' }).catch(console.error);
+backgroundSyncApp.getSyncStatus('sync-messages').then(status => {
+  if (status) {
+    console.log('后台同步任务 "sync-messages" 状态:', status);
+  }
+}).catch(console.error);
+backgroundSyncApp.setupSyncListeners();
+```
+
+---
+
+### 7.5 新闻阅读应用
 
 ```javascript
 /**
@@ -3166,7 +3159,7 @@ async function syncNewsData() {
 }
 ```
 
-### 7.2 社交媒体应用
+### 7.6 社交媒体应用
 
 ```javascript
 /**
@@ -3284,7 +3277,7 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(
       clients.openWindow(`/posts/${event.notification.data.postId}#comment`)
     );
-  } else {
+} else {
     // 打开帖子详情页
     event.waitUntil(
       clients.openWindow(event.notification.data.url)
@@ -3609,10 +3602,10 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
-        if (cachedResponse) {
+      if (cachedResponse) {
           optimizer.measurePerformance(event.request, cachedResponse, true);
-          return cachedResponse;
-        }
+        return cachedResponse;
+      }
         
         return fetch(event.request)
           .then(networkResponse => {
@@ -3737,7 +3730,7 @@ self.addEventListener('fetch', (event) => {
         console.error('请求处理失败:', error);
         return new Response('Internal Server Error', { status: 500 });
       })
-  );
+    );
 });
 ```
 

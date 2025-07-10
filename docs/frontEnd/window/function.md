@@ -685,19 +685,19 @@ class DataLoader {
   loadData(url) {
     if (this._cache.has(url)) {
       // 使用微任务确保异步行为一致
-      queueMicrotask(() => {
+    queueMicrotask(() => {
         this._setData(this._cache.get(url));
+      this.dispatchEvent(new Event("load"));
+    });
+  } else {
+    fetch(url)
+        .then(response => response.json())
+      .then(data => {
+          this._cache.set(url, data);
+        this._setData(data);
         this.dispatchEvent(new Event("load"));
       });
-    } else {
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          this._cache.set(url, data);
-          this._setData(data);
-          this.dispatchEvent(new Event("load"));
-        });
-    }
+  }
   }
 }
 ```

@@ -219,8 +219,8 @@ function processChunk(chunk) {
  * 创建自定义可写流示例
  */
 function createWritableStream() {
-  const decoder = new TextDecoder("utf-8");
-  let result = "";
+const decoder = new TextDecoder("utf-8");
+let result = "";
 
   const writableStream = new WritableStream({
     /**
@@ -235,14 +235,14 @@ function createWritableStream() {
           // 处理数据分块
           const buffer = new ArrayBuffer(1);
           const view = new Uint8Array(buffer);
-          view[0] = chunk;
+        view[0] = chunk;
           
           // 解码数据
           const decoded = decoder.decode(view, { stream: true });
-          result += decoded;
+        result += decoded;
           
           console.log('写入数据:', decoded);
-          resolve();
+        resolve();
         } catch (error) {
           reject(error);
         }
@@ -267,7 +267,7 @@ function createWritableStream() {
   }, 
   // 队列策略：控制写入缓冲
   new CountQueuingStrategy({ highWaterMark: 1 })
-  );
+);
 
   return writableStream;
 }
@@ -288,7 +288,7 @@ async function sendMessage(message, writableStream) {
   
   try {
     // 编码消息为字节数组
-    const encoded = encoder.encode(message, { stream: true });
+  const encoded = encoder.encode(message, { stream: true });
     
     // 逐个写入数据分块
     for (const chunk of encoded) {
@@ -303,7 +303,7 @@ async function sendMessage(message, writableStream) {
     // 等待所有数据写入完成
     await writer.ready;
     
-    // 关闭写入流
+      // 关闭写入流
     await writer.close();
     console.log('写入完成，流已关闭');
     
@@ -364,7 +364,7 @@ class AdvancedWritableStream {
       try {
         await this.processBatchData(batch);
         console.log(`批量处理成功: ${batch.length} 个项目`);
-        return;
+      return;
       } catch (error) {
         console.warn(`批量处理失败 (尝试 ${attempt}/${this.retryAttempts}):`, error);
         
@@ -1061,7 +1061,7 @@ async function basicPipeExample() {
     
     // 创建自定义可读流，控制数据传输速度
     const controlledStream = new ReadableStream({
-      start(controller) {
+  start(controller) {
         const reader = response.body.getReader();
         
         intervalId = setInterval(async () => {

@@ -851,7 +851,7 @@ class SimpleChart {
       
       if (index === 0) {
         this.ctx.moveTo(x, y);
-      } else {
+} else {
         this.ctx.lineTo(x, y);
       }
       

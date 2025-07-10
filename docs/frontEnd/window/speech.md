@@ -274,9 +274,9 @@ function setupSpeechRecognition() {
   // 设置语法（可选）
   if (window.SpeechGrammarList) {
     const grammar = '#JSGF V1.0; grammar commands; public <command> = 开始 | 停止 | 暂停 | 继续 | 帮助;';
-    const speechRecognitionList = new SpeechGrammarList();
-    speechRecognitionList.addFromString(grammar, 1);
-    recognition.grammars = speechRecognitionList;
+const speechRecognitionList = new SpeechGrammarList();
+speechRecognitionList.addFromString(grammar, 1);
+recognition.grammars = speechRecognitionList;
   }
   
   // 事件监听
@@ -362,7 +362,7 @@ class VoiceAssistant {
     
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.interimResults = false;
+recognition.interimResults = false;
     recognition.lang = 'zh-CN';
     
     recognition.addEventListener('result', (event) => {
