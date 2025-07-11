@@ -57,7 +57,7 @@ export default defineConfig({
         text: '⚙️ 后端技术',
         activeMatch: '^/afterEnd/',
         items: [
-          { text: '🟢 Node.js', link: '/afterEnd/node/module', activeMatch: '^/afterEnd/node/' },
+          { text: '🟢 Node.js', link: '/afterEnd/node/', activeMatch: '^/afterEnd/node/' },
           { text: '🚂 Express 框架', link: '/afterEnd/express/server', activeMatch: '^/afterEnd/express/' },
           { text: '🗄️ 数据库', link: '/afterEnd/database/mysql', activeMatch: '^/afterEnd/database/' },
           { text: '🌐 服务器', link: '/afterEnd/server/nginx', activeMatch: '^/afterEnd/server/' }
@@ -183,6 +183,7 @@ export default defineConfig({
           text: '🟢 Node.js',
           collapsed: false,
           items: [
+            { text: '📦 Node.js 概述', link: '/afterEnd/node/' },
             { text: '📦 模块系统', link: '/afterEnd/node/module' },
             { text: '🌐 HTTP 模块', link: '/afterEnd/node/server' },
             { text: '🔧 实用工具', link: '/afterEnd/node/util' },

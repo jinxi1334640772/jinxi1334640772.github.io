@@ -1,213 +1,464 @@
-## proccess 模块
+---
+title: Node.js Process 进程管理
+description: Node.js 进程对象详解，包括进程信息、事件监听、环境变量等
+outline: deep
+---
 
-提供有关当前 node 进程信息并对其进行控制，是 EventEmitter 的实例。
+# ⚙️ Node.js Process 进程管理
 
-process是一个全局对象，即global对象的属性，可以在任何地方直接访问到它而无需引入额外模块
+`process` 对象是 Node.js 提供的全局对象，提供了有关当前 Node.js 进程的信息并对其进行控制。它是 EventEmitter 的实例，可以在任何地方直接访问。
 
-![alt text](image.png)
-```js
+::: tip 💡 核心特性
+- 全局对象，无需 require 即可使用
+- EventEmitter 的实例，支持事件机制
+- 提供进程信息和控制方法
+- 支持环境变量和命令行参数操作
+:::
+
+## 📸 进程信息概览
+
+<img src="./image.png" alt="Process 对象结构" data-fancybox="gallery" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+## 🎯 进程事件
+
+### 核心事件监听
+
+```javascript
 const process = require('node:process');
 
+// 进程退出前事件
 process.on('beforeExit', (code) => {
-  console.log('Process beforeExit event with code: ', code);
+  console.log('进程即将退出，退出码:', code);
 });
 
-process.on('disconnect', () => {
-  console.log('disconnect event with code: ');
-});
-
-process.on('message', (message，sendHandle) => {
-  console.log('只要子进程收到父进程使用 childprocess.send() 发送的消息', message);
-});
-
-process.on('rejectionHandled', (reason,promise) => {
-  console.log( reason,promise);
-});
-
-process.on('workerMessage', (value,source) => {
-  console.log(value,source);
-});
-
+// 进程退出事件
 process.on('exit', (code) => {
-  console.log('Process exit event with code: ', code);
+  console.log('进程退出，退出码:', code);
+  // 注意：这里只能执行同步操作
 });
 
-process.on('uncaughtException', (err,origin) => {
-  console.log(err,origin);
+// 未捕获的异常
+process.on('uncaughtException', (err, origin) => {
+  console.error('未捕获的异常:', err);
+  console.error('异常来源:', origin);
+  // 建议：记录日志后优雅退出
+  process.exit(1);
 });
 
-process.on('unhandledRejection', (reason,promise) => {
-  console.log(reason,promise);
+// 未处理的 Promise 拒绝
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('未处理的 Promise 拒绝:', reason);
+  console.error('Promise:', promise);
 });
 
+// 警告事件
 process.on('warning', (warning) => {
-  console.warn(warning.name);    // Print the warning name
-  console.warn(warning.message); // Print the warning message
-  console.warn(warning.stack);   // Print the stack trace
+  console.warn('警告名称:', warning.name);
+  console.warn('警告消息:', warning.message);
+  console.warn('调用栈:', warning.stack);
+});
+```
+
+### 进程通信事件
+
+```javascript
+// 父子进程断开连接
+process.on('disconnect', () => {
+  console.log('与父进程断开连接');
 });
 
+// 接收父进程消息
+process.on('message', (message, sendHandle) => {
+  console.log('收到父进程消息:', message);
+  
+  // 向父进程发送响应
+  if (process.send) {
+    process.send('子进程响应');
+  }
+});
+
+// Worker 线程相关事件
 process.on('worker', (worker) => {
-  console.log('创建新的 <Worker> 线程后会触发 'worker' 事件。', worker);
+  console.log('创建新的 Worker 线程:', worker);
 });
 
-//是 NODE_OPTIONS 环境变量中允许的特殊的只读 Set 标志。
-process.allowedNodeEnvironmentFlags
-//为其编译 Node.js 二进制文件的操作系统 CPU 架构
-process.arch
-//返回数组，其中包含启动 Node.js 进程时传入的命令行参数
-process.argv
-//存储了 Node.js 启动时传入的 argv[0] 原始值的只读副本
-process.argv0
-//是对 IPC 通道的引用。
-process.channel
-//包含用于编译当前 Node.js 可执行文件的配置选项的 JavaScript 表示
-process.config
-//是否连接了 IPC 通道
-process.connected
-//启用时 Node.js 调试器使用的端口。
-process.debugPort
-//包含用户环境的对象
-process.env
+process.on('workerMessage', (value, source) => {
+  console.log('Worker 消息:', value);
+  console.log('消息来源:', source);
+});
+```
 
-{
-  TERM: 'xterm-256color',
-  SHELL: '/usr/local/bin/bash',
-  USER: 'maciej',
-  PATH: '~/.bin/:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin',
-  PWD: '/Users/maciej',
-  EDITOR: 'vim',
-  SHLVL: '1',
-  HOME: '/Users/maciej',
-  LOGNAME: 'maciej',
-  _: '/usr/local/bin/node'
-}
-//启动时传入的一组特定于 Node.js 的命令行选项
-process.execArgv
-//可执行文件的绝对路径名
-process.execPath
+## 📊 进程属性
 
-process.exitCode
+### 基本信息
 
-// 特性支持对象
-process.features
+```javascript
+// 架构信息
+console.log('CPU架构:', process.arch);        // 'x64', 'arm64', 'ia32'
+console.log('操作系统:', process.platform);   // 'darwin', 'linux', 'win32'
 
-// 其方法用于为当前进程生成诊断报告
-process.report
+// 进程ID
+console.log('当前进程ID:', process.pid);
+console.log('父进程ID:', process.ppid);
 
-// 返回连接到 stderr (文件描述符 2) 的流,它是一个 net.Socket
-process.stderr
-process.stderr.write('输出一行标准错误流，效果跟stdout没差');
+// 版本信息
+console.log('Node.js版本:', process.version);
+console.log('依赖版本:', process.versions);
 
-// 指向标准输入流(stdin)的可读流(Readable Stream).必须要调用process.stdin.resume()来恢复(resume)接收
-process.stdin
-process.stdin.resume();
-var a,b;
-process.stdout.write('请输入a的值: ');
-process.stdin.on('data',function(data){
-    if(a == undefined){
-        a = Number(data);
-        process.stdout.write('请输入b的值: ');
-    }else{    
-        b = Number(data);
-        process.stdout.write('结果是: ' + (a+b));
-        process.exit();
-    }
-
-})
-
-// 返回连接到 stdout (文件描述符 1) 的流。它是一个 net.Socket
-process.stdout
-process.stdout.write('这是一行数据\n这是第二行数据');
-
-// 返回进程的 PID。
-process.pid
-
-// 返回当前进程的父进程的 PID。
-process.ppid
-
-// 返回用于标识编译 Node.js 二进制文件的操作系统平台的字符串
-process.platform
-
-//包含 Node.js 版本字符串
-process.version
-//列出了 Node.js 的版本字符串及其依赖
-process.versions
-// 包含与当前版本相关的元数据
-process.release
-
+// 版本发布信息
+console.log('发布信息:', process.release);
+/*
 {
   name: 'node',
   lts: 'Hydrogen',
-  sourceUrl: 'https://nodejs.cn/download/release/v18.12.0/node-v18.12.0.tar.gz',
-  headersUrl: 'https://nodejs.cn/download/release/v18.12.0/node-v18.12.0-headers.tar.gz',
-  libUrl: 'https://nodejs.cn/download/release/v18.12.0/win-x64/node.lib'
+  sourceUrl: 'https://nodejs.org/download/release/v18.12.0/node-v18.12.0.tar.gz',
+  headersUrl: 'https://nodejs.org/download/release/v18.12.0/node-v18.12.0-headers.tar.gz',
+  libUrl: 'https://nodejs.org/download/release/v18.12.0/win-x64/node.lib'
+}
+*/
+```
+
+### 命令行参数
+
+```javascript
+// 完整的命令行参数
+console.log('所有参数:', process.argv);
+// [ '/usr/local/bin/node', '/path/to/script.js', 'arg1', 'arg2' ]
+
+// 原始的 argv[0]
+console.log('原始执行文件:', process.argv0);
+
+// 只有 Node.js 特定的参数
+console.log('Node.js参数:', process.execArgv);
+
+// 可执行文件的绝对路径
+console.log('可执行文件路径:', process.execPath);
+```
+
+### 环境变量
+
+```javascript
+// 获取所有环境变量
+console.log('环境变量:', process.env);
+
+// 常用环境变量
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PATH:', process.env.PATH);
+console.log('HOME:', process.env.HOME);
+console.log('USER:', process.env.USER);
+
+// 动态设置环境变量
+process.env.CUSTOM_VAR = 'custom_value';
+console.log('自定义变量:', process.env.CUSTOM_VAR);
+```
+
+## 🔧 进程控制方法
+
+### 基本操作
+
+```javascript
+// 获取当前工作目录
+console.log('当前工作目录:', process.cwd());
+
+// 更改工作目录
+try {
+  process.chdir('/tmp');
+  console.log('新工作目录:', process.cwd());
+} catch (err) {
+  console.error('更改目录失败:', err);
 }
 
-// 用于管理当前进程的权限的对象
-process.permission
-// Check if the process has permission to read the README file
-process.permission.has('fs.read', './README.md');
+// 获取进程运行时间（秒）
+console.log('运行时间:', process.uptime());
 
-//返回当前 Node.js 进程已经运行的秒数。
-process.uptime()
+// 终止进程
+// process.exit(0);  // 正常退出
+// process.exit(1);  // 异常退出
+```
 
-// 触发node的abort事件，退出当前进程
-process.abort()
+### 资源使用情况
 
-//向父进程发送消息
-process.send(message[, sendHandle[, options]][, callback])
+```javascript
+// CPU使用情况
+const cpuUsage = process.cpuUsage();
+console.log('CPU使用情况:', cpuUsage);
+/*
+{
+  user: 38579,    // 用户态时间（微秒）
+  system: 6986    // 内核态时间（微秒）
+}
+*/
 
-// 返回当前进程的工作目录
-process.cmd()
-//更改 Node.js 进程的当前工作目录
-process.chdir(directory)
+// 内存使用情况
+const memoryUsage = process.memoryUsage();
+console.log('内存使用情况:', memoryUsage);
+/*
+{
+  rss: 4935680,          // 常驻内存集合
+  heapTotal: 1826816,    // 堆总大小
+  heapUsed: 650472,      // 堆已使用大小
+  external: 49879,       // 外部内存使用量
+  arrayBuffers: 9386     // ArrayBuffer 和 Buffer 使用量
+}
+*/
 
-//当前进程的资源使用情况
-process.resourceUsage()
+// 系统资源使用情况
+const resourceUsage = process.resourceUsage();
+console.log('系统资源使用:', resourceUsage);
+```
 
-//获取进程可用的内存量
-process.constrainedMemory()
+### 高级操作
 
-//获取进程仍可用的空闲内存量（以字节为单位）。
-process.availableMemory()
+```javascript
+// 获取可用内存
+const availableMemory = process.availableMemory();
+console.log('可用内存:', availableMemory);
 
-//返回当前进程的用户和系统 CPU 时间使用情况
-process.cpuUsage([previousValue])
+// 获取受限内存
+const constrainedMemory = process.constrainedMemory();
+console.log('受限内存:', constrainedMemory);
 
-//返回 Node.js 进程的当前工作目录。
-process.disconnect()
+// 发送信号到进程
+try {
+  process.kill(process.pid, 'SIGUSR1');
+} catch (err) {
+  console.error('发送信号失败:', err);
+}
 
-//允许动态加载共享对象
-process.dlopen(module, filename[, flags])
+// 获取用户ID（仅Unix系统）
+if (process.getuid) {
+  console.log('用户ID:', process.getuid());
+}
+```
 
-//触发自定义或特定于应用的进程警告
-process.emitWarning(warning[, options])
-process.emitWarning('Something happened!', {
-  code: 'MY_WARNING',
-  detail: 'This is some additional information',
+## 🔄 异步操作
+
+### nextTick
+
+```javascript
+// 将回调添加到下一个滴答队列
+console.log('开始');
+
+process.nextTick(() => {
+  console.log('nextTick 回调');
 });
 
-//以 code 的退出状态同步终止进程
-process.exit([code])
+setImmediate(() => {
+  console.log('setImmediate 回调');
+});
 
-//包含当前保持事件循环活动的活动资源的类型的字符串
-process.getActiveResourcesInfo()
+setTimeout(() => {
+  console.log('setTimeout 回调');
+}, 0);
 
-//在全局可用函数中加载内置模块
-process.getBuiltinModule(id)
+console.log('结束');
 
-//返回进程的数字用户标识
-process.getuid()
-
-//将 signal 发送到由 pid 标识的进程。
-process.kill(pid[, signal])
-
-//Node进程的内存使用情况，其单位是bytes
-process.memoryUsage()
-
-//将 callback 添加到 "下一个滴答队列"
-process.nextTick(callback[, ...args])
-
-//将 .env 文件加载到 process.env 中
-process.loadEnvFile(path)
+// 输出顺序：开始 -> 结束 -> nextTick 回调 -> setTimeout 回调 -> setImmediate 回调
 ```
+
+### 事件循环优先级
+
+```javascript
+// 展示事件循环优先级
+console.log('同步代码 1');
+
+setTimeout(() => console.log('setTimeout'), 0);
+setImmediate(() => console.log('setImmediate'));
+
+process.nextTick(() => console.log('nextTick'));
+Promise.resolve().then(() => console.log('Promise'));
+
+console.log('同步代码 2');
+
+// 输出顺序：
+// 同步代码 1
+// 同步代码 2
+// nextTick
+// Promise
+// setTimeout
+// setImmediate
+```
+
+## 📡 标准输入输出
+
+### 标准输出
+
+```javascript
+// 标准输出
+process.stdout.write('Hello World\n');
+
+// 标准错误输出
+process.stderr.write('Error message\n');
+
+// 检查是否是TTY
+if (process.stdout.isTTY) {
+  console.log('运行在终端中');
+}
+```
+
+### 标准输入
+
+```javascript
+// 标准输入处理
+process.stdin.setEncoding('utf8');
+process.stdin.resume();
+
+let input = '';
+process.stdin.on('data', (chunk) => {
+  input += chunk;
+});
+
+process.stdin.on('end', () => {
+  console.log('输入内容:', input);
+});
+
+// 交互式输入示例
+process.stdout.write('请输入您的姓名: ');
+process.stdin.once('data', (data) => {
+  const name = data.toString().trim();
+  console.log(`您好, ${name}!`);
+  process.exit(0);
+});
+```
+
+## 🛠️ 实用工具
+
+### 环境配置加载
+
+```javascript
+// 加载 .env 文件
+try {
+  process.loadEnvFile('.env');
+  console.log('环境变量加载成功');
+} catch (err) {
+  console.error('环境变量加载失败:', err.message);
+}
+
+// 手动解析 .env 文件
+const fs = require('fs');
+const path = require('path');
+
+function loadEnvFile(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split('\n');
+    
+    lines.forEach(line => {
+      const [key, value] = line.split('=');
+      if (key && value) {
+        process.env[key.trim()] = value.trim();
+      }
+    });
+  } catch (err) {
+    console.error('加载环境文件失败:', err.message);
+  }
+}
+
+loadEnvFile('.env');
+```
+
+### 进程监控
+
+```javascript
+// 进程监控类
+class ProcessMonitor {
+  constructor() {
+    this.startTime = Date.now();
+    this.startCpuUsage = process.cpuUsage();
+    this.startMemoryUsage = process.memoryUsage();
+  }
+  
+  getStats() {
+    const now = Date.now();
+    const currentCpuUsage = process.cpuUsage(this.startCpuUsage);
+    const currentMemoryUsage = process.memoryUsage();
+    
+    return {
+      uptime: process.uptime(),
+      runningTime: now - this.startTime,
+      cpu: {
+        user: currentCpuUsage.user / 1000000, // 转换为秒
+        system: currentCpuUsage.system / 1000000
+      },
+      memory: {
+        rss: currentMemoryUsage.rss / 1024 / 1024, // 转换为MB
+        heapUsed: currentMemoryUsage.heapUsed / 1024 / 1024,
+        heapTotal: currentMemoryUsage.heapTotal / 1024 / 1024
+      }
+    };
+  }
+}
+
+// 使用示例
+const monitor = new ProcessMonitor();
+
+setInterval(() => {
+  const stats = monitor.getStats();
+  console.log('进程统计:', stats);
+}, 5000);
+```
+
+## 🎯 最佳实践
+
+### 1. 优雅退出
+
+```javascript
+// 优雅退出处理
+function gracefulShutdown() {
+  console.log('正在优雅退出...');
+  
+  // 清理资源
+  // 关闭数据库连接
+  // 完成正在进行的任务
+  
+  setTimeout(() => {
+    console.log('清理完成，退出进程');
+    process.exit(0);
+  }, 1000);
+}
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+```
+
+### 2. 错误处理
+
+```javascript
+// 全局错误处理
+process.on('uncaughtException', (err) => {
+  console.error('未捕获的异常:', err);
+  // 记录日志
+  // 发送错误报告
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('未处理的 Promise 拒绝:', reason);
+  // 记录日志
+  // 发送错误报告
+});
+```
+
+### 3. 环境判断
+
+```javascript
+// 判断运行环境
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test';
+
+// 根据环境配置不同的行为
+if (isDevelopment) {
+  console.log('开发环境');
+} else if (isProduction) {
+  console.log('生产环境');
+}
+```
+
+---
+
+::: tip 🔗 相关链接
+- [Node.js Process 官方文档](https://nodejs.org/api/process.html)
+- [事件循环详解](https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/)
+- [进程管理最佳实践](https://nodejs.org/en/docs/guides/simple-profiling/)
+:::
