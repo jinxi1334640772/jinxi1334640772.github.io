@@ -58,7 +58,7 @@ export default defineConfig({
         activeMatch: '^/afterEnd/',
         items: [
           { text: '🟢 Node.js', link: '/afterEnd/node/', activeMatch: '^/afterEnd/node/' },
-          { text: '🚂 Express 框架', link: '/afterEnd/express/server', activeMatch: '^/afterEnd/express/' },
+          { text: '🚂 Node 框架', link: '/afterEnd/express/express', activeMatch: '^/afterEnd/express/' },
           { text: '🗄️ 数据库', link: '/afterEnd/database/mysql', activeMatch: '^/afterEnd/database/' },
           { text: '🌐 服务器', link: '/afterEnd/server/nginx', activeMatch: '^/afterEnd/server/' }
         ]
@@ -202,10 +202,10 @@ export default defineConfig({
           ]
         },
         {
-          text: '🚂 Express 框架',
+          text: '🚂 Node 框架',
           collapsed: false,
           items: [
-            { text: '🌐 服务器搭建', link: '/afterEnd/express/server' },
+            { text: '🌐 Express 框架', link: '/afterEnd/express/express' },
             { text: '🥚 Egg.js 框架', link: '/afterEnd/express/egg' },
             { text: '🎯 Koa.js 框架', link: '/afterEnd/express/koa' }
           ]
