@@ -1,833 +1,1249 @@
-## Nginx 服务器介绍
+---
+title: 🔧 Nginx 服务器完全指南
+description: 深入学习 Nginx 高性能 Web 服务器，掌握反向代理、负载均衡、SSL 配置、性能优化等核心技术，构建高可用的生产环境
+outline: deep
+---
 
-Nginx 是一款轻量级的 Web 服务器/反向代理服务器及电子邮件（IMAP/POP3）代理服务器，在 BSD-like 协议下发行。其特点是占有内存少，并发能力强，事实上 nginx 的并发能力在同类型的网页服务器中表现较好。Nginx 代码完全用 C 语言从头写成，已经移植到许多体系结构和操作系统
+# 🔧 Nginx 服务器完全指南
 
-Nginx 作为负载均衡服务：Nginx 既可以在内部直接支持 Rails 和 PHP 程序对外进行服务，也可以支持作为 HTTP 代理服务对外进行服务。Nginx 采用 C 进行编写，不论是系统资源开销还是 CPU 使用效率都比 Perlbal 要好很多。
+> Nginx 是一款高性能的 Web 服务器和反向代理服务器，以其卓越的性能、稳定性和丰富的功能模块而闻名。本指南将带你深入了解 Nginx 的核心概念和实战技巧。
 
-- 处理静态文件，索引文件以及自动索引;打开文件描述符缓冲。
-- 无缓存的反向代理加速，简单的负载均衡和容错。
-- FastCGI，简单的负载均衡和容错。
-- 模块化的结构。包括 gzipping, byte ranges, chunked responses,以及 SSI-filter 等 filter。如果由 FastCG 或其它代理服务器处理单页中存在的多个 SSI，则这项处理可以并行运行，而不需要相互等待。
-- 支持 SSL 和 TLSSNI。
+## 🎯 Nginx 概述
 
-## Nginx 服务器处理请求过程
+### 📊 核心特性
 
-![alt text](image.png)
+| 特性 | 描述 | 优势 |
+|------|------|------|
+| **高性能** | 事件驱动架构 | ⚡ 低内存消耗，高并发处理 |
+| **反向代理** | 负载均衡和缓存 | 🔄 提升应用性能 |
+| **模块化架构** | 丰富的功能模块 | 🔧 高度可定制 |
+| **SSL/TLS 支持** | 加密传输协议 | 🔐 数据安全传输 |
+| **热部署** | 零宕机配置更新 | 🚀 高可用性 |
 
-- Read Request Headers：解析请求头。
-- Identify Configuration Block：识别由哪一个 location 进行处理，匹配 URL。
-- Apply Rate Limits：判断是否限速。例如可能这个请求并发的连接数太多超过了限制，或者 QPS 太高。
-- Perform Authentication：连接控制，验证请求。例如可能根据 Referrer 头部做一些防盗链的设置，或者验证用户的权限。
-- Generate Content：生成返回给用户的响应。为了生成这个响应，做反向代理的时候可能会和上游服务（Upstream Services）进行通信，然后这个过程中还可能会有些子请求或者重定向，那么还会走一下这个过程（Internal redirects and subrequests）。
-- Response Filters：过滤返回给用户的响应。比如压缩响应，或者对图片进行处理。
-- Log：记录日志。
+### 🏗️ Nginx 架构优势
 
-## 处理请求 11 个阶段
-
-![alt text](image-1.png)
-
-- POST_READ：在 read 完请求的头部之后，在没有对头部做任何处理之前，想要获取到一些原始的值，就应该在这个阶段进行处理。这里面会涉及到一个 realip 模块。
-- SERVER_REWRITE：和下面的 REWRITE 阶段一样，都只有一个模块叫 rewrite 模块，一般没有第三方模块会处理这个阶段。
-- FIND_CONFIG：做 location 的匹配，暂时没有模块会用到。
-- REWRITE：对 URL 做一些处理。
-- POST_WRITE：处于 REWRITE 之后，也是暂时没有模块会在这个阶段出现。
-
-接下来是确认用户访问权限的三个模块：
-
-- PREACCESS：是在 ACCESS 之前要做一些工作，例如并发连接和 QPS 需要进行限制，涉及到两个模块：limt_conn 和 limit_req
-- ACCESS：核心要解决的是用户能不能访问的问题，例如 auth_basic 是用户名和密码，access 是用户访问 IP，auth_request 根据第三方服务返回是否可以去访问。
-- POST_ACCESS：是在 ACCESS 之后会做一些事情，同样暂时没有模块会用到。
-
-最后的三个阶段处理响应和日志：
-
-- PRECONTENT：在处理 CONTENT 之前会做一些事情，例如会把子请求发送给第三方的服务去处理，try_files 模块也是在这个阶段中。
-
-- CONTENT：这个阶段涉及到的模块就非常多了，例如 index, autoindex, concat 等都是在这个阶段生效的。
-
-- LOG：记录日志 access_log 模块。
-
-以上的这些阶段都是严格按照顺序进行处理的，当然，每个阶段中各个 HTTP 模块的处理顺序也很重要，如果某个模块不把请求向下传递，后面的模块是接收不到请求的。而且每个阶段中的模块也不一定所有都要执行一遍
-
-整个 11 个阶段所涉及到的模块和先后顺序如下图所示：
-![alt text](image-2.png)
-
-## postread 阶段
-
-这个阶段刚刚获取到了请求的头部，还没有进行任何处理，我们可以拿到一些原始的信息。例如，拿到用户的真实 IP 地址
-![alt text](image-3.png)
-HTTP 协议中，有两个头部可以用来获取用户 IP：
-
-- X-Forwardex-For 是用来传递 IP 的，这个头部会把经过的节点 IP 都记录下来
-- X-Real-IP：可以记录用户真实的 IP 地址，只能有一个。非标准的，nginx 服务器支持
-  例如 binary_remote_addr、remote_addr 这样的变量，其值就是真实的 IP，这样做连接限制也就是 limit_conn 模块才有意义，这也说明了，limit_conn 模块只能在 preaccess 阶段，而不能在 postread 阶段生效。
-
-### realip 模块
-
-定义如何从头部获取用户 IP 地址。默认不会编译进 Nginx，需要通过 --with-http_realip_module 启用功能。如果还想要使用原来的 TCP 连接中的地址和端口，需要通过这两个变量保存 realip_remote_addr 和
-realip_remote_port
-
-```bash
-#指定可信的地址，只有从该地址建立的连接，获取的 realip 才是可信的
-Syntax: set_real_ip_from address | CIDR | unix:;
-Default: —
-Context: http, server, location
-#指定从哪个头部取真实的 IP 地址，默认从 X-Real-IP 中取，如果设置从 X-Forwarded-For 中取，会先从最后一个 IP 开始取
-Syntax: real_ip_header field | X-Real-IP | X-Forwarded-For | proxy_protocol;
-Default: real_ip_header X-Real-IP;
-Context: http, server, location
-#环回地址，默认关闭，打开的时候，如果 X-Forwarded-For 最后一个地址与客户端地址相同，会过滤掉该地址
-Syntax: real_ip_recursive on | off;
-Default: real_ip_recursive off;
-Context: http, server, location
+```mermaid
+graph TD
+    A[客户端请求] --> B[Nginx Master Process]
+    B --> C[Worker Process 1]
+    B --> D[Worker Process 2]
+    B --> E[Worker Process N]
+    
+    C --> F[上游服务器 1]
+    D --> G[上游服务器 2]
+    E --> H[上游服务器 N]
+    
+    F --> I[应用服务器]
+    G --> J[数据库服务器]
+    H --> K[缓存服务器]
 ```
 
-服务器配置：
+### 🔄 Nginx vs 其他服务器
+
+| 服务器 | 架构模式 | 内存使用 | 并发处理 | 适用场景 |
+|--------|----------|----------|----------|----------|
+| **Nginx** | 事件驱动 | 🟢 低 | 🟢 高 | 静态文件、反向代理 |
+| **Apache** | 线程/进程 | 🟡 中等 | 🟡 中等 | 动态内容、模块丰富 |
+| **Lighttpd** | 事件驱动 | 🟢 低 | 🟢 高 | 静态文件服务 |
+| **IIS** | 线程池 | 🔴 高 | 🟡 中等 | Windows 环境 |
+
+## 🚀 安装和配置
+
+### 📦 安装方式
+
+#### 🐧 Ubuntu/Debian 安装
 
 ```bash
-# 负载均衡配置
-upstream backend {
-    # ip_hash;
-    server s1.barretlee.com;
-    server s2.barretlee.com;
-}
+# 更新软件包列表
+sudo apt update
 
-# gzip压缩配置
-gzip on;
-gzip_disable "msie6";
-gzip_vary on;
-gzip_proxied any;
-gzip_comp_level 6;
-gzip_buffers 16 8k;
-gzip_http_version 1.1;
-gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+# 安装 Nginx
+sudo apt install nginx
 
-# 在 example 目录下建立 realip.conf，set_real_ip_from 可以设置为自己的本机 IP
-server {
-    server_name ziyang.realip.com; #定义服务器域名
-    listen 80; #定义服务器的端口号
-    listen 80 http2; #定义端口号，开启HTTP2
-    root html/; #服务器根目录
-    alias /home/www/blog/; # alias别名
-    index /html/index.html; # 首页设置
+# 启动 Nginx 服务
+sudo systemctl start nginx
 
-    error_page 404 /404.html notice; #定义错误页面
-    error_page 500 502 503 504 /50x.html;
+# 设置开机自启动
+sudo systemctl enable nginx
 
-    set_real_ip_from 192.168.0.108; #指定可信地址
-    #real_ip_header X-Real-IP;
-    real_ip_header X-Forwarded-For; #从哪个字段获取realip
-    # real_ip_recursive on;
-    real_ip_recursive off; #是否启用环回地址
-
-    rewrite_log on; #启动复写时的日志记录
-
-    # 路径配置：nginx使用location指令来实现URI匹配
-
-    try_files $uri $uri.html $uri/index.html @other;
-    location @other {
-        # 尝试寻找匹配 uri 的文件，失败了就会转到上游处理
-        # 负载均衡
-        proxy_pass http://backend;
-    }
-
-    location = /first { # 精确匹配 /first
-        rewrite /first(.*) /second$1 last;
-        return 200 'first!\n';
-    }
-    location ~ /second { # 大小写敏感匹配 /second
-        rewrite /third(.*) http://rewrite.com$1;
-    }
-    location ^~ /second { # 匹配以。。开头 /second
-        error_page  404 @fallback;
-    }
-    location ~* /third { # 忽略大小写匹配 301重定向
-        return 301 https://api.cc$request_uri;
-    }
-    location /fourth { # 包含匹配 /fourth
-        rewrite /redirect3(.*) http://rewrite.com$1;
-    }
-    location  ~* \.(gif|jpg|png)$ { # 正则匹配
-        rewrite /redirect3(.*) http://rewrite.com$1;
-    }
-
-    location @fallback {
-        # 将请求反向代理到上游服务器处理
-        proxy_pass http://localhost:9000;
-
-        ### 下面都是次要关注项
-        proxy_set_header Host $host;
-        proxy_method POST;
-        # 指定不转发的头部字段
-        proxy_hide_header Cache-Control;
-        proxy_hide_header Other-Header;
-        # 指定转发的头部字段
-        proxy_pass_header Server-IP;
-        proxy_pass_header Server-Name;
-        # 是否转发包体
-        proxy_pass_request_body on | off;
-        # 是否转发头部
-        proxy_pass_request_headers on | off;
-        # 显形/隐形 URI，上游发生重定向时，Nginx 是否同步更改 uri
-        proxy_redirect on | off;
-    }
-    # 默认匹配：如果以上都未匹配，会进入这里
-    location / {
-        # 缓存配置:自动添加expires和cache-control字段
-        # 协商缓存Etag和Last-Modified，nginx默认开启，无需配置
-        expires 7d;
-        return 200 "Client real ip: $remote_addr\n";
-    }
-        # 与变量 http_user_agent 匹配
-    if ($http_user_agent ~ MSIE) {
-      rewrite ^(.*)$ /msie/$1 break;
-    }
-}
-# HTTPS配置
-server {
-    listen 443;
-    server_name api.xiaohuochai.cc;
-    ssl on;
-    ssl_certificate /home/www/blog/crt/api.cc.crt;
-    ssl_certificate_key /home/www/blog/crt/api.cc.key;
-    ssl_session_timeout 5m;
-    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    ssl_prefer_server_ciphers on;
-    if ($ssl_protocol = "") {
-        rewrite ^(.*)https://$host$1 permanent;
-    }
-}
+# 检查服务状态
+sudo systemctl status nginx
 ```
 
-## rewrite 阶段
-
-首先 rewrite 阶段分为两个，一个是 server_rewrite 阶段，一个是 rewrite，这两个阶段都涉及到一个 rewrite 模块，而在 rewrite 模块中，有一个 return 指令，遇到该指令就不会再向下执行，直接返回响应。
-
-### rewrite 模块
-
-它的功能主要有下面几点：
-
-- 将 regex 指定的 URL 替换成 replacement 这个新的 URL
-  可以使用正则表达式及变量提取
-- 当 replacement 以 http:// 或者 https:// 或者 $schema 开头，则直接返回 302 重定向
-- 替换后的 URL 根据 flag 指定的方式进行处理
-  - last：用 replacement 这个 URL 进行新的 location 匹配
-  - break：break 指令停止当前脚本指令的执行，继续执行下面的指令
-  - redirect：返回 302 重定向
-  - permanent：返回 301 重定向
-
-那么 if 指令的条件表达式包含规则如下：
-
-- 检查变量为空或者值是否为 0
-- 将变量与字符串做匹配，使用 = 或 !=
-- 将变量与正则表达式做匹配
-- 大小写敏感，~ 或者 !~
-- 大小写不敏感，_ 或者 !_
-- 检查文件是否存在，使用 -f 或者 !-f
-- 检查目录是否存在，使用 -d 或者 !-d
-- 检查文件、目录、软链接是否存在，使用 -e 或者 !-e
-- 检查是否为可执行文件，使用 -x 或者 !-x
+#### 🎩 CentOS/RHEL 安装
 
 ```bash
-# code:状态码 text:返回的内容 URL:直接返回URL
-Syntax: return code [text];
-        return code URL;
-        return URL;
-Default: —
-Context: server, location, if
+# 安装 EPEL 仓库
+sudo yum install epel-release
 
-#rewrite 指令用于修改用户传入 Nginx 的 URL。
-Syntax: rewrite regex replacement [flag];
-Default: —
-Context: server, location, if
+# 安装 Nginx
+sudo yum install nginx
 
-#rewrite 行为记录日志
-Syntax: rewrite_log on | off;
-Default: rewrite_log off;
-Context: http, server, location, if
+# 启动服务
+sudo systemctl start nginx
+sudo systemctl enable nginx
 
-#if 指令也是在 rewrite 阶段生效的，它的语法如下所示：
-Syntax: if (condition) { ... }
-Default: —
-Context: server, location
-
-#定义错误页面，优先级高于return指令。外层的return指令优先级较高
-Syntax: error_page code ... [=[response]] uri;
-Default: —
-Context: http, server, location, if in location
+# 检查防火墙设置
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload
 ```
 
-## find_config 阶段
-
-当经过 rewrite 模块，匹配到 URL 之后，就会进入 find_config 阶段，开始寻找 URL 对应的 location 配置。
-
-location 的匹配规则是仅匹配 URI，忽略参数，有下面三种大的情况：
-
-- 前缀字符串
-  - 常规匹配
-  - =：精确匹配
-  - ^~：以~开头，优先级正则表达式匹配
-- 正则表达式
-  - ~：大小写敏感的正则匹配
-  - ~\*：大小写不敏感
-- 用户内部跳转的命名 location
-  - @
-
-location 匹配算法：
-![alt text](image-4.png)
+#### 🔧 编译安装
 
 ```bash
+# 下载 Nginx 源码
+wget http://nginx.org/download/nginx-1.24.0.tar.gz
+tar -xzf nginx-1.24.0.tar.gz
+cd nginx-1.24.0
 
-Syntax: location [ = | ~ | ~* | ^~ ] uri { ... }
-        location @name { ... }
-Default: —
-Context: server, location
+# 安装编译依赖
+sudo apt install build-essential libpcre3-dev libssl-dev zlib1g-dev
 
-#加入 URL 中有两个重复的 /，那么会合并
-Syntax: merge_slashes on | off;
-Default: merge_slashes on;
-Context: http, server
+# 配置编译选项
+./configure \
+    --prefix=/etc/nginx \
+    --sbin-path=/usr/sbin/nginx \
+    --conf-path=/etc/nginx/nginx.conf \
+    --error-log-path=/var/log/nginx/error.log \
+    --access-log-path=/var/log/nginx/access.log \
+    --pid-path=/var/run/nginx.pid \
+    --lock-path=/var/run/nginx.lock \
+    --with-http_ssl_module \
+    --with-http_v2_module \
+    --with-http_realip_module \
+    --with-http_gzip_static_module \
+    --with-file-aio \
+    --with-threads
 
-server {
-    listen 80;
-    server_name location.ziyang.com;
-    error_log  logs/error.log  debug;
-    root html/;
-    default_type text/plain;
-    merge_slashes off;
-
-    location ~ /Test1/$ {  #大小写敏感
-        return 200 'first regular expressions match!\n';
-    }
-    location ~* /Test1/(\w+)$ {  #大小写不敏感
-        return 200 'longest regular expressions match!\n';
-    }
-    location ^~ /Test1/ {  #以/Text1/开头，优先级高于正则
-        return 200 'stop regular expressions match!\n';
-    }
-    location /Test1/Test2 { #包含
-        return 200 'longest prefix string match!\n';
-    }
-    location /Test1 { #包含
-        return 200 'prefix string match!\n';
-    }
-    location = /Test1 { #精确相等
-        return 200 'exact match!\n';
-    }
-}
+# 编译并安装
+make && sudo make install
 ```
 
-## preaccess 阶段
+### 📁 目录结构
 
-如何限制每个客户端的并发连接数？如何限制访问频率
+```
+/etc/nginx/
+├── 📄 nginx.conf          # 主配置文件
+├── 📁 conf.d/             # 配置文件目录
+│   └── 📄 default.conf    # 默认虚拟主机配置
+├── 📁 sites-available/    # 可用站点配置
+├── 📁 sites-enabled/      # 已启用站点配置
+├── 📁 modules-available/  # 可用模块
+├── 📁 modules-enabled/    # 已启用模块
+├── 📁 snippets/           # 配置代码片段
+└── 📄 mime.types          # MIME 类型定义
 
-### limit_conn 模块
+/var/log/nginx/
+├── 📄 access.log          # 访问日志
+└── 📄 error.log           # 错误日志
 
-限制每个客户端的并发连接数
-
-- 生效阶段：NGX_HTTP_PREACCESS_PHASE 阶段
-- 模块：http_limit_conn_module
-- 默认编译进 Nginx，通过 --without-http_limit_conn_module 禁用
-- 生效范围
-  - 全部 worker 进程（基于共享内存）
-  - 进入 preaccess 阶段前不生效
-  - 限制的有效性取决于 key 的设计：依赖 postread 阶段的 realip 模块取到真实 IP
-
-### limit_req 模块
-
-如何限制访问频率
-
-- 生效阶段：NGX_HTTP_PREACCESS_PHASE 阶段
-- 模块：http_limit_req_module
-- 默认编译进 Nginx，通过 --without-http_limit_req_module 禁用
-- 生效算法：leaky bucket 算法。漏桶算法的原理是，先定义一个桶的大小，所有进入桶内的请求都会以恒定的速率被处理，如果请求太多超出了桶的容量，那么就会立刻返回错误。
-- 生效范围
-  - 全部 worker 进程（基于共享内存）
-  - 进入 preaccess 阶段前不生效
-
-```bash
-#定义共享内存（包括大小），以及 key 关键字
-Syntax: limit_conn_zone key zone=name:size;
-Default: —
-Context: http
-
-#限制并发连接数
-Syntax: limit_conn zone number;
-Default: —
-Context: http, server, location
-
-#限制发生时的日志级别
-Syntax: limit_conn_log_level info | notice | warn | error;
-Default: limit_conn_log_level error;
-Context: http, server, location
-
-#限制发生时向客户端返回的错误码
-Syntax: limit_conn_status code;
-Default: limit_conn_status 503;
-Context: http, server, location
-
-
-#定义共享内存（包括大小），以及 key 关键字和限制速率
-Syntax: limit_req_zone key zone=name:size rate=rate ;
-Default: —
-Context: http
-
-#限制限制访问频率。如果设置了nodelay，超过请求会立刻返回错误
-Syntax: limit_req zone=name [burst=number] [nodelay];
-Default: —
-Context: http, server, location
-
-#限制发生时的日志级别
-Syntax: limit_req_log_level info | notice | warn | error;
-Default: limit_req_log_level error;
-Context: http, server, location
-
-#限制发生时向客户端返回的错误码
-Syntax: limit_req_status code;
-Default: limit_req_status 503;
-Context: http, server, location
-
-
-limit_conn_zone $binary_remote_addr zone=addr:10m;
-limit_req_zone $binary_remote_addr zone=one:10m rate=2r/m;
-
-server {
-    listen 80;
-    server_name limit.ziyang.com;
-    root html/;
-    error_log logs/myerror.log info;
-    location /{
-        limit_conn_status 500;
-        limit_conn_log_level  warn;
-        limit_conn addr 1;
-
-        limit_rate 50;
-        limit_req zone=one burst=3 nodelay;
-        limit_req zone=one;
-    }
-}
+/var/www/html/
+└── 📄 index.html          # 默认网站根目录
 ```
 
-## access 阶段
+## 🛠️ 请求处理机制
 
-经过 preaccess 阶段对用户的限流之后，就到了 access 阶段
+### 🔄 请求处理流程
 
-### access 模块
+<div align="center">
+  <img src="./image.png" alt="Nginx 请求处理流程" data-fancybox="gallery" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</div>
 
-- 生效阶段：NGX_HTTP_ACCESS_PHASE 阶段
-- 模块：http_access_module
-- 默认编译进 Nginx，通过 --without-http_access_module 禁用
-- 生效范围：进入 access 阶段前不生效
+### 📋 处理步骤详解
 
-### auth_basic 模块
+| 步骤 | 名称 | 描述 | 关键模块 |
+|------|------|------|----------|
+| **1** | Read Request Headers | 📖 解析请求头 | ngx_http_core_module |
+| **2** | Identify Configuration Block | 🎯 匹配 location 配置块 | ngx_http_core_module |
+| **3** | Apply Rate Limits | 🚦 应用速率限制 | limit_req, limit_conn |
+| **4** | Perform Authentication | 🔐 身份验证和权限控制 | auth_basic, auth_request |
+| **5** | Generate Content | 📄 生成响应内容 | proxy_pass, fastcgi_pass |
+| **6** | Response Filters | 🔧 响应过滤处理 | gzip, image_filter |
+| **7** | Log | 📝 记录访问日志 | access_log |
 
-auth_basic 模块是用作用户认证的，当开启了这个模块之后，通过浏览器访问网站时，就会返回一个 401 Unauthorized，当然这个 401 用户不会看见，浏览器会弹出一个对话框要求输入用户名和密码。
+### 🎯 11 个处理阶段
 
-- 基于 HTTP Basic Authutication 协议进行用户密码的认证
-- 默认编译进 Nginx
-  - --without-http_auth_basic_module
-  - disable ngx_http_auth_basic_module
+<div align="center">
+  <img src="./image-1.png" alt="Nginx 11 个处理阶段" data-fancybox="gallery" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</div>
 
-```bash
-#允许访问
-Syntax: allow address | CIDR | unix: | all;
-Default: —
-Context: http, server, location, limit_except
-#禁止访问
-Syntax: deny address | CIDR | unix: | all;
-Default: —
-Context: http, server, location, limit_except
+#### 🔄 阶段详细说明
 
-#需要basic认证
-Syntax: auth_basic string | off;
-Default: auth_basic off;
-Context: http, server, location, limit_except
-#认证的文件，保存着账户密码。。。
-Syntax: auth_basic_user_file file;
-Default: —
-Context: http, server, location, limit_except
-
-#向上游服务转发请求
-Syntax: auth_request uri | off;
-Default: auth_request off;
-Context: http, server, location
-
-Syntax: auth_request_set $variable value;
-Default: —
-Context: http, server, location
-
-#限制所有 access 阶段模块的 satisfy 指令
-Syntax: satisfy all | any; #满足全部或者任意一条
-Default: satisfy all;
-Context: http, server, location
-
-server {
-    server_name access.ziyang.com;
-    listen 80;
-    error_log  logs/error.log  debug;
-    default_type text/plain;
-
-    location / {
-        deny 192.168.1.1;
-        allow 192.168.1.0/24;
-        allow 10.1.1.0/16;
-        allow 2001:0db8::/32; #允许访问
-        deny all; #拒绝访问
-    }
-    location /auth_basic {
-        satisfy any; #满足一条即可
-        auth_basic "test auth_basic"; #需要认证
-        auth_basic_user_file example/auth.pass;
-        deny all; #各个模块执行顺序和指令的顺序无关
-    }
-    # / 路径下会将请求转发到另外一个服务
-    location / {
-        auth_request /test_auth;#转发给上游认证服务器，等待认证
-    }
-    # 服务返回 2xx，那么鉴权成功，如果返回 401 或 403 则鉴权失败
-    location = /test_auth {
-        proxy_pass http://127.0.0.1:8090/auth_upstream;#转发请求
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-    }
-}
+```mermaid
+graph TD
+    A[POST_READ] --> B[SERVER_REWRITE]
+    B --> C[FIND_CONFIG]
+    C --> D[REWRITE]
+    D --> E[POST_REWRITE]
+    E --> F[PREACCESS]
+    F --> G[ACCESS]
+    G --> H[POST_ACCESS]
+    H --> I[PRECONTENT]
+    I --> J[CONTENT]
+    J --> K[LOG]
+    
+    A --> A1[获取原始请求信息]
+    B --> B1[服务器级别重写]
+    C --> C1[匹配 location 配置]
+    D --> D1[URL 重写处理]
+    E --> E1[重写后处理]
+    F --> F1[访问控制预处理]
+    G --> G1[访问权限验证]
+    H --> H1[访问后处理]
+    I --> I1[内容生成预处理]
+    J --> J1[内容生成]
+    K --> K1[日志记录]
 ```
 
-### auth_request 模块
+#### 📊 各阶段模块分布
 
-- 功能：向上游的服务转发请求，若上游服务返回的响应码是 2xx，则继续执行，若上游服务返回的响应码是 2xx，则继续执行，若上游服务返回的是 401 或者 403，则将响应返回给客户端
-- 原理：收到请求后，生成子请求，通过反向代理技术把请求传递给上游服务
-- 默认未编译进 Nginx，需要通过 --with-http_auth_request_module 编译进去
+<div align="center">
+  <img src="./image-2.png" alt="Nginx 模块处理顺序" data-fancybox="gallery" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</div>
 
-## precontent 阶段
+## 🌐 核心配置详解
 
-这个阶段只有 try_files 这一个指令。
+### 🎯 主配置文件结构
 
-### try_files 模块
+```nginx
+# nginx.conf 主配置文件
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log;
+pid /run/nginx.pid;
 
-- 模块：ngx_http_try_files_module 模块
-- 依次试图访问多个 URL 对应的文件（由 root 或者 alias 指令指定），当文件存在时，直接返回文件内容，如果所有文件都不存在，则按照最后一个 URL 结果或者 code 返回
-
-```bash
-Syntax: try_files file ... uri;
-        try_files file ... =code;
-Default: —
-Context: server, location
-
-server {
-    server_name tryfiles.ziyang.com;
-    listen 80;
-    error_log  logs/myerror.log  info;
-    root html/;
-    default_type text/plain;
-    location /first {
-        try_files /system/maintenance.html
-            $uri $uri/index.html $uri.html
-            @lasturl;
-    }
-    location @lasturl {
-        return 200 'lasturl!\n';
-    }
-    location /second {
-        try_files $uri $uri/index.html $uri.html =404;
-    }
-}
-```
-
-### mirror 模块
-
-mirror 模块可以实时拷贝流量，这对于需要同时访问多个环境的请求是非常有用的。
-
-- 模块：ngx_http_mirror_module 模块，默认编译进 Nginx
-  - 通过 --without-http_mirror_module 移除模块
-- 功能：处理请求时，生成子请求访问其他服务，对子请求的返回值不做处理
-
-```bash
-#映射到其他服务
-Syntax: mirror uri | off;
-Default: mirror off;
-Context: http, server, location
-#是否处理子请求返回值
-Syntax: mirror_request_body on | off;
-Default: mirror_request_body on;
-Context: http, server, location
-
-server {
-    server_name mirror.ziyang.com;
-    listen 8001;
-    error_log logs/error_log debug;
-    location / {
-        mirror /mirror;
-        mirror_request_body off;
-    }
-    location = /mirror {
-        internal;
-        proxy_pass http://127.0.0.1:10020$request_uri;
-        proxy_pass_request_body off;
-        proxy_set_header Content-Length "";
-        proxy_set_header X-Original-URI $request_uri;
-    }
-}
-```
-
-## content 阶段
-
-### static 模块
-
-先来一下 root 和 alias 这两个指令，这两个指令都是用来映射文件路径的。
-
-- 功能：将 URL 映射为文件路径，以返回静态文件内容
-- 差别：root 会将完整 URL 映射进文件路径中，alias 只会将 location 后的 URL 映射到文件路径
-
-```bash
-#path就是文件路径，不添加publicPath
-Syntax: alias path;
-Default: —
-Context: location
-
-# 项目根目录，类似publicPath
-Syntax: root path;
-Default: root html;
-Context: http, server, location, if in location
-
-#静态文件返回时的 Content-Type
-Syntax: types { ... }
-Default: types { text/html html; image/gif gif; image/jpeg jpg; }
-Context: http, server, location
-
-#默认的文件类型
-Syntax: default_type mime-type;
-Default: default_type text/plain;
-Context: http, server, location
-
-Syntax: types_hash_bucket_size size;
-Default: types_hash_bucket_size 64;
-Context: http, server, location
-
-Syntax: types_hash_max_size size;
-Default: types_hash_max_size 1024;
-Context: http, server, location
-
-#未找到文件时的错误日志
-Syntax: log_not_found on | off;
-Default: log_not_found on;
-Context: http, server, location
-
-# 重定向时，响应头的location字符，是否显示域名
-Syntax: server_name_in_redirect on | off;
-Default: server_name_in_redirect off;
-Context: http, server, location
-# 重定向时是否显示端口
-Syntax: port_in_redirect on | off;
-Default: port_in_redirect on;
-Context: http, server, location
-# 该指令决定是否填充域名，也就是返回绝对路径
-Syntax: absolute_redirect on | off;
-Default: absolute_redirect on;
-Context: http, server, location
-
-server {
-    server_name static.ziyang.com;
-    listen 80;
-    server_name_in_redirect on;
-    port_in_redirect on;
-    absolute_redirect off;
-
-    error_log  logs/myerror.log  info;
-    location /root {
-        root html; #访问/html/root
-    }
-    location /alias {
-        alias html; #访问/alias
-    }
-    location ~ /root/(\w+\.txt) {
-        root html/first/$1;
-    }
-    location ~ /alias/(\w+\.txt) {
-        alias html/first/$1;
-    }
-    #变量：$request_filename，访问文件的完整路径
-    #变量：$document_root 文件目录
-    #变量：$realpath_root 请求的真实路径，没有转化之前
-    location  /RealPath/ {
-        alias html/realpath/;
-        return 200 '$request_filename:$document_root:$realpath_root\n';
-    }
-}
-```
-
-### index 模块
-
-这个模块，当我们访问以 / 结尾的目录时，会去找 root 或 alias 指令的文件夹下的 index.html，如果有这个文件，就会把文件内容返回，也可以指定其他文件。
-
-- 模块：ngx_http_index_module
-- 功能：指定 / 结尾的目录访问时，返回 index 文件内容
-- 先于 autoindex 模块执行
-
-### autoindex 模块
-
-模块：ngx_http_autoindex_module，默认编译进 Nginx，使用 --without-http_autoindex_module 取消
-
-功能：当 URL 以 / 结尾时，尝试以 html/xml/json/jsonp 等格式返回 root/alias 中指向目录的目录结构
-
-```bash
-# /结尾时的默认文件名
-Syntax: index file ...;
-Default: index index.html;
-Context: http, server, location
-
-# 开启或关闭。/结尾时的默认文件扩展名
-Syntax: autoindex on | off;
-Default: autoindex off;
-Context: http, server, location
-# 当以 HTML 格式输出时，控制是否转换为 KB/MB/GB
-Syntax: autoindex_exact_size on | off;
-Default: autoindex_exact_size on;
-Context: http, server, location
-# 控制以哪种格式输出
-Syntax: autoindex_format html | xml | json | jsonp;
-Default: autoindex_format html;
-Context: http, server, location
-# 控制是否以本地时间格式显示还是 UTC 格式
-Syntax: autoindex_localtime on | off;
-Default: autoindex_localtime off;
-Context: http, server, location
-
-
-server {
-    server_name autoindex.ziyang.com;
-    listen 8080;
-    location / {
-        alias html/;
-        autoindex on;#开启配置默认扩展名
-        index b.html;#修改默认文件为b.html
-        autoindex_exact_size on;# 文件大小以Kb/Mb/Gb显示
-        autoindex_format html;#默认扩展名为 .html
-        autoindex_localtime on;#以本地时间格式显示
-    }
-}
-```
-
-## log 阶段
-
-记录请求访问日志的 log 模块。
-
-- 功能：将 HTTP 请求相关信息记录到日志
-- 模块：ngx_http_log_module，无法禁用
-
-```bash
-#配置日志格式
-Syntax: log_format name [escape=default|json|none] string ...;
-Default: log_format combined "...";
-Context: http
-
-#默认的 combined 日志格式：
-log_format combined '$remote_addr - $remote_user [$time_local] '
-'"$request" $status $body_bytes_sent ' '"$http_referer"
-"$http_user_agent"';
-
-#配置日志文件路径
-Syntax: access_log path [format [buffer=size] [gzip[=level]] [flush=time] [if=condition]];
-access_log off;
-Default: access_log logs/access.log combined;
-Context: http, server, location, if in location, limit_except
-
-#对日志文件名包含变量时的优化
-Syntax: open_log_file_cache max=N [inactive=time] [min_uses=N] [valid=time];
-open_log_file_cache off;
-Default: open_log_file_cache off;
-Context: http, server, location
-```
-
-- max：缓存内的最大文件句柄数，超出后用 LRU 算法淘汰
-- inactive：文件访问完后在这段时间内不会被关闭。默认 10 秒
-- min_uses：在 inactive 时间内使用次数超过 min_uses 才会继续存在内存中。默认 1
-- valid：超出 valid 时间后，将对缓存的日志文件检查是否存在。默认 60 秒
-- off：关闭缓存功能
-
-## Nginx 配置
-
-```bash
-# nginx.conf
-
-#user  nobody;
-worker_processes  1;
-
-#error_log  logs/error.log;
-#error_log  logs/error.log  notice;
-#error_log  logs/error.log  info;
-
-#pid        logs/nginx.pid;
-
+# 加载动态模块
+include /usr/share/nginx/modules/*.conf;
 
 events {
-    worker_connections  1024;
+    worker_connections 1024;
+    use epoll;
+    multi_accept on;
 }
 
-
 http {
-    include       mime.types;
-    default_type  application/octet-stream;
+    # 基础配置
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    
+    # 日志格式
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    
+    access_log /var/log/nginx/access.log main;
+    
+    # 性能优化
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    
+    # 包含其他配置文件
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+```
 
-    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-    #                  '$status $body_bytes_sent "$http_referer" '
-    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+### 🔧 虚拟主机配置
 
-    #access_log  logs/access.log  main;
-
-    sendfile        on;
-    #tcp_nopush     on;
-
-    #keepalive_timeout  0;
-    keepalive_timeout  65;
-
-    #gzip  on;
-
-    server {
-        listen       8080;
-        server_name  localhost;
-
-        #charset koi8-r;
-
-        #access_log  logs/host.access.log  main;
-
-        location / {
-            root   html/static;
-            index  index.html index.htm;
-            try_files $uri $uri/ /index.html;
-            error_page 404 /index.html;
-        }
-
-        error_page  404              /404.html;
-        error_page   500 502 503 504  /50x.html;
-
-        location = /50x.html {
-            root   html;
-        }
+```nginx
+# 基础虚拟主机配置
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com www.example.com;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    
+    # 访问日志
+    access_log /var/log/nginx/example.access.log;
+    error_log /var/log/nginx/example.error.log;
+    
+    # 基础 location 配置
+    location / {
+        try_files $uri $uri/ =404;
     }
-
-    server {
-        listen       10001;
-        server_name  localhost;
-
-        location / {
-            root   html/vueDist;
-            index  index.html index.htm;
-            try_files $uri $uri/ /index.html;
-            error_page 404 /index.html;
-            add_header 'Access-Control-Allow-Origin' '*';
-            add_header 'Access-Control-Allow-Credentials' 'true';
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-            add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
-        }
-
-        error_page  404              /404.html;
-        error_page   500 502 503 504  /50x.html;
-
-        location = /50x.html {
-            root   html;
-        }
+    
+    # 静态文件缓存
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # PHP 处理
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+    }
+    
+    # 拒绝访问隐藏文件
+    location ~ /\. {
+        deny all;
     }
 }
 ```
+
+### 🎯 Location 匹配规则
+
+| 匹配符 | 优先级 | 描述 | 示例 |
+|--------|--------|------|------|
+| `=` | 1 | 🎯 精确匹配 | `location = /api/users` |
+| `^~` | 2 | 🔍 前缀匹配（优先） | `location ^~ /static/` |
+| `~` | 3 | 📝 正则匹配（区分大小写） | `location ~ \.(jpg|png)$` |
+| `~*` | 3 | 📝 正则匹配（不区分大小写） | `location ~* \.(jpg|png)$` |
+| `/` | 4 | 🌐 通用匹配 | `location /api/` |
+
+### 🛠️ Location 配置示例
+
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+    root /var/www/html;
+    
+    # 精确匹配首页
+    location = / {
+        return 200 "Welcome to homepage!";
+    }
+    
+    # 前缀匹配 API 路由
+    location ^~ /api/ {
+        proxy_pass http://backend_servers;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # 正则匹配图片文件
+    location ~* \.(jpg|jpeg|png|gif|webp|svg)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+        add_header Vary Accept-Encoding;
+    }
+    
+    # 正则匹配 CSS 和 JS 文件
+    location ~* \.(css|js)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        gzip_static on;
+    }
+    
+    # 通用匹配
+    location / {
+        try_files $uri $uri/ @fallback;
+    }
+    
+    # 命名 location
+    location @fallback {
+        proxy_pass http://backend_servers;
+    }
+}
+```
+
+## 🔄 反向代理配置
+
+### 🎯 基础反向代理
+
+```nginx
+# 上游服务器定义
+upstream backend_servers {
+    server 192.168.1.10:8000 weight=3;
+    server 192.168.1.11:8000 weight=2;
+    server 192.168.1.12:8000 weight=1 backup;
+    
+    # 健康检查
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    server_name api.example.com;
+    
+    location / {
+        proxy_pass http://backend_servers;
+        
+        # 代理头部设置
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # 超时设置
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+        
+        # 缓冲区设置
+        proxy_buffering on;
+        proxy_buffer_size 8k;
+        proxy_buffers 32 8k;
+        
+        # 错误处理
+        proxy_next_upstream error timeout http_500 http_502 http_503;
+        proxy_next_upstream_tries 3;
+        proxy_next_upstream_timeout 10s;
+    }
+}
+```
+
+### ⚖️ 负载均衡策略
+
+| 策略 | 配置 | 特点 | 适用场景 |
+|------|------|------|----------|
+| **轮询** | 默认 | 🔄 顺序分发 | 服务器性能相近 |
+| **加权轮询** | `weight=n` | ⚖️ 按权重分发 | 服务器性能不同 |
+| **IP Hash** | `ip_hash` | 📍 相同 IP 固定服务器 | 需要会话保持 |
+| **最少连接** | `least_conn` | 📊 连接数最少优先 | 请求处理时间差异大 |
+| **哈希** | `hash $key` | 🔑 自定义键值哈希 | 缓存一致性 |
+
+```nginx
+# 不同负载均衡策略示例
+upstream backend_round_robin {
+    server 192.168.1.10:8000;
+    server 192.168.1.11:8000;
+    server 192.168.1.12:8000;
+}
+
+upstream backend_weighted {
+    server 192.168.1.10:8000 weight=3;
+    server 192.168.1.11:8000 weight=2;
+    server 192.168.1.12:8000 weight=1;
+}
+
+upstream backend_ip_hash {
+    ip_hash;
+    server 192.168.1.10:8000;
+    server 192.168.1.11:8000;
+    server 192.168.1.12:8000;
+}
+
+upstream backend_least_conn {
+    least_conn;
+    server 192.168.1.10:8000;
+    server 192.168.1.11:8000;
+    server 192.168.1.12:8000;
+}
+
+upstream backend_hash {
+    hash $request_uri consistent;
+    server 192.168.1.10:8000;
+    server 192.168.1.11:8000;
+    server 192.168.1.12:8000;
+}
+```
+
+## 🔐 SSL/TLS 配置
+
+### 🎯 基础 HTTPS 配置
+
+```nginx
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name example.com www.example.com;
+    
+    # SSL 证书配置
+    ssl_certificate /etc/nginx/ssl/example.com.crt;
+    ssl_certificate_key /etc/nginx/ssl/example.com.key;
+    
+    # SSL 协议和密码套件
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_prefer_server_ciphers off;
+    
+    # SSL 性能优化
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+    
+    # OCSP Stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/nginx/ssl/ca-bundle.crt;
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+    
+    # 安全头部
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    root /var/www/html;
+    index index.html index.htm;
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+# HTTP 重定向到 HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com www.example.com;
+    return 301 https://$server_name$request_uri;
+}
+```
+
+### 🔧 Let's Encrypt 自动证书
+
+```bash
+# 安装 Certbot
+sudo apt install certbot python3-certbot-nginx
+
+# 获取证书
+sudo certbot --nginx -d example.com -d www.example.com
+
+# 测试自动续期
+sudo certbot renew --dry-run
+
+# 添加定时任务自动续期
+sudo crontab -e
+# 添加以下行：
+0 12 * * * /usr/bin/certbot renew --quiet
+```
+
+## 🌟 RealIP 模块
+
+### 🎯 获取真实 IP 地址
+
+<div align="center">
+  <img src="./image-3.png" alt="RealIP 模块工作原理" data-fancybox="gallery" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</div>
+
+### 🔧 RealIP 模块配置
+
+```nginx
+# 编译时添加模块
+--with-http_realip_module
+
+# 配置指令
+server {
+    listen 80;
+    server_name example.com;
+    
+    # 指定可信的代理服务器
+    set_real_ip_from 192.168.1.0/24;
+    set_real_ip_from 10.0.0.0/8;
+    set_real_ip_from 172.16.0.0/12;
+    set_real_ip_from 127.0.0.1;
+    
+    # 指定获取真实 IP 的头部字段
+    real_ip_header X-Forwarded-For;
+    # real_ip_header X-Real-IP;
+    # real_ip_header proxy_protocol;
+    
+    # 是否启用递归处理
+    real_ip_recursive on;
+    
+    location / {
+        return 200 "Real IP: $remote_addr\nOriginal IP: $realip_remote_addr\n";
+    }
+}
+```
+
+### 📊 IP 头部字段说明
+
+| 头部字段 | 描述 | 格式 | 示例 |
+|----------|------|------|------|
+| **X-Forwarded-For** | 📍 记录请求链路中的所有 IP | `client, proxy1, proxy2` | `203.0.113.1, 192.168.1.10` |
+| **X-Real-IP** | 🎯 记录客户端真实 IP | `client_ip` | `203.0.113.1` |
+| **X-Forwarded-Proto** | 🔒 记录原始协议 | `http` 或 `https` | `https` |
+| **X-Forwarded-Host** | 🌐 记录原始主机名 | `hostname` | `example.com` |
+
+## 🗜️ 性能优化配置
+
+### 🚀 Gzip 压缩优化
+
+```nginx
+# Gzip 压缩配置
+http {
+    # 启用 Gzip 压缩
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_min_length 1000;
+    gzip_buffers 16 8k;
+    gzip_http_version 1.1;
+    
+    # 压缩的文件类型
+    gzip_types
+        application/atom+xml
+        application/javascript
+        application/json
+        application/ld+json
+        application/manifest+json
+        application/rss+xml
+        application/vnd.geo+json
+        application/vnd.ms-fontobject
+        application/x-font-ttf
+        application/x-web-app-manifest+json
+        application/xhtml+xml
+        application/xml
+        font/opentype
+        image/bmp
+        image/svg+xml
+        image/x-icon
+        text/cache-manifest
+        text/css
+        text/plain
+        text/vcard
+        text/vnd.rim.location.xloc
+        text/vtt
+        text/x-component
+        text/x-cross-domain-policy;
+    
+    # 静态 Gzip 文件
+    gzip_static on;
+}
+```
+
+### 📈 缓存配置
+
+```nginx
+# 浏览器缓存配置
+server {
+    listen 80;
+    server_name example.com;
+    root /var/www/html;
+    
+    # 静态资源缓存
+    location ~* \.(jpg|jpeg|png|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        add_header Vary Accept-Encoding;
+    }
+    
+    location ~* \.(css|js)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    location ~* \.(woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        add_header Access-Control-Allow-Origin *;
+    }
+    
+    # HTML 文件不缓存
+    location ~* \.(html|htm)$ {
+        expires -1;
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+    }
+    
+    # API 接口缓存
+    location /api/ {
+        proxy_pass http://backend_servers;
+        proxy_cache api_cache;
+        proxy_cache_valid 200 302 10m;
+        proxy_cache_valid 404 1m;
+        proxy_cache_use_stale error timeout updating;
+        add_header X-Cache-Status $upstream_cache_status;
+    }
+}
+
+# 代理缓存配置
+http {
+    proxy_cache_path /var/cache/nginx/api levels=1:2 keys_zone=api_cache:10m max_size=1g inactive=60m use_temp_path=off;
+}
+```
+
+### ⚡ 性能调优参数
+
+```nginx
+# 主配置文件性能优化
+user nginx;
+worker_processes auto;
+worker_cpu_affinity auto;
+worker_priority -10;
+worker_rlimit_nofile 65535;
+
+events {
+    worker_connections 4096;
+    use epoll;
+    multi_accept on;
+    accept_mutex off;
+}
+
+http {
+    # 基础性能配置
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    keepalive_requests 1000;
+    
+    # 缓冲区配置
+    client_body_buffer_size 128k;
+    client_max_body_size 50m;
+    client_header_buffer_size 4k;
+    large_client_header_buffers 4 16k;
+    
+    # 超时配置
+    client_body_timeout 12;
+    client_header_timeout 12;
+    send_timeout 10;
+    
+    # 文件描述符缓存
+    open_file_cache max=100000 inactive=20s;
+    open_file_cache_valid 30s;
+    open_file_cache_min_uses 2;
+    open_file_cache_errors on;
+    
+    # 隐藏 Nginx 版本号
+    server_tokens off;
+    
+    # 限制连接数
+    limit_conn_zone $binary_remote_addr zone=perip:10m;
+    limit_conn_zone $server_name zone=perserver:10m;
+    
+    # 限制请求速率
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+}
+```
+
+## 🔒 安全配置
+
+### 🛡️ 基础安全措施
+
+```nginx
+# 安全配置示例
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+    
+    # 隐藏服务器信息
+    server_tokens off;
+    more_set_headers "Server: WebServer";
+    
+    # 安全头部
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    
+    # 限制请求方法
+    if ($request_method !~ ^(GET|HEAD|POST|PUT|DELETE|OPTIONS)$ ) {
+        return 405;
+    }
+    
+    # 防止访问隐藏文件
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+    
+    # 防止访问备份文件
+    location ~* \.(bak|backup|old|tmp)$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+    
+    # 限制上传文件大小
+    client_max_body_size 10M;
+    
+    # 防止缓冲区溢出
+    client_body_buffer_size 1K;
+    client_header_buffer_size 1k;
+    client_max_body_size 1k;
+    large_client_header_buffers 2 1k;
+    
+    # 速率限制
+    limit_req zone=api burst=20 nodelay;
+    limit_conn perip 10;
+    
+    # 禁止某些 User-Agent
+    if ($http_user_agent ~* (bot|spider|crawler|scanner)) {
+        return 403;
+    }
+    
+    # 地理位置访问控制
+    # geoip_country /usr/share/GeoIP/GeoIP.dat;
+    # if ($geoip_country_code ~ (CN|US|JP)) {
+    #     set $allow_country yes;
+    # }
+    # if ($allow_country != yes) {
+    #     return 403;
+    # }
+}
+```
+
+### 🔐 访问控制
+
+```nginx
+# IP 访问控制
+server {
+    listen 80;
+    server_name admin.example.com;
+    
+    # 允许特定 IP 访问
+    allow 192.168.1.0/24;
+    allow 10.0.0.0/8;
+    allow 127.0.0.1;
+    deny all;
+    
+    # 基于 location 的访问控制
+    location /admin/ {
+        allow 192.168.1.100;
+        deny all;
+        
+        # 基本认证
+        auth_basic "Admin Area";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        
+        proxy_pass http://admin_backend;
+    }
+    
+    # 基于时间的访问控制
+    location /api/ {
+        # 工作时间访问限制
+        if ($time_iso8601 ~ "^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3])") {
+            set $hour $4;
+        }
+        if ($hour ~ "^(0[0-8]|1[8-9]|2[0-3])$") {
+            return 403 "Access denied outside business hours";
+        }
+        
+        proxy_pass http://api_backend;
+    }
+}
+```
+
+## 🔄 Rewrite 规则
+
+### 🎯 URL 重写示例
+
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+    
+    # 基础重写规则
+    location /old-path/ {
+        rewrite ^/old-path/(.*)$ /new-path/$1 permanent;
+    }
+    
+    # 条件重写
+    if ($args ~ "^id=(\d+)$") {
+        set $item_id $1;
+        rewrite ^/item$ /items/$item_id? permanent;
+    }
+    
+    # 移动端重写
+    if ($http_user_agent ~* "(android|iphone|ipad|mobile)") {
+        rewrite ^/$ /mobile/ redirect;
+    }
+    
+    # 域名重写
+    if ($host != 'example.com') {
+        rewrite ^/(.*)$ https://example.com/$1 permanent;
+    }
+    
+    # 去除多余斜杠
+    if ($request_uri ~ "^[^?]*?//") {
+        rewrite "^(.*)$" $1 permanent;
+    }
+    
+    # 强制小写 URL
+    if ($request_uri ~ [A-Z]) {
+        rewrite ^(.*)$ ${request_uri,,} permanent;
+    }
+    
+    # 复杂重写规则
+    location /product/ {
+        rewrite ^/product/([^/]+)/([^/]+)/([^/]+)/?$ /product.php?category=$1&brand=$2&model=$3 last;
+    }
+    
+    # 静态文件重写
+    location /assets/ {
+        rewrite ^/assets/(.*)$ /static/$1 last;
+    }
+}
+```
+
+## 📊 监控和日志
+
+### 📈 日志配置
+
+```nginx
+# 自定义日志格式
+http {
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    
+    log_format json_combined escape=json
+        '{'
+        '"time_local":"$time_local",'
+        '"remote_addr":"$remote_addr",'
+        '"remote_user":"$remote_user",'
+        '"request":"$request",'
+        '"status": "$status",'
+        '"body_bytes_sent":"$body_bytes_sent",'
+        '"request_time":"$request_time",'
+        '"http_referrer":"$http_referer",'
+        '"http_user_agent":"$http_user_agent",'
+        '"http_x_forwarded_for":"$http_x_forwarded_for",'
+        '"upstream_response_time":"$upstream_response_time",'
+        '"upstream_addr":"$upstream_addr"'
+        '}';
+    
+    # 访问日志
+    access_log /var/log/nginx/access.log main;
+    
+    # 错误日志
+    error_log /var/log/nginx/error.log warn;
+    
+    # 条件日志
+    map $status $loggable {
+        ~^[23]  0;
+        default 1;
+    }
+    
+    access_log /var/log/nginx/access.log main if=$loggable;
+}
+
+server {
+    listen 80;
+    server_name example.com;
+    
+    # 站点特定日志
+    access_log /var/log/nginx/example.access.log json_combined;
+    error_log /var/log/nginx/example.error.log;
+    
+    # 禁用特定请求的日志
+    location /health {
+        access_log off;
+        return 200 "OK";
+    }
+    
+    # API 请求日志
+    location /api/ {
+        access_log /var/log/nginx/api.access.log json_combined;
+        proxy_pass http://backend_servers;
+    }
+}
+```
+
+### 📊 状态监控
+
+```nginx
+# 启用状态页面
+server {
+    listen 80;
+    server_name status.example.com;
+    
+    # 限制访问来源
+    allow 127.0.0.1;
+    allow 192.168.1.0/24;
+    deny all;
+    
+    # 基本状态
+    location /nginx_status {
+        stub_status on;
+        access_log off;
+    }
+    
+    # 详细状态（需要第三方模块）
+    location /status {
+        vhost_traffic_status_display;
+        vhost_traffic_status_display_format html;
+    }
+    
+    # 健康检查
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}
+```
+
+## 🎯 实战配置示例
+
+### 🌐 完整生产环境配置
+
+```nginx
+# /etc/nginx/sites-available/example.com
+server {
+    listen 80;
+    server_name example.com www.example.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name example.com www.example.com;
+    
+    root /var/www/html;
+    index index.html index.htm;
+    
+    # SSL 配置
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/example.com/chain.pem;
+    
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    
+    # 安全头部
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # 日志配置
+    access_log /var/log/nginx/example.access.log main;
+    error_log /var/log/nginx/example.error.log;
+    
+    # 速率限制
+    limit_req zone=api burst=10 nodelay;
+    limit_conn perip 10;
+    
+    # 根目录
+    location / {
+        try_files $uri $uri/ @fallback;
+    }
+    
+    # API 反向代理
+    location /api/ {
+        proxy_pass http://backend_servers;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+        
+        proxy_cache api_cache;
+        proxy_cache_valid 200 302 10m;
+        proxy_cache_valid 404 1m;
+        add_header X-Cache-Status $upstream_cache_status;
+    }
+    
+    # 静态文件
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|ttf|eot|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        add_header Vary Accept-Encoding;
+        gzip_static on;
+    }
+    
+    # 安全配置
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+    
+    location ~* \.(bak|backup|old|tmp)$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+    
+    # 后备处理
+    location @fallback {
+        proxy_pass http://backend_servers;
+    }
+    
+    # 错误页面
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+    
+    location = /404.html {
+        internal;
+    }
+    
+    location = /50x.html {
+        internal;
+    }
+}
+
+# 上游服务器配置
+upstream backend_servers {
+    least_conn;
+    server 192.168.1.10:8000 max_fails=3 fail_timeout=30s;
+    server 192.168.1.11:8000 max_fails=3 fail_timeout=30s;
+    server 192.168.1.12:8000 backup;
+    keepalive 32;
+}
+```
+
+## 🚀 性能测试
+
+### 📊 压力测试工具
+
+```bash
+# 使用 wrk 进行压力测试
+wrk -t12 -c400 -d30s http://example.com
+
+# 使用 ab 进行测试
+ab -n 10000 -c 100 http://example.com/
+
+# 使用 siege 进行测试
+siege -c 100 -t 60s http://example.com/
+```
+
+### 📈 性能监控命令
+
+```bash
+# 查看 Nginx 进程状态
+ps aux | grep nginx
+
+# 查看连接数
+netstat -an | grep :80 | wc -l
+
+# 查看文件描述符使用情况
+lsof -p $(pgrep nginx) | wc -l
+
+# 实时监控错误日志
+tail -f /var/log/nginx/error.log
+
+# 分析访问日志
+awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -nr | head -10
+```
+
+## 🎯 最佳实践
+
+### 🏆 配置最佳实践
+
+| 实践 | 描述 | 建议 |
+|------|------|------|
+| **模块化配置** | 分离不同功能的配置 | 📁 使用 include 指令 |
+| **版本控制** | 配置文件版本管理 | 🔄 使用 Git 管理配置 |
+| **安全更新** | 定期更新 Nginx 版本 | 🔒 关注安全公告 |
+| **监控告警** | 设置监控和告警 | 📊 使用监控工具 |
+| **备份恢复** | 配置文件备份 | 💾 定期备份配置 |
+
+### 🔧 运维脚本
+
+```bash
+#!/bin/bash
+# nginx-maintenance.sh
+
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# 检查配置文件语法
+check_config() {
+    echo -e "${YELLOW}检查 Nginx 配置文件语法...${NC}"
+    if nginx -t; then
+        echo -e "${GREEN}配置文件语法正确${NC}"
+        return 0
+    else
+        echo -e "${RED}配置文件语法错误${NC}"
+        return 1
+    fi
+}
+
+# 重载配置
+reload_config() {
+    echo -e "${YELLOW}重载 Nginx 配置...${NC}"
+    if systemctl reload nginx; then
+        echo -e "${GREEN}配置重载成功${NC}"
+    else
+        echo -e "${RED}配置重载失败${NC}"
+    fi
+}
+
+# 查看状态
+show_status() {
+    echo -e "${YELLOW}Nginx 服务状态:${NC}"
+    systemctl status nginx
+    
+    echo -e "\n${YELLOW}Nginx 进程信息:${NC}"
+    ps aux | grep nginx
+    
+    echo -e "\n${YELLOW}监听端口:${NC}"
+    netstat -tlnp | grep nginx
+}
+
+# 日志分析
+analyze_logs() {
+    echo -e "${YELLOW}访问日志分析 (最近1000条):${NC}"
+    echo "Top 10 IP 地址:"
+    tail -1000 /var/log/nginx/access.log | awk '{print $1}' | sort | uniq -c | sort -nr | head -10
+    
+    echo -e "\nTop 10 请求 URL:"
+    tail -1000 /var/log/nginx/access.log | awk '{print $7}' | sort | uniq -c | sort -nr | head -10
+    
+    echo -e "\n状态码分布:"
+    tail -1000 /var/log/nginx/access.log | awk '{print $9}' | sort | uniq -c | sort -nr
+}
+
+# 主菜单
+case "$1" in
+    check)
+        check_config
+        ;;
+    reload)
+        if check_config; then
+            reload_config
+        fi
+        ;;
+    status)
+        show_status
+        ;;
+    logs)
+        analyze_logs
+        ;;
+    *)
+        echo "Usage: $0 {check|reload|status|logs}"
+        exit 1
+        ;;
+esac
+```
+
+## 📚 相关资源
+
+### 🔗 官方文档
+- [Nginx 官方文档](https://nginx.org/en/docs/)
+- [Nginx 配置指南](https://nginx.org/en/docs/beginners_guide.html)
+- [Nginx 模块文档](https://nginx.org/en/docs/http/ngx_http_core_module.html)
+
+### 🛠️ 常用工具
+- [nginx-config-formatter](https://github.com/1connect/nginx-config-formatter) - 配置格式化工具
+- [nginx-config-parser](https://github.com/fatiherikli/nginxparser) - 配置解析器
+- [nginx-amplify](https://amplify.nginx.com/) - 官方监控工具
+- [nginx-prometheus-exporter](https://github.com/nginxinc/nginx-prometheus-exporter) - Prometheus 监控
+
+### 📖 学习资源
+- [Nginx 最佳实践](https://github.com/h5bp/server-configs-nginx)
+- [Nginx 安全配置](https://github.com/trimstray/nginx-admins-handbook)
+- [Nginx 性能优化](https://github.com/denji/nginx-tuning)
+
+---
+
+::: tip 💡 小贴士
+Nginx 的强大之处在于其模块化架构和丰富的配置选项。通过合理的配置，可以实现高性能、高可用的 Web 服务。记住要定期更新版本，监控服务状态，并做好配置备份。
+:::
+
+::: warning ⚠️ 注意
+在生产环境中修改 Nginx 配置时，务必先使用 `nginx -t` 检查语法，然后使用 `systemctl reload nginx` 平滑重载配置。避免使用 `systemctl restart nginx` 造成服务中断。
+:::
