@@ -1,661 +1,1417 @@
 ---
 title: 🔧 前端开发常见问题解决方案
-description: 前端开发中常见问题的解决方案集合，包括中文输入、脚本加载、性能优化、兼容性处理等实用技巧
+description: 前端开发中常见问题的解决方案集合，包括用户交互、性能优化、兼容性处理、工具函数等实用技巧和最佳实践
 outline: deep
 ---
 
 # 🔧 前端开发常见问题解决方案
 
-> 前端开发过程中会遇到各种技术问题，本文汇总了常见问题的解决方案和最佳实践。
+> 前端开发过程中会遇到各种技术问题，本文汇总了常见问题的解决方案和最佳实践，帮助开发者快速解决实际问题。
 
-## 📝 中文输入事件
+## 📚 目录导航
 
-> 当监听 input 事件时，输入英文时，每输入一个字母，就会把这个字母送到输入框内，触发一次 input 事件。但当输入中文时，每个汉字或者每个词语都需要多次敲击键盘才能完成，未完成前并不需要触发 input 事件。
+::: details 🔍 点击展开完整目录
+- [🎯 用户交互问题](#用户交互问题)
+  - [中文输入事件处理](#中文输入事件处理)
+  - [脚本加载优化](#脚本加载优化)
+- [⚡ 性能优化技巧](#性能优化技巧)
+  - [惰性函数](#惰性函数)
+  - [数组分块技术](#数组分块技术)
+- [📐 布局与样式](#布局与样式)
+  - [元素尺寸属性](#元素尺寸属性)
+  - [URL编码处理](#url编码处理)
+- [🔧 工具函数库](#工具函数库)
+  - [数据验证](#数据验证)
+  - [时间格式化](#时间格式化)
+  - [字符串处理](#字符串处理)
+- [🎮 实战案例](#实战案例)
+  - [抽奖程序实现](#抽奖程序实现)
+- [💡 最佳实践](#最佳实践)
+:::
 
-此时可以利用 composition 合成事件：
+## 🎯 用户交互问题
 
-- `compositionstart` 开始输入时触发
-  > 在文本合成系统如 IME：input method editor（即输入法编辑器）的文本复合系统打开时触发，表示要开始输入
-- `compositionupdate` 更新输入时触发
-- `compositionend` 结束输入时触发
-  > 在 IME 的文本复合系统关闭时触发，表示返回正常键盘输入状态(选中文字，输入法消失的那一刻)
+### 📝 中文输入事件处理
 
-代码实现过程：
+**问题**: 监听 `input` 事件时，中文输入会触发多次事件，影响用户体验。
 
-```js
-// 提前定义好一个变量，代表是否合成事件
-let isOnComposition = false;
-// 定义input事件处理器
-handleInput(event){
-  // 是合成事件，则结束，不执行input逻辑
-  if(isOnComposition) return;
-  // 非合成事件，处理input事件逻辑
-}
+**解决方案**: 使用 `compositionstart`、`compositionend` 事件来处理中文输入。
 
-// 定义compositionstart事件处理器
-handleCompositionstart(event){
-  // 合成事件开始，令isOnComposition=true
-  isOnComposition = true;
-  // 为true时，不会触发input事件逻辑
-}
-
-// 定义compositionend事件处理器
-handleCompositionend(event){
-  // 合成事件结束，令isOnComposition=false，然后触发一次input事件
-  isOnComposition = false;
-  handleInput(event)
-}
-
+```mermaid
+graph LR
+    A[用户输入] --> B{输入类型}
+    B -->|英文| C[直接触发input事件]
+    B -->|中文| D[compositionstart]
+    D --> E[compositionupdate]
+    E --> F[compositionend]
+    F --> G[触发input事件]
+    
+    style A fill:#e1f5fe
+    style D fill:#f3e5f5
+    style G fill:#e8f5e8
 ```
 
-## 脚本 async 和 defer 属性
+#### 🔧 核心事件
 
-> HTML 文档中的 js 脚本文件，默认加载和执行都会阻塞 HTML 文档的解析和渲染
+| 事件 | 触发时机 | 作用 |
+|------|----------|------|
+| **compositionstart** | 输入法开始输入 | 🚀 标记合成事件开始 |
+| **compositionupdate** | 输入法更新输入 | 🔄 输入内容更新中 |
+| **compositionend** | 输入法结束输入 | ✅ 标记合成事件结束 |
 
-```js
-<script src='/js/xx.js' async></script>
-<script src='/js/xx.js' defer></script>
+#### 💻 代码实现
 
+```javascript
+/**
+ * 中文输入事件处理器
+ * 解决中文输入时多次触发input事件的问题
+ */
+class ChineseInputHandler {
+  constructor(element) {
+    this.element = element;
+    this.isComposing = false;
+    this.bindEvents();
+  }
+  
+  bindEvents() {
+    this.element.addEventListener('input', this.handleInput.bind(this));
+    this.element.addEventListener('compositionstart', this.handleCompositionStart.bind(this));
+    this.element.addEventListener('compositionend', this.handleCompositionEnd.bind(this));
+  }
+  
+  handleInput(event) {
+    // 如果正在进行中文输入，则不处理
+    if (this.isComposing) {
+      return;
+    }
+    
+    // 处理正常的输入逻辑
+    this.processInput(event.target.value);
+  }
+  
+  handleCompositionStart(event) {
+    this.isComposing = true;
+    console.log('开始中文输入');
+  }
+  
+  handleCompositionEnd(event) {
+    this.isComposing = false;
+    // 中文输入结束后，手动触发一次输入处理
+    this.processInput(event.target.value);
+    console.log('结束中文输入');
+  }
+  
+  processInput(value) {
+    // 具体的输入处理逻辑
+    console.log('处理输入:', value);
+    // 这里可以进行搜索建议、实时验证等操作
+  }
+}
+
+// 使用示例
+const inputElement = document.getElementById('search-input');
+const handler = new ChineseInputHandler(inputElement);
 ```
 
-- async：异步加载。加载脚本和 HTML 解析并行，当脚本下载完成后，立即执行脚本，并且暂停 HTML 的解析。无法保证脚本的执行顺序。
-- defer：延迟执行。加载脚本和 HTML 解析并行，脚本下载完成后并不立刻执行，而是等到 HTML 文件解析完毕之后在执行。并且脚本的执行顺序和在 HTML 文档中的书写顺序保持一直。
+### 🚀 脚本加载优化
 
-他们的加载和执行，如图所示：
+**问题**: HTML 文档中的 JavaScript 脚本默认会阻塞文档解析和渲染。
 
-![tupian](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/4/3/1713e43a3a39328c~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp)
+**解决方案**: 使用 `async` 和 `defer` 属性优化脚本加载。
 
-> 如何选择：当多个脚本执行有依赖关系时，使用 defer 属性，否则使用 async 属性
+```mermaid
+graph TD
+    A[脚本加载方式] --> B[默认加载]
+    A --> C[async加载]
+    A --> D[defer加载]
+    
+    B --> B1[阻塞HTML解析]
+    B --> B2[按顺序执行]
+    
+    C --> C1[异步加载]
+    C --> C2[下载完立即执行]
+    C --> C3[不保证执行顺序]
+    
+    D --> D1[异步加载]
+    D --> D2[HTML解析完再执行]
+    D --> D3[保证执行顺序]
+    
+    style A fill:#e3f2fd
+    style B fill:#ffebee
+    style C fill:#fff3e0
+    style D fill:#e8f5e8
+```
 
-## 惰性函数
+#### 📊 属性对比
 
-惰性函数表示函数第一次执行遇到分支时，会被某一分支重写为另一个更合适的函数，以后对原函数的调用就不必在经过分支的判断了。常用来处理兼容性问题
+| 属性 | 加载方式 | 执行时机 | 执行顺序 | 适用场景 |
+|------|----------|----------|----------|----------|
+| **默认** | 同步加载 | 下载完立即执行 | 按顺序执行 | 关键脚本 |
+| **async** | 异步加载 | 下载完立即执行 | 不保证顺序 | 独立脚本 |
+| **defer** | 异步加载 | HTML解析完执行 | 保证顺序 | 依赖脚本 |
 
-比如对元素添加事件处理器的时候，首先检查是否支持 addEventListener，如果不支持，再检查是否支持 attachEvent（ie 老版本浏览器），如果还不支持，就只能用 dom0 级的方法添加事件。这个过程每次都要执行一遍，实际上如果浏览器支持其中的一种方法，下次调用函数就没必要判断了。这就是惰性函数的应用之一，本质就是函数重写，有两种方法实现：
+#### 💻 实际应用
 
-```js
-// 该方法有个缺点，要是函数名称改变的话，修改起来有点麻烦，要修改每个重新赋值的地方。
-function addEvent(ele, type, fn) {
-  if (ele.addEventListener) {
-    addEvent = function (ele, type, fn) {
-      ele.addEventListener(type, fn, false);
+```html
+<!-- 默认加载：会阻塞HTML解析 -->
+<script src="/js/critical.js"></script>
+
+<!-- async加载：适用于独立的第三方脚本 -->
+<script src="/js/analytics.js" async></script>
+<script src="/js/chat-widget.js" async></script>
+
+<!-- defer加载：适用于有依赖关系的脚本 -->
+<script src="/js/jquery.js" defer></script>
+<script src="/js/main.js" defer></script>
+
+<!-- 加载时序图 -->
+<!--
+HTML解析: |-------- pause --------|-------- continue --------|
+脚本下载: |          |------------|          |
+脚本执行: |          |     exec   |          |
+-->
+```
+
+## ⚡ 性能优化技巧
+
+### 🏃 惰性函数
+
+**定义**: 惰性函数在第一次执行时根据环境条件重写自身，后续调用直接执行优化后的版本。
+
+**优势**:
+- 🚀 避免重复的环境检测
+- 💡 首次执行后性能提升
+- 🔧 常用于兼容性处理
+
+```mermaid
+graph LR
+    A[首次调用] --> B[环境检测]
+    B --> C[重写函数]
+    C --> D[执行逻辑]
+    E[后续调用] --> F[直接执行]
+    
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style F fill:#e8f5e8
+```
+
+#### 💻 实现示例
+
+```javascript
+/**
+ * 惰性函数：事件监听器兼容性处理
+ * 第一次执行时检测浏览器支持情况，然后重写函数
+ */
+function addEvent(element, type, handler) {
+  // 检测浏览器支持情况
+  if (element.addEventListener) {
+    // 现代浏览器
+    addEvent = function(element, type, handler) {
+      element.addEventListener(type, handler, false);
     };
-  } else if (ele.attachEvent) {
-    addEvent = function (ele, type, fn) {
-      ele.attachEvent("on" + type, fn); //老版本ie浏览器只支持冒泡，所以没有第三个参数，并且事件类型都以on开头，所以要进行拼接
+  } else if (element.attachEvent) {
+    // IE8及以下
+    addEvent = function(element, type, handler) {
+      element.attachEvent('on' + type, handler);
     };
   } else {
-    addEvent = function (ele, type, fn) {
-      ele["on" + type] = fn;
+    // 降级方案
+    addEvent = function(element, type, handler) {
+      element['on' + type] = handler;
     };
   }
-  return addEvent(ele, type, fn);
+  
+  // 执行重写后的函数
+  return addEvent(element, type, handler);
 }
-// 利用自执行函数和闭包，把嗅探浏览器的操作提前到代码加载的时候：在代码加载时就立即进行一次判断，以便让addEvent返回一个包裹了正确逻辑的函数：
-let addEvent = (function () {
-  if (document.addEventListener) {
-    return function (ele, type, fn) {
-      ele, addEventListener(type, fn, false);
-    };
-  } else if (document.attachEvent) {
-    return function (ele, type, fn) {
-      ele.attachEvent("on" + type, fn);
-    };
-  } else {
-    return function (ele, type, fn) {
-      ele["on" + type] = fn;
-    };
-  }
-})();
 
-// 示例2：解决XMLHttpRequest的兼容性问题
-
-//惰性函数
-
+/**
+ * 惰性函数：AJAX请求兼容性处理
+ */
 function createXHR() {
-  var xhr = null;
-  if (typeof XMLHttpRequest != "undefined") {
+  let xhr = null;
+  
+  if (typeof XMLHttpRequest !== 'undefined') {
     xhr = new XMLHttpRequest();
-    createXHR = function () {
-      // 每次调用createXHR函数，返回不同的实例
+    createXHR = function() {
       return new XMLHttpRequest();
     };
-  } else {
+  } else if (typeof ActiveXObject !== 'undefined') {
+    // IE6/7
     try {
-      xhr = new ActiveXObject("Msxml2.XMLHTTP");
-      createXHR = function () {
-        return new ActiveXObject("Msxml2.XMLHTTP");
+      xhr = new ActiveXObject('Msxml2.XMLHTTP');
+      createXHR = function() {
+        return new ActiveXObject('Msxml2.XMLHTTP');
       };
     } catch (e) {
       try {
-        xhr = new ActiveXObject("Microsoft.XMLHTTP");
-        createXHR = function () {
-          return new ActiveXObject("Microsoft.XMLHTTP");
+        xhr = new ActiveXObject('Microsoft.XMLHTTP');
+        createXHR = function() {
+          return new ActiveXObject('Microsoft.XMLHTTP');
         };
       } catch (e) {
-        createXHR = function () {
+        createXHR = function() {
           return null;
         };
       }
     }
   }
+  
   return xhr;
 }
+
+// 使用示例
+const xhr1 = createXHR(); // 第一次调用，进行环境检测
+const xhr2 = createXHR(); // 后续调用，直接执行优化后的版本
 ```
 
-惰性函数的优点：
+#### 🔧 自执行函数版本
 
-- 是显而易见的效率问题，虽然在第一次执行的时候函数会意味赋值而执行的慢一些，但是后续的调用会因为避免的重复检测更快；
+```javascript
+/**
+ * 使用自执行函数和闭包实现惰性函数
+ * 在代码加载时就完成环境检测
+ */
+const addEvent = (function() {
+  if (document.addEventListener) {
+    return function(element, type, handler) {
+      element.addEventListener(type, handler, false);
+    };
+  } else if (document.attachEvent) {
+    return function(element, type, handler) {
+      element.attachEvent('on' + type, handler);
+    };
+  } else {
+    return function(element, type, handler) {
+      element['on' + type] = handler;
+    };
+  }
+})();
 
-- 是要执行的适当代码只有当实际调用函数是才执行，很多 JavaScript 库在在加载的时候就根据浏览器不同而执行很多分支，把所有东西实现设置好，而惰性载入函数将计算延迟，不影响初始脚本的执行时间
+// 使用示例
+addEvent(document.getElementById('btn'), 'click', function() {
+  console.log('按钮被点击');
+});
+```
 
-## 数组分块技术
+### 📊 数组分块技术
 
-> 遇到的问题：当一次执行大量逻辑代码，例如一次性往页面添加大量 dom，就可能导致页面卡死，可以利用数组分块技术处理这个问题。其实就是利用定时器分割循环的技术，在每次时间间隔内只处理一定数量的任务，
+**问题**: 一次性处理大量数据会导致页面卡顿。
 
-函数封装如下：
+**解决方案**: 使用定时器将大任务分解为多个小任务。
 
-```js
-//循环的数组，处理函数，每次处理数量，时间间隔
-function chunk(array, fn, count, delay) {
-  // 每次执行start函数，处理count条数据
-  let start = function () {
-    //每次处理count条数据，如果剩余数据不够count条，就处理array剩余的所有的数据
-    count = array.length > count ? count : array.length;
-    for (let i = 0; i < count; i++) {
-      // 依次处理count条数据
-      fn(array.shift());
+```mermaid
+graph TD
+    A[大量数据处理] --> B[一次性处理]
+    A --> C[分块处理]
+    
+    B --> B1[页面卡顿]
+    B --> B2[用户体验差]
+    
+    C --> C1[分时处理]
+    C --> C2[页面流畅]
+    C --> C3[用户体验好]
+    
+    style A fill:#e3f2fd
+    style B fill:#ffebee
+    style C fill:#e8f5e8
+```
+
+#### 💻 实现方案
+
+```javascript
+/**
+ * 数组分块处理函数
+ * @param {Array} array - 需要处理的数组
+ * @param {Function} process - 处理函数
+ * @param {number} chunkSize - 每次处理的数量
+ * @param {number} delay - 时间间隔（毫秒）
+ * @returns {Function} 启动函数
+ */
+function chunk(array, process, chunkSize = 100, delay = 10) {
+  // 复制数组，避免修改原数组
+  const items = [...array];
+  
+  const start = function() {
+    // 计算本次处理的数量
+    const currentChunkSize = Math.min(chunkSize, items.length);
+    
+    // 处理当前批次的数据
+    for (let i = 0; i < currentChunkSize; i++) {
+      process(items.shift());
     }
   };
-  return function () {
-    // 调用函数，首先处理一组数据，然后计时，delay时间后，继续处理一下组数据，循环这个过程，知道数据处理完毕
+  
+  return function() {
+    // 首次立即处理一批数据
     start();
-    let timer = setInternal(() => {
-      // 如果数组处理完毕，清空定时器，结束循环
-      if (array.length === 0) {
-        clearInternal(timer);
+    
+    // 设置定时器处理剩余数据
+    const timer = setInterval(() => {
+      if (items.length === 0) {
+        clearInterval(timer);
         return;
       }
-      // 还有数据待处理，继续处理下一组数据
       start();
     }, delay);
   };
 }
+
+// 使用示例1：大量DOM操作
+const data = new Array(10000).fill(0).map((_, i) => ({ id: i, name: `Item ${i}` }));
+const container = document.getElementById('container');
+
+const processItem = (item) => {
+  const div = document.createElement('div');
+  div.textContent = item.name;
+  div.className = 'item';
+  container.appendChild(div);
+};
+
+// 启动分块处理
+const chunkProcessor = chunk(data, processItem, 50, 10);
+chunkProcessor();
+
+// 使用示例2：数据计算
+const numbers = new Array(1000000).fill(0).map(() => Math.random() * 100);
+let sum = 0;
+
+const calculateSum = (num) => {
+  sum += num;
+};
+
+const calculate = chunk(numbers, calculateSum, 1000, 1);
+calculate();
 ```
 
-## clientHeight offsetHeight scrollHeight 区别
+#### 🚀 进阶版本：支持进度回调
 
-clientHeight：元素内容高度，包含 padding，不包含 border 和滚动条。clientLeft 属性返回左边框的宽度，clientTop 属性返回上边框的宽度。
-
-![alt text](image-28.png)
-
-offsetHeight：元素内容高度，包含 padding 和 border，但不包含滚动条。
-
-![alt text](image-27.png)
-
-scrollHeight：元素总高度，包括由于溢出而无法展示在网页的不可见部分，包含 padding、border、滚动条。
-
-## URL 编码问题
-
-1.  encodeURI & decodeURI
-
-encodeURI() 函数通过将特定字符的每个实例替换为 1-4 个转义序列来对统一资源标识符 (URI) 进行编码（由两个“代理”字符组成的字符才会被编码为四个转义序列）。会替换所有的字符，但不包括以下字符：
-|类型|包含|
-|----|----|
-|保留字符|`; , / ? : @ & = + $`|
-|非转义字符|`字母 数字 - _ . ! ~ * ' ( )`|
-|数字符号|`#`|
-
-> encodeURI 自身无法产生能适用于 GET 或 POST 请求的 URI，例如 "&", "+", 和 "=" 不会被编码，然而在 GET 和 POST 请求中它们是特殊字符。需要使用 encodeURIComponent 这个方法会对这些字符编码。
-
-```js
-// 编码高 - 低位完整字符 ok
-console.log(encodeURI("\uD800\uDFFF"));
-
-// 编码单独的高位字符抛出 "Uncaught URIError: URI malformed"
-console.log(encodeURI("\uD800"));
-
-// 编码单独的低位字符抛出 "Uncaught URIError: URI malformed"
-console.log(encodeURI("\uDFFF"));
-
-/**如果 URL 需要遵循较新的RFC3986标准，那么方括号是被保留的 (给 IPv6)，因此对于那些没有被编码的 URL 部分 (例如主机)，可以使用下面的代码： */
-function fixedEncodeURI(str) {
-  return encodeURI(str).replace(/%5B/g, "[").replace(/%5D/g, "]");
+```javascript
+/**
+ * 增强版数组分块处理函数
+ * 支持进度回调和错误处理
+ */
+class ChunkProcessor {
+  constructor(options = {}) {
+    this.chunkSize = options.chunkSize || 100;
+    this.delay = options.delay || 10;
+    this.onProgress = options.onProgress || null;
+    this.onComplete = options.onComplete || null;
+    this.onError = options.onError || null;
+  }
+  
+  process(array, processor) {
+    return new Promise((resolve, reject) => {
+      const items = [...array];
+      const total = items.length;
+      let processed = 0;
+      
+      const processChunk = () => {
+        try {
+          const currentChunkSize = Math.min(this.chunkSize, items.length);
+          
+          for (let i = 0; i < currentChunkSize; i++) {
+            processor(items.shift());
+            processed++;
+          }
+          
+          // 触发进度回调
+          if (this.onProgress) {
+            this.onProgress(processed, total);
+          }
+          
+          if (items.length === 0) {
+            // 处理完成
+            if (this.onComplete) {
+              this.onComplete();
+            }
+            resolve();
+          } else {
+            // 继续处理下一批
+            setTimeout(processChunk, this.delay);
+          }
+        } catch (error) {
+          if (this.onError) {
+            this.onError(error);
+          }
+          reject(error);
+        }
+      };
+      
+      processChunk();
+    });
+  }
 }
 
-const uri = "https://mozilla.org/?x=шеллы";
-const encoded = encodeURI(uri);
-console.log(encoded);
-//"https://mozilla.org/?x=%D1%88%D0%B5%D0%BB%D0%BB%D1%8B"
+// 使用示例
+const processor = new ChunkProcessor({
+  chunkSize: 100,
+  delay: 10,
+  onProgress: (processed, total) => {
+    const percentage = Math.round((processed / total) * 100);
+    console.log(`处理进度: ${percentage}%`);
+  },
+  onComplete: () => {
+    console.log('处理完成！');
+  },
+  onError: (error) => {
+    console.error('处理出错:', error);
+  }
+});
 
-try {
-  // decodeURI() 解码由 encodeURI 编码过后的 URI
-  console.log(decodeURI(encoded));
-} catch (e) {
-  console.error(e);
-}
+// 异步处理
+processor.process(data, processItem);
 ```
 
-2.  encodeURIComponent & decodeURIComponent
+## 📐 布局与样式
 
-将特定字符的每个实例替换成代表字符的 UTF-8 编码的 1-4 个转义序列来编码 URI（由两个“代理”字符组成的字符才会被编码为四个转义序列）。与 encodeURI() 相比，此函数会编码更多的字符，包括 URI 语法的一部分。
+### 📏 元素尺寸属性
 
-> 转义除了所示外的所有字符：`A-Z a-z 0-9 - _ . ! ~ * ' ( )`
+**问题**: 经常混淆各种尺寸属性的含义和用法。
 
-encodeURIComponent() 和 encodeURI 有以下几个不同点：
+**解决方案**: 理解不同尺寸属性的计算方式和使用场景。
 
-```js
-var set1 = ";,/?:@&=+$"; // 保留字符
-var set3 = "#"; // 数字标志
-
-console.log(encodeURI(set1)); // ;,/?:@&=+$
-console.log(encodeURI(set3)); // #
-
-console.log(encodeURIComponent(set1)); // %3B%2C%2F%3F%3A%40%26%3D%2B%24
-console.log(encodeURIComponent(set3)); // %23
-
-// decodeURIComponent解码由 encodeURIComponent 编码后的 URI
-decodeURIComponent("JavaScript_%D1%88%D0%B5%D0%BB%D0%BB%D1%8B");
-// "JavaScript_шеллы"
-
-//捕获异常
-try {
-  var a = decodeURIComponent("%E0%A4%A");
-} catch (e) {
-  console.error(e);
-  // URIError: malformed URI sequence
-}
+```mermaid
+graph TD
+    A[元素尺寸属性] --> B[clientHeight]
+    A --> C[offsetHeight]
+    A --> D[scrollHeight]
+    
+    B --> B1[内容 + padding]
+    B --> B2[不包含border和滚动条]
+    
+    C --> C1[内容 + padding + border]
+    C --> C2[不包含滚动条]
+    
+    D --> D1[总内容高度]
+    D --> D2[包含溢出部分]
+    
+    style A fill:#e3f2fd
+    style B fill:#e8f5e8
+    style C fill:#fff3e0
+    style D fill:#f3e5f5
 ```
 
-为了避免服务器收到不可预知的请求，对任何用户输入的作为 URI 部分的内容都需要用 encodeURIComponent 进行转义。比如，一个用户可能会输入"Thyme &time=again"作为 comment 变量的一部分。如果不使用 encodeURIComponent 对此内容进行转义，服务器得到的将是 comment=Thyme%20&time=again 两个键值对。因为输入的 "&"符号和"="符号产生了一个新的键值对
+#### 📊 属性对比
 
-## 数字转中文
+| 属性 | 包含内容 | 计算方式 | 使用场景 |
+|------|----------|----------|----------|
+| **clientHeight** | 内容 + padding | 可视区域高度 | 🖼️ 获取元素可视区域大小 |
+| **offsetHeight** | 内容 + padding + border | 元素占用空间 | 📐 获取元素实际占用高度 |
+| **scrollHeight** | 全部内容高度 | 包含溢出部分 | 📜 判断是否有滚动内容 |
 
-```js
-function digitUppercase(n) {
-  let fraction = ["角", "分"];
-  let digit = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"];
-  let unit = [
-    ["元", "万", "亿"],
-    ["", "拾", "佰", "仟"],
-  ];
-  let head = n < 0 ? "欠" : "";
-  n = Math.abs(n);
-  let s = "";
-  for (let i = 0; i < fraction.length; i++) {
-    s += (
-      digit[Math.floor(n * 10 * Math.pow(10, i)) % 10] + fraction[i]
-    ).replace(/零./, "");
-  }
-  s = s || "整";
-  n = Math.floor(n);
-  for (let k = 0; k < unit[0].length && n > 0; k++) {
-    let p = "";
-    for (let j = 0; j < unit[1].length && n > 0; j++) {
-      p = digit[n % 10] + unit[1][j] + p;
-      n = Math.floor(n / 10);
-    }
-    s = `${p.replace(/(零.)*零$/, "").replace(/^$/, "零")}${unit[0][k]}${s}`;
-  }
-  return `${head}${s
-    .replace(/(零.)*零元/, "元")
-    .replace(/(零.)+/g, "零")
-    .replace(/^整$/, "零元整")}`;
-}
+#### 💻 实际应用
 
-console.log(digitUppercase(7682.01)); // 柒仟陆佰捌拾贰元壹分
-console.log(digitUppercase(7682)); // 柒仟陆佰捌拾贰元整
-console.log(digitUppercase(951434677682.0)); // 玖仟伍佰壹拾肆亿叁仟肆佰陆拾柒万柒仟陆佰捌拾贰元整
-
-function noToChinese(num) {
-  if (!/^\d*(\.\d*)?$/.test(num)) return;
-
-  var digit = new Array(
-    "零",
-    "壹",
-    "贰",
-    "叁",
-    "肆",
-    "伍",
-    "陆",
-    "柒",
-    "捌",
-    "玖"
-  );
-  var unit = new Array("", "拾", "佰", "仟", "萬", "億", "点", "");
-  var a = ("" + num).replace(/(^0*)/g, "").split("."),
-    k = 0,
-    re = "";
-  for (var i = a[0].length - 1; i >= 0; i--) {
-    switch (k) {
-      case 0:
-        re = unit[7] + re;
-        break;
-      case 4:
-        if (!new RegExp("0{4}\\d{" + (a[0].length - i - 1) + "}$").test(a[0]))
-          re = unit[4] + re;
-        break;
-      case 8:
-        re = unit[5] + re;
-        unit[7] = unit[5];
-        k = 0;
-        break;
-    }
-    if (k % 4 == 2 && a[0].charAt(i + 2) != 0 && a[0].charAt(i + 1) == 0)
-      re = digit[0] + re;
-    if (a[0].charAt(i) != 0) re = digit[a[0].charAt(i)] + unit[k % 4] + re;
-    k++;
-  }
-  // 处理小数部分
-  if (a.length > 1) {
-    re += unit[6];
-    for (var i = 0; i < a[1].length; i++) re += digit[a[1].charAt(i)];
-  }
-  return re;
-}
-```
-
-## 规则验证
-
-```js
+```javascript
 /**
- * @description 手机号(严谨), 根据工信部2019年最新公布的手机号段
- * @param  {String|Number} tel
- * @returns {Boolean}
+ * 元素尺寸工具类
+ * 提供常用的尺寸计算方法
  */
-function isPhoneNum(tel) {
-  return /^1((3[\d])|(4[5,6,7,9])|(5[0-3,5-9])|(6[5-7])|(7[0-8])|(8[\d])|(9[1,8,9]))\d{8}$/.test(
-    tel
-  );
-}
-
-/**
- * @description 判断是否为邮箱地址
- * @param {String} email
- * @returns {Boolean}
- */
-function isEmail(email) {
-  return /^([a-zA-Z0-9_\-])+@([a-zA-Z0-9_\-])+(\.[a-zA-Z0-9_\-])+$/.test(email);
-}
-
-/**
- * @description 验证身份证号码
- * @param {String} idCard
- * @returns {Boolean}
- */
-function isIDCard(idCard) {
-  return /(^\d{8}(0\d|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/.test(
-    idCard
-  );
-}
-
-// 帐号是否合法(字母开头，允许5-16字节，允许字母数字下划线组合
-function isPassword(password) {
-  // 用户名正则
-  var regx1 = /^[a-zA-Z0-9_-]{4,16}$/;
-
-  // 密码强度正则，最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符
-  var regx2 = /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/;
-
-  return /^[a-zA-Z][a-zA-Z0-9_]{4,15}$/.test(password);
-}
-
-// 车牌号正则
-var regx =
-  /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/;
-
-// 新能源车牌号
-var regx1 =
-  /[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领 A-Z]{1}[A-HJ-NP-Z]{1}(([0-9]{5}[DF])|([DF][A-HJ-NP-Z0-9][0-9]{4}))$/;
-
-// 非新能源车牌号
-var regx2 =
-  /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领 A-Z]{1}[A-HJ-NP-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/;
-
-// 车牌号(新能源+非新能源)
-var regx3 =
-  /^([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领 A-Z]{1}[A-HJ-NP-Z]{1}(([0-9]{5}[DF])|([DF]([A-HJ-NP-Z0-9])[0-9]{4})))|([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领 A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9 挂学警港澳]{1})$/;
-
-// 合法uri
-function validateURL(textval) {
-  const urlregex =
-    /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/;
-  return urlregex.test(textval);
-}
-
-// 生成随机HEX色值
-const RandomColor = () =>
-  "#" +
-  Math.floor(Math.random() * 0xffffff)
-    .toString(16)
-    .padEnd(6, "0");
-const color = RandomColor();
-// color => "#f03665"
-
-// 生成星级评分
-const StartScore = rate => "★★★★★☆☆☆☆☆".slice(5 - rate, 10 - rate);
-const start = StartScore(3);
-// start => "★★★"
-
-/**
- * @description 千位分隔符(格式化金钱)
- * @param {String|Number} num
- * @returns {string}
- */
-function thousandNum(num) {
-  var regx = /\d{1,3}(?=(\d{3})+$)/g;
-  return (num + "").replace(regx, "$&,"); // $&表示与regx相匹配的字符串
-}
-
-/**
- * @description 千位分隔符(格式化金钱)
- * @param {String|Number} num
- * @returns {string}
- */
-function thousandNum(num) {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-// thousandNum(123456789) => "123,456,789"
-
-//  判断是否为空
-function validatenull(val) {
-  if (typeof val === "boolean") {
-    return false;
-  }
-  if (val instanceof Array) {
-    if (val.length === 0) return true;
-  } else if (val instanceof Object) {
-    if (JSON.stringify(val) === "{}") return true;
-  } else {
-    if (
-      val === "null" ||
-      val == null ||
-      val === "undefined" ||
-      val === undefined ||
-      val === ""
-    )
-      return true;
-    return false;
-  }
-  return false;
-}
-// 下划线命名到驼峰命名
-const strToCamel = str =>
-  str.replace(/(^|_)(\w)/g, (m, $1, $2) => $2.toUpperCase());
-
+class ElementSizeUtil {
   /**
- * @method 时间格式化
- * @param {string} time
- * @param {string} format yyyy/mm/dd hh:ii:ss(2019/07/24 09:45:43) yy/m/d hh:ii:ss(19/07/24 09:45:43) yyyy/mm/dd w(2019/07/24 星期三) mm/dd/yyyy(07/24/2019)
- * @returns
- */
-export const formatTime = (time, format = "yyyy-mm-dd") => {
-	const d = time ? new Date(time) : new Date();
-	const t = (i) => {
-		return (i < 10 ? "0" : "") + i;
-	};
-
-	const year = d.getFullYear();
-	const month = d.getMonth() + 1;
-	const day = d.getDate();
-	const hour = d.getHours();
-	const minutes = d.getMinutes();
-	const seconds = d.getSeconds();
-	const weekday = d.getDay();
-
-	return format.replace(
-		/(yy){1,2}|m{1,2}|d{1,2}|h{1,2}|i{1,2}|s{1,2}|w{1,2}/gi,
-		function (r) {
-			switch (r.toUpperCase()) {
-				case "YY":
-					return ("" + year).substr(2);
-				case "YYYY":
-					return year;
-				case "M":
-					return month;
-				case "MM":
-					return t(month);
-				case "D":
-					return day;
-				case "DD":
-					return t(day);
-				case "H":
-					return hour;
-				case "HH":
-					return t(hour);
-				case "I":
-					return minutes;
-				case "II":
-					return t(minutes);
-				case "S":
-					return seconds;
-				case "SS":
-					return t(seconds);
-				case "W":
-					return `星期${["日", "一", "二", "三", "四", "五", "六"][weekday]}`;
-				case "WW":
-					return [
-						"Sunday",
-						"Monday",
-						"TuesDay",
-						"Wednesday",
-						"Thursday",
-						"Friday",
-						"Saturday",
-					][weekday];
-			}
-		}
-	);
-};
-
-// html 转义
-const escapeHtml = (str) => {
-	if (!str) return;
-	str = str.replace(/&/g, "&amp;");
-	str = str.replace(/</g, "&lt;");
-	str = str.replace(/>/g, "&gt;");
-	str = str.replace(/“/g, "&quto;");
-	str = str.replace(/'/g, "&#39;");
-	return str;
-};
-
-// 检查函数是否是一个生成器
-isGeneratorFunction(fn){
-  return fn.constructor.name === 'GeneratorFunction'
+   * 获取元素的所有尺寸信息
+   * @param {HTMLElement} element - 目标元素
+   * @returns {Object} 尺寸信息对象
+   */
+  static getSizeInfo(element) {
+    return {
+      // 客户端尺寸（不包含边框和滚动条）
+      clientWidth: element.clientWidth,
+      clientHeight: element.clientHeight,
+      
+      // 偏移尺寸（包含边框，不包含滚动条）
+      offsetWidth: element.offsetWidth,
+      offsetHeight: element.offsetHeight,
+      
+      // 滚动尺寸（包含溢出内容）
+      scrollWidth: element.scrollWidth,
+      scrollHeight: element.scrollHeight,
+      
+      // 滚动位置
+      scrollTop: element.scrollTop,
+      scrollLeft: element.scrollLeft,
+      
+      // 边框尺寸
+      borderTop: element.clientTop,
+      borderLeft: element.clientLeft
+    };
+  }
+  
+  /**
+   * 判断元素是否有垂直滚动条
+   * @param {HTMLElement} element - 目标元素
+   * @returns {boolean} 是否有滚动条
+   */
+  static hasVerticalScrollbar(element) {
+    return element.scrollHeight > element.clientHeight;
+  }
+  
+  /**
+   * 判断元素是否有水平滚动条
+   * @param {HTMLElement} element - 目标元素
+   * @returns {boolean} 是否有滚动条
+   */
+  static hasHorizontalScrollbar(element) {
+    return element.scrollWidth > element.clientWidth;
+  }
+  
+  /**
+   * 判断元素是否滚动到底部
+   * @param {HTMLElement} element - 目标元素
+   * @returns {boolean} 是否滚动到底部
+   */
+  static isScrolledToBottom(element) {
+    return element.scrollTop + element.clientHeight >= element.scrollHeight;
+  }
+  
+  /**
+   * 平滑滚动到指定位置
+   * @param {HTMLElement} element - 目标元素
+   * @param {number} position - 滚动位置
+   */
+  static smoothScrollTo(element, position) {
+    element.scrollTo({
+      top: position,
+      behavior: 'smooth'
+    });
+  }
 }
+
+// 使用示例
+const container = document.getElementById('container');
+const sizeInfo = ElementSizeUtil.getSizeInfo(container);
+
+console.log('尺寸信息:', sizeInfo);
+console.log('是否有垂直滚动条:', ElementSizeUtil.hasVerticalScrollbar(container));
+console.log('是否滚动到底部:', ElementSizeUtil.isScrolledToBottom(container));
 ```
 
-## 实现一个抽奖程序
+### 🔗 URL编码处理
 
-实现一个前端抽奖程序，可以按照以下步骤进行：
+**问题**: 处理URL中的特殊字符和中文字符。
 
-1. 准备奖品数据：
+**解决方案**: 使用正确的编码函数进行处理。
 
-- 创建一个奖品数组，其中包含所有可能的奖品信息，如奖品名称、图片、描述等。
-- 可以将这些奖品数据存储在 JavaScript 对象中，或者通过 Ajax 请求从服务器获取。
+```javascript
+/**
+ * URL编码工具类
+ * 处理URL中的特殊字符和中文字符
+ */
+class URLEncoder {
+  /**
+   * 编码整个URL（保留URL结构）
+   * @param {string} url - 需要编码的URL
+   * @returns {string} 编码后的URL
+   */
+  static encodeURL(url) {
+    return encodeURI(url);
+  }
+  
+  /**
+   * 解码整个URL
+   * @param {string} encodedURL - 需要解码的URL
+   * @returns {string} 解码后的URL
+   */
+  static decodeURL(encodedURL) {
+    return decodeURI(encodedURL);
+  }
+  
+  /**
+   * 编码URL组件（如参数值）
+   * @param {string} component - 需要编码的组件
+   * @returns {string} 编码后的组件
+   */
+  static encodeComponent(component) {
+    return encodeURIComponent(component);
+  }
+  
+  /**
+   * 解码URL组件
+   * @param {string} encodedComponent - 需要解码的组件
+   * @returns {string} 解码后的组件
+   */
+  static decodeComponent(encodedComponent) {
+    return decodeURIComponent(encodedComponent);
+  }
+  
+  /**
+   * 构建带参数的URL
+   * @param {string} baseURL - 基础URL
+   * @param {Object} params - 参数对象
+   * @returns {string} 完整的URL
+   */
+  static buildURL(baseURL, params) {
+    const url = new URL(baseURL);
+    
+    Object.keys(params).forEach(key => {
+      if (params[key] !== null && params[key] !== undefined) {
+        url.searchParams.set(key, params[key]);
+      }
+    });
+    
+    return url.toString();
+  }
+  
+  /**
+   * 解析URL参数
+   * @param {string} url - 完整URL
+   * @returns {Object} 参数对象
+   */
+  static parseParams(url) {
+    const urlObj = new URL(url);
+    const params = {};
+    
+    urlObj.searchParams.forEach((value, key) => {
+      params[key] = value;
+    });
+    
+    return params;
+  }
+}
 
-2. 设计抽奖界面：
+// 使用示例
+const baseURL = 'https://api.example.com/search';
+const params = {
+  q: '前端开发',
+  page: 1,
+  size: 10
+};
 
-使用 HTML、CSS 和 JavaScript 来设计和实现一个用户友好的界面，包括抽奖按钮、奖品展示区域、抽奖结果展示区域等。
+const fullURL = URLEncoder.buildURL(baseURL, params);
+console.log('完整URL:', fullURL);
 
-3. 实现抽奖逻辑：
+const parsedParams = URLEncoder.parseParams(fullURL);
+console.log('解析参数:', parsedParams);
+```
 
-- 当用户点击抽奖按钮时，触发抽奖函数。
-- 在抽奖函数中，使用随机数生成器（如 Math.random()）来从奖品数组中随机选择一个奖品。
-- 将选中的奖品信息显示在抽奖结果展示区域。
+## 🔧 工具函数库
 
-```js
-// 奖品列表 probability:中奖时的 randomValue 范围
-let prizeList = [
-  { name: "手机", title: "一等奖:概率10%", probability: [0, 0.1] },
-  { name: "电视", title: "二等奖:概率20%", probability: [0.1, 0.3] },
-  { name: "空调", title: "三等奖:概率30%", probability: [0.3, 0.6] },
-  { name: "没中奖", title: "谢谢惠顾:概率40%", probability: [0.6, 1] },
+### ✅ 数据验证
+
+```javascript
+/**
+ * 数据验证工具类
+ * 提供常用的数据验证方法
+ */
+class Validator {
+  /**
+   * 判断值是否为空
+   * @param {any} value - 需要验证的值
+   * @returns {boolean} 是否为空
+   */
+  static isEmpty(value) {
+    if (value === null || value === undefined || value === '') {
+      return true;
+    }
+    
+    if (Array.isArray(value)) {
+      return value.length === 0;
+    }
+    
+    if (typeof value === 'object') {
+      return Object.keys(value).length === 0;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * 验证邮箱格式
+   * @param {string} email - 邮箱地址
+   * @returns {boolean} 是否有效
+   */
+  static isEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+  
+  /**
+   * 验证手机号格式
+   * @param {string} phone - 手机号
+   * @returns {boolean} 是否有效
+   */
+  static isPhone(phone) {
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    return phoneRegex.test(phone);
+  }
+  
+  /**
+   * 验证身份证号
+   * @param {string} idCard - 身份证号
+   * @returns {boolean} 是否有效
+   */
+  static isIdCard(idCard) {
+    const idCardRegex = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+    return idCardRegex.test(idCard);
+  }
+  
+  /**
+   * 验证URL格式
+   * @param {string} url - URL地址
+   * @returns {boolean} 是否有效
+   */
+  static isURL(url) {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  
+  /**
+   * 验证密码强度
+   * @param {string} password - 密码
+   * @returns {Object} 验证结果
+   */
+  static checkPasswordStrength(password) {
+    const result = {
+      strength: 0,
+      message: '密码强度：',
+      suggestions: []
+    };
+    
+    if (password.length < 8) {
+      result.suggestions.push('密码长度至少8位');
+    } else {
+      result.strength += 1;
+    }
+    
+    if (!/[a-z]/.test(password)) {
+      result.suggestions.push('包含小写字母');
+    } else {
+      result.strength += 1;
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      result.suggestions.push('包含大写字母');
+    } else {
+      result.strength += 1;
+    }
+    
+    if (!/\d/.test(password)) {
+      result.suggestions.push('包含数字');
+    } else {
+      result.strength += 1;
+    }
+    
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      result.suggestions.push('包含特殊字符');
+    } else {
+      result.strength += 1;
+    }
+    
+    const strengthLevels = ['很弱', '弱', '一般', '强', '很强'];
+    result.message += strengthLevels[result.strength] || '很弱';
+    
+    return result;
+  }
+}
+
+// 使用示例
+console.log('是否为空:', Validator.isEmpty('')); // true
+console.log('邮箱验证:', Validator.isEmail('user@example.com')); // true
+console.log('手机验证:', Validator.isPhone('13812345678')); // true
+console.log('密码强度:', Validator.checkPasswordStrength('Abc123!@#'));
+```
+
+### ⏰ 时间格式化
+
+```javascript
+/**
+ * 时间格式化工具类
+ * 提供灵活的时间格式化方法
+ */
+class DateFormatter {
+  /**
+   * 格式化时间
+   * @param {string|number|Date} time - 时间
+   * @param {string} format - 格式字符串
+   * @returns {string} 格式化后的时间
+   */
+  static formatTime(time, format = 'yyyy-mm-dd') {
+    const date = time ? new Date(time) : new Date();
+    
+    const pad = (num) => num.toString().padStart(2, '0');
+    
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const second = date.getSeconds();
+    const weekday = date.getDay();
+    
+    const weekDaysCN = ['日', '一', '二', '三', '四', '五', '六'];
+    const weekDaysEN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    return format.replace(
+      /(yyyy|yy|mm|m|dd|d|hh|h|ii|i|ss|s|w|ww)/gi,
+      (match) => {
+        switch (match.toLowerCase()) {
+          case 'yyyy': return year;
+          case 'yy': return year.toString().slice(2);
+          case 'mm': return pad(month);
+          case 'm': return month;
+          case 'dd': return pad(day);
+          case 'd': return day;
+          case 'hh': return pad(hour);
+          case 'h': return hour;
+          case 'ii': return pad(minute);
+          case 'i': return minute;
+          case 'ss': return pad(second);
+          case 's': return second;
+          case 'w': return `星期${weekDaysCN[weekday]}`;
+          case 'ww': return weekDaysEN[weekday];
+          default: return match;
+        }
+      }
+    );
+  }
+  
+  /**
+   * 获取相对时间
+   * @param {string|number|Date} time - 时间
+   * @returns {string} 相对时间描述
+   */
+  static getRelativeTime(time) {
+    const now = new Date();
+    const target = new Date(time);
+    const diff = now.getTime() - target.getTime();
+    
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    const week = 7 * day;
+    const month = 30 * day;
+    const year = 365 * day;
+    
+    if (diff < minute) {
+      return '刚刚';
+    } else if (diff < hour) {
+      return `${Math.floor(diff / minute)}分钟前`;
+    } else if (diff < day) {
+      return `${Math.floor(diff / hour)}小时前`;
+    } else if (diff < week) {
+      return `${Math.floor(diff / day)}天前`;
+    } else if (diff < month) {
+      return `${Math.floor(diff / week)}周前`;
+    } else if (diff < year) {
+      return `${Math.floor(diff / month)}个月前`;
+    } else {
+      return `${Math.floor(diff / year)}年前`;
+    }
+  }
+  
+  /**
+   * 判断是否是今天
+   * @param {string|number|Date} time - 时间
+   * @returns {boolean} 是否是今天
+   */
+  static isToday(time) {
+    const today = new Date();
+    const target = new Date(time);
+    
+    return today.toDateString() === target.toDateString();
+  }
+  
+  /**
+   * 获取时间范围描述
+   * @param {string|number|Date} startTime - 开始时间
+   * @param {string|number|Date} endTime - 结束时间
+   * @returns {string} 时间范围描述
+   */
+  static getTimeRange(startTime, endTime) {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    
+    const isSameDay = start.toDateString() === end.toDateString();
+    
+    if (isSameDay) {
+      return `${this.formatTime(start, 'yyyy-mm-dd hh:ii')} - ${this.formatTime(end, 'hh:ii')}`;
+    } else {
+      return `${this.formatTime(start, 'yyyy-mm-dd hh:ii')} - ${this.formatTime(end, 'yyyy-mm-dd hh:ii')}`;
+    }
+  }
+}
+
+// 使用示例
+console.log(DateFormatter.formatTime(new Date(), 'yyyy-mm-dd hh:ii:ss')); // 2024-01-15 14:30:45
+console.log(DateFormatter.getRelativeTime(Date.now() - 3600000)); // 1小时前
+console.log(DateFormatter.isToday(new Date())); // true
+```
+
+### 📝 字符串处理
+
+```javascript
+/**
+ * 字符串处理工具类
+ * 提供常用的字符串处理方法
+ */
+class StringUtil {
+  /**
+   * 下划线转驼峰
+   * @param {string} str - 下划线字符串
+   * @returns {string} 驼峰字符串
+   */
+  static toCamelCase(str) {
+    return str.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
+  }
+  
+  /**
+   * 驼峰转下划线
+   * @param {string} str - 驼峰字符串
+   * @returns {string} 下划线字符串
+   */
+  static toSnakeCase(str) {
+    return str.replace(/([A-Z])/g, '_$1').toLowerCase();
+  }
+  
+  /**
+   * 首字母大写
+   * @param {string} str - 字符串
+   * @returns {string} 首字母大写的字符串
+   */
+  static capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  
+  /**
+   * HTML转义
+   * @param {string} str - 需要转义的字符串
+   * @returns {string} 转义后的字符串
+   */
+  static escapeHtml(str) {
+    if (!str) return '';
+    
+    const escapeMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    
+    return str.replace(/[&<>"']/g, (match) => escapeMap[match]);
+  }
+  
+  /**
+   * 生成随机字符串
+   * @param {number} length - 字符串长度
+   * @param {string} chars - 字符集
+   * @returns {string} 随机字符串
+   */
+  static randomString(length = 8, chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+  
+  /**
+   * 截取字符串并添加省略号
+   * @param {string} str - 原字符串
+   * @param {number} maxLength - 最大长度
+   * @param {string} ellipsis - 省略号
+   * @returns {string} 截取后的字符串
+   */
+  static truncate(str, maxLength, ellipsis = '...') {
+    if (str.length <= maxLength) {
+      return str;
+    }
+    return str.slice(0, maxLength - ellipsis.length) + ellipsis;
+  }
+}
+
+// 使用示例
+console.log(StringUtil.toCamelCase('hello_world')); // helloWorld
+console.log(StringUtil.toSnakeCase('helloWorld')); // hello_world
+console.log(StringUtil.capitalize('hello')); // Hello
+console.log(StringUtil.escapeHtml('<script>alert("xss")</script>'));
+console.log(StringUtil.randomString(10)); // 随机10位字符串
+console.log(StringUtil.truncate('这是一个很长的字符串', 10)); // 这是一个很长...
+```
+
+## 🎮 实战案例
+
+### 🎰 抽奖程序实现
+
+**需求**: 实现一个功能完整的前端抽奖程序。
+
+**功能特点**:
+- 🎯 可配置奖品和概率
+- 🎨 动态滚动效果
+- 📊 概率控制
+- 🎉 中奖动画
+
+```javascript
+/**
+ * 抽奖程序类
+ * 实现可配置的抽奖功能
+ */
+class LotteryMachine {
+  constructor(options = {}) {
+    this.container = options.container || document.body;
+    this.prizes = options.prizes || [];
+    this.isRunning = false;
+    this.onResult = options.onResult || null;
+    this.onProgress = options.onProgress || null;
+    
+    this.init();
+  }
+  
+  init() {
+    this.createUI();
+    this.bindEvents();
+  }
+  
+  createUI() {
+    this.container.innerHTML = `
+      <div class="lottery-machine">
+        <div class="prize-display" id="prizeDisplay">
+          <h2>点击开始抽奖</h2>
+        </div>
+        <div class="prize-list" id="prizeList">
+          ${this.renderPrizeList()}
+        </div>
+        <button class="lottery-btn" id="lotteryBtn">
+          🎰 开始抽奖
+        </button>
+        <div class="result-display" id="resultDisplay"></div>
+      </div>
+    `;
+    
+    this.addStyles();
+  }
+  
+  addStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .lottery-machine {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      
+      .prize-display {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+      }
+      
+      .prize-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      
+      .prize-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        backdrop-filter: blur(5px);
+      }
+      
+      .lottery-btn {
+        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .lottery-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+      
+      .lottery-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .result-display {
+        margin-top: 20px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+      }
+      
+      .rolling {
+        animation: roll 0.1s infinite;
+      }
+      
+      @keyframes roll {
+        0% { transform: rotateY(0deg); }
+        100% { transform: rotateY(360deg); }
+      }
+      
+      .winner {
+        animation: celebrate 0.5s ease-in-out;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      
+      @keyframes celebrate {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  renderPrizeList() {
+    return this.prizes.map(prize => `
+      <div class="prize-item">
+        <h3>${prize.name}</h3>
+        <p>${prize.title}</p>
+        <small>概率: ${Math.round((prize.probability[1] - prize.probability[0]) * 100)}%</small>
+      </div>
+    `).join('');
+  }
+  
+  bindEvents() {
+    const lotteryBtn = this.container.querySelector('#lotteryBtn');
+    lotteryBtn.addEventListener('click', () => this.startLottery());
+  }
+  
+  async startLottery() {
+    if (this.isRunning) return;
+    
+    this.isRunning = true;
+    const lotteryBtn = this.container.querySelector('#lotteryBtn');
+    const prizeDisplay = this.container.querySelector('#prizeDisplay');
+    const resultDisplay = this.container.querySelector('#resultDisplay');
+    
+    lotteryBtn.disabled = true;
+    lotteryBtn.textContent = '抽奖中...';
+    
+    // 开始滚动动画
+    prizeDisplay.classList.add('rolling');
+    prizeDisplay.innerHTML = '<h2>🎰 抽奖中...</h2>';
+    
+    // 滚动显示奖品
+    await this.rollPrizes();
+    
+    // 确定中奖结果
+    const winner = this.determineWinner();
+    
+    // 停止滚动动画
+    prizeDisplay.classList.remove('rolling');
+    prizeDisplay.classList.add('winner');
+    prizeDisplay.innerHTML = `
+      <div>
+        <h2>🎉 恭喜中奖！</h2>
+        <h3>${winner.name}</h3>
+        <p>${winner.title}</p>
+      </div>
+    `;
+    
+    // 显示结果
+    resultDisplay.innerHTML = `
+      <p>🎊 中奖奖品：${winner.name}</p>
+      <p>📊 中奖概率：${Math.round((winner.probability[1] - winner.probability[0]) * 100)}%</p>
+    `;
+    
+    // 触发结果回调
+    if (this.onResult) {
+      this.onResult(winner);
+    }
+    
+    // 重置状态
+    setTimeout(() => {
+      this.reset();
+    }, 3000);
+  }
+  
+  async rollPrizes() {
+    const prizeDisplay = this.container.querySelector('#prizeDisplay');
+    const rollDuration = 3000; // 滚动持续时间
+    const rollInterval = 100; // 滚动间隔
+    const totalRolls = rollDuration / rollInterval;
+    
+    for (let i = 0; i < totalRolls; i++) {
+      const randomPrize = this.prizes[Math.floor(Math.random() * this.prizes.length)];
+      prizeDisplay.innerHTML = `
+        <div>
+          <h2>${randomPrize.name}</h2>
+          <p>${randomPrize.title}</p>
+        </div>
+      `;
+      
+      // 触发进度回调
+      if (this.onProgress) {
+        this.onProgress(i + 1, totalRolls);
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, rollInterval));
+    }
+  }
+  
+  determineWinner() {
+    const randomValue = Math.random();
+    
+    for (const prize of this.prizes) {
+      const [min, max] = prize.probability;
+      if (randomValue >= min && randomValue < max) {
+        return prize;
+      }
+    }
+    
+    // 默认返回最后一个奖品
+    return this.prizes[this.prizes.length - 1];
+  }
+  
+  reset() {
+    this.isRunning = false;
+    const lotteryBtn = this.container.querySelector('#lotteryBtn');
+    const prizeDisplay = this.container.querySelector('#prizeDisplay');
+    const resultDisplay = this.container.querySelector('#resultDisplay');
+    
+    lotteryBtn.disabled = false;
+    lotteryBtn.textContent = '🎰 开始抽奖';
+    
+    prizeDisplay.classList.remove('winner');
+    prizeDisplay.innerHTML = '<h2>点击开始抽奖</h2>';
+    
+    resultDisplay.innerHTML = '';
+  }
+  
+  /**
+   * 更新奖品列表
+   * @param {Array} prizes - 新的奖品列表
+   */
+  updatePrizes(prizes) {
+    this.prizes = prizes;
+    const prizeList = this.container.querySelector('#prizeList');
+    prizeList.innerHTML = this.renderPrizeList();
+  }
+}
+
+// 使用示例
+const prizes = [
+  { name: '一等奖', title: 'iPhone 15 Pro', probability: [0, 0.01] },
+  { name: '二等奖', title: 'MacBook Air', probability: [0.01, 0.05] },
+  { name: '三等奖', title: 'AirPods Pro', probability: [0.05, 0.15] },
+  { name: '四等奖', title: '小米充电宝', probability: [0.15, 0.35] },
+  { name: '谢谢参与', title: '再来一次', probability: [0.35, 1] }
 ];
 
-// 更新奖品列表
-function updatePrizeList() {
-  const list = document.getElementById("prizeList");
-  list.innerHTML = "";
-  prizeList.forEach((name, index) => {
-    const li = document.createElement("li");
-    li.textContent = `${index + 1}. ${name}`;
-    list.appendChild(li);
-  });
-}
-
-// 开始抽奖
-function startLottery() {
-  if (prizeList.length === 0) {
-    alert("请先添加奖品！");
-    return;
+const lottery = new LotteryMachine({
+  container: document.getElementById('lotteryContainer'),
+  prizes: prizes,
+  onResult: (winner) => {
+    console.log('中奖结果:', winner);
+  },
+  onProgress: (current, total) => {
+    console.log(`抽奖进度: ${current}/${total}`);
   }
-
-  // 中奖区域
-  const result = document.getElementById("result");
-  result.textContent = "抽奖中...";
-  // 动态滚动效果
-  let currentIndex = 0;
-  rollingInterval = setInterval(() => {
-    result.textContent = `当前选中: ${prizeList[currentIndex]}`;
-    currentIndex = (currentIndex + 1) % prizeList.length;
-  }, 100);
-
-  // 停止滚动并选出赢家
-  setTimeout(() => {
-    clearInterval(rollingInterval);
-    // 中奖概率随机
-    // const currentIndex = Math.floor(Math.random() * prizeList.length);
-
-    // 中奖概率不随机：根据 randomValue 的范围确定奖品概率
-    let randomValue = Math.random();
-    let currentIndex = prizeList.findIndex(prize => {
-      let [min, max] = prize.proprobability;
-      return min <= randomValue < max;
-    });
-    result.innerHTML = `奖品：${prizeList[currentIndex]}！`;
-  }, 3000);
-}
+});
 ```
 
-4. 添加动画和音效：
+## 💡 最佳实践
 
-- 为了增强用户体验，可以在抽奖过程中添加动画效果，如旋转的轮盘、闪烁的灯光等。
-- 同时，可以播放一些音效来营造氛围，如点击按钮时的声音、中奖时的欢庆音乐等。
+### 🎯 性能优化原则
 
-5. 处理多次抽奖：
+::: tip 💡 性能优化建议
+1. **避免不必要的 DOM 操作**
+2. **使用事件委托减少事件监听器**
+3. **合理使用防抖和节流**
+4. **优化图片加载和资源请求**
+5. **使用 Web Workers 处理复杂计算**
+:::
 
-- 如果需要支持多次抽奖，可以在用户点击抽奖按钮后，更新奖品数组，以确保每次抽奖的公平性。
-- 同时，需要处理好抽奖次数的限制，防止用户无限制地抽奖。
+### 🔧 代码质量保证
 
-6. 优化和测试：
+```javascript
+/**
+ * 代码质量检查工具
+ * 帮助开发者编写更好的代码
+ */
+class CodeQuality {
+  /**
+   * 检查函数是否是生成器函数
+   * @param {Function} fn - 需要检查的函数
+   * @returns {boolean} 是否是生成器函数
+   */
+  static isGeneratorFunction(fn) {
+    return fn && fn.constructor && fn.constructor.name === 'GeneratorFunction';
+  }
+  
+  /**
+   * 检查对象是否为空
+   * @param {any} obj - 需要检查的对象
+   * @returns {boolean} 是否为空
+   */
+  static isEmptyObject(obj) {
+    return obj && typeof obj === 'object' && Object.keys(obj).length === 0;
+  }
+  
+  /**
+   * 深度克隆对象
+   * @param {any} obj - 需要克隆的对象
+   * @returns {any} 克隆后的对象
+   */
+  static deepClone(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (obj instanceof Date) {
+      return new Date(obj.getTime());
+    }
+    
+    if (obj instanceof Array) {
+      return obj.map(item => this.deepClone(item));
+    }
+    
+    if (typeof obj === 'object') {
+      const cloned = {};
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          cloned[key] = this.deepClone(obj[key]);
+        }
+      }
+      return cloned;
+    }
+    
+    return obj;
+  }
+}
 
-- 对抽奖程序进行优化，确保其在各种设备和浏览器上都能正常运行。
-- 进行充分的测试，包括功能测试、性能测试和安全测试，以确保抽奖程序的稳定性和安全性。
+// 使用示例
+const obj = { a: 1, b: { c: 2 } };
+const cloned = CodeQuality.deepClone(obj);
+console.log('深度克隆:', cloned);
+```
 
-7. 反馈和统计：
+---
 
-- 可以添加一些用户反馈机制，如中奖后的分享功能，以便用户将中奖信息分享到社交媒体。
-- 同时，可以记录每次抽奖的结果，以便后续进行数据统计和分析。
-
-在实际应用中，前端抽奖程序通常与后端服务相结合，以确保抽奖的公平性和安全性。例如，可以在后端生成随机数来选择奖品，然后通过 API 将结果返回给前端展示。这样可以防止前端作弊，并确保每次抽奖都是公正的。
+::: tip 🎯 总结
+前端开发中会遇到各种各样的问题，掌握这些常见问题的解决方案能够显著提升开发效率。记住：
+- 优先考虑用户体验
+- 注重代码质量和可维护性
+- 保持学习和实践的态度
+- 多总结和分享经验
+:::

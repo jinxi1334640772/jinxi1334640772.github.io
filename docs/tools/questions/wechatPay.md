@@ -6,185 +6,333 @@ outline: deep
 
 # 💰 微信支付开发完全指南
 
-> 微信支付是腾讯公司的支付业务品牌，为用户提供安全、快捷、高效的支付服务，本指南详细介绍 JSAPI 支付的完整开发流程。
+> 微信支付是腾讯公司的支付业务品牌，为用户提供安全、快捷、高效的支付服务，本指南详细介绍各种支付方式的完整开发流程。
+
+## 📋 目录导航
+
+<details>
+<summary>点击展开完整目录</summary>
+
+### 🎯 开发前准备
+- [商户号申请与配置](#商户号申请与配置)
+- [开发参数准备](#开发参数准备)
+- [安全配置](#安全配置)
+
+### 📱 JSAPI支付（公众号/小程序）
+- [支付流程概述](#jsapi支付流程概述)
+- [下单接口](#jsapi下单接口)
+- [发起支付](#jsapi发起支付)
+- [查询订单](#jsapi查询订单)
+- [关闭订单](#jsapi关闭订单)
+- [支付回调](#jsapi支付回调)
+- [申请退款](#jsapi申请退款)
+- [查询退款](#jsapi查询退款)
+- [退款回调](#jsapi退款回调)
+- [账单下载](#jsapi账单下载)
+
+### 📲 APP支付
+- [APP支付流程](#app支付流程)
+- [SDK集成](#app-sdk集成)
+- [下单与调起](#app下单与调起)
+- [回调处理](#app回调处理)
+
+### 🌐 H5支付
+- [H5支付流程](#h5支付流程)
+- [域名配置](#h5域名配置)
+- [调起支付](#h5调起支付)
+
+### 🖥️ Native支付（PC扫码）
+- [Native支付流程](#native支付流程)
+- [二维码生成](#native二维码生成)
+- [支付处理](#native支付处理)
+
+### 🏪 付款码支付
+- [付款码支付流程](#付款码支付流程)
+- [商户收银](#付款码商户收银)
+
+### 🔧 开发工具与SDK
+- [官方SDK](#官方sdk)
+- [调试工具](#调试工具)
+- [最佳实践](#最佳实践)
+
+</details>
 
 ## 🎯 开发前准备
 
-需要提前开通商户号，选择对应的经营场景
+### 商户号申请与配置
+
+```mermaid
+graph TD
+    A[申请商户号] --> B[选择经营场景]
+    B --> C[上传资质材料]
+    C --> D[等待审核]
+    D --> E[审核通过]
+    E --> F[开通支付功能]
+    F --> G{选择支付方式}
+    G -->|网页支付| H[JSAPI支付]
+    G -->|移动应用| I[APP支付]
+    G -->|H5页面| J[H5支付]
+    G -->|PC扫码| K[Native支付]
+    G -->|线下收银| L[付款码支付]
+```
+
+需要提前开通商户号，选择对应的经营场景：
 
 ![alt text](image-38.png)
 
-并开启对应的支付功能。
+并开启对应的支付功能：
 
 ![alt text](image-37.png)
 
-开发前准备：
+### 开发参数准备
 
-- 设置安全联系人：微信支付日常安全监测发现技术异常时，会向安全联系人和超级管理员发送风险提醒。请商户超级管理员尽快设置技术同事为安全联系人，确保能及时接收异常信息评估业务风险。微信支付-> 账户中心-> 安全中心-> 安全联系人
-- 熟悉微信支付接口规则：开发者需要先阅读基本规则、签名和验签规则了解调用微信支付接口的基本规则和签名规则
+```mermaid
+graph LR
+    A[开发参数] --> B[商户号 mchid]
+    A --> C[应用ID appid]
+    A --> D[APIv3密钥]
+    A --> E[商户API证书]
+    A --> F[微信支付平台证书]
+    A --> G[微信支付公钥]
+    
+    B --> B1[唯一商户标识]
+    C --> C1[公众号/小程序/APP标识]
+    D --> D1[回调信息解密]
+    E --> E1[请求签名生成]
+    F --> F1[返回验签]
+    G --> G1[敏感信息加密]
+```
 
-- 准备开发参数：在发起接口请求时的必要参数
+**核心参数说明：**
 
-  - 商户号 mchid:商户号 mchid 是商户在微信支付侧的唯一身份标识，所有接口调用都必须包含此参数，以便微信支付确认商户的身份。登录商户平台，点击【账户中心->商户信息】即可查看商户号
-  - appid:appid 是商户在微信开放平台（移动应用）或公众平台（公众号/小程序）上申请的一个唯一标识。为了在该载体上使用微信支付功能，该 appid 必须与商户号 mchid 进行绑定
+| 参数 | 描述 | 用途 |
+|------|------|------|
+| **商户号 mchid** | 商户在微信支付侧的唯一身份标识 | 所有接口调用必需参数 |
+| **appid** | 公众号/小程序/APP的唯一标识 | 必须与商户号绑定 |
+| **APIv3密钥** | 32位字符串 | 加密回调信息，下载平台证书 |
+| **商户API证书** | 商户私钥证书 | 生成请求签名 |
+| **微信支付平台证书** | 微信公钥证书 | 验签返回内容，加密敏感信息 |
 
-  - APIV3 密钥:微信支付会使用 APIv3 密钥加密回调信息，然后将加密后的密文回调给商户，商户接收到 APIv3 回调通知的密文后，需使用该密钥进行解密。在下载平台证书公钥时，需要使用该密钥进行解密
-  - 商户 API 证书:商户发起 APIv3 接口请求时，需要使用该证书私钥生成请求签名
-  - 微信支付平台证书:商户接收到 APIV3 接口的返回内容，需要使用该证书公钥进行验签，另外某些敏感信息参数(如姓名、身份证号码)也需要使用该证书公钥加密后传输
-  - 微信支付公钥:作用等同于微信支付平台证书，主要用于 APIV3 接口的返回内容验签和加密敏感信息参数。
+### 安全配置
 
-## JSAPI 支付
+**必需的安全配置：**
 
-JSAPI 支付，提供商户在微信客户端内部浏览器网页中使用微信支付收款的能力。
+- **设置安全联系人**：微信支付 → 账户中心 → 安全中心 → 安全联系人
+- **配置支付授权目录**：设置调起支付的页面URL路径
+- **IP白名单配置**：对微信回调IP段开通白名单
+- **证书管理**：定期更新商户API证书
 
-**支付流程：**
+::: warning 重要提醒
+- 所有敏感信息（如证书私钥、APIv3密钥）必须妥善保管，不得泄露
+- 建议使用HTTPS协议进行所有接口调用
+- 定期检查和更新证书，避免过期导致支付失败
+:::
+
+## 📱 JSAPI支付
+
+JSAPI支付提供商户在微信客户端内部浏览器网页中使用微信支付收款的能力。
+
+### JSAPI支付流程概述
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant M as 商户页面
+    participant MS as 商户服务器
+    participant WX as 微信支付
+    
+    U->>M: 1. 选择商品，点击支付
+    M->>MS: 2. 请求下单
+    MS->>WX: 3. 调用下单接口
+    WX->>MS: 4. 返回prepay_id
+    MS->>M: 5. 返回支付参数
+    M->>U: 6. 调起微信支付
+    U->>WX: 7. 确认支付
+    WX->>MS: 8. 支付结果回调
+    WX->>U: 9. 返回支付结果
+    U->>M: 10. 回到商户页面
+```
+
+**订单状态流转：**
+
+```mermaid
+graph LR
+    A[未支付 NOTPAY] --> B[支付中 USERPAYING]
+    B --> C[支付成功 SUCCESS]
+    B --> D[支付失败 PAYERROR]
+    A --> E[已关闭 CLOSED]
+    C --> F[转入退款 REFUND]
+    A --> G[已撤销 REVOKED]
+```
 
 ![alt text](image-29.png)
 
-需要有关联的公众号（需要公众号 appid），并配置 JSAPI 支付授权目录：调起微信支付的商户网页地址路径，我们称之为“支付授权目录”，例如：商户支付页面https://www.weixin.com/123/pay.php的支付授权目录为：https://www.weixin.com/123/，该目录需要与商户在微信支付商户平台设置的一致。若不设置支付授权目录将无法调起支付。
-
-订单状态流程图：
-![alt text](image-34.png)
-**业务流程：**
+**业务流程详图：**
 ![alt text](image-30.png)
 
-### 下单接口
+### JSAPI下单接口
 
 用户在微信内置浏览器访问商户网页并选择微信支付后，商户需调用该接口在微信支付下单，生成用于调起支付的预支付交易会话标识(prepay_id)。
 
 ![alt text](image-31.png)
 
-请求方式：【POST】/v3/pay/transactions/jsapi
+**接口信息：**
+- **请求方式**：`POST`
+- **请求URL**：`https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi`
+- **请求域名**：使用主域名将访问就近的接入点
 
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
-
-请求头设置：
+**请求头设置：**
 
 ```bash
 # 签名认证生成认证信息
-Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",...
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
 Accept: application/json
 Content-Type: application/json
 ```
 
-请求参数：
+**请求参数详解：**
 
 ```js
-  {
-    // 公众账号id：与mchid有绑定关系的商户公众号唯一标识：appid
-    "appid" : "wxd678efh567hg6787",
-    // 商户号：微信支付系统生成并分配给每个商户的唯一标识符
-    "mchid" : "1230000109",
-    // 商品信息描述，用户微信账单的商品字段中可见
-    "description" : "Image形象店-深圳腾大-QQ公仔",
-    // 【商户订单号】商户系统内部订单号，要求6-32个字符内，只能是数字、大小写字母_-|* 且在同一个商户号下唯一
-    "out_trade_no" : "1217752501201407033233368018",
-    // 支付结束时间，格式为yyyy-MM-ddTHH:mm:ss+TIMEZONE，yyyy-MM-dd表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。可选
-    "time_expire" : "2018-06-08T10:34:56+08:00",
-    // 【商户数据包】商户在创建订单时可传入自定义数据包，该数据对用户不可见，用于存储订单相关的商户自定义信息，其总长度限制在128字符以内。支付成功后查询订单API和支付成功回调通知均会将此字段返回给商户，并且该字段还会体现在交易账单。可选
-    "attach" : "自定义数据说明",
-    // 【商户回调地址】商户接收支付成功回调通知的地址，需按照notify_url填写注意事项规范填写。
-    "notify_url" : " https://www.weixin.qq.com/wxpay/pay.php",
-    // 【订单优惠标记】代金券在创建时可以配置多个订单优惠标记，标记的内容由创券商户自定义设置。可选
-    "goods_tag" : "WXG",
-    // 【电子发票入口开放标识】 传入true时，支付成功消息和支付详情页将出现开票入口。需要在微信支付商户平台或微信公众平台开通电子发票功能，传此字段才可生效。可选
-    "support_fapiao" : false,
-    // 订单金额】订单金额信息
-    "amount" : {
-      // 【总金额】 订单总金额，单位为分，整型。
-      "total" : 100,
-      // 【支付币种】固定传：CNY，代表人民币。可选
-      "currency" : "CNY"
-    },
-    // 【支付者】支付者信息
-    "payer" : {
-      // 用户平台标识：用户在商户appid下的唯一标识。下单前需获取到用户的OpenID
-      "openid" : "ovqdowRIfstpQK_kYShFS2MSS9XS"
-    },
-    // 【优惠功能】 优惠功能 可选
-    "detail" : {
-      "cost_price" : 608800, //【订单原价】可选
-      "invoice_id" : "微信123", //【商品小票ID】 商家小票ID可选
-      "goods_detail" : [ //【单品列表】 单品列表信息 可选
-        {
-          // 【商户侧商品编码】 由半角的大小写字母、数字、中划线、下划线中的一种或几种组成。
-          "merchant_goods_id" : "1246464644",
-          // 【微信支付商品编码】 微信支付定义的统一商品编号（没有可不传）
-          "wechatpay_goods_id" : "1001",
-          // 【商品名称】 商品的实际名称 可选
-          "goods_name" : "iPhoneX 256G",
-          // 【商品数量】 用户购买的数量
-          "quantity" : 1,
-          // 【商品单价】整型，单位为：分。如果商户有优惠，需传输商户优惠后的单价
-          "unit_price" : 528800
-        }
-      ]
-    },
-    // 【场景信息】 场景信息 可选
-    "scene_info" : {
-      // 【用户终端IP】 用户的客户端IP，支持IPv4和IPv6两种格式的IP地址。
-      "payer_client_ip" : "14.23.150.211",
-      // 【商户端设备号】 商户端设备号（门店号或收银设备ID）可选
-      "device_id" : "013467007045764",
-      // 【商户门店信息】 商户门店信息 可选
-      "store_info" : {
-        // 【门店编号】商户侧门店编号，总长度不超过32字符。
-        "id" : "0001",
-        // 【门店名称】 商户侧门店名称 可选
-        "name" : "腾讯大厦分店",
-        // 【地区编码】 地区编码 可选
-        "area_code" : "440305",
-        // 【详细地址】 详细的商户门店地址 可选
-        "address" : "广东省深圳市南山区科技中一道10000号"
-      }
-    },
-    // 结算信息 可选
-    "settle_info" : {
-      // 【分账标识】订单的分账标识在下单时设置，传入true表示在订单支付成功后可进行分账操作
-      "profit_sharing" : false
+{
+  // 🔸 必需参数
+  "appid": "wxd678efh567hg6787",              // 公众号ID
+  "mchid": "1230000109",                     // 商户号
+  "description": "Image形象店-深圳腾大-QQ公仔",  // 商品描述
+  "out_trade_no": "1217752501201407033233368018", // 商户订单号
+  "notify_url": "https://www.weixin.qq.com/wxpay/pay.php", // 回调地址
+  
+  // 🔸 订单金额
+  "amount": {
+    "total": 100,                            // 总金额（分）
+    "currency": "CNY"                        // 币种，固定CNY
+  },
+  
+  // 🔸 支付者信息
+  "payer": {
+    "openid": "ovqdowRIfstpQK_kYShFS2MSS9XS" // 用户OpenID
+  },
+  
+  // 🔹 可选参数
+  "time_expire": "2018-06-08T10:34:56+08:00", // 支付截止时间
+  "attach": "自定义数据说明",                    // 商户数据包
+  "goods_tag": "WXG",                          // 订单优惠标记
+  "support_fapiao": false,                     // 电子发票开关
+  
+  // 🔹 优惠详情
+  "detail": {
+    "cost_price": 608800,                      // 订单原价
+    "invoice_id": "微信123",                   // 商品小票ID
+    "goods_detail": [{
+      "merchant_goods_id": "1246464644",       // 商户商品编码
+      "wechatpay_goods_id": "1001",           // 微信商品编码
+      "goods_name": "iPhoneX 256G",           // 商品名称
+      "quantity": 1,                          // 商品数量
+      "unit_price": 528800                    // 商品单价（分）
+    }]
+  },
+  
+  // 🔹 场景信息
+  "scene_info": {
+    "payer_client_ip": "14.23.150.211",      // 用户IP
+    "device_id": "013467007045764",           // 设备号
+    "store_info": {
+      "id": "0001",                           // 门店编号
+      "name": "腾讯大厦分店",                  // 门店名称
+      "area_code": "440305",                  // 地区编码
+      "address": "广东省深圳市南山区科技中一道10000号" // 详细地址
     }
+  },
+  
+  // 🔹 结算信息
+  "settle_info": {
+    "profit_sharing": false                   // 是否分账
   }
+}
 ```
 
-应答参数：
+**参数校验规则：**
 
-- status_code': 200
-- prepay_id：【预支付交易会话标识】预支付交易会话标识，JSAPI 调起支付时需要使用的参数，有效期为 2 小时，失效后需要重新请求该接口以获取新的 prepay_id。
+| 参数 | 格式要求 | 说明 |
+|------|----------|------|
+| `out_trade_no` | 6-32位字符，数字、字母、`_-|*` | 同一商户号下唯一 |
+| `description` | 1-127个字符 | 用户账单商品字段显示 |
+| `total` | 正整数 | 单位：分，最小值1 |
+| `openid` | 用户在appid下的唯一标识 | 下单前需先获取 |
+| `notify_url` | HTTPS URL | 必须为外网可访问 |
 
-### 发起支付
+**应答参数：**
 
-商户通过 JSAPI 下单接口获取到发起支付的必要参数 prepay_id 后，再通过微信浏览器内置对象方法(WeixinJSBridge)调起微信支付收银台。
+```js
+{
+  "prepay_id": "wx201410272009395522657a690389285100" // 预支付交易会话标识
+}
+```
+
+::: tip 开发提示
+- `prepay_id` 有效期为2小时，过期需重新获取
+- 建议在获取OpenID后立即调用下单接口
+- 商户订单号建议使用时间戳+随机数保证唯一性
+:::
+
+### JSAPI发起支付
+
+商户通过JSAPI下单接口获取到发起支付的必要参数`prepay_id`后，再通过微信浏览器内置对象方法调起微信支付收银台。
+
 ![alt text](image-32.png)
+
+**支付参数签名算法：**
+
+```mermaid
+graph TD
+    A[准备签名参数] --> B[appId]
+    A --> C[timeStamp]
+    A --> D[nonceStr]
+    A --> E[package]
+    
+    B --> F[构造签名字符串]
+    C --> F
+    D --> F
+    E --> F
+    
+    F --> G[使用商户私钥RSA签名]
+    G --> H[Base64编码]
+    H --> I[得到paySign]
+```
+
+**调起支付代码实现：**
 
 ```js
 function onBridgeReady() {
   WeixinJSBridge.invoke(
     "getBrandWCPayRequest",
     {
-      appId: "wx2421b1c4370ec43b", //公众号ID，由商户传入
-      timeStamp: "1395712654", //时间戳，自1970年以来的秒数
-      nonceStr: "e61463f8efa94090b1f366cccfbbb444", //随机串
-      // JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。
-      package: "prepay_id=wx21201855730335ac86f8c43d1889123400",
-      signType: "RSA", //微信签名方式：固定填RSA。
-      // 微信签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式
-      paySign:
-        "oR9d8PuhnIc+YZ8cBHFCwfgpaK9gd7vaRvkYD7rthRAZ/X+QBhcCYL21N7cHCTUxbQ+EAt6Uy+lwSN22f5YZvI45MLko8Pfso0jm46v5hqcVwrk6uddkGuT+Cdvu4WBqDzaDjnNa5UK3GfE1Wfl2gHxIIY5lLdUgWFts17D4WuolLLkiFZV+JSHMvH7eaLdT9N5GBovBwu5yYKUR7skR8Fu+LozcSqQixnlEZUfyE55feLOQTUYzLmR9pNtPbPsu6WVhbNHMS3Ss2+AehHvz+n64GDmXxbX++IOBvm2olHu3PsOUGRwhudhVf7UcGcunXt8cqNjKNqZLhLw4jq/xDg==",
+      appId: "wx2421b1c4370ec43b",     // 公众号ID
+      timeStamp: "1395712654",         // 时间戳（秒）
+      nonceStr: "e61463f8efa94090b1f366cccfbbb444", // 随机串
+      package: "prepay_id=wx21201855730335ac86f8c43d1889123400", // 预支付订单
+      signType: "RSA",                 // 签名类型，固定RSA
+      paySign: "oR9d8PuhnIc+YZ8cBHFCwfgpaK9gd7vaRvkYD7rthRAZ..." // 签名
     },
-    // 回调函数：用户从微信收银台返回商户页面时会触发
     function (res) {
-      // 端回调并不保证它绝对可靠，不可只依赖前端回调判断订单支付状态，订单状态需以后端查询订单和支付成功回调通知为准。
+      // 🔸 支付结果处理
       if (res.err_msg == "get_brand_wcpay_request:ok") {
-        //调用后端接口查单，如果订单已支付则展示支付成功页面。
+        // ✅ 支付成功 - 调用后端查单接口确认
+        console.log("支付成功，正在确认订单状态...");
+        checkOrderStatus(); // 建议调用查单接口二次确认
       } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
-        // 用户取消支付，商户可自行处理展示。
+        // ❌ 用户取消支付
+        console.log("用户取消支付");
+        showCancelMessage();
       } else if (res.err_msg == "get_brand_wcpay_request:fail") {
-        // 支付失败，展示订单支付失败结果。
+        // ❌ 支付失败
+        console.log("支付失败：" + res.err_desc);
+        showFailMessage();
       }
     }
   );
 }
 
+// 🔸 微信JS-SDK加载检测
 if (typeof WeixinJSBridge == "undefined") {
   if (document.addEventListener) {
     document.addEventListener("WeixinJSBridgeReady", onBridgeReady, false);
@@ -195,654 +343,1209 @@ if (typeof WeixinJSBridge == "undefined") {
 } else {
   onBridgeReady();
 }
+
+// 🔸 订单状态确认函数
+function checkOrderStatus() {
+  fetch('/api/order/status', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      out_trade_no: '商户订单号'
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.trade_state === 'SUCCESS') {
+      // 支付确认成功，跳转成功页面
+      window.location.href = '/success.html';
+    } else {
+      // 支付状态异常，显示错误信息
+      showErrorMessage('支付状态异常，请联系客服');
+    }
+  });
+}
 ```
 
-### 查询订单
+::: warning 重要提醒
+- 前端回调不能完全依赖，必须通过后端查单接口确认支付状态
+- 建议在支付成功后立即调用查单接口进行二次确认
+- 签名算法必须严格按照微信支付规范实现
+:::
 
-订单支付成功后，商户可通过微信交易订单号或使用商户订单号查询订单；若订单未支付，则只能使用商户订单号查询订单
+### JSAPI查询订单
+
+订单支付成功后，商户可通过微信交易订单号或商户订单号查询订单状态。
 
 ![alt text](image-33.png)
 
-请求头：
+**查询方式对比：**
+
+| 查询方式 | 使用场景 | 优势 | 限制 |
+|----------|----------|------|------|
+| 微信支付订单号 | 支付成功后 | 微信系统唯一标识 | 需要支付成功才返回 |
+| 商户订单号 | 任何时候 | 商户系统可控 | 需要传入商户号 |
+
+**1. 通过微信支付订单号查询：**
 
 ```bash
-# 签名认证生成认证信息
-Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",...
+GET /v3/pay/transactions/id/{transaction_id}?mchid={mchid}
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
 Accept: application/json
 ```
 
-1. 【微信支付订单号】查询订单
-   请求方式：【GET】/v3/pay/transactions/id/{transaction_id}?mchid={mchid}
+**2. 通过商户订单号查询：**
 
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点。
+```bash
+GET /v3/pay/transactions/out-trade-no/{out_trade_no}?mchid={mchid}
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Accept: application/json
+```
 
-路径参数：transaction_id：【微信支付订单号】 微信支付侧订单的唯一标识，订单支付成功后，支付成功回调通知和商户订单号查询订单会返回该参数
-
-查询参数：mchid：【商户号】商户下单时传入的商户号。 2. 【商户订单号】查询订单
-请求方式：【GET】/v3/pay/transactions/out-trade-no/{out_trade_no}?mchid={mchid}
-
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
-
-路径参数：out_trade_no：【商户订单号】 商户下单时传入的商户系统内部订单号。
-
-查询参数：mchid：【商户号】商户下单时传入的商户号。 3. 应答参数：
-
-- status_code': 200
+**应答参数详解：**
 
 ```js
 {
-  "appid" : "wxd678efh567hg6787",
-  "mchid" : "1230000109",
-  // 【商户订单号】商户下单时传入的商户系统内部订单号。
-  "out_trade_no" : "1217752501201407033233368018",
-  // 【微信支付订单号】 微信支付侧订单的唯一标识。
-  "transaction_id" : "1217752501201407033233368018",
-  // 【交易类型】JSAPI:公众号、小程序支付，NATIVE：Native支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY:刷脸支付
-  "trade_type" : "APP",
-  // 【交易状态】 返回订单当前交易状态 SUCCESS：支付成功，REFUND：转入退款，NOTPAY：未支付，CLOSED：已关闭，REVOKED：已撤销（仅付款码支付），USERPAYING：用户支付中（仅付款码支付），PAYERROR：支付失败/异常（仅付款码支付）
-  "trade_state" : "SUCCESS",
-  // 【交易状态描述】 对交易状态的详细说明。
-  "trade_state_desc" : "支付成功",
-  // 【银行类型】 用户支付方式说明，订单支付成功后返回，格式为银行简码_具体类型(DEBIT借记卡/CREDIT信用卡/ECNY数字人民币)，例如ICBC_DEBIT代表工商银行借记卡，非银行卡支付类型(例如余额/零钱通等)统一为OTHERS
-  "bank_type" : "CMC",
-  "attach" : "自定义数据",
-  // 支付完成时间
-  "success_time" : "2018-06-08T10:34:56+08:00",
-  "payer" : {
-    "openid" : "oUpF8uMuAJO_M2pxb1Q9zNjWeS6o\t"
+  "appid": "wxd678efh567hg6787",
+  "mchid": "1230000109",
+  "out_trade_no": "1217752501201407033233368018",  // 商户订单号
+  "transaction_id": "1217752501201407033233368018", // 微信支付订单号
+  "trade_type": "JSAPI",                           // 交易类型
+  "trade_state": "SUCCESS",                        // 交易状态
+  "trade_state_desc": "支付成功",                   // 状态描述
+  "bank_type": "CMC",                              // 银行类型
+  "attach": "自定义数据",                            // 商户数据包
+  "success_time": "2018-06-08T10:34:56+08:00",    // 支付完成时间
+  
+  // 🔸 支付者信息
+  "payer": {
+    "openid": "oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"
   },
-  "amount" : {
-    "total" : 100,
-    // 【用户支付金额】用户实际支付金额，整型，单位为分，用户支付金额=总金额-代金券金额。
-    "payer_total" : 90,
-    "currency" : "CNY",
-    "payer_currency" : "CNY"
+  
+  // 🔸 金额信息
+  "amount": {
+    "total": 100,                                  // 总金额
+    "payer_total": 90,                            // 用户实际支付金额
+    "currency": "CNY",                            // 币种
+    "payer_currency": "CNY"                       // 用户支付币种
   },
-  "scene_info" : {
-    "device_id" : "013467007045764"
+  
+  // 🔸 场景信息
+  "scene_info": {
+    "device_id": "013467007045764"
   },
-  //  代金券信息，当订单有使用代金券时
-  "promotion_detail" : [
-    {
-      // 【券ID】 代金券id，微信为代金券分配的唯一标识，创券商户调用发放指定批次的代金券时返回的代金券ID
-      "coupon_id" : "109519",
-      // 【优惠名称】 优惠名称，创券商户创建代金券批次时传入的批次名称stock_name。
-      "name" : "单品惠-6",
-//【优惠范围】优惠活动中代金券的适用范围，分为两种类型：
-// 1、GLOBAL：全场代金券-以订单整体可优惠的金额为优惠门槛的代金券；
-// 2、SINGLE：单品优惠-以订单中具体某个单品的总金额为优惠门槛的代金券
-      "scope" : "SINGLE",
-// 【优惠类型】代金券资金类型，优惠活动中代金券的结算资金类型，分为两种类型：
-// 1、CASH：预充值-带有结算资金的代金券，会随订单结算给订单收款商户；
-// 2、NOCASH：免充值-不带有结算资金的代金券，无资金结算给订单收款商户。
-      "type" : "CASH",
-      // 【优惠券面额】代金券优惠的金额。
-      "amount" : 10,
-      // 【活动ID】单张代金券所对应的批次号
-      "stock_id" : "931386",
-      // 【微信出资】微信出资金额，单位为分。
-      "wechatpay_contribute" : 0,
-      // 【商家出资】商家出资金额，单位为分。
-      "merchant_contribute" : 10,
-      // 【其他出资】其他出资金额，单位为分。
-      "other_contribute" : 0,
-      // 优惠币种 代金券金额所对应的货币种类：固定为：CNY，人民币。
-      "currency" : "CNY",
-      // 【单品列表】scope为SINGLE（单品优惠）时返回该参数
-      "goods_detail" : [
-        {
-          "goods_id" : "M1006",//【商品编码】
-          "quantity" : 1,//【商品数量】
-          "unit_price" : 100,//【商品单价】
-          "discount_amount" : 10,//【商品优惠金额】
-          //【商品备注】创券商户在商户平台创建单品券时设置
-          "goods_remark" : "商品备注信息"
-        }
-      ]
-    }
-  ]
+  
+  // 🔸 优惠详情（如有使用代金券）
+  "promotion_detail": [{
+    "coupon_id": "109519",                         // 券ID
+    "name": "单品惠-6",                            // 优惠名称
+    "scope": "SINGLE",                             // 优惠范围
+    "type": "CASH",                                // 优惠类型
+    "amount": 10,                                  // 优惠金额
+    "stock_id": "931386",                          // 活动ID
+    "wechatpay_contribute": 0,                     // 微信出资
+    "merchant_contribute": 10,                     // 商户出资
+    "other_contribute": 0,                         // 其他出资
+    "currency": "CNY",                             // 优惠币种
+    "goods_detail": [{
+      "goods_id": "M1006",                         // 商品编码
+      "quantity": 1,                               // 商品数量
+      "unit_price": 100,                           // 商品单价
+      "discount_amount": 10,                       // 商品优惠金额
+      "goods_remark": "商品备注信息"                // 商品备注
+    }]
+  }]
 }
 ```
+
+**交易状态说明：**
+
+| 状态 | 说明 | 后续处理 |
+|------|------|----------|
+| `SUCCESS` | 支付成功 | 发货/提供服务 |
+| `REFUND` | 转入退款 | 关注退款状态 |
+| `NOTPAY` | 未支付 | 可关闭订单 |
+| `CLOSED` | 已关闭 | 重新下单 |
+| `REVOKED` | 已撤销 | 重新下单 |
+| `USERPAYING` | 用户支付中 | 继续查询 |
+| `PAYERROR` | 支付失败 | 重新下单 |
 
 ![alt text](image-35.png)
 
-### 关闭订单
+### JSAPI关闭订单
 
-未支付状态的订单，可在无需支付时调用此接口关闭订单。常见关单情况包括：
+对于未支付状态的订单，商户可在不需要支付时调用此接口关闭订单。
 
-- 用户在商户系统提交取消订单请求，商户需执行关单操作。
-- 订单超时未支付（超出商户系统设定的可支付时间或下单时的 time_expire 支付截止时间），商户需进行关单处理。
+**常见关单场景：**
 
-请求方式：【POST】/v3/pay/transactions/out-trade-no/{out_trade_no}/close
-
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
-
-```bash
-curl -X POST \
-  https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/1217752501201407033233368018/close \
-  -H "Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",..." \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "mchid" : "1900000001"
-  }'
+```mermaid
+graph TD
+    A[关单场景] --> B[用户主动取消]
+    A --> C[订单超时]
+    A --> D[商品缺货]
+    A --> E[系统异常]
+    
+    B --> F[调用关单接口]
+    C --> F
+    D --> F
+    E --> F
+    
+    F --> G[订单状态变更为CLOSED]
+    G --> H[释放库存]
+    G --> I[清理缓存]
 ```
 
-返回：204 No Content
-
-### 支付成功回调通知
-
-用户使用普通支付（APP 支付/H5 支付/JSAPI 支付/Native 支付/小程序支付）功能，当用户成功支付订单后，微信支付会通过 POST 的请求方式，向商户预先设置的回调地址(APP 支付/H5 支付/JSAPI 支付/Native 支付/小程序支付下单接口传入的 notify_url)发送回调通知，让商户知晓用户已完成支付。
-
-若商户应答回调接收失败，或超时(5s)未应答时，微信支付会按照（15s/15s/30s/3m/10m/20m/30m/30m/30m/60m/3h/3h/3h/6h/6h）的频次重复发送回调通知，直至微信支付接收到商户应答成功，或达到最大发送次数（15 次）
-
-注意： 商户侧对微信支付回调 IP 有防火墙策略限制的，需要对微信回调 IP 段开通白名单，否则会导致收不到回调。
-
-回调报文的 HTTP 请求头中会包含报文的签名信息，用于后续验签:
+**接口调用：**
 
 ```bash
-Wechatpay-Serial:验签的微信支付平台证书序列号/微信支付公钥ID
-Wechatpay-Signature:验签的签名值
-Wechatpay-Timestamp:验签的时间戳
-Wechatpay-Nonce:验签的随机串
+POST /v3/pay/transactions/out-trade-no/{out_trade_no}/close
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Accept: application/json
+Content-Type: application/json
+
+{
+  "mchid": "1900000001"
+}
 ```
 
-回调通知的请求主体中会包含 JSON 格式的通知参数:
+**响应结果：**
+- 成功：`204 No Content`
+- 失败：返回错误码和错误描述
+
+::: tip 最佳实践
+- 建议在用户取消支付或订单超时时及时关闭订单
+- 关单成功后应该释放相关库存
+- 已支付的订单无法关闭，需要通过退款处理
+:::
+
+### JSAPI支付回调
+
+当用户成功支付订单后，微信支付会向商户预先设置的回调地址发送支付结果通知。
+
+**回调重试机制：**
+
+```mermaid
+graph LR
+    A[支付成功] --> B[发送回调]
+    B --> C{商户响应}
+    C -->|成功200/204| D[回调完成]
+    C -->|失败4xx/5xx| E[等待重试]
+    C -->|超时5s| E
+    
+    E --> F[15s后重试]
+    F --> G[15s后重试]
+    G --> H[30s后重试]
+    H --> I[3m后重试]
+    I --> J[最多重试15次]
+```
+
+**回调请求头：**
+
+```bash
+Wechatpay-Serial: 验签的微信支付平台证书序列号
+Wechatpay-Signature: 验签的签名值
+Wechatpay-Timestamp: 验签的时间戳
+Wechatpay-Nonce: 验签的随机串
+```
+
+**回调请求体：**
 
 ```js
 {
-// 【通知ID】回调通知的唯一编号。
-  "id": "EV-2018022511223320873",
-  // 本次回调通知创建的时间。
-  "create_time": "2015-05-20T13:29:35+08:00",
-  // 【通知数据类型】通知的资源数据类型，固定为encrypt-resource。
-  "resource_type": "encrypt-resource",
-  // 【通知的类型】微信支付回调通知的类型。
-  "event_type": "TRANSACTION.SUCCESS",
-  // 【回调摘要】微信支付对回调内容的摘要备注。
-  "summary": "支付成功",
-  // 【通知数据】通知资源数据。
+  "id": "EV-2018022511223320873",              // 通知ID
+  "create_time": "2015-05-20T13:29:35+08:00", // 通知创建时间
+  "resource_type": "encrypt-resource",         // 通知数据类型
+  "event_type": "TRANSACTION.SUCCESS",         // 通知类型
+  "summary": "支付成功",                        // 回调摘要
   "resource": {
-    // 【原始回调类型】加密前的对象类型，为transaction。
-      "original_type": "transaction",
-      // 【加密算法类型】目前为AEAD_AES_256_GCM，开发者需要使用同样类型的数据进行解密。
-      "algorithm": "AEAD_AES_256_GCM",
-// 【数据密文】Base64编码后的回调数据密文，商户需Base64解码并使用APIV3密钥解密:
-// 1. 获取商户平台上设置的APIv3密钥，记为key；
-// 2. 通过回调通知参数resource.algorithm确认加密算法:目前仅支持AEAD_AES_256_GCM
-// 3. 使用key与回调通知参数resource.nonce和resource.associated_data，对数据密文resource.ciphertext进行解密，最终可得到JSON格式的订单信息。
-      "ciphertext": "",
-      // 【附加数据】参与解密的附加数据，该字段可能为空。
-      "associated_data": "",
-      // 【随机串】参与解密的随机串
-      "nonce": ""
+    "original_type": "transaction",            // 原始数据类型
+    "algorithm": "AEAD_AES_256_GCM",          // 加密算法
+    "ciphertext": "...",                      // 加密数据
+    "associated_data": "",                     // 附加数据
+    "nonce": ""                               // 随机串
   }
 }
 ```
 
-商户接收到回调通知报文后，需在 5 秒内完成对报文的验签，并应答回调通知。
-
-- 验签通过：商户需告知微信支付接收回调成功，HTTP 应答状态码需返回 200 或 204，无需返回应答报文。
-
-- 验签不通过：商户需告知微信支付接收回调失败，HTTP 应答状态码需返回 5XX 或 4XX，同时需返回以下应答报文：
+**回调处理流程：**
 
 ```js
-{
-  // 【返回状态码】商户验签不通过时返回FAIL，代表回调接收失败。
-  "code": "FAIL",
-  // 【返回信息】返回信息，回调接收失败原因。
-  "message": "失败"
+// Node.js 示例
+const crypto = require('crypto');
+
+// 🔸 验签函数
+function verifySignature(signature, timestamp, nonce, body, cert) {
+  const signStr = `${timestamp}\n${nonce}\n${body}\n`;
+  const verify = crypto.createVerify('RSA-SHA256');
+  verify.update(signStr);
+  return verify.verify(cert, signature, 'base64');
 }
+
+// 🔸 解密函数
+function decryptData(ciphertext, key, nonce, associatedData) {
+  const decipher = crypto.createDecipherGCM('aes-256-gcm', key);
+  decipher.setAuthTag(Buffer.from(ciphertext.slice(-32), 'hex'));
+  if (associatedData) {
+    decipher.setAAD(Buffer.from(associatedData));
+  }
+  
+  let decrypted = decipher.update(ciphertext.slice(0, -32), 'base64', 'utf8');
+  decrypted += decipher.final('utf8');
+  return JSON.parse(decrypted);
+}
+
+// 🔸 回调处理主函数
+app.post('/wxpay/callback', (req, res) => {
+  const signature = req.headers['wechatpay-signature'];
+  const timestamp = req.headers['wechatpay-timestamp'];
+  const nonce = req.headers['wechatpay-nonce'];
+  const body = JSON.stringify(req.body);
+  
+  // 1. 验签
+  if (!verifySignature(signature, timestamp, nonce, body, wxpayCert)) {
+    return res.status(400).json({ code: 'FAIL', message: '验签失败' });
+  }
+  
+  // 2. 解密
+  const resource = req.body.resource;
+  const decryptedData = decryptData(
+    resource.ciphertext,
+    apiv3Key,
+    resource.nonce,
+    resource.associated_data
+  );
+  
+  // 3. 处理业务逻辑
+  if (decryptedData.trade_state === 'SUCCESS') {
+    // 支付成功处理
+    updateOrderStatus(decryptedData.out_trade_no, 'paid');
+    // 发货逻辑
+    processDelivery(decryptedData.out_trade_no);
+    
+    // 4. 返回成功响应
+    res.status(200).json({ code: 'SUCCESS', message: '处理成功' });
+  } else {
+    // 支付失败处理
+    res.status(200).json({ code: 'SUCCESS', message: '已处理' });
+  }
+});
 ```
 
-验签需使用请求头中的【Wechatpay-Timestamp】、【Wechatpay-Nonce】以及请求主体中 JSON 格式的通知参数构建出验签串，然后使用【Wechatpay-Serial】对应的微信支付平台证书/微信支付公钥对验签串和【Wechatpay-Signature】进行验签，确保接收的回调内容是来自微信支付。
+**回调应答要求：**
 
-### 申请退款
+| 场景 | HTTP状态码 | 应答内容 |
+|------|------------|----------|
+| 验签成功 | 200 或 204 | 无需应答体 |
+| 验签失败 | 4xx 或 5xx | `{"code":"FAIL","message":"失败原因"}` |
 
-在交易完成后的一年内（以支付成功时间为起点+365 天计算），若因用户或商户方面导致需进行订单退款，商户可通过此接口将支付金额的全部或部分原路退还至用户。
+::: warning 安全要求
+- 必须验证回调请求的签名，确保来源可信
+- 建议对相同订单的重复回调进行幂等处理
+- 回调处理完成后应立即返回200状态码
+- 商户服务器必须对微信支付回调IP开放访问权限
+:::
 
-> 申请退款接口返回成功仅表示退款单已受理成功，具体的退款结果需依据退款结果通知及查询退款的返回信息为准。
-> 在申请退款失败后进行重试时，请务必使用原商户退款单号，以避免因重复退款而导致的资金损失。
+### JSAPI申请退款
 
-请求方式：【POST】/v3/refund/domestic/refunds
+在交易完成后的一年内，商户可通过退款接口将支付金额的全部或部分原路退还给用户。
 
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
+**退款业务流程：**
 
-```bash
-curl -X POST \
-  https://api.mch.weixin.qq.com/v3/refund/domestic/refunds \
-  -H "Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",..." \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "transaction_id" : "1217752501201407033233368018",
-    "out_trade_no" : "1217752501201407033233368018",
-    # 商户退款单号】 商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一商户退款单号多次请求只退一笔。不可超过64个字节数。
-    "out_refund_no" : "1217752501201407033233368018",
-    # 【退款原因】该原因将在下发给用户的退款消息中显示
-    "reason" : "商品已售完",
-    # 【退款结果回调url】 异步接收微信支付退款结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数
-    "notify_url" : "https://weixin.qq.com",
-    # 退款资金来源
-    # AVAILABLE: 仅对旧资金流商户适用:可用余额账户出资
-    # UNSETTLED: 仅对出行预付押金退款适用，指定从未结算资金出资。
-    "funds_account" : "AVAILABLE",
-    "amount" : {
-      "refund" : 888,
-      "from" : [
-        {
-          "account" : "AVAILABLE",
-          "amount" : 444
-        }
-      ],
-      "total" : 888,
-      "currency" : "CNY"
-    },
-    "goods_detail" : [
-      {
-        "merchant_goods_id" : "1217752501201407033233368018",
-        "wechatpay_goods_id" : "1001",
-        "goods_name" : "iPhone6s 16G",
-        "unit_price" : 528800,
-        "refund_amount" : 528800,
-        "refund_quantity" : 1
-      }
-    ]
-  }'
+```mermaid
+graph TD
+    A[用户申请退款] --> B[商户审核]
+    B --> C{审核结果}
+    C -->|通过| D[调用退款接口]
+    C -->|拒绝| E[拒绝退款]
+    
+    D --> F[微信处理退款]
+    F --> G[退款结果回调]
+    G --> H[更新订单状态]
+    H --> I[通知用户]
+    
+    E --> J[通知用户被拒原因]
 ```
 
-应答参数：
+**接口信息：**
+- **请求方式**：`POST`
+- **请求URL**：`https://api.mch.weixin.qq.com/v3/refund/domestic/refunds`
+
+**请求参数：**
 
 ```js
 {
-  // 【微信支付退款订单号】申请退款受理成功时，该笔退款单在微信支付侧生成的唯一标识。
-  "refund_id" : "50000000382019052709732678859",
-  // 【商户退款单号】 商户申请退款时传的商户系统内部退款单号。
-  "out_refund_no" : "1217752501201407033233368018",
-  "transaction_id" : "1217752501201407033233368018",
-  "out_trade_no" : "1217752501201407033233368018",
-  // 【退款渠道】 ORIGINAL: 原路退款 BALANCE: 退回到余额 OTHER_BALANCE: 原账户异常退到其他余额账户 OTHER_BANKCARD: 原银行卡异常退到其他银行卡(发起异常退款成功后返回)
-  "channel" : "ORIGINAL",
-  // 退款入账账户 取当前退款单的退款入账方
-  "user_received_account" : "招商银行信用卡0403",
-  // 退款成功时间
-  "success_time" : "2020-12-01T16:18:12+08:00",
-  // 微信受理退款申请单的时间。
-  "create_time" : "2020-12-01T16:18:12+08:00",
-  // 【退款状态】 SUCCESS: 退款成功 CLOSED: 退款关闭 PROCESSING: 退款处理中 ABNORMAL: 退款异常，退款到银行发现用户的卡作废或者冻结了
-  "status" : "SUCCESS",
-  // 【资金账户】 退款所使用资金对应的资金账户类型
-  "funds_account" : "UNSETTLED",
-  "amount" : {
-    "total" : 100,
-    "refund" : 100,
-    "from" : [
-      {
-        "account" : "AVAILABLE",
-        "amount" : 444
-      }
-    ],
-    "payer_total" : 90,
-    "payer_refund" : 90,
-    "settlement_refund" : 100,
-    "settlement_total" : 100,
-    "discount_refund" : 10,
-    "currency" : "CNY",
-    "refund_fee" : 100
+  // 🔸 订单标识（二选一）
+  "transaction_id": "1217752501201407033233368018",  // 微信支付订单号
+  "out_trade_no": "1217752501201407033233368018",    // 商户订单号
+  
+  // 🔸 退款标识
+  "out_refund_no": "1217752501201407033233368018",   // 商户退款单号
+  "reason": "商品已售完",                             // 退款原因
+  "notify_url": "https://weixin.qq.com",             // 退款结果回调URL
+  
+  // 🔸 退款金额
+  "amount": {
+    "refund": 888,                                   // 退款金额（分）
+    "total": 888,                                    // 订单总金额（分）
+    "currency": "CNY",                               // 币种
+    "from": [{                                       // 退款出资账户
+      "account": "AVAILABLE",                        // 账户类型
+      "amount": 444                                  // 出资金额
+    }]
   },
-  "promotion_detail" : [
-    {
-      "promotion_id" : "109519",
-      "scope" : "GLOBAL",
-      "type" : "COUPON",
-      "amount" : 5,
-      "refund_amount" : 100,
-      "goods_detail" : [
-        {
-          "merchant_goods_id" : "1217752501201407033233368018",
-          "wechatpay_goods_id" : "1001",
-          "goods_name" : "iPhone6s 16G",
-          "unit_price" : 528800,
-          "refund_amount" : 528800,
-          "refund_quantity" : 1
-        }
-      ]
-    }
-  ]
+  
+  // 🔸 退款商品详情
+  "goods_detail": [{
+    "merchant_goods_id": "1217752501201407033233368018", // 商户商品ID
+    "wechatpay_goods_id": "1001",                        // 微信商品ID
+    "goods_name": "iPhone6s 16G",                        // 商品名称
+    "unit_price": 528800,                                // 商品单价
+    "refund_amount": 528800,                             // 退款金额
+    "refund_quantity": 1                                 // 退款数量
+  }],
+  
+  // 🔸 退款资金来源
+  "funds_account": "AVAILABLE"                           // 资金账户
 }
 ```
 
-### 查询退款
+**退款资金来源说明：**
 
-请求方式：【GET】/v3/refund/domestic/refunds/{out_refund_no}
+| 资金来源 | 说明 | 适用场景 |
+|----------|------|----------|
+| `AVAILABLE` | 可用余额 | 普通退款 |
+| `UNSETTLED` | 未结算资金 | 预付押金退款 |
 
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
-
-路径参数 out_refund_no：【商户退款单号】 商户申请退款时传入的商户系统内部退款单号。
-
-```bash
-curl -X GET \
-  https://api.mch.weixin.qq.com/v3/refund/domestic/refunds/1217752501201407033233368018 \
-  -H "Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",..." \
-  -H "Accept: application/json"
-```
-
-应答参数和退款单信息相同；
-
-### 发起异常退款
-
-提交退款申请后，退款结果通知或查询退款确认状态为退款异常，可调用此接口发起异常退款处理。支持退款至用户、退款至交易商户银行账户两种处理方式。
-
-> 退款至用户时，仅支持以下银行的借记卡：招行、交通银行、农行、建行、工商、中行、平安、浦发、中信、光大、民生、兴业、广发、邮储、宁波银行
-
-请求方式：【POST】/v3/refund/domestic/refunds/{refund_id}/apply-abnormal-refund
-
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
-
-路径参数 refund_id：【微信支付退款单号】申请退款受理成功时，该笔退款单在微信支付侧生成的唯一标识。
-
-```bash
-curl -X POST \
-  https://api.mch.weixin.qq.com/v3/refund/domestic/refunds/50000000382019052709732678859/apply-abnormal-refund \
-  -H "Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",..." \
-  -H "Accept: application/json" \
-  -H "Wechatpay-Serial: 5157F09EFDC096DE15EBE81A47057A7232F1B8E1"  \
-  -H "Content-Type: application/json" \
-  -d '{
-  # 【商户退款单号】商户申请退款时传入的商户系统内部退款单号。
-    "out_refund_no" : "1217752501201407033233368018",
-  # 【异常退款处理方式】 可选：退款至用户银行卡USER_BANK_CARD、退款至交易商户银行账户MERCHANT_BANK_CARD
-    "type" : "USER_BANK_CARD",
-    # 银行类型，采用字符串类型的银行标识
-    "bank_type" : "ICBC_DEBIT",
-    # 收款银行卡号】用户的银行卡账号，该字段需要使用微信支付公钥加密（推荐）
-    "bank_account" : "d+xT+MQCvrLHUVDWv/8MR/dB7TkXLVfSrUxMPZy6jWWYzpRrEEaYQE8ZRGYoeorwC+w==",
-    # 【收款用户姓名】 收款用户姓名，该字段需要使用微信支付公钥加密（推荐）
-    "real_name" : "UPgQcZSdq3zOayJwZ5XLrHY2dZU1W2Cd"
-  }'
-```
-
-应答参数同退款单。
-
-### 退款结果回调通知
-
-用户支付完成后，商户可根据需求发起退款。当退款单状态发生变更时（变更为退款成功/退款关闭/退款异常），微信支付会通过 POST 的请求方式，向商户预先设置的退款回调地址(申请退款传入的 notfiy_url)发送回调通知，让商户知晓退款单的处理结果。
-
-回调报文的 HTTP 请求头中会包含报文的签名信息，用于后续验签:
-
-```bash
-Wechatpay-Serial:验签的微信支付平台证书序列号/微信支付公钥ID
-Wechatpay-Signature:验签的签名值
-Wechatpay-Timestamp:验签的时间戳
-Wechatpay-Nonce:验签的随机串
-```
-
-报文参数同支付成功回调通知：
+**应答参数：**
 
 ```js
 {
-  "id":"EV-2018022511223320873",
-  "create_time":"2018-06-08T10:34:56+08:00",
-  "resource_type":"encrypt-resource",
-  "event_type":"REFUND.SUCCESS",
-  "summary":"退款成功",
-  "resource" : {
-  "algorithm":"AEAD_AES_256_GCM",
-  "original_type": "refund",
-      "ciphertext": "...",
-      "nonce": "...",
-      "associated_data": ""
+  "refund_id": "50000000382019052709732678859",      // 微信退款单号
+  "out_refund_no": "1217752501201407033233368018",   // 商户退款单号
+  "transaction_id": "1217752501201407033233368018",  // 微信支付订单号
+  "out_trade_no": "1217752501201407033233368018",    // 商户订单号
+  "channel": "ORIGINAL",                             // 退款渠道
+  "user_received_account": "招商银行信用卡0403",       // 退款入账账户
+  "success_time": "2020-12-01T16:18:12+08:00",      // 退款成功时间
+  "create_time": "2020-12-01T16:18:12+08:00",       // 退款受理时间
+  "status": "SUCCESS",                               // 退款状态
+  "funds_account": "UNSETTLED",                      // 资金账户
+  
+  // 🔸 退款金额详情
+  "amount": {
+    "total": 100,                                    // 订单总金额
+    "refund": 100,                                   // 退款金额
+    "payer_total": 90,                              // 用户实际支付
+    "payer_refund": 90,                             // 用户实际退款
+    "settlement_refund": 100,                       // 结算退款金额
+    "settlement_total": 100,                        // 结算总金额
+    "discount_refund": 10,                          // 优惠退款金额
+    "currency": "CNY",                              // 币种
+    "refund_fee": 100                               // 退款手续费
   }
 }
 ```
 
-### 申请交易账单
+**退款状态说明：**
 
-微信支付在每日 10 点后生成昨日交易账单文件，商户可通过接口获取账单下载链接。账单包含交易金额、时间及营销信息，利于订单核对、退款审查及银行到账确认。
+| 状态 | 说明 | 处理建议 |
+|------|------|----------|
+| `SUCCESS` | 退款成功 | 通知用户退款完成 |
+| `CLOSED` | 退款关闭 | 查看关闭原因 |
+| `PROCESSING` | 退款处理中 | 继续关注状态 |
+| `ABNORMAL` | 退款异常 | 联系微信客服 |
 
-请求方式：【GET】/v3/bill/tradebill
+### JSAPI查询退款
 
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
+商户可通过商户退款单号查询退款详情。
 
-查询参数：
-| 参数名 | 类型 | 必填 | 描述 |
-| --- | --- | --- | --- |
-| bill_date | String | 是 | 账单日期，格式：yyyy-MM-dd。仅支持三个月内的账单下载申请。 |
-| bill_type | String | 否 | 账单类型，SUCCESS-成功支付的账单，REFUND: 退款订单，ALL-全部账单。默认为 ALL |
-| sub_mchid | String | 否 | 子商户的商户号，由微信支付生成并下发。 |
-| tar_type | String | 否 | 压缩账单，非必传参数，固定值：GZIP，返回格式为.gzip 的压缩包账单。不传则默认为数据流形式。 |
+**接口调用：**
 
 ```bash
-curl -X GET \
-  https://api.mch.weixin.qq.com/v3/bill/tradebill?bill_date=2019-06-11&sub_mchid=19000000001&bill_type=ALL&tar_type=GZIP \
-  -H "Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",..." \
-  -H "Accept: application/json"
+GET /v3/refund/domestic/refunds/{out_refund_no}
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Accept: application/json
 ```
 
-应答参数：
+**应答参数：**
+
+应答参数与申请退款接口返回的参数结构相同，包含退款的完整信息。
+
+### JSAPI退款回调
+
+当退款单状态发生变更时，微信支付会向商户预设的回调地址发送通知。
+
+**回调处理示例：**
+
+```js
+app.post('/wxpay/refund-callback', (req, res) => {
+  // 验签和解密过程与支付回调相同
+  const decryptedData = decryptRefundData(req.body);
+  
+  if (decryptedData.refund_status === 'SUCCESS') {
+    // 退款成功处理
+    updateRefundStatus(decryptedData.out_refund_no, 'success');
+    notifyUserRefundSuccess(decryptedData.out_trade_no);
+    
+    res.status(200).json({ code: 'SUCCESS', message: '处理成功' });
+  } else {
+    // 退款失败处理
+    handleRefundFail(decryptedData);
+    res.status(200).json({ code: 'SUCCESS', message: '已处理' });
+  }
+});
+```
+
+### JSAPI账单下载
+
+微信支付提供交易账单和资金账单的下载功能，帮助商户进行对账和财务管理。
+
+**账单类型对比：**
+
+| 账单类型 | 内容 | 用途 |
+|----------|------|------|
+| 交易账单 | 交易明细、金额、时间等 | 订单核对、退款审查 |
+| 资金账单 | 资金流水、收支记录 | 财务对账、资金确认 |
+
+**申请交易账单：**
+
+```bash
+GET /v3/bill/tradebill?bill_date=2019-06-11&bill_type=ALL&tar_type=GZIP
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Accept: application/json
+```
+
+**查询参数：**
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `bill_date` | 是 | 账单日期，格式：yyyy-MM-dd |
+| `bill_type` | 否 | SUCCESS/REFUND/ALL，默认ALL |
+| `tar_type` | 否 | GZIP压缩，默认数据流 |
+
+**申请资金账单：**
+
+```bash
+GET /v3/bill/fundflowbill?bill_date=2019-06-11&account_type=BASIC&tar_type=GZIP
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Accept: application/json
+```
+
+**应答参数：**
 
 ```js
 {
-  // 【哈希类型】 哈希类型，固定为SHA1。
-  "hash_type" : "SHA1",
-  // 【哈希值】 账单文件的SHA1摘要值，用于商户侧校验文件的一致性。
-  "hash_value" : "79bb0f45fc4c42234a918000b2668d689e2bde04",
-  // 【下载地址】 供下一步请求账单文件的下载地址，该地址5min内有效
-  "download_url" : "https://api.mch.weixin.qq.com/v3/bill/downloadurl?token=xxx"
+  "hash_type": "SHA1",                                    // 哈希类型
+  "hash_value": "79bb0f45fc4c42234a918000b2668d689e2bde04", // 哈希值
+  "download_url": "https://api.mch.weixin.qq.com/v3/bill/downloadurl?token=xxx" // 下载地址
 }
 ```
 
-### 申请资金账单
-
-微信支付按天提供商户各账户的资金流水账单文件，商户可以通过该接口获取账单文件的下载地址。账单文件详细记录了账户资金操作的相关信息，包括业务单号、收支金额及记账时间等，以便商户进行核对与确认。
-
-请求方式：【GET】/v3/bill/fundflowbill
-
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
-
-查询参数：
-| 参数名 | 类型 | 必填 | 描述 |
-| --- | --- | --- | --- |
-| bill_date | String | 是 | 账单日期，格式：yyyy-MM-dd。仅支持三个月内的账单下载申请。 |
-| account_type | String | 否 | 资金账户类型，BASIC-基本账户，OPERATION-运营账户，FEES-手续费账户，默认为 BASIC。 |
-| tar_type | String | 否 | 压缩类型，非必传参数，固定值：GZIP，返回格式为.gzip 的压缩包账单。不传则默认为数据流形式。 |
+**下载账单：**
 
 ```bash
-curl -X GET \
-  https://api.mch.weixin.qq.com/v3/bill/fundflowbill?bill_date=2019-06-11&account_type=BASIC&tar_type=GZIP \
-  -H "Authorization: WECHATPAY2-SHA256-RSA2048 mchid=\"1900000001\",..." \
-  -H "Accept: application/json"
+curl https://api.mch.weixin.qq.com/v3/billdownload/file?token=xxx \
+  -H 'Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...'
 ```
 
-应答参数：
+::: tip 账单处理建议
+- 账单每日10点后生成，仅支持近3个月的账单下载
+- 建议使用GZIP压缩格式减少下载时间
+- 下载后应验证hash值确保文件完整性
+- 账单可用于自动化对账和财务报表生成
+:::
 
-```js
-{
-  // 【哈希类型】 哈希类型，固定为SHA1。
-  "hash_type" : "SHA1",
-  // 【哈希值】 账单文件的SHA1摘要值，用于商户侧校验文件的一致性。
-  "hash_value" : "79bb0f45fc4c42234a918000b2668d689e2bde04",
-  // 【下载地址】 供下一步请求账单文件的下载地址，该地址5min内有效
-  "download_url" : "https://api.mch.weixin.qq.com/v3/bill/downloadurl?token=xxx"
-}
+## 📲 APP支付
+
+APP支付提供商户在自己的APP中使用微信支付收款的能力。
+
+### APP支付流程
+
+**整体流程图：**
+
+```mermaid
+sequenceDiagram
+    participant A as APP客户端
+    participant S as 商户服务器
+    participant W as 微信支付
+    participant WX as 微信客户端
+    
+    A->>S: 1. 选择商品，发起支付
+    S->>W: 2. 调用APP下单接口
+    W->>S: 3. 返回prepay_id
+    S->>A: 4. 返回支付参数
+    A->>WX: 5. 调用微信SDK唤起支付
+    WX->>W: 6. 用户确认支付
+    W->>S: 7. 支付结果回调
+    W->>WX: 8. 返回支付结果
+    WX->>A: 9. 返回APP
+    A->>S: 10. 查询支付结果
 ```
-
-### 下载账单
-
-当商户调用申请交易账单/申请资金账单接口，获取到下载账单链接 download_url 后，需按照 V3 接口规则生成签名，然后请求下载账单链接 download_url 获取对应的账单文件。
-
-```bash
-$ curl https://api.mch.weixin.qq.com/v3/billdownload/file?token=xxx
--H 'Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",nonce_str="593BEC0C930BF1AFEB40B4A08C8FB242",signature="uOVRnA4qG/MNnYzdQxJxxxxxxxxxanN+zU+lTgIcH/84nLBiCwIUFluw==",timestamp="1554208460",serial_no="1DDE55AD98xxxxxxx996DE7B47773A8C"'
-```
-
-## APP 支付
-
-APP 支付，提供商户在自己的 APP 中使用微信支付收款的能力。商户在客户端生成支付参数后，将参数发送至微信支付后台，微信支付后台返回支付参数，商户再调用微信支付 SDK 完成支付。
-
-- 微信 OpenSDK 是微信为开发者提供的客户端 SDK。通过微信 OpenSDK，你可以使用微信客户端的支付能力，如调起微信支付。接入指南：https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/Android.html
-- 服务端 SDK:微信支付提供了多种编程语言的开源服务端 SDK，以帮助开发者快速、高效地接入微信支付功能
-
-SDK 的使用：
-
-- Android 系统和鸿蒙系统中，商户 APP 使用 openSDK 调起微信支付时，微信支付会校验商户创建移动应用 APPID 时填写的应用包名、应用签名（在鸿蒙系统中对应为 Bundle ID 和 Identifier）是否与商户 App 项目配置文件中的信息一致，若不一致将无法调起支付。
-- 商户可在开放平台中的【管理中心 - 移动应用 - 详情 - 开发配置】页面查看 appid 的开发配置
-
-开发前，需要提前申请移动应用 APPID，APP 支付流程：
 
 ![alt text](image-36.png)
 
-开发流程：
+**开发流程：**
 ![alt text](image-39.png)
 
-1. APP 下单
+### APP SDK集成
 
-请求方式：【POST】/v3/pay/transactions/`app` 其余和 JSAPI 支付一致 2. APP 调起支付
+**平台支持：**
 
-商户通过 App 下单接口获取到发起支付的必要参数 prepay_id 后，商户 APP 再通过 openSDK(详见安卓/IOS/鸿蒙接入指引)的 sendReq 方法拉起微信支付。
+| 平台 | SDK | 文档链接 |
+|------|-----|----------|
+| Android | OpenSDK | https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/Android.html |
+| iOS | OpenSDK | https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html |
+| 鸿蒙 | OpenSDK | https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/HarmonyOS.html |
 
-```js
-// android示例代码：
-IWXAPI api;
-PayReq request = new PayReq();
-request.appId = "wxd930ea5d5a258f4f";
-// 填写下单时传入的【商户号】mchid。
-request.partnerId = "1900000109";
-request.prepayId= "1101000000140415649af9fc314aa427",;
-// 填写固定值Sign=WXPay
-request.packageValue = "Sign=WXPay";
-// 随机字符串，不长于32位。该值建议使用随机数算法生成。
-request.nonceStr= "1101000000140429eb40476f8896f4c9";
-// Unix时间戳，秒数
-request.timeStamp= "1398746574";
-req.sign = '签名'
-api.sendReq(request);
+**SDK校验机制：**
 
-// ios示例代码：
-PayReq *request = [[[PayReq alloc] init] autorelease];
-request.appId = "wxd930ea5d5a258f4f";
-request.partnerId = "1900000109";
-request.prepayId= "1101000000140415649af9fc314aa427",;
-request.packageValue = "Sign=WXPay";
-request.nonceStr= "1101000000140429eb40476f8896f4c9";
-request.timeStamp= "1398746574";
-req.sign = '签名'
-[WXApi sendReq：request];
-
-// 鸿蒙示例代码：
-IWXAPI api;
-let req = new wxopensdk.PayReq
-req.appId = 'wxd930ea5d5a258f4f'
-req.partnerId = '1900000109'
-req.prepayId = '1101000000140415649af9fc314aa427'
-req.packageValue = 'Sign=WXPay'
-req.nonceStr = '1101000000140429eb40476f8896f4c9'
-req.timeStamp = '1398746574'
-req.sign = '签名'
-api.sendReq(context: common.UIAbilityContext, req)
+```mermaid
+graph TD
+    A[APP调用SDK] --> B[微信校验]
+    B --> C{应用信息匹配}
+    C -->|匹配| D[调起支付]
+    C -->|不匹配| E[调起失败]
+    
+    B --> F[应用包名]
+    B --> G[应用签名]
+    B --> H[Bundle ID]
+    B --> I[Identifier]
 ```
 
-用户从微信收银台返回商户 APP 时 openSDK 会 onResp 回调，商户可通过回调 errCode 参数展示相应支付结果：
+**重要配置要求：**
+- Android/鸿蒙：应用包名和应用签名必须与开放平台注册信息一致
+- iOS：Bundle ID必须与开放平台注册信息一致
+- 可在开放平台【管理中心 → 移动应用 → 详情 → 开发配置】查看配置信息
 
-- 0：支付成功：调用后端接口查单，如果订单已支付则展示支付成功页面
-- -1：支付失败：可能的原因：签名错误、未注册 AppID、项目设置 AppID 不正确、注册的 AppID 与设置的不匹配、其他异常原因等。
-- -2：支付取消：用户取消支付返回 App，商户可自行处理展示。
+### APP下单与调起
+
+**1. APP下单接口**
+
+```bash
+POST /v3/pay/transactions/app
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Content-Type: application/json
+```
+
+请求参数与JSAPI支付基本相同，只是接口路径不同。
+
+**2. 调起支付代码示例**
+
+**Android示例：**
 
 ```java
-// android示例代码：
-public void onResp(BaseRespresp){
-    if(resp.getType()==ConstantsAPI.COMMAND_PAY_BY_WX){
-    Log.d(TAG,"onPayFinish,errCode="+resp.errCode);
-    AlertDialog.Builderbuilder=newAlertDialog.Builder(this);
-    builder.setTitle(R.string.app_tip);
-    }
+// 初始化微信API
+private IWXAPI api;
+
+// 在onCreate中初始化
+api = WXAPIFactory.createWXAPI(this, APP_ID, true);
+api.registerApp(APP_ID);
+
+// 调起支付
+private void startPay(String prepayId) {
+    PayReq request = new PayReq();
+    request.appId = "wxd930ea5d5a258f4f";           // 应用ID
+    request.partnerId = "1900000109";                // 商户号
+    request.prepayId = prepayId;                     // 预支付订单号
+    request.packageValue = "Sign=WXPay";             // 固定值
+    request.nonceStr = generateNonceStr();           // 随机字符串
+    request.timeStamp = String.valueOf(System.currentTimeMillis() / 1000); // 时间戳
+    request.sign = generateSign(request);            // 签名
+    
+    api.sendReq(request);
+}
+
+// 生成随机字符串
+private String generateNonceStr() {
+    return UUID.randomUUID().toString().replace("-", "");
+}
+
+// 生成签名
+private String generateSign(PayReq request) {
+    // 使用商户私钥进行RSA签名
+    String signStr = String.format("appid=%s&noncestr=%s&package=%s&partnerid=%s&prepayid=%s&timestamp=%s",
+        request.appId, request.nonceStr, request.packageValue, 
+        request.partnerId, request.prepayId, request.timeStamp);
+    return RSAUtils.sign(signStr, privateKey);
 }
 ```
 
-其他流程基本和 JSAPI 一致
+**iOS示例：**
 
-## H5 支付
+```objc
+// 调起支付
+- (void)startPayWithPrepayId:(NSString *)prepayId {
+    PayReq *request = [[PayReq alloc] init];
+    request.appId = @"wxd930ea5d5a258f4f";
+    request.partnerId = @"1900000109";
+    request.prepayId = prepayId;
+    request.packageValue = @"Sign=WXPay";
+    request.nonceStr = [self generateNonceStr];
+    request.timeStamp = [NSString stringWithFormat:@"%ld", (long)[[NSDate date] timeIntervalSince1970]];
+    request.sign = [self generateSign:request];
+    
+    [WXApi sendReq:request completion:^(BOOL success) {
+        if (success) {
+            NSLog(@"微信支付调起成功");
+        } else {
+            NSLog(@"微信支付调起失败");
+        }
+    }];
+}
+```
 
-H5 支付，提供商户在移动客户端浏览器网页（非微信客户端内部浏览器）中使用微信支付收款的能力。支付流程：
+**鸿蒙示例：**
+
+```javascript
+// 调起支付
+private startPay(prepayId: string) {
+  let req = new wxopensdk.PayReq();
+  req.appId = 'wxd930ea5d5a258f4f';
+  req.partnerId = '1900000109';
+  req.prepayId = prepayId;
+  req.packageValue = 'Sign=WXPay';
+  req.nonceStr = this.generateNonceStr();
+  req.timeStamp = Math.floor(Date.now() / 1000).toString();
+  req.sign = this.generateSign(req);
+  
+  this.api.sendReq(this.context, req);
+}
+```
+
+### APP回调处理
+
+**支付结果回调：**
+
+```java
+// Android回调处理
+@Override
+public void onResp(BaseResp resp) {
+    if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("支付结果");
+        
+        switch (resp.errCode) {
+            case 0:
+                // 支付成功
+                builder.setMessage("支付成功");
+                // 建议调用后端接口确认支付状态
+                checkPaymentStatus();
+                break;
+            case -1:
+                // 支付失败
+                builder.setMessage("支付失败：" + resp.errStr);
+                break;
+            case -2:
+                // 用户取消
+                builder.setMessage("用户取消支付");
+                break;
+            default:
+                builder.setMessage("支付异常");
+                break;
+        }
+        
+        builder.show();
+    }
+}
+
+// 查询支付状态
+private void checkPaymentStatus() {
+    // 调用后端接口查询订单状态
+    // 确保订单确实已经支付成功
+}
+```
+
+**回调错误码说明：**
+
+| 错误码 | 说明 | 处理建议 |
+|--------|------|----------|
+| 0 | 支付成功 | 调用查单接口确认 |
+| -1 | 支付失败 | 检查签名和参数 |
+| -2 | 用户取消 | 允许重新支付 |
+
+::: warning 重要提醒
+- APP支付回调只能作为支付结果的初步判断
+- 必须通过服务端查单接口确认最终支付状态
+- 建议在回调成功后立即调用查单接口
+:::
+
+## 🌐 H5支付
+
+H5支付提供商户在移动客户端浏览器网页中使用微信支付收款的能力。
+
+### H5支付流程
+
+**支付流程图：**
 
 ![alt text](image-40.png)
 
-需要提前申请商户号，且需要开通 H5 支付，可通过【商户平台 -> 产品中心 -> H5 支付 -> 申请开通 -> 填写支付域名、支付域名 ICP 备案截图及经营场所简介等信息 -> 提交申请】操作，待审核(7 个工作日内)通过后将开通 H5 支付权限。
-
-业务流程：
+**业务流程：**
 ![alt text](image-41.png)
 
-1. H5 下单
+### H5域名配置
 
-用户在商户 H5 页面选择微信支付后，商户需调用该接口在微信支付下单，生成用于调起支付的 H5 支付链接（h5_url）。
+**申请H5支付权限：**
 
-详细下单步骤：
+```mermaid
+graph TD
+    A[商户平台] --> B[产品中心]
+    B --> C[H5支付]
+    C --> D[申请开通]
+    D --> E[填写支付域名]
+    E --> F[上传ICP备案截图]
+    F --> G[经营场所简介]
+    G --> H[提交申请]
+    H --> I[等待审核]
+    I --> J[审核通过]
+    J --> K[开通H5支付权限]
+```
+
+**配置要求：**
+- 支付域名必须完成ICP备案
+- 域名必须与实际支付页面一致
+- 审核周期：7个工作日内
+
+### H5调起支付
+
+**1. H5下单**
+
+```bash
+POST /v3/pay/transactions/h5
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Content-Type: application/json
+```
+
+**详细下单步骤：**
 ![alt text](image-42.png)
 
-请求方式：【POST】/v3/pay/transactions/h5
+**2. 调起支付流程**
 
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant H as H5页面
+    participant W as 微信支付
+    participant WX as 微信客户端
+    
+    U->>H: 1. 点击支付按钮
+    H->>W: 2. 获取h5_url
+    W->>H: 3. 返回支付链接
+    H->>U: 4. 跳转到h5_url
+    U->>W: 5. 微信收银台中间页
+    W->>WX: 6. 调起微信客户端
+    WX->>U: 7. 用户确认支付
+    U->>H: 8. 返回商户页面
+```
 
-请求参数基本都相同。
+**调起支付代码：**
 
-2. 调起支付
+```html
+<!-- H5支付页面 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信支付</title>
+</head>
+<body>
+    <script>
+        // 获取支付链接
+        function startPay() {
+            fetch('/api/h5-pay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    out_trade_no: 'ORDER123456',
+                    total_fee: 100,
+                    body: '测试商品'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.h5_url) {
+                    // 跳转到微信支付页面
+                    window.location.href = data.h5_url;
+                } else {
+                    alert('获取支付链接失败');
+                }
+            });
+        }
+        
+        // 页面加载完成后检查支付结果
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('pay_result') === 'success') {
+                // 支付成功处理
+                checkPaymentStatus();
+            }
+        };
+        
+        // 检查支付状态
+        function checkPaymentStatus() {
+            fetch('/api/order-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    out_trade_no: 'ORDER123456'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.trade_state === 'SUCCESS') {
+                    showSuccessPage();
+                } else {
+                    showFailPage();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+```
 
-1、商户通过 H5 下单接口获取到发起支付的必要参数 h5_url。
+**H5支付注意事项：**
 
-2、商户在配置了 H5 支付域名的网页中跳转 h5_url，调起微信支付收银台中间页。
+| 场景 | 要求 | 说明 |
+|------|------|------|
+| 域名校验 | 必须在配置域名下 | 否则无法调起支付 |
+| 用户代理 | 移动浏览器 | 非微信内置浏览器 |
+| 网络环境 | 良好的网络连接 | 避免支付中断 |
 
-3、微信支付收银台中间页会进行 H5 权限的校验，安全性检查。校验通过后，用户可正常进行支付。
+::: tip H5支付优化建议
+- 在支付页面添加loading状态提示
+- 处理支付过程中的网络异常
+- 提供客服联系方式
+- 优化移动端页面体验
+:::
 
-## Native 支付
+## 🖥️ Native支付
 
-Native 支付，提供商户在 PC 端网页浏览器中使用微信支付收款的能力。
-支付流程：
+Native支付提供商户在PC端网页浏览器中使用微信支付收款的能力。
+
+### Native支付流程
+
+**支付流程图：**
 ![alt text](image-43.png)
 
-开发流程：
+**开发流程：**
 ![alt text](image-44.png)
 
-1. Native 下单
-   用户在商户前端选择微信支付后，商户需要调用该接口在微信支付下单，生成用于调起支付的二维码链接 code_url
+### Native二维码生成
 
-请求方式：【POST】/v3/pay/transactions/native
+**1. Native下单**
 
-请求域名：【主域名】https://api.mch.weixin.qq.com 使用该域名将访问就近的接入点
+```bash
+POST /v3/pay/transactions/native
+Host: api.mch.weixin.qq.com
+Authorization: WECHATPAY2-SHA256-RSA2048 mchid="1900000001",...
+Content-Type: application/json
+```
 
-2. Native 调起支付
+**2. 生成二维码**
 
-- 通过 Native 下单接口获取到发起支付的必要参数 code_url。
+```javascript
+// 前端二维码生成示例
+function generateQRCode(codeUrl) {
+    // 使用qrcode.js库生成二维码
+    QRCode.toCanvas(document.getElementById('qr-canvas'), codeUrl, {
+        width: 256,
+        height: 256,
+        margin: 2,
+        color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+        }
+    }, function (error) {
+        if (error) {
+            console.error('二维码生成失败：', error);
+        } else {
+            console.log('二维码生成成功');
+        }
+    });
+}
 
-- 将 code_url 链接转换为二维码图片后，展示给用户。
+// 后端生成二维码
+const QRCode = require('qrcode');
 
-示例：将 weixin://pay.weixin.qq.com/bizpayurl/up?pr=NwY5Mz9&groupid=00 生成二维码
+app.post('/api/native-pay', async (req, res) => {
+    try {
+        // 调用微信支付下单接口
+        const wxResponse = await callWXPayAPI(req.body);
+        const codeUrl = wxResponse.code_url;
+        
+        // 生成二维码图片
+        const qrCodeDataURL = await QRCode.toDataURL(codeUrl, {
+            width: 256,
+            margin: 2
+        });
+        
+        res.json({
+            code_url: codeUrl,
+            qr_code: qrCodeDataURL
+        });
+    } catch (error) {
+        res.status(500).json({ error: '生成二维码失败' });
+    }
+});
+```
 
-- 用户打开微信“扫一扫”功能，扫描二维码，进行 Native 支付(注意：直接在微信中打开 code_url 链接，无法支付)
+### Native支付处理
 
-## 小程序支付
+**完整的Native支付页面：**
 
-提供商户在微信小程序中使用微信支付收款的能力。需要申请开通小程序(即 JSAPI)支付产品权限
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>微信支付</title>
+    <style>
+        .pay-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .qr-code {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #eee;
+        }
+        
+        .pay-status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .success { background-color: #d4edda; color: #155724; }
+        .waiting { background-color: #fff3cd; color: #856404; }
+        .failed { background-color: #f8d7da; color: #721c24; }
+        
+        .countdown {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="pay-container">
+        <h2>微信支付</h2>
+        <p>订单金额：¥<span id="amount">1.00</span></p>
+        <p>请使用微信扫描二维码完成支付</p>
+        
+        <div class="qr-code">
+            <canvas id="qr-canvas"></canvas>
+        </div>
+        
+        <div id="pay-status" class="pay-status waiting">
+            等待支付中...
+        </div>
+        
+        <div class="countdown">
+            支付剩余时间：<span id="countdown">05:00</span>
+        </div>
+        
+        <button onclick="refreshQRCode()">刷新二维码</button>
+    </div>
 
-> 小程序内嵌 H5 页面不能调用 jsapi 支付收款，小程序内只能使用小程序支付收款。
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        let paymentTimer = null;
+        let countdownTimer = null;
+        let remainingTime = 300; // 5分钟
+        
+        // 初始化支付
+        function initPayment() {
+            fetch('/api/native-pay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    out_trade_no: 'ORDER' + Date.now(),
+                    total_fee: 100,
+                    body: '测试商品'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code_url) {
+                    generateQRCode(data.code_url);
+                    startPaymentCheck();
+                    startCountdown();
+                } else {
+                    showStatus('生成二维码失败', 'failed');
+                }
+            });
+        }
+        
+        // 生成二维码
+        function generateQRCode(codeUrl) {
+            QRCode.toCanvas(document.getElementById('qr-canvas'), codeUrl, {
+                width: 200,
+                height: 200,
+                margin: 2
+            });
+        }
+        
+        // 开始支付状态检查
+        function startPaymentCheck() {
+            paymentTimer = setInterval(() => {
+                checkPaymentStatus();
+            }, 3000); // 每3秒检查一次
+        }
+        
+        // 检查支付状态
+        function checkPaymentStatus() {
+            fetch('/api/order-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    out_trade_no: window.currentOrderNo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.trade_state === 'SUCCESS') {
+                    showStatus('支付成功！', 'success');
+                    clearInterval(paymentTimer);
+                    clearInterval(countdownTimer);
+                    setTimeout(() => {
+                        window.location.href = '/success.html';
+                    }, 2000);
+                } else if (data.trade_state === 'CLOSED') {
+                    showStatus('订单已关闭', 'failed');
+                    clearInterval(paymentTimer);
+                    clearInterval(countdownTimer);
+                }
+            });
+        }
+        
+        // 开始倒计时
+        function startCountdown() {
+            countdownTimer = setInterval(() => {
+                remainingTime--;
+                updateCountdown();
+                
+                if (remainingTime <= 0) {
+                    showStatus('支付超时', 'failed');
+                    clearInterval(paymentTimer);
+                    clearInterval(countdownTimer);
+                }
+            }, 1000);
+        }
+        
+        // 更新倒计时显示
+        function updateCountdown() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById('countdown').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // 显示状态
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('pay-status');
+            statusEl.textContent = message;
+            statusEl.className = `pay-status ${type}`;
+        }
+        
+        // 刷新二维码
+        function refreshQRCode() {
+            clearInterval(paymentTimer);
+            clearInterval(countdownTimer);
+            remainingTime = 300;
+            showStatus('等待支付中...', 'waiting');
+            initPayment();
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = function() {
+            initPayment();
+        };
+        
+        // 页面关闭时清理定时器
+        window.onbeforeunload = function() {
+            clearInterval(paymentTimer);
+            clearInterval(countdownTimer);
+        };
+    </script>
+</body>
+</html>
+```
 
-![alt text](image-45.png)
+**Native支付最佳实践：**
 
-开发流程：
-![alt text](image-46.png)
+| 方面 | 建议 |
+|------|------|
+| 二维码有效期 | 建议5-10分钟 |
+| 状态检查频率 | 每3-5秒检查一次 |
+| 用户提示 | 清晰的支付状态显示 |
+| 异常处理 | 提供刷新和重新支付选项 |
 
-## 付款码支付
+::: warning 使用注意事项
+- 用户必须使用微信"扫一扫"功能扫描二维码
+- 直接在微信中打开code_url链接无法支付
+- 建议在PC端使用，移动端推荐使用H5支付
+- 二维码过期后需要重新生成
+:::
 
-商户收银员用扫码设备扫描用户的条码/二维码，商户收银系统提交支付；
+## 🏪 付款码支付
+
+付款码支付用于线下商户收银场景，商户收银员使用扫码设备扫描用户的付款码完成支付。
+
+### 付款码支付流程
 
 ![alt text](image-47.png)
 
-请求参数：
+**业务流程：**
+
+```mermaid
+sequenceDiagram
+    participant C as 收银员
+    participant S as 收银系统
+    participant W as 微信支付
+    participant U as 用户
+    
+    U->>C: 1. 出示付款码
+    C->>S: 2. 扫描付款码
+    S->>W: 3. 提交支付请求
+    W->>U: 4. 发送支付验证
+    U->>W: 5. 确认支付
+    W->>S: 6. 返回支付结果
+    S->>C: 7. 显示支付结果
+    C->>U: 8. 完成交易
+```
+
+### 付款码商户收银
+
+**请求参数（XML格式）：**
 
 ```xml
 <xml>
    <appid>wx2421b1c4370ec43b</appid>
    <attach>订单额外描述</attach>
-   <auth_code>120269300684844649</auth_code>
+   <auth_code>120269300684844649</auth_code>  <!-- 扫码支付授权码 -->
    <body>付款码支付测试</body>
    <device_info>1000</device_info>
    <goods_tag></goods_tag>
@@ -856,7 +1559,7 @@ Native 支付，提供商户在 PC 端网页浏览器中使用微信支付收款
 </xml>
 ```
 
-返回参数：
+**返回参数（XML格式）：**
 
 ```xml
 <xml>
@@ -881,3 +1584,156 @@ Native 支付，提供商户在 PC 端网页浏览器中使用微信支付收款
    <time_end><![CDATA[20141111170043]]></time_end>
 </xml>
 ```
+
+**付款码支付特点：**
+
+| 特点 | 说明 |
+|------|------|
+| 即时性 | 扫码后立即完成支付 |
+| 安全性 | 付款码动态变化，防止截图盗用 |
+| 便捷性 | 用户只需出示付款码 |
+| 适用场景 | 线下门店、超市、餐厅等 |
+
+## 🔧 开发工具与SDK
+
+### 官方SDK
+
+**服务端SDK：**
+
+| 语言 | 官方SDK | 特点 |
+|------|---------|------|
+| Java | wechatpay-java | 完整支付功能，自动签名验签 |
+| PHP | wechatpay-php | 支持所有接口，简单易用 |
+| .NET | wechatpay-dotnet | 支持.NET Core/.NET Framework |
+| Node.js | wechatpay-nodejs | 轻量级，支持TypeScript |
+| Python | wechatpay-python | 支持Python 3.6+ |
+| Go | wechatpay-go | 高性能，支持并发 |
+
+**客户端SDK：**
+
+| 平台 | SDK | 版本要求 |
+|------|-----|----------|
+| Android | OpenSDK | Android 4.0+ |
+| iOS | OpenSDK | iOS 9.0+ |
+| 鸿蒙 | OpenSDK | HarmonyOS 2.0+ |
+
+### 调试工具
+
+**微信支付调试工具：**
+
+1. **微信开发者工具**
+   - 小程序支付调试
+   - 网页授权调试
+   - 接口调试功能
+
+2. **Postman集合**
+   - 接口测试模板
+   - 自动签名生成
+   - 批量接口测试
+
+3. **在线签名工具**
+   - 签名算法验证
+   - 参数格式检查
+   - 错误排查辅助
+
+### 最佳实践
+
+**安全实践：**
+
+```mermaid
+graph TD
+    A[安全最佳实践] --> B[证书管理]
+    A --> C[签名验签]
+    A --> D[敏感信息加密]
+    A --> E[回调验证]
+    A --> F[日志记录]
+    
+    B --> B1[定期更新证书]
+    B --> B2[安全存储私钥]
+    
+    C --> C1[使用官方SDK]
+    C --> C2[验证所有响应]
+    
+    D --> D1[使用HTTPS]
+    D --> D2[加密存储敏感数据]
+    
+    E --> E1[验证回调签名]
+    E --> E2[幂等性处理]
+    
+    F --> F1[记录关键操作]
+    F --> F2[异常监控告警]
+```
+
+**开发建议：**
+
+| 阶段 | 建议 |
+|------|------|
+| 开发环境 | 使用沙盒环境测试 |
+| 测试环境 | 小额真实交易验证 |
+| 生产环境 | 完整的监控和报警 |
+| 运维阶段 | 定期检查证书有效期 |
+
+**错误处理：**
+
+```js
+// 统一错误处理示例
+class WXPayError extends Error {
+    constructor(code, message, detail) {
+        super(message);
+        this.code = code;
+        this.detail = detail;
+    }
+}
+
+// 接口调用错误处理
+async function callWXPayAPI(apiPath, data) {
+    try {
+        const response = await fetch(apiPath, {
+            method: 'POST',
+            headers: {
+                'Authorization': generateAuth(),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new WXPayError(error.code, error.message, error.detail);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        // 记录错误日志
+        console.error('微信支付接口调用失败：', error);
+        
+        // 根据错误类型进行处理
+        if (error instanceof WXPayError) {
+            handleWXPayError(error);
+        } else {
+            handleNetworkError(error);
+        }
+        
+        throw error;
+    }
+}
+```
+
+::: tip 开发总结
+- 优先使用官方SDK，减少开发工作量
+- 严格按照接口文档进行开发和测试
+- 重视安全性，妥善保管证书和密钥
+- 建立完善的错误处理和监控机制
+- 定期关注微信支付的更新和公告
+:::
+
+## 📚 参考资料
+
+- [微信支付官方文档](https://pay.weixin.qq.com/wiki/doc/apiv3/index.shtml)
+- [微信开放平台](https://open.weixin.qq.com/)
+- [微信支付商户平台](https://pay.weixin.qq.com/)
+- [微信支付SDK下载](https://pay.weixin.qq.com/wiki/doc/apiv3/open/pay/chapter2_1_1.shtml)
+
+---
+
+> 💡 本文档将持续更新，请关注微信支付官方文档的最新变化。如有问题欢迎交流讨论！

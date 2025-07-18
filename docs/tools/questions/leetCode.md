@@ -1,1300 +1,1149 @@
 ---
 title: 🧠 LeetCode 算法题解集合
-description: LeetCode 经典算法题的 JavaScript 解决方案，包括数组、链表、字符串等各类题型的详细解析
+description: LeetCode 经典算法题的 JavaScript 解决方案，包括数组、链表、字符串、数学等各类题型的详细解析和最佳实践
 outline: deep
 ---
 
 # 🧠 LeetCode 算法题解集合
 
-> LeetCode 是提升编程技能的重要平台，本文收集了常见算法题的 JavaScript 解决方案。
+> LeetCode 是提升编程技能的重要平台，本文收集了常见算法题的 JavaScript 解决方案，涵盖各种数据结构和算法思想。
 
-## 🔍 寻找两个数组的中位数
+## 📚 目录导航
 
-```js
-function find(arr, arr2) {
-  let arr = [...arr, ...arr2].sort((a, b) => a - b);
-  // 先对数组合并后排序
+::: details 🔍 点击展开完整目录
+- [🎯 算法分类概览](#算法分类概览)
+- [🔢 数组相关](#数组相关)
+- [🔗 链表相关](#链表相关)
+- [🔤 字符串相关](#字符串相关)
+- [🧮 数学相关](#数学相关)
+- [📊 栈与队列](#栈与队列)
+- [🌳 树与图](#树与图)
+- [🔍 查找与排序](#查找与排序)
+- [🚀 高级算法](#高级算法)
+- [💡 编程技巧](#编程技巧)
+- [📈 复杂度分析](#复杂度分析)
+- [🎯 解题技巧](#解题技巧)
+:::
 
-  let middleNum = Math.floor(arr.length / 2);
-  // 取中位数
+## 🎯 算法分类概览
 
-  if (arr.length % 2 === 0) return (arr[middleNum - 1] + arr[middleNum]) / 2;
-  // 如果能被2整除，则返回最中间两个数的平均数
+### 📊 题目分布
 
-  return arr[middleNum];
-  // 不能被整除，返回最中间那个数
+```mermaid
+pie title 算法题目分布
+    "数组" : 35
+    "字符串" : 20
+    "链表" : 15
+    "数学" : 12
+    "栈与队列" : 10
+    "树与图" : 5
+    "其他" : 3
+```
+
+### 🏆 难度分布
+
+```mermaid
+graph TD
+    A[LeetCode 题目] --> B[简单 Easy]
+    A --> C[中等 Medium]
+    A --> D[困难 Hard]
+    
+    B --> B1[基础数据结构]
+    B --> B2[简单数学运算]
+    B --> B3[字符串处理]
+    
+    C --> C1[双指针技巧]
+    C --> C2[递归与动态规划]
+    C --> C3[图与树遍历]
+    
+    D --> D1[复杂算法设计]
+    D --> D2[高级数据结构]
+    D --> D3[系统设计]
+    
+    style A fill:#e1f5fe
+    style B fill:#e8f5e8
+    style C fill:#fff3e0
+    style D fill:#ffebee
+```
+
+## 🔢 数组相关
+
+### 🎯 寻找两个数组的中位数
+
+**难度**: 🔥🔥🔥 困难  
+**标签**: `数组` `二分查找` `分治`
+
+**题目描述**: 给定两个有序数组，找到两个数组合并后的中位数。
+
+```javascript
+/**
+ * 寻找两个数组的中位数
+ * @param {number[]} nums1 - 第一个有序数组
+ * @param {number[]} nums2 - 第二个有序数组
+ * @return {number} 中位数
+ * 
+ * 时间复杂度: O((m+n)log(m+n))
+ * 空间复杂度: O(m+n)
+ */
+function findMedianSortedArrays(nums1, nums2) {
+  // 合并两个数组并排序
+  const merged = [...nums1, ...nums2].sort((a, b) => a - b);
+  const length = merged.length;
+  const middle = Math.floor(length / 2);
+  
+  // 如果数组长度为偶数，返回中间两个数的平均值
+  if (length % 2 === 0) {
+    return (merged[middle - 1] + merged[middle]) / 2;
+  }
+  
+  // 如果数组长度为奇数，返回中间的数
+  return merged[middle];
 }
+
+// 示例
+console.log(findMedianSortedArrays([1, 3], [2])); // 2
+console.log(findMedianSortedArrays([1, 2], [3, 4])); // 2.5
 ```
 
-## 两数相加
+### 🌸 种花问题
 
-```js
-// 给出两个 非空 的链表用来表示两个非负的整数。其中，它们各自的位数是按照 逆序 的方式存储的，并且它们的每个节点只能存储 一位 数字。
+**难度**: 🔥 简单  
+**标签**: `数组` `贪心算法`
 
-// 如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。
+**题目描述**: 在花坛中种花，花不能相邻种植。
 
-// 您可以假设除了数字 0 之外，这两个数都不会以 0 开头。
-
+```javascript
 /**
- * Definition for singly-linked list.
- * function ListNode(val) {
- *     this.val = val;
- *     this.next = null;
- * }
+ * 种花问题
+ * @param {number[]} flowerbed - 花坛数组
+ * @param {number} n - 需要种植的花朵数量
+ * @return {boolean} 是否能种植
+ * 
+ * 时间复杂度: O(n)
+ * 空间复杂度: O(1)
  */
-/**
- * @param {ListNode} l1
- * @param {ListNode} l2
- * @return {ListNode}
- */
-var addTwoNumbers = function (l1, l2) {
-  let c = 0;
-  let r = new ListNode();
-  let p = r;
-  let p1 = l1;
-  let p2 = l2;
-  while (p1 || p2 || c) {
-    c += (p1 && p1.val) + (p2 && p2.val);
-    p.next = new ListNode(c % 10);
-    c = parseInt(c / 10);
-    p1 && (p1 = p1.next);
-    p2 && (p2 = p2.next);
-    p = p.next;
-  }
-  return r.next;
-};
-```
-
-## 罗马数组转整数
-
-```js
-// 罗马数字包含以下七种字符: I， V， X， L，C，D 和 M。
-
-// 字符          数值
-// I             1
-// V             5
-// X             10
-// L             50
-// C             100
-// D             500
-// M             1000
-// 例如， 罗马数字 2 写做 II ，即为两个并列的 1。12 写做 XII ，即为 X + II 。 27 写做  XXVII, 即为 XX + V + II 。
-
-// 通常情况下，罗马数字中小的数字在大的数字的右边。但也存在特例，例如 4 不写做 IIII，而是 IV。数字 1 在数字 5 的左边，所表示的数等于大数 5 减小数 1 得到的数值 4 。同样地，数字 9 表示为 IX。这个特殊的规则只适用于以下六种情况：
-
-// I 可以放在 V (5) 和 X (10) 的左边，来表示 4 和 9。
-// X 可以放在 L (50) 和 C (100) 的左边，来表示 40 和 90。
-// C 可以放在 D (500) 和 M (1000) 的左边，来表示 400 和 900。
-// 给定一个罗马数字，将其转换成整数。输入确保在 1 到 3999 的范围内。
-
-/**
- * @param {string} s
- * @return {number}
- */
-var romanToInt = function (s) {
-  const map = {
-    I: 1,
-    V: 5,
-    X: 10,
-    L: 50,
-    C: 100,
-    D: 500,
-    M: 1000,
-  };
-  let req = 0;
-  for (let i = 0; i < s.length; i++) {
-    if (i < s.length && map[s[i]] < map[s[i + 1]]) {
-      req -= map[s[i]];
-    } else {
-      req += map[s[i]];
-    }
-  }
-  return req;
-};
-```
-
-## 合并两个有序链表
-
-```js
-// 将两个升序链表合并为一个新的 升序 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
-
-/**
- * Definition for singly-linked list.
- * function ListNode(val) {
- *     this.val = val;
- *     this.next = null;
- * }
- */
-/**
- * @param {ListNode} l1
- * @param {ListNode} l2
- * @return {ListNode}
- */
-var mergeTwoLists = function (l1, l2) {
-  if (l1 === null) return l2;
-  let cur = l1;
-  while (l2) {
-    let node = new ListNode();
-    if (cur.val >= l2.val) {
-      node.val = cur.val;
-      node.next = cur.next;
-      cur.val = l2.val;
-      cur.next = node;
-      l2 = l2.next;
-    } else if (cur.next && l2.val <= cur.next.val) {
-      node.val = l2.val;
-      node.next = cur.next;
-      cur.next = node;
-      l2 = l2.next;
-    } else if (!cur.next) {
-      node.val = l2.val;
-      node.next = null;
-      cur.next = node;
-      l2 = l2.next;
-      continue;
-    }
-    cur = cur.next;
-  }
-  return l1;
-};
-```
-
-## 整数倒序输出
-
-用 JavaScript 写一个函数，输入 int 型，返回整数逆序后的字符串。如：输入整型 1234，返回字符串“4321”。
-
-要求必须使用递归函数调用，不能用全局变量，输入函数必须只有一个参数传入，必须返回字符串。
-
-```js
-// 小于10只有一个数组，直接返回
-// 大于等于10，把最后数字放最前面，并拼接，剩余部分递归调用的返回值
-function getReverse(num) {
-  return num < 10
-    ? num.toString()
-    : `${num % 10}${getReverse(Math.floor(num / 10))}`;
-}
-```
-
-## 各位相加
-
-```js
-// 给定一个非负整数 num，反复将各个位上的数字相加，直到结果为一位数。
-/**
- * @param {number} num
- * @return {number}
- */
-var addDigits = function (num) {
-  let arr = [];
-  for (let index of num.toString()) {
-    arr.push(index);
-  }
-  if (arr.length === 1) {
-    return parseInt(arr[0]);
-  }
-  let number = 0;
-  for (let i = 0; i < arr.length; i++) {
-    number += parseInt(arr[i]);
-  }
-  if (number > 9) {
-    return addDigits(number);
-  } else {
-    return number;
-  }
-};
-```
-
-## 种花问题
-
-```js
-// 605. 种花问题
-// 假设你有一个很长的花坛，一部分地块种植了花，另一部分却没有。可是，花卉不能种植在相邻的地块上，它们会争夺水源，两者都会死去。
-
-// 给定一个花坛（表示为一个数组包含0和1，其中0表示没种植花，1表示种植了花），和一个数 n 。能否在不打破种植规则的情况下种入 n 朵花？能则返回True，不能则返回False。
-/**
- * @param {number[]} flowerbed
- * @param {number} n
- * @return {boolean}
- */
-var canPlaceFlowers = function (flowerbed, n) {
-  let max = 0;
-  for (let i = 0; i < flowerbed.length - 1; i++) {
+function canPlaceFlowers(flowerbed, n) {
+  let count = 0;
+  let i = 0;
+  
+  while (i < flowerbed.length) {
+    // 检查当前位置是否可以种花
     if (flowerbed[i] === 0) {
-      if (i === 0 && flowerbed[1] === 0) {
-        max++;
-        i++;
-      } else if (flowerbed[i - 1] === 0 && flowerbed[i + 1] === 0) {
-        max++;
-        i++;
-      }
-    }
-  }
-  return max >= n;
-};
-```
-
-## 卡牌分组
-
-给定一副牌，每张牌上都写着一个整数。此时，你需要选定一个数字 X，使我们可以将整副牌按下述规则分成 1 组或更多组：
-
-- 每组都有  X  张牌。
-- 组内所有的牌上都写着相同的整数。
-- 仅当你可选的 X >= 2 时返回  true。
-
-```js
-/**
- * @param {number[]} deck
- * @return {boolean}
- */
-var hasGroupsSizeX = function (deck) {
-  // 最大公约数计算公式
-  function gcd(num1, num2) {
-    // 利用辗转相除法来计算最大公约数
-    return num2 === 0 ? num1 : gcd(num2, num1 % num2);
-  }
-
-  // 相同牌出现次数Map
-  let timeMap = new Map();
-
-  // 遍历牌
-  deck.forEach(num => {
-    // 统计每张牌出现的次数
-    timeMap.set(num, timeMap.has(num) ? timeMap.get(num) + 1 : 1);
-  });
-
-  // Map.protype.values()返回的是一个新的Iterator对象，所以可以使用扩展运算符(...)来构造成数组
-  let timeAry = [...timeMap.values()];
-
-  /*
-  最大公约数
-  因为该数组是出现次数数组，最小值至少为1（至少出现1次），所以默认赋值为数组首位对公约数计算无干扰
-  */
-  let g = timeAry[0];
-
-  // 遍历出现次数，计算最大公约数
-  timeAry.forEach(time => {
-    // 因为需要比较所有牌出现次数的最大公约数，故需要一个中间值
-    g = gcd(g, time);
-  });
-
-  // 判断是否满足题意
-  return g >= 2;
-};
-```
-
-## 删除字符串中的所有相邻重复项
-
-```js
-// 给你一个字符串 s，「k 倍重复项删除操作」将会从 s 中选择 k 个相邻且相等的字母，并删除它们，使被删去的字符串的左侧和右侧连在一起。
-// 你需要对 s 重复进行无限次这样的删除操作，直到无法继续为止。
-// 在执行完所有删除操作后，返回最终得到的字符串。
-
-/**
- * @param {string} s
- * @param {number} k
- * @return {string}
- */
-var removeDuplicates = function (s, k) {
-  let stack = [];
-  for (const c of s) {
-    let prev = stack.pop();
-    if (!prev || prev[0] !== c) {
-      stack.push(prev);
-      stack.push(c);
-    } else if (prev.length < k - 1) {
-      stack.push(prev + c);
-    }
-  }
-  return stack.join("");
-};
-```
-
-## 将整数转换为两个无零整数的和
-
-```js
-// 「无零整数」是十进制表示中 不含任何 0 的正整数。
-// 给你一个整数 n，请你返回一个 由两个整数组成的列表 [A, B]，满足：
-// A 和 B 都是无零整数 并且 A + B = n
-
-/**
- * @param {number} n
- * @return {number[]}
- */
-var getNoZeroIntegers = function (n) {
-  let time = 1;
-  while (String(time).includes("0") || String(n - time).includes("0")) {
-    time++;
-  }
-  return [time, n - time];
-};
-```
-
-## 控制执行顺序和延误时间的类
-
-```js
-// 先延迟2s，打印1，延迟1s，打印2，在延迟1s，打印3
-new O().print(1).wait(1).print(2).wait(1).print(3).firstWait(2);
-
-class O {
-  constructor() {
-    this.callbackList = []; // 任务中心
-
-    // setTimeout延迟自动执行，保证任务都已加入任务中心
-    setTimeout(() => {
-      next();
-    });
-  }
-  next() {
-    // 取出任务中心最前面一个任务，如果存在就执行
-    let nextCallback = this.callbackList.shift();
-    if (nextCallback) {
-      nextCallback();
-    }
-  }
-  print(value) {
-    const that = this; // 保存this的引用
-
-    // 用自执行函数把任务函数包起来，保持对参数value的引用
-    const fun = (function (param) {
-      return function () {
-        console.log(param);
-        that.next(); //当任务执行时，在打印之后立即执行下一个任务
-      };
-    })(value);
-    this.callbackList.push(fun);
-    //把当前打印的任务，推送到任务中心
-
-    return this; //返回当前实例，可以链式调用实例的方法
-  }
-  wait(time) {
-    const that = this;
-    const fun = (function (param) {
-      return function () {
-        console.log("输出等待时间：", param);
-        that.next();
-        setTimeout(() => {
-          that.next(); // 等待time时间后，再执行下一个任务
-        }, param * 1000);
-      };
-    })(time);
-    this.callbackList.push(fun);
-    return this;
-  }
-  firstWait(time) {
-    const that = this;
-    const fun = (function (param) {
-      return function () {
-        console.log("输出首先等待时间：", param);
-        that.next();
-        setTimeout(() => {
-          that.next();
-        }, param * 1000);
-      };
-    })(time);
-    this.callbackList.unshift(fun);
-    // 推送到任务中心首位，会先等待再执行下一个任务
-    return this;
-  }
-}
-```
-
-## 整数数组分组
-
-```js
-let array = [2, 10, 3, 4, 5, 11, 10, 11, 20];
-// 转成： [[2, 3, 4, 5], [10, 11], [20]]
-function formatArray(array) {
-  let result = [];
-  array
-    .sort((a, b) => a - b)
-    .forEach(item => {
-      let remainder = Math.floor(item / 10);
-      (result[remainder] || (result[remainder] = [])).push(item);
-    });
-  return result.filter(item => item);
-}
-formatArray(array);
-```
-
-## 字符串大小写转化
-
-```js
-// AbC to aBc
-function transformChar(string) {
-  let char = "";
-  for (let index = 0; index < string.length; index++) {
-    let code = string.charCodeAt(index);
-    let thransCode = code + (code > 90 ? -32 : 32);
-    // 小写比大写字母code 码大32：a-z=32
-    char += String.fromCharCode(thransCode);
-  }
-  return char;
-}
-console.log(transformChar("AbC"));
-```
-
-## 数组每个值移动 n 个位置
-
-```js
-function reverseArray(array, n) {
-  let length = array.length;
-  let result = [];
-  for (let index = 0; index < length; index++) {
-    const element = array[index];
-    let aferIndex = (index + n) % length;
-    // 索引相加后取模，既是移动之后的位置
-    result[aferIndex] = element;
-  }
-  return result;
-}
-console.log(reverseArray([1, 2, 3, 4, 5, 6, 7], 8));
-```
-
-## 找出 1000 内对称的数
-
-把数字反转后依然相等，就是对称的数。
-
-```js
-[...Array(1000).keys()].filter(item => {
-  return (
-    item > 10 && item === Number(item.toString().split("").reverse().join(""))
-  );
-});
-```
-
-## 数组中 0 移动到最后面
-
-要求：只在 array 上更改
-
-```js
-let array = [0, 1, 0, 3, 0, 12, 0];
-let length = array.length;
-let moveNum = 0; //记录移动的个数
-for (let index = 0; index < length - moveNum; ) {
-  //仅需遍历index前length - moveNum的数字，后面都是移动后的0了
-
-  if (array[index] === 0) {
-    array.push(array.splice(index, 1)[0]);
-    // 把=0的数，截取到数组最后面
-
-    // 数字被截取，需要继续遍历当前index的值
-    moveNum++;
-  } else {
-    index++;
-  }
-}
-console.log(array);
-```
-
-## 实现 add 函数
-
-满足以下功能。
-
-```js
-add(1); // 1
-add(1)(2); // 3
-add(1)(2)(3); // 6
-add(1)(2, 3); // 6
-add(1, 2)(3); // 6
-add(1, 2, 3); // 6
-console.log(add(1, 2, 3));
-
-function add(...a) {
-  let sum = a.reduce((p, n) => p + n);
-  function next(...b) {
-    let _sum = b.reduce((p, n) => p + n);
-    sum = sum + _sum;
-    return next;
-  }
-  next.toString = function () {
-    return sum;
-  };
-  return next;
-}
-```
-
-## 树结构找出父级 id 数组
-
-1121 => [1,11,112,1121]
-
-```js
-function findParents(array, params) {
-  let length = params.length;
-  let findArray = array;
-  let result = [];
-  for (let index = 0; index < length; index++) {
-    const element = params.slice(0, index + 1);
-    // 每次截取前index-1的字符：这是当前父级的id
-
-    const parent = findArray.find(item => item.id === element);
-    // 根据父级id找出当前父级
-
-    if (!parent) return [];
-    // 找不到父级，宣告失败，直接返回空数组
-
-    result.push(element);
-    // 找到了父级，把父级id添加到结果数组里
-
-    if (index === length - 1) {
-      return result;
-      // 当前已经是最后一位了，返回结果
-    } else {
-      if (parent?.children?.length) {
-        findArray = parent.children;
-        // 当前父级若存在子项，则从子项里寻找下一个父级id
+      const prevEmpty = (i === 0) || (flowerbed[i - 1] === 0);
+      const nextEmpty = (i === flowerbed.length - 1) || (flowerbed[i + 1] === 0);
+      
+      if (prevEmpty && nextEmpty) {
+        flowerbed[i] = 1; // 种花
+        count++;
+        i += 2; // 跳过下一个位置
       } else {
-        return [];
-        // 当前父级没有子项，无法寻找下一个父级id，则宣告失败
+        i++;
       }
-    }
-  }
-}
-```
-
-## 每次走 1 或者 2 步阶梯，n 阶梯有多少种走法？
-
-```js
-// 方法一
-function getNumber(n) {
-  if (n <= 2) return n;
-  return getNumber(n - 1) + getNumber(n - 2);
-}
-
-// 方法二 时间复杂度低
-function getNumber(n, map = new Map()) {
-  if (n <= 2) return n;
-  if (map.get(n) !== null) return map.get(n);
-  let result = getNumber(n - 1, map) + getNumber(n - 2, map);
-  map.set(n, result);
-  return result;
-}
-```
-
-## 斐波那契函数，输入 n,求其数列的第 n 项
-
-```js
-function getNumber(n) {
-  if (n <= 2) return 1;
-  return getNumber(n - 1) + getNumber(n - 2);
-}
-// methods two 时间复杂度低
-function getNumber(n, map = new Map()) {
-  if (n <= 2) return 1;
-  if (map.get(n)) return map.get(n);
-  let result = getNumber(n - 1, map) + getNumber(n - 2, map);
-  map.set(n, result);
-  return result;
-}
-```
-
-## leetcode 1
-
-整数数组中，求两个数之和为 target 的两个数的索引 o(n~2)
-
-```js
-// 双指针思想
-function getIndex(array, target) {
-  for (let i = 0; i < array.length; i++) {
-    for (let j = i + 1; j < array.length; j++) {
-      if (array[i] + array[j] == target) return [i, j];
-    }
-  }
-}
-
-// 使用map缓存遍历过的数值o(n)
-function getIndex(array, target) {
-  let map = new Map();
-  for (let i = 0; i < array.length; i++) {
-    let another = target - array[i];
-    if (map.has(another)) return [map.get(another), i];
-    map.set(array[i], i);
-  }
-}
-```
-
-## 数组合并相关
-
-两个整数升序数组 num1,num2,元素个数分别为 m,n,把 num2 数组有序合并到 num1 中，
-
-```js
-// 方法一 填充到另一个数组后，排序
-function combine(num1, num2, m, n) {
-  for (let i = 0; i < n; i++) {
-    num1[m + i] = num2[i];
-  }
-  return num1.sort();
-}
-
-// 方法二 双指针思想 o(m+n)
-function combine(num1, num2, m, n) {
-  let total = m + n;
-  let tem = [];
-  for (let index = 0, num1Index = 0, num2Index = 0; index < total; index++) {
-    if (num1Index >= m) {
-      // num1 先取完了
-      tem[index] = num2[num2Index++];
-    } else if (num2Index >= n) {
-      // num2 先取完了
-      tem[index] = num1[num1Index++];
-    } else if (num1[num1Index] <= num2[num2Index]) {
-      tem[index] = num1[num1Index++];
-      // 把比较小的数先放到要输出的数组里，并把较小值的index++
     } else {
-      tem[index] = num2[num2Index++];
-    }
-    num1 = tem;
-  }
-  return num1;
-}
-// 方法三 也是双指针思想，倒着计算,少一个tem变量 o(m+n)
-// num1或者num2的长度，肯定都小于他们两的长度之和m+n。
-// 把比较的结果放在>=他们最大index的地方，不影响各自原本的元素
-function combine(num1, num2, m, n) {
-  let total = m + n;
-  for (
-    let index = total - 1, num1Index = m - 1, num2Index = n - 1;
-    index < 0;
-    index--
-  ) {
-    if (num1Index < 0) {
-      num1[index] = num2[num2Index--];
-    } else if (num2Index < 0) {
-      break;
-    } else if (num1[num1Index] > num2[num2Index]) {
-      num1[index] = num1[num1Index--];
-    } else {
-      num1[index] = num2[num2Index--];
+      i++;
     }
   }
-  return num1;
+  
+  return count >= n;
 }
+
+// 示例
+console.log(canPlaceFlowers([1, 0, 0, 0, 1], 1)); // true
+console.log(canPlaceFlowers([1, 0, 0, 0, 1], 2)); // false
 ```
 
-## leecode 448
+### 🎲 卡牌分组
 
-在 n 个整数数组 array 中，求不在区间[1,n]中的数值组成的数组
+**难度**: 🔥 简单  
+**标签**: `数组` `数学` `最大公约数`
 
-```js
-// 方法一
-function getNumberArray(array, n) {
-  let result = [...Array(n + 1).keys()].shift();
-  // 拿到[1,n]这个区间
-
-  return result.filter(item => !array.includes(item));
-  // 从区间里筛选中不在array数组里的元素
-}
-getNumberArray([1, 2, 3, 4, 7, 8, 3, 2]);
-
-// 方法二 翻牌思想：把匹配的打个标记，后续用作区分
-function getNumberArray(array, n) {
-  for (let iterator of array) {
-    if (iterator < 1 || iterator > n) array[index] += n;
-    // 不在[1,n]之间的，都翻牌加n：最后在区间的元素都<=n
-  }
-  return array.filter(item => item <= n);
-  // 筛选数组中所有<=n的元素
-}
-getNumberArray([1, 2, 3, 4, 7, 8, 3, 2]);
-```
-
-## leetcode 20
-
-有效符号(){}[] 返回 true [(})] 返回 false
-
-```js
-function isValidChar(string) {
-  let result = [];
-  for (let char of string) {
-    if (char === "(" || char === "[" || char === "{") {
-      result.push(char); // 左括号入栈
-    } else {
-      let pre = result[result.length - 1];
-      if (
-        (pre === "(" && char === ")") ||
-        (pre === "[" && char === "]") ||
-        (pre === "{" && char === "}")
-      ) {
-        result.pop();
-        // 否则，判断与栈顶元素能否匹配。匹配就把栈顶元素出栈
-      } else {
-        return false; // 不匹配，说明元字符传存在不对称，返回false
-      }
-    }
-  }
-  return result.length === 0;
-  // 栈内不存在元素，说明全部都匹配到了
-}
-console.log(isValidChar("()[]{}"));
-console.log(isValidChar("[(})]"));
-```
-
-## 相邻字符问题
-
-```js
-// leetcode 1047 去除字符串中相邻重复字符
-// 方法一
-function delRepeat(string) {
-  for (let i = 0; i < string.length; ) {
-    if (string[i] === string[i + 1]) {
-      string = string.slice(0, i) + string.slice(i + 2);
-      // 当前元素和下一个元素相等，就截掉这两个元素。继续从当前index判断
-    } else {
-      i++; //否则从下一个位置开始遍历
-    }
-  }
-  return string;
-}
-// 方法二
-function delRepeat(string) {
-  let result = [];
-  for (const iterator of string) {
-    let pre = result.pop();
-    if (iterator !== pre) {
-      result.push(pre, iterator);
-      // 栈顶元素和当前元素不同，把当前元素也入栈。否则去除栈顶元素
-    }
-  }
-  return result.join("");
-}
-console.log(delRepeat("qqwerttr"));
-
-// leetcode 3 找出字符中无重复的最长子串:滑动窗口思想
-function maxLength(string) {
-  let length = string.length;
-  let leftIndex = 0; // 滑动窗口左指针
-  let maxLength = 0; //最长长度
-  let maxChar = ""; //最长的字符
-
-  // 字符改变时更改滑动窗口，并计算最多字符和长度
-  function getChar(index) {
-    let preCharLength = index - leftIndex;
-    // 获取当前滑动窗口长度
-    if (preCharLength > maxLength) {
-      maxLength = preCharLength;
-      maxChar = string[leftIndex];
-    }
-    leftIndex = index;
-    // 把滑动窗口重置为当前字符index
-  }
-
-  for (let index = 0; index < length; index++) {
-    let char = string[index];
-    if (index === length - 1) {
-      getChar(char === string[leftIndex] ? index + 1 : index);
-      // 最后一个元素，无论是否相等都需要计算。相同计算长度要包含自身
-    } else {
-      char !== string[leftIndex] && getChar(index);
-      // 不是最后一个元素时，只有当前字符不属于滑动窗口字符时需要计算
-    }
-  }
-  return [maxLength, maxChar];
-}
-```
-
-## leetcode 71 简化路径
-
-类似 node path 模块的 path.parse()，拼接路径字符串
-
-```js
-function getPath(path) {
-  let result = [];
-  path.split("/").forEach(item => {
-    if (item === "..") {
-      result.pop();
-      // 存在‘往上一级’，则去掉栈顶元素
-    } else if (item && item !== ".") {
-      result.push(item);
-      // 元素不等于‘.’，推送到栈顶
-    }
-  });
-  return result.length ? "/" + result.join("/") : "/";
-}
-console.log(getPath("/home/../ab/cd/")); // /ab/cd
-```
-
-## 验证是否是回文字符串
-
-回文字符串：去除空格和无效字符后左右对称
-
-```js
-// 双指针思想
-function isPalindrome(s) {
-  s = s.toLowerCase();
-  function isValid(char) {
-    return (char >= "a" && char <= "z") || (char >= "0" && char <= "9");
-  }
-  let leftIndex = 0;
-  let rightIndex = s.length - 1;
-  let leftChar = "";
-  let rightChar = "";
-  while (leftIndex <= rightIndex) {
-    leftChar = s[leftIndex];
-    rightChar = s[rightIndex];
-    if (!isValid(leftChar)) {
-      leftIndex++;
-    } else if (!isValid(rightChar)) {
-      rightIndex--; //  左/右指针无效时略过
-    } else if (leftChar !== rightChar) {
-      return false; // 最左字符!==最右字符，不是回文字符
-    } else {
-      leftIndex++; // 左右相等，同时往里移动指针
-      rightIndex--;
-    }
-  }
-  return true;
-}
-```
-
-## 信号灯问题
-
-```js
-// 实现 红灯10s，黄灯3s，绿灯5s
-let sig = new Signal({
-  init: "red",
-  colors: ["red", "yellow", "green"],
-  times: [10, 3, 5],
-});
-console.log(sig);
-
-class Signal {
-  constructor(options) {
-    this.signal = options.init; //当前信号灯
-    this.colors = options.colors; //自定义颜色数组
-    this.times = options.times; // 时间数组，和颜色一一对应
-    this.eventMap = new Map();
-    // 事件中心：对外提供事件，用于监听信号灯
-
-    this.eventMap.set("change", new Set());
-    // 监听红绿灯切换事件
-
-    this.eventMap.set("tick", new Set());
-    // 每1s时间 tick 通知外界
-
-    this.setTime(); //初始化当前灯开始和结束时间
-    this.exchange(); // 定时1s查询剩余时间
-  }
-  get next() {
-    //获取下一个灯的颜色
-    return this.colors[
-      (this.colors.indexOf(this.signal) + 1) % this.colors.length
-    ];
-  }
-  get remain() {
-    //获取当前灯亮的剩余时间
-    let diff = this.end - Date.now();
-    if (diff < 0) {
-      diff = 0;
-    }
-    return diff;
-  }
-  on(event, handler) {
-    this.eventMap.get(event).add(handler);
-  }
-  off(event, handler) {
-    this.eventMap.get(event).delete(handler);
-  }
-  emit(event) {
-    this.eventMap.get(event).forEach(handler => {
-      handler.call(this, this);
-    });
-  }
-  async exchange() {
-    await 1;
-    if (this.remain > 0) {
-      this.emit("tick");
-      await sleep(1000); //沉睡1s
-    } else {
-      this.signal = this.next; //切换到下一个灯
-      this.setTime(); //设置灯的开始和结束时间
-      this.emit("change"); //通知灯的change事件
-      console.log("切换了：", this.signal);
-    }
-    this.exchange();
-  }
-  setTime() {
-    //灯亮时，设置当前灯的开始和结束时间
-    this.start = Date.now();
-    this.end = this.start + this.times[this.colors.indexOf(this.signal)] * 1000;
-  }
-}
-```
-
-## 根据数字按键得到所有字母组合
-
-```js
-// 根据数字按键得到所有字母组合
-function getKeybordMap(digits) {
-  let map = [, , "abc", "def", "ghi", "jkl", "mno", "pqps", "tuv", "wxyz"];
-  // 获取每个数字键（即数组index），对应的字母
-  let result = [];
-  for (let digit of digits) {
-    result = compose(result, map[digit].split(""));
-    // 把当前按键对应的字母，分别和结果数组里的元素混合，混合结果组成新数组
-  }
-  function compose(arr1, charts) {
-    if (arr1.length === 0) return charts;
-    if (charts.length === 0) return arr1;
-    const composeResult = [];
-    for (let item of arr1) {
-      for (let chart of charts) {
-        composeResult.push(item + chart);
-      }
-    }
-    return composeResult;
-  }
-  return result;
-}
-console.log(getKeybordMap("234"));
-```
-
-## 快速排序算法
-
-快速排序算法：找出基准值，大于和小于基准值的数放入不同数组里，两个数组递归该操作
-
-```js
-function quickSort(array) {
-  if (array.length <= 1) return array; // 终止条件
-  let baseValue = array[Math.floor(array.length / 2)];
-  //数组中间值作为基准值
-
-  let left = [];
-  let right = [];
-  for (let element of array) {
-    if (element < baseValue) {
-      left.push(element);
-    } else {
-      right.push(element);
-    }
-  }
-  return quickSort(left).concat(quickSort(right));
-}
-```
-
-## 小孩报数去除报 3 问题
-
-小孩子围成一个圈，从 1 开始报数，报数为 3 的小孩子不在计数，然后又从 1 开始报数。找出剩下的最后一个孩子的索引 index
-
-```js
-/** 翻牌思想，报3的孩子索引设为-1，不在参数计数
- * @param {Number} num 孩子总数
- * @param {Number} count 要去除的报数
+```javascript
+/**
+ * 卡牌分组
+ * @param {number[]} deck - 卡牌数组
+ * @return {boolean} 是否可以分组
+ * 
+ * 时间复杂度: O(n)
+ * 空间复杂度: O(n)
  */
-function destroyThree(num, count) {
-  let pool = [...Array(num).keys()];
-  // 创建[0,num-1]的池子
-  let index = 0; //报数孩子的index
-  let counter = 0; //要报的数字
-  let exitCount = 0; //出局孩子的个数
-  while (num - exitCount > 1) {
-    // 剩余孩子个数超过1，需要继续报数
-
-    if (pool[index] !== -1) {
-      //当前孩子没有出局时，报数比上个孩子报数+1，
-      if (counter++ === count) {
-        pool[index] = -1;
-        exitCount++;
-        counter = 0;
-        // 如果正好=3，翻牌，另出局数+1，计数重置为0
-      }
-    }
-    index++ === num && (index = 0);
-    // 指针移到下一个孩子。如果超过最大索引，重置为0
+function hasGroupsSizeX(deck) {
+  // 计算最大公约数
+  function gcd(a, b) {
+    return b === 0 ? a : gcd(b, a % b);
   }
-  return pool.findIndex(item => item !== -1);
-  // 返回最后一个没有被翻牌的孩子的index
+  
+  // 统计每张卡牌的出现次数
+  const countMap = new Map();
+  for (const card of deck) {
+    countMap.set(card, (countMap.get(card) || 0) + 1);
+  }
+  
+  // 获取所有出现次数
+  const counts = Array.from(countMap.values());
+  
+  // 计算所有出现次数的最大公约数
+  let result = counts[0];
+  for (let i = 1; i < counts.length; i++) {
+    result = gcd(result, counts[i]);
+  }
+  
+  return result >= 2;
 }
+
+// 示例
+console.log(hasGroupsSizeX([1, 2, 3, 4, 4, 3, 2, 1])); // true
+console.log(hasGroupsSizeX([1, 1, 1, 2, 2, 2, 3, 3])); // false
 ```
 
-## 最多的元素和次数
+### 🔍 数组中的重复元素
 
-```js
-//查找文章中出现次数最多的单词和次数
-function mostWord(article) {
-  if (!article) return;
-  article = article.trim().toLowerCase();
-  // 大小写都按同一个单词处理，并去除首尾空格
+**难度**: 🔥 简单  
+**标签**: `数组` `哈希表`
 
-  let wordList = [...new Set(article.match(/[a-z]+/g))];
-  // 文章以空格分隔成单词数组后，去重减少遍历次数
-
-  let maxWord = ""; // 最多次的单词
-  let maxNum = 0; // 单词出现最多次数
-  wordList.forEach(word => {
-    let reg = new RegExp(" " + word + " ", "g");
-    let wordnum = article.match(reg).length;
-    // 拿到匹配到的每个单词，组成的数组的长度（即出现次数）
-
-    if (wordnum > maxNum) {
-      maxNum = wordnum;
-      maxWord = word;
-    }
-  });
-  return `次数最多的单词是：${maxWord},次数是：${maxNum}`;
-}
-
-// leetcode 1207 求字符串中出现次数最多的字符和次数
-function getTimes(string) {
-  let maxNum = 0;
-  let maxChar = "";
-  let map = new Map();
-  for (const iterator of string) {
-    map.set(iterator, (map.get(iterator) || 0) + 1);
-  }
-  for (const [key, value] of map) {
-    if (value > maxNum) {
-      maxNum = value;
-      maxChar = key;
-    }
-  }
-  return [maxChar, maxNum];
-}
-```
-
-## 求数组全排列
-
-```js
-//释放注释为求字符全排列
-function getArray(params) {
-  const res = []; // 结果集数组
-  let path = []; // 字符组合数组
-  function backTracking(array, used) {
-    // 参数1：需要全排的数组 参数2：used数组记录当前元素是否已被使用
-    let arrayLength = array.length;
-    if (path.length === arrayLength) return res.push(path); // 当获取的元素个数等于传入数组长度时（此时说明找到了一组结果）
-    for (let i = 0; i < arrayLength; i++) {
-      if (used[i]) continue; // 当前元素已被使用，结束此次循环
-      path.push(array[i]); // 将符合条件的元素存进path数组
-      // path = path + array[i]; // 将符合条件的元素存进path字符串
-      used[i] = true; // 并将该元素标为true，表示已使用同支
-      backTracking(array, used);
-      path = path.slice(0, path.length - 1);
-      used[i] = false;
-    }
-  }
-  // backTracking(Array.from(params), []); // 当为
-  backTracking(params, []);
-  return res;
-}
-console.log(getArray([1, 2, 3, 4]));
-```
-
-## 找出最少硬币组合
-
-```js
-const rninCoinChange = new MinCoinChange([1, 5, 10, 25]);
-console.log(rninCoinChange.makeChange(36)); // [1, 10, 25]
-
-function MinCoinChange(coins) {
-  var cache = {};
-  this.makeChange = function (amount) {
-    if (!amount) return [];
-    const _this = this;
-    if (cache[amount]) return cache[amount];
-    let min = [];
-    let newMin;
-    let newAmount;
-    for (let i = 0; i < coins.length; i++) {
-      const coin = coins[i];
-      newAmount = amount - coin;
-      if (newAmount >= 0) {
-        newMin = _this.makeChange(newAmount);
-      }
-      if (
-        newAmount >= 0 &&
-        (newMin.length < min.length - 1 || !min.length) &&
-        (newMin.length || !newAmount)
-      ) {
-        // 这里设定了边界条件，当传给递归函数的 newAmount 为 coin 时开始回溯
-        min = [coin].concat(newMin);
-        console.log("new min " + min + " for " + amount);
-      }
-    }
-    return (cache[amount] = min);
-  };
-}
-```
-
-## 实现两个大整数相加
-
-实现超出整数存储范围的两个大整数相加 function add(a,b)。注意 a 和 b 以及函数的返回值都是字符串。
-
-```js
-function add(a, b) {
-  let maxLength = Math.max(a.length, b.length);
-  let padA = a.padStart(maxLength, "0");
-  let padB = b.padStart(maxLength, "0");
-  // 为了计算时个位数对齐，填充长度至两者长度的最大值
-
-  let carryNum = 0; // 是否进1
-  let result = [];
-  for (let index = maxLength - 1; index >= 0; index--) {
-    // 从个数开始计算，也就是倒着算。
-
-    let tem = Number(padA[index]) + Number(padB[index]) + carryNum;
-    if (tem >= 10) {
-      carryNum = 1; // 超10进1
-      result.unshift(tem % 10);
-      index === 0 && result.unshift(carryNum);
-      // 遍历到最后一位时，如果超10，往最前位进1
-    } else {
-      carryNum = 0; // 不超10，进0，
-      result.unshift(tem);
-    }
-  }
-  return result.join("");
-}
-console.log(add("333333333333333333333333333333", "33333333333333333333333"));
-```
-
-## 求数组交集
-
-```js
-function getjiaoji(arr1, arr2) {
-  return arr1.filter(item => {
-    let index = arr2.findIndex(v => v == item);
-    if (index !== -1) {
-      arr2.splice(index, 1);
-      // 把当前元素删除，防止重复使用
+```javascript
+/**
+ * 检查数组中是否有重复元素
+ * @param {number[]} nums - 数组
+ * @return {boolean} 是否有重复
+ * 
+ * 时间复杂度: O(n)
+ * 空间复杂度: O(n)
+ */
+function containsDuplicate(nums) {
+  const seen = new Set();
+  
+  for (const num of nums) {
+    if (seen.has(num)) {
       return true;
     }
-  });
+    seen.add(num);
+  }
+  
+  return false;
 }
+
+// 优化版本 - 利用 Set 去重特性
+function containsDuplicateOptimized(nums) {
+  return new Set(nums).size !== nums.length;
+}
+
+// 示例
+console.log(containsDuplicate([1, 2, 3, 1])); // true
+console.log(containsDuplicate([1, 2, 3, 4])); // false
 ```
 
-## 数组指定值
+### 🎯 两数之和
 
-```js
-// 整数数组中某两个数等于某个值的所有可能性，用过的元素不在使用
-//二分法+双指针思想实现
-const arr = [13, 2, 534, 2, 12, 232, 23, 12, 12, 2, 131, 1, 31, 21];
-function getSum(arr, num) {
-  arr.sort((a, b) => a - b);
-  const result = [];
-  let left = 0,
-   let right = arr.length - 1;
+**难度**: 🔥 简单  
+**标签**: `数组` `哈希表` `双指针`
+
+```javascript
+/**
+ * 两数之和
+ * @param {number[]} nums - 数组
+ * @param {number} target - 目标值
+ * @return {number[]} 两数的索引
+ * 
+ * 时间复杂度: O(n)
+ * 空间复杂度: O(n)
+ */
+function twoSum(nums, target) {
+  const map = new Map();
+  
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    
+    if (map.has(complement)) {
+      return [map.get(complement), i];
+    }
+    
+    map.set(nums[i], i);
+  }
+  
+  return [];
+}
+
+// 双指针解法（适用于有序数组）
+function twoSumSorted(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+  
   while (left < right) {
-    if (arr[left] + arr[right] < num) {
+    const sum = nums[left] + nums[right];
+    
+    if (sum === target) {
+      return [left, right];
+    } else if (sum < target) {
       left++;
-    } else if (arr[left] + arr[right] > num) {
-      right--;
     } else {
-      result.push([arr[left], arr[right]]);
-      left++;
       right--;
     }
   }
+  
+  return [];
+}
+
+// 示例
+console.log(twoSum([2, 7, 11, 15], 9)); // [0, 1]
+console.log(twoSum([3, 2, 4], 6)); // [1, 2]
+```
+
+## 🔗 链表相关
+
+### 🔄 链表节点定义
+
+```javascript
+/**
+ * 链表节点定义
+ * @param {*} val - 节点值
+ */
+function ListNode(val, next) {
+  this.val = (val === undefined ? 0 : val);
+  this.next = (next === undefined ? null : next);
+}
+```
+
+### ➕ 两数相加
+
+**难度**: 🔥🔥 中等  
+**标签**: `链表` `数学` `递归`
+
+```javascript
+/**
+ * 两数相加（链表表示）
+ * @param {ListNode} l1 - 第一个链表
+ * @param {ListNode} l2 - 第二个链表
+ * @return {ListNode} 结果链表
+ * 
+ * 时间复杂度: O(max(m, n))
+ * 空间复杂度: O(max(m, n))
+ */
+function addTwoNumbers(l1, l2) {
+  const dummy = new ListNode(0);
+  let current = dummy;
+  let carry = 0;
+  
+  while (l1 || l2 || carry) {
+    const val1 = l1 ? l1.val : 0;
+    const val2 = l2 ? l2.val : 0;
+    const sum = val1 + val2 + carry;
+    
+    carry = Math.floor(sum / 10);
+    current.next = new ListNode(sum % 10);
+    current = current.next;
+    
+    if (l1) l1 = l1.next;
+    if (l2) l2 = l2.next;
+  }
+  
+  return dummy.next;
+}
+
+// 示例
+const l1 = new ListNode(2, new ListNode(4, new ListNode(3)));
+const l2 = new ListNode(5, new ListNode(6, new ListNode(4)));
+console.log(addTwoNumbers(l1, l2)); // [7, 0, 8]
+```
+
+### 🔄 合并两个有序链表
+
+**难度**: 🔥 简单  
+**标签**: `链表` `递归` `迭代`
+
+```javascript
+/**
+ * 合并两个有序链表
+ * @param {ListNode} list1 - 第一个链表
+ * @param {ListNode} list2 - 第二个链表
+ * @return {ListNode} 合并后的链表
+ * 
+ * 时间复杂度: O(m + n)
+ * 空间复杂度: O(1)
+ */
+function mergeTwoLists(list1, list2) {
+  const dummy = new ListNode(0);
+  let current = dummy;
+  
+  while (list1 && list2) {
+    if (list1.val <= list2.val) {
+      current.next = list1;
+      list1 = list1.next;
+    } else {
+      current.next = list2;
+      list2 = list2.next;
+    }
+    current = current.next;
+  }
+  
+  // 连接剩余的节点
+  current.next = list1 || list2;
+  
+  return dummy.next;
+}
+
+// 递归解法
+function mergeTwoListsRecursive(list1, list2) {
+  if (!list1) return list2;
+  if (!list2) return list1;
+  
+  if (list1.val <= list2.val) {
+    list1.next = mergeTwoListsRecursive(list1.next, list2);
+    return list1;
+  } else {
+    list2.next = mergeTwoListsRecursive(list1, list2.next);
+    return list2;
+  }
+}
+```
+
+## 🔤 字符串相关
+
+### 🔢 罗马数字转整数
+
+**难度**: 🔥 简单  
+**标签**: `字符串` `数学` `哈希表`
+
+```javascript
+/**
+ * 罗马数字转整数
+ * @param {string} s - 罗马数字字符串
+ * @return {number} 整数
+ * 
+ * 时间复杂度: O(n)
+ * 空间复杂度: O(1)
+ */
+function romanToInt(s) {
+  const romanMap = {
+    'I': 1,
+    'V': 5,
+    'X': 10,
+    'L': 50,
+    'C': 100,
+    'D': 500,
+    'M': 1000
+  };
+  
+  let result = 0;
+  
+  for (let i = 0; i < s.length; i++) {
+    const current = romanMap[s[i]];
+    const next = romanMap[s[i + 1]];
+    
+    // 如果当前数字小于下一个数字，则需要减去当前数字
+    if (current < next) {
+      result -= current;
+    } else {
+      result += current;
+    }
+  }
+  
   return result;
 }
 
-// 双循环+双指针思想
-function getSum(array, num) {
-  const length = array.length;
-  const result = [];
-  for (let index = 0; index < length - 1; index++) {
-    for (let innerIndex = index + 1; innerIndex < length; innerIndex++) {
-      // 遍历外层循环指针后面的元素
-      if (array[index] + array[innerIndex] === num) {
-        result.push([array[index], array.splice(innerIndex, 1)[0]]);
-         //后面用过的元素删掉，并保存结果
+// 示例
+console.log(romanToInt("III")); // 3
+console.log(romanToInt("IV")); // 4
+console.log(romanToInt("IX")); // 9
+console.log(romanToInt("LVIII")); // 58
+console.log(romanToInt("MCMXC")); // 1994
+```
+
+### 🔄 删除字符串中的所有相邻重复项
+
+**难度**: 🔥 简单  
+**标签**: `字符串` `栈`
+
+```javascript
+/**
+ * 删除字符串中的所有相邻重复项
+ * @param {string} s - 输入字符串
+ * @return {string} 处理后的字符串
+ * 
+ * 时间复杂度: O(n)
+ * 空间复杂度: O(n)
+ */
+function removeDuplicates(s) {
+  const stack = [];
+  
+  for (const char of s) {
+    if (stack.length > 0 && stack[stack.length - 1] === char) {
+      stack.pop(); // 删除相邻重复项
+    } else {
+      stack.push(char);
+    }
+  }
+  
+  return stack.join('');
+}
+
+// 删除 k 个相邻重复项
+function removeDuplicatesK(s, k) {
+  const stack = [];
+  
+  for (const char of s) {
+    if (stack.length > 0 && stack[stack.length - 1][0] === char) {
+      stack[stack.length - 1] += char;
+      if (stack[stack.length - 1].length === k) {
+        stack.pop();
+      }
+    } else {
+      stack.push(char);
+    }
+  }
+  
+  return stack.join('');
+}
+
+// 示例
+console.log(removeDuplicates("abbaca")); // "ca"
+console.log(removeDuplicatesK("abcd", 2)); // "abcd"
+console.log(removeDuplicatesK("deeedbbcccbdaa", 3)); // "aa"
+```
+
+## 🧮 数学相关
+
+### 🔄 整数反转
+
+**难度**: 🔥 简单  
+**标签**: `数学` `递归`
+
+```javascript
+/**
+ * 整数反转
+ * @param {number} x - 输入整数
+ * @return {number} 反转后的整数
+ * 
+ * 时间复杂度: O(log(x))
+ * 空间复杂度: O(1)
+ */
+function reverse(x) {
+  const INT_MAX = 2147483647;
+  const INT_MIN = -2147483648;
+  
+  let result = 0;
+  
+  while (x !== 0) {
+    const digit = x % 10;
+    x = Math.trunc(x / 10);
+    
+    // 检查溢出
+    if (result > INT_MAX / 10 || (result === INT_MAX / 10 && digit > 7)) {
+      return 0;
+    }
+    if (result < INT_MIN / 10 || (result === INT_MIN / 10 && digit < -8)) {
+      return 0;
+    }
+    
+    result = result * 10 + digit;
+  }
+  
+  return result;
+}
+
+// 递归解法（字符串处理）
+function reverseRecursive(num) {
+  if (num < 10) {
+    return num.toString();
+  }
+  
+  return `${num % 10}${reverseRecursive(Math.floor(num / 10))}`;
+}
+
+// 示例
+console.log(reverse(123)); // 321
+console.log(reverse(-123)); // -321
+console.log(reverse(120)); // 21
+```
+
+### ➕ 各位相加
+
+**难度**: 🔥 简单  
+**标签**: `数学` `递归`
+
+```javascript
+/**
+ * 各位相加
+ * @param {number} num - 输入数字
+ * @return {number} 各位相加的结果
+ * 
+ * 时间复杂度: O(log(num))
+ * 空间复杂度: O(1)
+ */
+function addDigits(num) {
+  while (num >= 10) {
+    let sum = 0;
+    while (num > 0) {
+      sum += num % 10;
+      num = Math.floor(num / 10);
+    }
+    num = sum;
+  }
+  return num;
+}
+
+// 数学规律解法（数字根）
+function addDigitsOptimized(num) {
+  return num === 0 ? 0 : 1 + (num - 1) % 9;
+}
+
+// 示例
+console.log(addDigits(38)); // 2 (3 + 8 = 11, 1 + 1 = 2)
+console.log(addDigits(0)); // 0
+```
+
+### 🎯 将整数转换为两个无零整数的和
+
+**难度**: 🔥 简单  
+**标签**: `数学` `模拟`
+
+```javascript
+/**
+ * 将整数转换为两个无零整数的和
+ * @param {number} n - 输入整数
+ * @return {number[]} 两个无零整数
+ * 
+ * 时间复杂度: O(log(n))
+ * 空间复杂度: O(1)
+ */
+function getNoZeroIntegers(n) {
+  function hasZero(num) {
+    return num.toString().includes('0');
+  }
+  
+  for (let i = 1; i < n; i++) {
+    if (!hasZero(i) && !hasZero(n - i)) {
+      return [i, n - i];
+    }
+  }
+  
+  return [];
+}
+
+// 示例
+console.log(getNoZeroIntegers(2)); // [1, 1]
+console.log(getNoZeroIntegers(11)); // [2, 9]
+```
+
+### 🔍 寻找质数
+
+**难度**: 🔥🔥 中等  
+**标签**: `数学` `枚举`
+
+```javascript
+/**
+ * 寻找范围内的所有质数
+ * @param {number} n - 范围上限
+ * @return {number[]} 质数数组
+ * 
+ * 时间复杂度: O(n√n)
+ * 空间复杂度: O(n)
+ */
+function findPrimes(n) {
+  if (n <= 1) return [];
+  
+  const primes = [];
+  
+  for (let i = 2; i < n; i++) {
+    let isPrime = true;
+    
+    for (let j = 2; j * j <= i; j++) {
+      if (i % j === 0) {
+        isPrime = false;
+        break;
+      }
+    }
+    
+    if (isPrime) {
+      primes.push(i);
+    }
+  }
+  
+  return primes;
+}
+
+// 埃拉托斯特尼筛法（更高效）
+function sieveOfEratosthenes(n) {
+  const isPrime = new Array(n).fill(true);
+  isPrime[0] = isPrime[1] = false;
+  
+  for (let i = 2; i * i < n; i++) {
+    if (isPrime[i]) {
+      for (let j = i * i; j < n; j += i) {
+        isPrime[j] = false;
       }
     }
   }
-  return result;
-}
-console.log(getSum(arr, 14));
-
-// 二分法查找指定值在整数有序数组中的位置
-function binarySearch(arr, target) {
-  let low = 0; // 范围的最小值索引
-  let high = arr.length - 1; // 范围的最大值索引
-  let midIndex = 0; // 范围中间值索引
-  let midElement = 0; // 范围中间值索引对应的中间值
-  while (low <= high) {
-    midIndex = Math.floor((low + high) / 2);
-    midElement = arr[midIndex];
-    if (target > midElement) {
-      low = midIndex + 1;
-    } else if (target < midElement) {
-      high = midIndex - 1;
-    } else {
-      return midIndex;
+  
+  const primes = [];
+  for (let i = 2; i < n; i++) {
+    if (isPrime[i]) {
+      primes.push(i);
     }
   }
-  return -1; // 最终找不到等于target的值，则返回-1
+  
+  return primes;
 }
-console.log(binarySearch([3, 4, 7, 10, 34], 7));
 
-// leetcode 1207 数组元素是否都独一无二出现
-function isNoRepeat(array) {
-  let map = new Map();
-  for (const iterator of array) {
-    map.set(iterator, (map.get(iterator) || 0) + 1);
+// 示例
+console.log(findPrimes(10)); // [2, 3, 5, 7]
+console.log(sieveOfEratosthenes(30)); // [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+```
+
+## 📊 栈与队列
+
+### 🎯 栈的基本操作
+
+```javascript
+/**
+ * 栈的实现
+ */
+class Stack {
+  constructor() {
+    this.items = [];
   }
-  let set = new Set();
-  for (const [key, value] of map) {
-    set.add(key); // 利用了Set自动去重的特性
+  
+  push(item) {
+    this.items.push(item);
   }
-  return set.size === map.size;
-  // return array.length === [...new Set(array)].size;
+  
+  pop() {
+    return this.items.pop();
+  }
+  
+  peek() {
+    return this.items[this.items.length - 1];
+  }
+  
+  isEmpty() {
+    return this.items.length === 0;
+  }
+  
+  size() {
+    return this.items.length;
+  }
 }
 ```
 
-## leetcode 933
+### 📊 最近请求次数
 
-统计最近 3000 毫秒内的请求次数,很少遇到
+**难度**: 🔥 简单  
+**标签**: `队列` `设计`
 
-```js
+```javascript
+/**
+ * 最近请求次数统计
+ * 统计最近 3000 毫秒内的请求次数
+ */
 class RecentCounter {
-  result = [];
+  constructor() {
+    this.requests = [];
+  }
+  
+  /**
+   * 添加新请求并返回最近3000ms内的请求数
+   * @param {number} t - 请求时间
+   * @return {number} 最近3000ms内的请求数
+   * 
+   * 时间复杂度: O(1) 平均情况
+   * 空间复杂度: O(W) W为时间窗口大小
+   */
   ping(t) {
-    this.result.push(t);
-    while (t - this.result[0] >= 3000) {
-      this.result.shift();
+    this.requests.push(t);
+    
+    // 移除超出时间窗口的请求
+    while (this.requests[0] < t - 3000) {
+      this.requests.shift();
     }
-    return this.result.length;
+    
+    return this.requests.length;
   }
 }
-let obj = new RecentCounter();
-console.log(obj.ping(3000));
-console.log(obj.ping(4000));
-console.log(obj.ping(5000));
+
+// 示例
+const counter = new RecentCounter();
+console.log(counter.ping(1)); // 1
+console.log(counter.ping(100)); // 2
+console.log(counter.ping(3001)); // 3
+console.log(counter.ping(3002)); // 3
 ```
 
-## 数组中是否有重复元素
+## 🔍 查找与排序
 
-```js
-function hasRepeat(array) {
-  let set = new Set();
-  for (const iterator of array) {
-    if (set.has(iterator)) return true;
-    // 后面的元素存在缓存过的，就有重复
-    set.add(iterator);
-    //元素没有缓存就加入Set缓存
-  }
-  return false;
-}
-```
+### 🎯 二分查找
 
-## 寻找质数
+**难度**: 🔥 简单  
+**标签**: `数组` `二分查找`
 
-找出某范围内的所有质数
-
-```js
-function getPrime(params) {
-  if (params <= 1)
-    throw "注意 1 不是质数，质数是大于 1 的且只能被 1 和自身整除的自然数";
-  let result = []; // 质数结果集合
-  let innerIndex = 0;
-  // 内循环索引，定义在外层方便外层循环可以拿到内循环的index
-
-  for (let index = 2; index < params; index++) {
-    for (innerIndex = 2; innerIndex < index; innerIndex++) {
-      if (index % innerIndex === 0) break;
-      // 2 <= innerIndex < index范围内存在被整除的数，是非质数
+```javascript
+/**
+ * 二分查找
+ * @param {number[]} nums - 有序数组
+ * @param {number} target - 目标值
+ * @return {number} 目标值的索引，不存在返回-1
+ * 
+ * 时间复杂度: O(log(n))
+ * 空间复杂度: O(1)
+ */
+function binarySearch(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+  
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    
+    if (nums[mid] === target) {
+      return mid;
+    } else if (nums[mid] < target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
     }
-    innerIndex === index && result.push(index);
-    // 内层循环走到了最后都没找到被整除的数，是质数
   }
+  
+  return -1;
+}
+
+// 递归版本
+function binarySearchRecursive(nums, target, left = 0, right = nums.length - 1) {
+  if (left > right) return -1;
+  
+  const mid = Math.floor((left + right) / 2);
+  
+  if (nums[mid] === target) {
+    return mid;
+  } else if (nums[mid] < target) {
+    return binarySearchRecursive(nums, target, mid + 1, right);
+  } else {
+    return binarySearchRecursive(nums, target, left, mid - 1);
+  }
+}
+
+// 示例
+console.log(binarySearch([1, 2, 3, 4, 5], 3)); // 2
+console.log(binarySearch([1, 2, 3, 4, 5], 6)); // -1
+```
+
+## 🚀 高级算法
+
+### 💰 动态规划 - 硬币找零
+
+**难度**: 🔥🔥🔥 困难  
+**标签**: `动态规划` `递归` `记忆化`
+
+```javascript
+/**
+ * 硬币找零问题
+ * @param {number[]} coins - 硬币面额数组
+ * @param {number} amount - 目标金额
+ * @return {number} 最少硬币数量
+ * 
+ * 时间复杂度: O(amount * coins.length)
+ * 空间复杂度: O(amount)
+ */
+function coinChange(coins, amount) {
+  const dp = new Array(amount + 1).fill(amount + 1);
+  dp[0] = 0;
+  
+  for (let i = 1; i <= amount; i++) {
+    for (const coin of coins) {
+      if (i >= coin) {
+        dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+      }
+    }
+  }
+  
+  return dp[amount] > amount ? -1 : dp[amount];
+}
+
+// 递归 + 记忆化版本
+function coinChangeRecursive(coins, amount) {
+  const memo = new Map();
+  
+  function dp(remaining) {
+    if (remaining === 0) return 0;
+    if (remaining < 0) return -1;
+    if (memo.has(remaining)) return memo.get(remaining);
+    
+    let min = Infinity;
+    
+    for (const coin of coins) {
+      const result = dp(remaining - coin);
+      if (result !== -1) {
+        min = Math.min(min, result + 1);
+      }
+    }
+    
+    const finalResult = min === Infinity ? -1 : min;
+    memo.set(remaining, finalResult);
+    return finalResult;
+  }
+  
+  return dp(amount);
+}
+
+// 示例
+console.log(coinChange([1, 3, 4], 6)); // 2 (3 + 3)
+console.log(coinChange([2], 3)); // -1
+```
+
+### 🎯 大整数相加
+
+**难度**: 🔥🔥 中等  
+**标签**: `字符串` `数学` `模拟`
+
+```javascript
+/**
+ * 大整数相加
+ * @param {string} num1 - 第一个大整数
+ * @param {string} num2 - 第二个大整数
+ * @return {string} 相加结果
+ * 
+ * 时间复杂度: O(max(m, n))
+ * 空间复杂度: O(max(m, n))
+ */
+function addStrings(num1, num2) {
+  const maxLength = Math.max(num1.length, num2.length);
+  const paddedNum1 = num1.padStart(maxLength, '0');
+  const paddedNum2 = num2.padStart(maxLength, '0');
+  
+  let carry = 0;
+  let result = [];
+  
+  for (let i = maxLength - 1; i >= 0; i--) {
+    const sum = parseInt(paddedNum1[i]) + parseInt(paddedNum2[i]) + carry;
+    
+    if (sum >= 10) {
+      carry = 1;
+      result.unshift(sum % 10);
+    } else {
+      carry = 0;
+      result.unshift(sum);
+    }
+  }
+  
+  // 处理最后的进位
+  if (carry > 0) {
+    result.unshift(carry);
+  }
+  
+  return result.join('');
+}
+
+// 示例
+console.log(addStrings("11", "123")); // "134"
+console.log(addStrings("456", "77")); // "533"
+console.log(addStrings("999", "1")); // "1000"
+```
+
+## 💡 编程技巧
+
+### 🎯 链式调用实现
+
+```javascript
+/**
+ * 链式调用实现 - 支持延迟执行
+ */
+class ChainExecutor {
+  constructor() {
+    this.tasks = [];
+    // 使用微任务确保所有链式调用都已完成
+    Promise.resolve().then(() => this.execute());
+  }
+  
+  print(value) {
+    this.tasks.push(() => {
+      console.log(value);
+      return Promise.resolve();
+    });
+    return this;
+  }
+  
+  wait(seconds) {
+    this.tasks.push(() => {
+      console.log(`等待 ${seconds} 秒...`);
+      return new Promise(resolve => {
+        setTimeout(resolve, seconds * 1000);
+      });
+    });
+    return this;
+  }
+  
+  firstWait(seconds) {
+    this.tasks.unshift(() => {
+      console.log(`首先等待 ${seconds} 秒...`);
+      return new Promise(resolve => {
+        setTimeout(resolve, seconds * 1000);
+      });
+    });
+    return this;
+  }
+  
+  async execute() {
+    for (const task of this.tasks) {
+      await task();
+    }
+  }
+}
+
+// 使用示例
+new ChainExecutor()
+  .print(1)
+  .wait(1)
+  .print(2)
+  .wait(1)
+  .print(3)
+  .firstWait(2);
+```
+
+### 🔍 数组交集
+
+```javascript
+/**
+ * 求两个数组的交集
+ * @param {number[]} arr1 - 第一个数组
+ * @param {number[]} arr2 - 第二个数组
+ * @return {number[]} 交集数组
+ * 
+ * 时间复杂度: O(m + n)
+ * 空间复杂度: O(min(m, n))
+ */
+function intersection(arr1, arr2) {
+  const set1 = new Set(arr1);
+  const result = [];
+  
+  for (const num of arr2) {
+    if (set1.has(num)) {
+      result.push(num);
+      set1.delete(num); // 避免重复
+    }
+  }
+  
   return result;
 }
-console.log(getPrime(10)); // [ 2, 3, 5, 7 ]
+
+// 保留重复元素的交集
+function intersectionWithDuplicates(arr1, arr2) {
+  const arr2Copy = [...arr2];
+  const result = [];
+  
+  for (const num of arr1) {
+    const index = arr2Copy.indexOf(num);
+    if (index !== -1) {
+      result.push(num);
+      arr2Copy.splice(index, 1); // 移除已使用的元素
+    }
+  }
+  
+  return result;
+}
+
+// 示例
+console.log(intersection([1, 2, 2, 1], [2, 2])); // [2]
+console.log(intersectionWithDuplicates([1, 2, 2, 1], [2, 2])); // [2, 2]
 ```
+
+## 📈 复杂度分析
+
+### ⏱️ 时间复杂度
+
+```mermaid
+graph TD
+    A[时间复杂度] --> B[O(1) 常数时间]
+    A --> C[O(log n) 对数时间]
+    A --> D[O(n) 线性时间]
+    A --> E[O(n log n) 线性对数时间]
+    A --> F[O(n²) 平方时间]
+    A --> G[O(2^n) 指数时间]
+    
+    B --> B1[数组访问、哈希表查找]
+    C --> C1[二分查找、堆操作]
+    D --> D1[数组遍历、链表遍历]
+    E --> E1[归并排序、快速排序]
+    F --> F1[冒泡排序、选择排序]
+    G --> G1[递归求解、动态规划]
+    
+    style B fill:#e8f5e8
+    style C fill:#e1f5fe
+    style D fill:#fff3e0
+    style E fill:#f3e5f5
+    style F fill:#ffebee
+    style G fill:#fce4ec
+```
+
+### 💾 空间复杂度
+
+| 复杂度 | 名称 | 示例 |
+|--------|------|------|
+| O(1) | 常数空间 | 变量、指针 |
+| O(log n) | 对数空间 | 递归调用栈 |
+| O(n) | 线性空间 | 数组、链表 |
+| O(n²) | 平方空间 | 二维数组 |
+
+## 🎯 解题技巧
+
+### 🔧 常用技巧
+
+::: tip 💡 算法解题技巧
+
+1. **双指针技巧**
+   - 适用于数组、链表、字符串问题
+   - 可以将 O(n²) 优化为 O(n)
+
+2. **滑动窗口**
+   - 适用于子数组、子字符串问题
+   - 维护一个可变长度的窗口
+
+3. **哈希表**
+   - 快速查找、去重、计数
+   - 空间换时间的经典应用
+
+4. **递归与动态规划**
+   - 将复杂问题分解为子问题
+   - 记忆化避免重复计算
+
+5. **贪心算法**
+   - 每一步都做出最优选择
+   - 适用于特定的优化问题
+:::
+
+### 📚 刷题建议
+
+```mermaid
+graph LR
+    A[刷题规划] --> B[基础算法]
+    A --> C[数据结构]
+    A --> D[高级算法]
+    A --> E[系统设计]
+    
+    B --> B1[排序搜索]
+    B --> B2[双指针]
+    B --> B3[递归]
+    
+    C --> C1[数组链表]
+    C --> C2[栈队列]
+    C --> C3[树图]
+    
+    D --> D1[动态规划]
+    D --> D2[贪心算法]
+    D --> D3[图算法]
+    
+    E --> E1[设计模式]
+    E --> E2[分布式系统]
+    E --> E3[缓存策略]
+    
+    style A fill:#e3f2fd
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+```
+
+---
+
+::: tip 🎯 学习建议
+1. **循序渐进**: 从简单题目开始，逐步提高难度
+2. **总结规律**: 相同类型的题目往往有相似的解法
+3. **多种解法**: 尝试不同的算法思路，比较优劣
+4. **时间管理**: 合理分配刷题时间，注重质量而非数量
+5. **实践应用**: 将算法思想应用到实际项目中
+:::

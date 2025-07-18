@@ -8,404 +8,709 @@ outline: deep
 
 > Jenkins 是目前最流行的开源自动化服务器，用于实现持续集成和持续交付（CI/CD），支持自动编译、测试和部署软件项目。
 
+## 📚 目录导航
+
+::: details 🔍 点击展开完整目录
+- [🎯 Jenkins 介绍](#jenkins-介绍)
+- [🏗️ CI/CD 核心概念](#ci-cd-核心概念)
+- [⚙️ Jenkins 安装配置](#jenkins-安装配置)
+- [🔧 基础配置步骤](#基础配置步骤)
+- [📋 创建新任务](#创建新任务)
+- [🔐 创建凭据](#创建凭据)
+- [🔄 配置流水线](#配置流水线)
+- [📝 Jenkinsfile 最佳实践](#jenkinsfile-最佳实践)
+- [🎨 流水线可视化](#流水线可视化)
+- [🚀 部署策略](#部署策略)
+- [📊 监控与调试](#监控与调试)
+- [🔧 常见问题解决](#常见问题解决)
+- [📖 参考资源](#参考资源)
+:::
+
 ## 🎯 Jenkins 介绍
 
 随着互联网应用越来越多，系统规模也越来越大，DevOps、CI/CD 等概念也被重视起来，持续交付/持续集成/自动化部署等理念也被越来越多的团队接受。
 
-而 Jenkins，是目前比较流行的用于自动编译/部署软件项目的系统。
-- CI持续集成：指开发人员频繁的将代码更改合并到主代码库中。每次提交后，自动化工具会执行构建和测试，以确保新代码安全性。
-- CD持续交付：旨在通过自动化构建、测试、部署过程，使软件在任何时间点都可以安全地发布到生产环境中。
+### 🔄 CI/CD 核心概念
 
-## Jenkins配置
+```mermaid
+graph TD
+    A[开发者提交代码] --> B[代码仓库]
+    B --> C[Jenkins 监听]
+    C --> D[自动构建]
+    D --> E[运行测试]
+    E --> F{测试通过?}
+    F -->|是| G[构建 Docker 镜像]
+    F -->|否| H[通知失败]
+    G --> I[推送镜像]
+    I --> J[部署到环境]
+    J --> K[健康检查]
+    K --> L[部署成功]
+    
+    style A fill:#e1f5fe
+    style D fill:#f3e5f5
+    style G fill:#e8f5e8
+    style L fill:#fff3e0
+```
 
-Jenkins 配置可以通过 Web 界面进行。以下是配置 Jenkins 的基本步骤：
+| 概念 | 描述 | 核心价值 |
+|------|------|----------|
+| **CI 持续集成** | 开发人员频繁将代码更改合并到主代码库中 | 🔄 早期发现问题，提高代码质量 |
+| **CD 持续交付** | 自动化构建、测试、部署过程 | 🚀 软件随时可以安全发布到生产环境 |
+| **自动化部署** | 无人工干预的部署流程 | ⚡ 减少人为错误，提高部署效率 |
 
-1. 安装 Jenkins：
+## ⚙️ Jenkins 安装配置
 
-在 Linux 上，可以使用包管理器安装，如 apt-get install jenkins (Debian/Ubuntu) 或 yum install jenkins (CentOS/RedHat)。
+### 🏗️ 安装方式对比
 
-在 Windows 上，下载并运行安装程序。
+| 安装方式 | 优势 | 适用场景 |
+|----------|------|----------|
+| **Docker** | 🐳 环境隔离，易于管理 | 开发测试环境 |
+| **包管理器** | 📦 系统集成度高 | 生产环境 |
+| **War 包** | 🎯 灵活部署 | 自定义环境 |
 
-2. 访问 Jenkins 网址：
+::: code-group
+```bash [Docker 安装]
+# 拉取 Jenkins 镜像
+docker pull jenkins/jenkins:lts
 
-   通常是 `http://localhost:8080`。
+# 创建 Jenkins 容器
+docker run -d \
+  --name jenkins \
+  -p 8080:8080 \
+  -p 50000:50000 \
+  -v jenkins_home:/var/jenkins_home \
+  jenkins/jenkins:lts
 
-3. 进行初始化配置：
+# 查看初始密码
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
 
-    - 安装推荐的插件。
+```bash [Ubuntu/Debian]
+# 添加 Jenkins 仓库
+curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
 
-    - 创建第一个管理员用户。
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-    - 设置 Jenkins 的 URL。
+# 安装 Jenkins
+sudo apt-get update
+sudo apt-get install jenkins
+```
 
-4. 配置 Jenkins 实例：
+```bash [CentOS/RHEL]
+# 添加 Jenkins 仓库
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+  https://pkg.jenkins.io/redhat-stable/jenkins.repo
 
-   - 可以通过 Jenkins 的 Web 界面进行配置，点击系统管理 -> 系统设置。
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
 
-   - 配置全局工具设置，如 JDK、Maven 和 Git。
+# 安装 Jenkins
+sudo yum install jenkins
+```
+:::
 
-5. 创建或配置作业（Job）：
+### 🔧 基础配置步骤
 
-   - 点击新建任务，输入任务名称，选择任务类型（如 Freestyle project、Maven project）。
+```mermaid
+graph LR
+    A[访问 Jenkins] --> B[解锁 Jenkins]
+    B --> C[安装插件]
+    C --> D[创建管理员]
+    D --> E[配置实例]
+    E --> F[开始使用]
+    
+    style A fill:#e3f2fd
+    style C fill:#f3e5f5
+    style F fill:#e8f5e8
+```
 
-   - 配置源代码管理（如 Git）、构建触发器、构建环境和构建操作。
-     - 下载代码
-     - 编译代码
-     - 远程部署程序
-     - 配置任务自动触发
+1. **访问 Jenkins**：浏览器打开 `http://localhost:8080`
+2. **解锁 Jenkins**：输入初始管理员密码
+3. **安装插件**：选择推荐插件或自定义安装
+4. **创建管理员**：设置第一个管理员用户
+5. **配置实例**：设置 Jenkins URL
+6. **全局工具配置**：配置 JDK、Maven、Git 等
 
-6. 保存并运行作业：
+## 📋 创建新任务
 
-点击构建 now 来运行作业。
+### 🎯 任务类型选择
 
-7. 监控构建结果：
+| 任务类型 | 适用场景 | 特点 |
+|----------|----------|------|
+| **Freestyle Project** | 简单构建任务 | 🎮 灵活配置，适合初学者 |
+| **Pipeline** | 复杂流水线 | 🔄 代码化管理，功能强大 |
+| **Maven Project** | Java 项目 | ☕ 原生 Maven 支持 |
+| **Multibranch Pipeline** | 多分支项目 | 🌿 自动分支管理 |
 
-在作业页面可以查看构建历史和详细信息。
+### 📝 创建任务流程
 
-8. 高级配置：
+```mermaid
+graph TD
+    A[新建任务] --> B[输入任务名称]
+    B --> C[选择任务类型]
+    C --> D[配置源码管理]
+    D --> E[设置构建触发器]
+    E --> F[配置构建环境]
+    F --> G[定义构建步骤]
+    G --> H[设置构建后操作]
+    H --> I[保存配置]
+    
+    style A fill:#e1f5fe
+    style D fill:#f3e5f5
+    style G fill:#e8f5e8
+    style I fill:#fff3e0
+```
 
-可以通过 Jenkins 脚本控制台进行高级配置，或编辑作业配置文件 config.xml
+#### 1. 新建任务界面
+![Jenkins 新建任务](image-8.png)
 
-## 创建新任务
-在Jenkins中新建任务是一个相对直观的过程，它主要依赖于Jenkins的Web界面，而不是通过编写代码来完成的。首先，您需要使用有效的用户名和密码登录到Jenkins的Web界面。访问您Jenkins服务器的URL，然后输入您的登录凭据。  
+#### 2. 配置源码管理
+![Git 参数配置](image-10.png)
 
-1. 新建Item   
-登录后，在Jenkins的主页面上，您会看到一个侧边栏，其中包含了各种操作选项。在这个侧边栏中，找到并点击“新建任务”（在某些Jenkins版本中可能是“New Job”）按钮。
-![alt text](image-8.png)
-2. 输入任务名称  
-在弹出的“新建任务”或“New Job”界面中，您需要首先输入任务的名称。这个名称应该是有意义的，以便于您和团队成员识别。
-3.  选择任务类型。Pipeline、freestyle project   
-接下来，您需要从“选择一个项目类型”下拉菜单中选择适合您需求的任务类型。Jenkins提供了多种任务类型，如“Freestyle project”（自由风格项目）、“Pipeline”（流水线）、“Maven project”（Maven项目）等。根据您的项目需求选择合适的类型。
-4. 选择自由式项目：freestyle project
-5. 配置任务详细参数   
+**Git 参数配置**：
+- **Repository URL**：Git 仓库地址
+- **Credentials**：访问凭据
+- **Branch**：分支名称
+- **Additional Behaviours**：其他行为配置
 
-  选择任务类型后，您将进入该类型任务的配置页面。在这里，您需要根据您的项目需求配置各种参数。以下是一些常见的配置项：
-  ![alt text](image-9.png)
-  - ‌源码管理‌：配置如何获取源代码，比如使用Git、SVN等版本控制系统。如果安装了 Git Parameter 插件 就会有 Git参数选项。
-  ![alt text](image-10.png)
-  然后我们选择Git参数，需要填写Git仓库的URL、分支名称、凭据等。:
-  ![alt text](image-11.png)
-  - ‌构建触发器‌：配置触发构建的条件，比如定时构建、Git push后自动构建等。
-  - 构建步骤‌：定义构建过程中需要执行的命令或操作。这可以包括运行脚本、执行Maven命令、调用其他构建工具等。
+#### 3. 构建触发器配置
+![构建触发器](image-11.png)
 
-  - ‌构建后操作‌：定义构建完成后需要执行的操作，如发送通知、部署应用等。
-  - 在流水线中输入Groovy语法  
-  
-```sh
-  pipeline {
+| 触发方式 | 说明 | 配置示例 |
+|----------|------|----------|
+| **定时构建** | 按时间表触发 | `H 2 * * *` (每天凌晨2点) |
+| **轮询 SCM** | 检查代码变化 | `H/5 * * * *` (每5分钟检查) |
+| **Webhook** | 代码推送触发 | GitHub/GitLab Webhook |
+| **上游项目** | 依赖项目构建后触发 | 指定上游项目名称 |
+
+## 🔐 创建凭据
+
+### 🔧 凭据类型
+
+```mermaid
+graph LR
+    A[凭据类型] --> B[用户名密码]
+    A --> C[SSH 密钥]
+    A --> D[Secret Text]
+    A --> E[Certificate]
+    
+    B --> F[Git 仓库访问]
+    B --> G[Docker 镜像推送]
+    C --> H[服务器部署]
+    D --> I[API Token]
+    E --> J[SSL 证书]
+    
+    style A fill:#e3f2fd
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+```
+
+#### 1. 用户名密码凭据
+![用户名密码凭据](image-12.png)
+
+**使用场景**：
+- 🔄 Git 仓库访问
+- 🐳 Docker 镜像推送
+- 📦 NPM 包发布
+
+#### 2. SSH 密钥凭据
+![SSH 密钥凭据](image-13.png)
+
+**使用场景**：
+- 🚀 服务器部署
+- 🔐 Git SSH 访问
+- 📡 远程命令执行
+
+## 🔄 配置流水线
+
+### 📋 流水线概述
+
+```mermaid
+graph TD
+    A[代码提交] --> B[构建阶段]
+    B --> C[测试阶段]
+    C --> D[质量检查]
+    D --> E[构建镜像]
+    E --> F[部署测试]
+    F --> G[部署生产]
+    
+    B --> B1[编译代码]
+    B --> B2[依赖安装]
+    
+    C --> C1[单元测试]
+    C --> C2[集成测试]
+    
+    D --> D1[代码质量]
+    D --> D2[安全扫描]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+    style F fill:#e0f2f1
+    style G fill:#f1f8e9
+```
+
+### 📝 Jenkinsfile 最佳实践
+
+::: code-group
+```groovy [基础流水线]
+pipeline {
     agent any
+    
     environment {
-        // 自动设置的环境变量
+        // 环境变量
         BUILD_URL = "${env.BUILD_URL}"
         JOB_NAME = "${env.JOB_NAME}"
+        NODE_VERSION = "18"
     }
+    
     parameters {
-        gitParameter name: 'branch', type: 'PT_BRANCH', defaultValue: 'dev', description: 'Select the branch to build', useRepository: 'git@github.com:****/' 
+        gitParameter(
+            name: 'BRANCH',
+            type: 'PT_BRANCH',
+            defaultValue: 'main',
+            description: '选择构建分支'
+        )
+        choice(
+            name: 'DEPLOY_ENV',
+            choices: ['dev', 'staging', 'prod'],
+            description: '部署环境'
+        )
     }
+    
     stages {
-        stage('Checkout') {
+        stage('🔄 Checkout') {
             steps {
-                echo "检出用户选择的分支 ${params.branch}"
-                checkout scmGit(branches: [[name: params.branch]], extensions: [], userRemoteConfigs: [[url: 'git@github.com:****/']])
+                echo "检出分支: ${params.BRANCH}"
+                checkout scmGit(
+                    branches: [[name: params.BRANCH]],
+                    userRemoteConfigs: [[url: 'https://github.com/your-repo.git']]
+                )
             }
         }
         
-        stage('Build') {
+        stage('📦 Build') {
             steps {
                 script {
-                    // 定义变量
-                    def DOCKER_REGISTRY = 'registry.cn-hangzhou.aliyuncs.com'
-                    def DOCKER_IMAGE_NAME = 'registry.cn-hangzhou.aliyuncs.com/****/****'
-                    def DOCKER_TAG = 'dev-latest'
-
-                    withCredentials([usernamePassword(credentialsId: '****', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        echo "登陆 Docker 镜像仓库..."
-                        sh('echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin ' + DOCKER_REGISTRY)
-                        
+                    echo "🔨 开始构建..."
+                    sh 'npm ci'
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+        stage('🧪 Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'npm run test:unit'
+                    }
+                }
+                stage('E2E Tests') {
+                    steps {
+                        sh 'npm run test:e2e'
+                    }
+                }
+            }
+        }
+        
+        stage('🐳 Docker Build') {
+            steps {
+                script {
+                    def dockerImage = docker.build("myapp:${env.BUILD_NUMBER}")
+                    dockerImage.push()
+                }
+            }
+        }
+        
+        stage('🚀 Deploy') {
+            steps {
+                script {
+                    if (params.DEPLOY_ENV == 'prod') {
+                        input message: '确认部署到生产环境?', ok: '部署'
+                    }
+                    
+                    sshagent(['ssh-credentials']) {
                         sh """
-                        echo "使用 Docker 构建镜像..."
-                        docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
-
-                        echo "推送镜像到阿里云镜像仓库..."
-                        docker push ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
-                        
-                        echo "删除本地镜像..."
-                        docker rmi -f ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
+                        ssh -o StrictHostKeyChecking=no user@server \
+                        'docker pull myapp:${env.BUILD_NUMBER} && \
+                         docker stop myapp || true && \
+                         docker run -d --name myapp -p 80:80 myapp:${env.BUILD_NUMBER}'
                         """
                     }
                 }
             }
         }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    sshagent (credentials: ['****']) {
-                        echo "登录远程服务器部署"
-                        sh 'ssh -o StrictHostKeyChecking=no -l root 远程服务器IP "sh deploy.sh"'
-                    }
-                }
-            }
-        }
     }
+    
     post {
+        always {
+            echo '🧹 清理工作空间'
+            cleanWs()
+        }
         success {
-            script {
-                echo 'Build succeeded!'
-                def userName = currentBuild.getBuildCauses()[-1].userName
-                println "Build User: ${userName}"
-                sh "sh /var/deploy/deploy_webhooks.sh ${JOB_NAME} ${BUILD_URL} '${userName}' '${params.branch}' success"
-            }
+            echo '✅ 构建成功!'
+            // 发送成功通知
         }
         failure {
-            script {
-                echo 'Build failed!'
-                def userName = currentBuild.getBuildCauses()[-1].userName
-                println "Build User: ${userName}"
-                sh "sh /var/deploy/deploy_webhooks.sh ${JOB_NAME} ${BUILD_URL} '${userName}' '${params.branch}' failure"
-            }
+            echo '❌ 构建失败!'
+            // 发送失败通知
         }
     }
 }
 ```
-1. 保存并应用配置  
-配置完所有必要的参数后，滚动到页面底部，找到“保存”或“应用”按钮（具体名称可能因Jenkins版本而异），并点击它。这将保存您的配置，并创建新的Jenkins任务。
 
-由于这个过程主要是通过Jenkins的Web界面来完成的，而不是通过编写代码，因此不需要包含代码片段来佐证回答。不过，根据您的项目需求，在配置过程中可能需要编写脚本或命令，这些脚本或命令将作为构建步骤的一部分被Jenkins执行。但这些脚本或命令的编写和配置是在Jenkins的Web界面中完成的，而不是在外部环境中编写的。
-
-## 创建凭据
-1. 用户账户密码类型凭据  
-可用于访问远程git仓库，或者推送到docker
-![alt text](image-12.png)
-2. SSH类型凭据
-可用于把打包后的代码推送到远程服务器部署
-![alt text](image-13.png)
-## 配置流水线
-Jenkins 流水线 (或简单的带有大写"P"的"Pipeline") 是一套插件，它支持实现和集成 continuous delivery pipelines 到Jenkins。是用户定义的一个CD流水线模型 。
-
-下面的流程图是一个 CD 场景的示例，在Jenkins中很容易对该场景进行建模:
-![alt text](image-7.png)
-对Jenkins 流水线的定义被写在一个文本文件中 (成为 Jenkinsfile)，该文件可以被提交到项目的源代码的控制仓库。 [2] 这是"流水线即代码"的基础; 将CD 流水线作为应用程序的一部分，像其他代码一样进行版本化和审查。 创建 `Jenkinsfile`并提交它到源代码控制中提供了一些即时的好处:
-
-Jenkinsfile配置文件
-```sh
-##流水线的代码定义了整个的构建过程, 他通常包括构建, 测试和交付应用程序的阶段 。
+```groovy [高级流水线]
 pipeline {
-    #agent 指令告诉Jenkins在哪里以及如何执行Pipeline或者Pipeline子集
-    agent {
-      image 'node:6-alpine' 
-      args '-p 3000:3000' 
-    }
-
-    #使用环境变量
+    agent none
+    
     environment {
-        DISABLE_AUTH = 'true'
-        DB_ENGINE    = 'sqlite'
+        DOCKER_REGISTRY = 'registry.example.com'
+        DOCKER_IMAGE = 'myapp'
+        KUBECONFIG = credentials('k8s-config')
     }
-    #要执行的任务集合
+    
     stages {
-        #stage 块定义了在整个流水线的执行任务
-        stage('build') {
-            #定义一个单一的任务,
+        stage('🔄 Checkout') {
+            agent any
             steps {
-                sh 'npm --version'
+                checkout scm
+                script {
+                    env.GIT_COMMIT = sh(
+                        script: 'git rev-parse HEAD',
+                        returnStdout: true
+                    ).trim()
+                    env.BUILD_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT[0..7]}"
+                }
+            }
+        }
+        
+        stage('🔍 Code Quality') {
+            parallel {
+                stage('SonarQube') {
+                    agent any
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh 'sonar-scanner'
+                        }
+                    }
+                }
+                stage('Security Scan') {
+                    agent any
+                    steps {
+                        sh 'npm audit --audit-level high'
+                    }
+                }
+            }
+        }
+        
+        stage('🏗️ Build & Test') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                }
             }
             steps {
-                sh 'npm install"'
                 sh '''
-                    echo "Multiline shell steps works too"
-                    ls -lah
+                    npm ci
+                    npm run build
+                    npm run test:coverage
                 '''
             }
-        }
-        stage('Deploy') {
-          steps {
-              # 重复执行 flakey-deploy.sh 脚本3次
-              retry(3) {
-                  #执行部署操作：sh脚本
-                  sh './flakey-deploy.sh'
-              }
-              # 等待最多三分钟
-              timeout(time: 3, unit: 'MINUTES') {
-                  sh './health-check.sh'
-              }
-          }
-        }
-    }
-    #当 Pipeline 运行完成时做一些清理工作或者基于 Pipeline 的运行结果执行不同的操作
-    post {
-      always {
-          echo 'This will always run'
-          #记录打包结果
-          archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
-          junit 'build/reports/**/*.xml'
-      }
-      success {
-          echo 'This will run only if successful'
-      }
-      failure {
-          echo 'This will run only if failed'
-          #失败时邮件通知
-          mail to: 'team@example.com',
-          subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-          body: "Something is wrong with ${env.BUILD_URL}"
-          #聊天机器人通知
-          hipchatSend message: "Attention @here ${env.JOB_NAME} #${env.BUILD_NUMBER} has failed.",
-                    color: 'RED'
-      }
-      unstable {
-          echo 'This will run only if the run was marked as unstable'
-      }
-      changed {
-          echo 'This will run only if the state of the Pipeline has changed'
-          echo 'For example, if the Pipeline was previously failing but is now successful'
-      }
-  }
-}
-
-// Jenkins 构建任务配置示例
- 
-// 定义一个自由风格的构建任务
-freeStyleJob('Example_Job') {
-    // 设置任务的配置参数
-    parameters {
-        stringParam('BRANCH_NAME', 'master', 'The branch to build')
-    }
- 
-    // 设置源代码管理
-    scm {
-        git {
-            remote {
-                url('https://github.com/your-repo.git')
-                credentials('your-credentials')
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'coverage',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report'
+                    ])
+                }
             }
-            branch('${BRANCH_NAME}')
+        }
+        
+        stage('🐳 Docker Build & Push') {
+            agent any
+            steps {
+                script {
+                    def image = docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_TAG}")
+                    
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-registry-credentials') {
+                        image.push()
+                        image.push('latest')
+                    }
+                }
+            }
+        }
+        
+        stage('🚀 Deploy to Kubernetes') {
+            agent any
+            steps {
+                script {
+                    sh """
+                    kubectl set image deployment/myapp \
+                    myapp=${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_TAG}
+                    
+                    kubectl rollout status deployment/myapp
+                    """
+                }
+            }
         }
     }
- 
-    // 设置触发器
-    triggers {
-        pollSCM('H/5 * * * *') // 每5分钟检查一次源代码变更
-    }
- 
-    // 设置构建环境
-    wrappers {
-        timeout(time: 30, unit: 'MINUTES') // 构建超时30分钟
-    }
- 
-    // 设置构建操作
-    steps {
-        shell('''
-            echo "Building the project..."
-            mvn clean install
-        ''')
-    }
- 
-    // 设置构建后操作
-    post build {
+    
+    post {
         always {
-            // 始终执行的步骤
+            node('master') {
+                script {
+                    // 清理 Docker 镜像
+                    sh "docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${BUILD_TAG} || true"
+                }
+            }
         }
         success {
-            // 构建成功时执行的步骤
-        }
-        unstable {
-            // 构建不稳定时执行的步骤
+            slackSend(
+                channel: '#ci-cd',
+                color: 'good',
+                message: "✅ 部署成功: ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
+            )
         }
         failure {
-            // 构建失败时执行的步骤
+            slackSend(
+                channel: '#ci-cd',
+                color: 'danger',
+                message: "❌ 部署失败: ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
+            )
         }
     }
 }
 ```
+:::
 
-## 项目构建结果通知脚本
-一个是登录远程服务器后发布项目的脚本 (deploy.sh)
+### 🎨 流水线可视化
 
-一个是项目构建结果通知脚本 (deploy_webhooks.sh)
-```sh
-#!/bin/bash
-
-# 检查是否至少有一个参数
-if [ $# -lt 1 ]; then
-  echo "Usage: $0 jobname [url] [username] [branch] [jobstatus]"
-  exit 1
-fi
-
-# 获取第一个参数
-jobname="$1"
-
-# 获取第二个参数（如果存在）
-url="${2:-default_value}"
-
-# 获取第三个参数（如果存在）
-username="${3:-admin}"
-
-# 获取第四个参数（如果存在）
-branch="${4:-master}"
-
-# 获取第五个参数（如果存在），默认为success
-jobstatus="${5:-success}"
-
-# 确保jobstatus非空
-if [ -z "$jobstatus" ]; then
-  jobstatus="success"
-fi
-
-echo $jobstatus
-
-# 根据jobstatus的值设置jobstatusstr
-if [ "$jobstatus" = "success" ]; then
-    jobstatusstr="✅运行成功"
-else
-    jobstatusstr="❌运行失败"  # 修正赋值操作符
-fi
-
-# 或者使用以下方式，将JSON字符串放在一个变量中，然后引用这个变量
-json_data='{
-    "msg_type": "interactive",
-    "card": {
-        "elements": [
-            {
-                "tag": "div",
-                "text": {
-                    "content": "流水线: '${jobname}'('${url}') \n构建分支: '${branch}'\n流水线环境: 测试环境\n流水线标签: dev\n流水线运行备注:\n执行人: '${username}'\n流水线阶段: 部署\n流水线任务: Docker部署\n运行状态: '${jobstatusstr}'",
-                    "tag": "lark_md"
-                }
-            },
-            {
-                "tag": "div",
-                "text": {
-                    "content": "<at id=all></at>",
-                    "tag": "lark_md"
-                }
-            },
-            {
-                "actions": [
-                    {
-                        "tag": "button",
-                        "text": {
-                            "content": "流水线 :玫瑰:",
-                            "tag": "lark_md"
-                        },
-                        "url": "'${url}'",
-                        "type": "default",
-                        "value": {}
-                    }
-                ],
-                "tag": "action"
-            }
-        ],
-        "header": {
-            "title": {
-                "content": "流水线消息通知",
-                "tag": "plain_text"
-            }
-        }
-    }
-}'
-
-curl -X POST -H "Content-Type: application/json" -d "$json_data" https://open.feishu.cn/open-apis/bot/v2/hook/*******
-
+```mermaid
+graph TD
+    A[代码提交] --> B[Webhook 触发]
+    B --> C[Jenkins 流水线]
+    
+    C --> D[Stage 1: Checkout]
+    C --> E[Stage 2: Build]
+    C --> F[Stage 3: Test]
+    C --> G[Stage 4: Quality Gate]
+    C --> H[Stage 5: Docker Build]
+    C --> I[Stage 6: Deploy]
+    
+    D --> D1[克隆代码]
+    E --> E1[依赖安装]
+    E --> E2[编译构建]
+    F --> F1[单元测试]
+    F --> F2[集成测试]
+    G --> G1[代码质量检查]
+    G --> G2[安全扫描]
+    H --> H1[构建镜像]
+    H --> H2[推送镜像]
+    I --> I1[部署应用]
+    I --> I2[健康检查]
+    
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style I fill:#e8f5e8
 ```
-![alt text](image-14.png)
+
+## 🚀 部署策略
+
+### 📋 部署方式对比
+
+| 策略 | 优点 | 缺点 | 适用场景 |
+|------|------|------|----------|
+| **蓝绿部署** | 🔄 零停机时间 | 💰 资源消耗大 | 生产环境 |
+| **滚动部署** | 💡 资源利用率高 | ⏱️ 部署时间长 | 中型应用 |
+| **金丝雀部署** | 🧪 风险控制 | 🔧 配置复杂 | 高风险更新 |
+
+### 🔧 部署配置示例
+
+::: code-group
+```yaml [Kubernetes 部署]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: myapp:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+```
+
+```bash [Docker Compose 部署]
+version: '3.8'
+services:
+  app:
+    image: myapp:latest
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://user:pass@db:5432/myapp
+    depends_on:
+      - db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=myapp
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+```
+:::
+
+## 📊 监控与调试
+
+### 🔍 构建监控
+
+```mermaid
+graph LR
+    A[构建监控] --> B[构建状态]
+    A --> C[构建时间]
+    A --> D[测试结果]
+    A --> E[部署状态]
+    
+    B --> B1[成功率统计]
+    B --> B2[失败原因分析]
+    C --> C1[构建耗时趋势]
+    C --> C2[阶段耗时分布]
+    D --> D1[测试覆盖率]
+    D --> D2[测试通过率]
+    E --> E1[部署频率]
+    E --> E2[部署成功率]
+    
+    style A fill:#e3f2fd
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+```
+
+### 🔧 常见问题解决
+
+::: tip 💡 构建失败排查步骤
+
+1. **检查构建日志**
+   ```bash
+   # 查看完整构建日志
+   curl -u username:password "http://jenkins-url/job/job-name/build-number/consoleText"
+   ```
+
+2. **检查环境变量**
+   ```groovy
+   // 在 Jenkinsfile 中打印环境变量
+   script {
+       sh 'printenv | sort'
+   }
+   ```
+
+3. **检查工作空间**
+   ```groovy
+   // 查看工作空间文件
+   script {
+       sh 'ls -la'
+       sh 'pwd'
+   }
+   ```
+
+4. **检查资源使用**
+   ```bash
+   # 检查磁盘空间
+   df -h
+   
+   # 检查内存使用
+   free -h
+   ```
+:::
+
+### 📈 性能优化
+
+| 优化方向 | 具体措施 | 效果 |
+|----------|----------|------|
+| **构建缓存** | 使用 Docker 层缓存 | 🚀 减少 50% 构建时间 |
+| **并行构建** | 并行执行测试阶段 | ⚡ 提高 30% 效率 |
+| **资源优化** | 合理分配构建节点 | 📊 提升系统吞吐量 |
+| **增量构建** | 只构建变更部分 | 💡 显著减少构建时间 |
+
+## 📖 参考资源
+
+### 🔗 官方文档
+- [Jenkins 官方文档](https://www.jenkins.io/doc/)
+- [Jenkins 流水线语法](https://www.jenkins.io/doc/book/pipeline/syntax/)
+- [Jenkins 插件中心](https://plugins.jenkins.io/)
+
+### 🛠️ 实用工具
+- [Jenkins Configuration as Code](https://github.com/jenkinsci/configuration-as-code-plugin)
+- [Blue Ocean 界面](https://www.jenkins.io/projects/blueocean/)
+- [Jenkins CLI](https://www.jenkins.io/doc/book/managing/cli/)
+
+### 📚 学习资源
+- [Jenkins 最佳实践](https://www.jenkins.io/doc/book/using/best-practices/)
+- [Pipeline 示例](https://github.com/jenkinsci/pipeline-examples)
+- [Jenkins 社区](https://www.jenkins.io/participate/)
+
+---
+
+::: tip 🎯 小贴士
+Jenkins 的强大之处在于其丰富的插件生态系统和灵活的流水线配置。建议从简单的 Freestyle 项目开始，逐步过渡到复杂的 Pipeline 流水线，并根据项目需求选择合适的部署策略。
+:::
