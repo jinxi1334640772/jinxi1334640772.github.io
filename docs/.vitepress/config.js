@@ -312,7 +312,7 @@ export default defineConfig({
             { text: "💾 Vuex Persist 状态管理", link: "/tools/package/vuexPersist" },
             { text: "🔍 Whistle 代理", link: "/tools/package/whistle" },
             { text: "📋 Tasks 文件", link: "/tools/package/tasksfile" },
-            { text: "🎬 animate.js 动画库", link: "/tools/package/animate" },
+            { text: "🎬 animate.css 动画库", link: "/tools/package/animate" },
             { text: "📋 SignalR 实时通信", link: "/tools/package/SignalR使用指南" },
             { text: "📊 Mermaid 教程", link: "/tools/package/mermaid" },
             { text: "🌲 Cypress 测试框架", link: "/tools/package/test/Cypress" }
