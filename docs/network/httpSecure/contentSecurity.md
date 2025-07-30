@@ -39,29 +39,29 @@ CSP 提供两种主要配置方式：
 
 #### 1️⃣ HTTP 响应头配置
 
-```http
+  ```http
 # 基本语法
-Content-Security-Policy: policy
+  Content-Security-Policy: policy
 
 # 示例：所有内容均来自站点的同一个源（不包括其子域名）
-Content-Security-Policy: default-src 'self'
+  Content-Security-Policy: default-src 'self'
 
 # 复杂策略示例
 Content-Security-Policy: default-src 'self' https://api.example.com; script-src 'self' 'unsafe-inline' https://cdn.example.com; style-src 'self' 'unsafe-inline'
-```
+  ```
 
 #### 2️⃣ HTML Meta 标签配置
 
-```html
+  ```html
 <!-- 基本配置 -->
-<meta
-  http-equiv="Content-Security-Policy"
-  content="default-src 'self'; img-src https://*; child-src 'none';" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src https://*; child-src 'none';" />
 
 <!-- 脚本安全配置 -->
-<meta
-  http-equiv="Content-Security-Policy"
-  content="script-src 'self' 'unsafe-inline'" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="script-src 'self' 'unsafe-inline'" />
 
 <!-- 复合策略配置 -->
 <meta

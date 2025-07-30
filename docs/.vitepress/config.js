@@ -315,12 +315,8 @@ export default defineConfig({
             { text: "🎬 animate.js 动画库", link: "/tools/package/animate" },
             { text: "📋 SignalR 实时通信", link: "/tools/package/SignalR使用指南" },
             { text: "📊 Mermaid 教程", link: "/tools/package/mermaid" },
+            { text: "🌲 Cypress 测试框架", link: "/tools/package/test/Cypress" }
           ],
-        },
-        {
-          text: "🧪 测试工具",
-          collapsed: false,
-          items: [{ text: "🌲 Cypress 测试框架", link: "/tools/package/test/Cypress" }],
         },
         {
           text: "📋 开发规范",
@@ -338,30 +334,24 @@ export default defineConfig({
           text: "❓ 问题集合",
           collapsed: false,
           items: [
+            { text: "� 学习指南", link: "/tools/study" },
             { text: "✍️ 手写题汇总", link: "/tools/questions/handwrite" },
             { text: "🧮 算法题解", link: "/tools/questions/algorithm" },
             { text: "🎨 设计模式", link: "/tools/questions/designMode" },
             { text: "🐞 调试技巧", link: "/tools/questions/debugging" },
             { text: "🔄 兼容性处理", link: "/tools/questions/compatibility" },
             { text: "📱 移动端适配", link: "/tools/questions/mobileFit" },
-            { text: "🎯 Promise 实现", link: "/tools/questions/promise" },
             { text: "🤖 机器人协议", link: "/tools/questions/robots" },
-            { text: "🖨️ 打印功能", link: "/tools/questions/print" },
+            { text: "🖨️ 代码输出", link: "/tools/questions/print" },
             { text: "💳 微信支付", link: "/tools/questions/wechatPay" },
             { text: "🏗️ 系统设计", link: "/tools/questions/system" },
             { text: "📊 Grafana 监控", link: "/tools/questions/Grafana" },
-            { text: "📦 NPM 发布", link: "/tools/questions/npmPublish" },
-            { text: "🔍 NPM 镜像", link: "/tools/questions/npmHub" },
+            { text: "🔍 NPM 私服", link: "/tools/questions/npmHub" },
             { text: "📄 LeetCode", link: "/tools/questions/leetCode" },
             { text: "🤖 Cursor AI 应用案例", link: "/tools/questions/cursorApply" },
             { text: "❓ 综合问题", link: "/tools/questions/questions" },
           ],
-        },
-        {
-          text: "📚 学习指南",
-          collapsed: false,
-          items: [{ text: "📖 学习方法", link: "/tools/study" }],
-        },
+        }
       ],
 
       // 跨端开发侧边栏

@@ -193,7 +193,7 @@ Content-Type: application/json
 **请求参数详解：**
 
 ```js
-{
+  {
   // 🔸 必需参数
   "appid": "wxd678efh567hg6787",              // 公众号ID
   "mchid": "1230000109",                     // 商户号
@@ -246,8 +246,8 @@ Content-Type: application/json
   // 🔹 结算信息
   "settle_info": {
     "profit_sharing": false                   // 是否分账
+    }
   }
-}
 ```
 
 **参数校验规则：**

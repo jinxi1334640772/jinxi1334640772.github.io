@@ -65,6 +65,349 @@ graph TD
     style C fill:#fff3e0
     style D fill:#ffebee
 ```
+[Previous content remains the same until the end, then add:]
+
+## 🎨 前端特色编程题
+
+### 🔄 实现 Promise.all
+
+**难度**: 🔥🔥 中等  
+**标签**: `Promise` `异步编程`
+
+```javascript
+/**
+ * 实现 Promise.all
+ * @param {Promise[]} promises - Promise 数组
+ * @return {Promise} 所有 Promise 的结果
+ */
+function promiseAll(promises) {
+  return new Promise((resolve, reject) => {
+    if (!Array.isArray(promises)) {
+      return reject(new TypeError('promises must be an array'));
+    }
+    
+    const results = [];
+    let completed = 0;
+    
+    if (promises.length === 0) {
+      return resolve(results);
+    }
+    
+    promises.forEach((promise, index) => {
+      Promise.resolve(promise)
+        .then(result => {
+          results[index] = result;
+          completed++;
+          
+          if (completed === promises.length) {
+            resolve(results);
+          }
+        })
+        .catch(reject);
+    });
+  });
+}
+
+// 示例
+const p1 = Promise.resolve(1);
+const p2 = new Promise(resolve => setTimeout(() => resolve(2), 100));
+const p3 = Promise.resolve(3);
+
+promiseAll([p1, p2, p3]).then(console.log); // [1, 2, 3]
+```
+
+### 🎯 实现 Promise.race
+
+**难度**: 🔥🔥 中等  
+**标签**: `Promise` `竞态`
+
+```javascript
+/**
+ * 实现 Promise.race
+ * @param {Promise[]} promises - Promise 数组
+ * @return {Promise} 最先完成的 Promise 结果
+ */
+function promiseRace(promises) {
+  return new Promise((resolve, reject) => {
+    if (!Array.isArray(promises)) {
+      return reject(new TypeError('promises must be an array'));
+    }
+    
+    promises.forEach(promise => {
+      Promise.resolve(promise).then(resolve).catch(reject);
+    });
+  });
+}
+
+// 示例
+const p1 = new Promise(resolve => setTimeout(() => resolve(1), 100));
+const p2 = new Promise(resolve => setTimeout(() => resolve(2), 50));
+promiseRace([p1, p2]).then(console.log); // 2
+```
+
+### 🔁 实现 Promise.retry
+
+**难度**: 🔥🔥 中等  
+**标签**: `Promise` `重试机制`
+
+```javascript
+/**
+ * 实现带重试的 Promise
+ * @param {Function} promiseFn - 返回 Promise 的函数
+ * @param {number} times - 重试次数
+ * @param {number} delay - 重试延迟(ms)
+ * @return {Promise} 执行结果
+ */
+function promiseRetry(promiseFn, times, delay) {
+  return new Promise(async (resolve, reject) => {
+    while (times--) {
+      try {
+        const result = await promiseFn();
+        return resolve(result);
+      } catch (err) {
+        if (times === 0) {
+          return reject(err);
+        }
+        await new Promise(r => setTimeout(r, delay));
+      }
+    }
+  });
+}
+
+// 示例
+let count = 0;
+const mockAPI = () => new Promise((resolve, reject) => {
+  count++;
+  if (count < 3) reject(new Error('失败'));
+  else resolve('成功');
+});
+
+promiseRetry(mockAPI, 3, 1000).then(console.log); // 成功
+```
+
+### 🔄 实现 EventBus
+
+**难度**: 🔥🔥 中等  
+**标签**: `发布订阅` `事件系统`
+
+```javascript
+class EventBus {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, callback) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(callback);
+    return () => this.off(event, callback);
+  }
+  
+  once(event, callback) {
+    const wrapper = (...args) => {
+      callback.apply(this, args);
+      this.off(event, wrapper);
+    };
+    return this.on(event, wrapper);
+  }
+  
+  emit(event, ...args) {
+    if (!this.events.has(event)) return false;
+    this.events.get(event).forEach(callback => {
+      callback.apply(this, args);
+    });
+    return true;
+  }
+  
+  off(event, callback) {
+    if (!this.events.has(event)) return false;
+    if (!callback) {
+      return this.events.delete(event);
+    }
+    return this.events.get(event).delete(callback);
+  }
+}
+
+// 示例
+const bus = new EventBus();
+const unsubscribe = bus.on('test', data => console.log(data));
+bus.emit('test', 'hello'); // 输出: hello
+unsubscribe(); // 取消订阅
+```
+
+### 🎯 实现 LRU 缓存
+
+**难度**: 🔥🔥 中等  
+**标签**: `缓存` `哈希表` `双向链表`
+
+```javascript
+class LRUCache {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.cache = new Map();
+  }
+  
+  get(key) {
+    if (!this.cache.has(key)) return -1;
+    
+    // 更新位置
+    const value = this.cache.get(key);
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+  
+  put(key, value) {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.capacity) {
+      // 删除最久未使用的项（第一个）
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, value);
+  }
+}
+
+// 示例
+const cache = new LRUCache(2);
+cache.put(1, 1); // 缓存 {1=1}
+cache.put(2, 2); // 缓存 {1=1, 2=2}
+console.log(cache.get(1)); // 返回 1
+cache.put(3, 3); // 删除 2，缓存 {1=1, 3=3}
+console.log(cache.get(2)); // 返回 -1 (未找到)
+```
+
+### 🔄 实现深度优先遍历 DOM 树
+
+**难度**: 🔥🔥 中等  
+**标签**: `DOM` `递归` `树遍历`
+
+```javascript
+/**
+ * 深度优先遍历 DOM 树
+ * @param {Node} root - DOM 根节点
+ * @param {Function} callback - 处理节点的回调函数
+ */
+function traverseDOM(root, callback) {
+  if (!root) return;
+  
+  // 处理当前节点
+  callback(root);
+  
+  // 遍历子节点
+  const children = root.childNodes;
+  for (let i = 0; i < children.length; i++) {
+    traverseDOM(children[i], callback);
+  }
+}
+
+// 示例
+traverseDOM(document.body, node => {
+  if (node.nodeType === 1) { // 元素节点
+    console.log(node.tagName);
+  }
+});
+```
+
+### 🎯 实现虚拟 DOM 的 diff 算法
+
+**难度**: 🔥🔥🔥 困难  
+**标签**: `虚拟DOM` `diff算法` `树比较`
+
+```javascript
+/**
+ * 虚拟 DOM diff 算法
+ * @param {Object} oldNode - 旧虚拟 DOM 节点
+ * @param {Object} newNode - 新虚拟 DOM 节点
+ * @return {Array} 差异操作数组
+ */
+function diff(oldNode, newNode) {
+  const patches = [];
+  
+  // 节点被删除
+  if (!newNode) {
+    patches.push({ type: 'REMOVE', node: oldNode });
+    return patches;
+  }
+  
+  // 节点被替换
+  if (oldNode.type !== newNode.type) {
+    patches.push({ type: 'REPLACE', oldNode, newNode });
+    return patches;
+  }
+  
+  // 文本节点变化
+  if (typeof oldNode === 'string' && typeof newNode === 'string') {
+    if (oldNode !== newNode) {
+      patches.push({ type: 'TEXT', content: newNode });
+    }
+    return patches;
+  }
+  
+  // 属性变化
+  const propsPatches = diffProps(oldNode.props || {}, newNode.props || {});
+  if (Object.keys(propsPatches).length > 0) {
+    patches.push({ type: 'PROPS', patches: propsPatches });
+  }
+  
+  // 子节点变化
+  diffChildren(oldNode.children || [], newNode.children || [], patches);
+  
+  return patches;
+}
+
+// 辅助函数：比较属性
+function diffProps(oldProps, newProps) {
+  const patches = {};
+  
+  // 检查属性更新和删除
+  Object.keys(oldProps).forEach(key => {
+    if (oldProps[key] !== newProps[key]) {
+      patches[key] = newProps[key];
+    }
+  });
+  
+  // 检查新增属性
+  Object.keys(newProps).forEach(key => {
+    if (!oldProps.hasOwnProperty(key)) {
+      patches[key] = newProps[key];
+    }
+  });
+  
+  return patches;
+}
+
+// 辅助函数：比较子节点
+function diffChildren(oldChildren, newChildren, patches) {
+  oldChildren.forEach((child, i) => {
+    diff(child, newChildren[i]).forEach(patch => {
+      patch.index = i;
+      patches.push(patch);
+    });
+  });
+}
+
+// 示例
+const oldNode = {
+  type: 'div',
+  props: { className: 'old' },
+  children: [
+    { type: 'span', children: ['Hello'] }
+  ]
+};
+
+const newNode = {
+  type: 'div',
+  props: { className: 'new' },
+  children: [
+    { type: 'span', children: ['World'] }
+  ]
+};
+
+console.log(diff(oldNode, newNode));
+```
 
 ## 🔢 数组相关
 

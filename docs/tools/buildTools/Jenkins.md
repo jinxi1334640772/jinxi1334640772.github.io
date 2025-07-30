@@ -258,7 +258,7 @@ graph TD
 
 ::: code-group
 ```groovy [基础流水线]
-pipeline {
+  pipeline {
     agent any
     
     environment {

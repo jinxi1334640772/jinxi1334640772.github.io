@@ -415,7 +415,7 @@ function main() {
     });
 
   // 删除模板命令
-  program
+program
     .command('remove <template>')
     .alias('rm')
     .description('删除模板')
@@ -660,7 +660,7 @@ async function downloadTemplate(templateConfig, destination) {
       const url = `direct:https://github.com/${repo}.git#${templateConfig.branch}`;
       
       download(url, destination, { clone: true }, (err) => {
-        if (err) {
+      if (err) {
           reject(err);
         } else {
           resolve();
