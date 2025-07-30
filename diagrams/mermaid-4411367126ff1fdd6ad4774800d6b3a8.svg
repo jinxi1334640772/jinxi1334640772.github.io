@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1650" height="125" viewBox="0 0 1650 125" version="1.1">
+<rect fill="#fff5f7" width="1650" height="125"/>
+<text id="text" xml:space="preserve" font-weight="bold" fill="#cd0930" font-family="BlinkMacSystemFont, -apple-system, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Helvetica', Arial, sans-serif" font-size="16px" x="0" y="5" dy="0">
+<tspan x="10" dy="16">Error 400: SyntaxError: Parse error on line 2:</tspan>
+<tspan x="10" dy="16">...    A[时间复杂度] --&gt; B[O(1) 常数时间]    A --&gt; </tspan>
+<tspan x="10" dy="16">-----------------------^</tspan>
+<tspan x="10" dy="16">Expecting &apos;SQE&apos;, &apos;DOUBLECIRCLEEND&apos;, &apos;PE&apos;, &apos;-)&apos;, &apos;STADIUMEND&apos;, &apos;SUBROUTINEEND&apos;, &apos;PIPE&apos;, &apos;CYLINDEREND&apos;, &apos;DIAMOND_STOP&apos;, &apos;TAGEND&apos;, &apos;TRAPEND&apos;, &apos;INVTRAPEND&apos;, &apos;UNICOD…</tspan>
+<tspan x="10" dy="16">Error: Syntax error in graph</tspan>
+<tspan x="10" dy="16">    at Worker.convert (file:///usr/local/kroki/src/worker.js:44:15)</tspan>
+<tspan x="10" dy="16">    at async file:///usr/local/kroki/src/index.js:31:28</tspan>
+</text>
+<rect fill="#ff3860" width="3" height="125"/>
+</svg>
