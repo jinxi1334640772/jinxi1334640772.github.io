@@ -350,7 +350,6 @@ export default defineConfig({
             { text: "📊 Grafana 监控", link: "/tools/questions/Grafana" },
             { text: "🔍 NPM 私服", link: "/tools/questions/npmHub" },
             { text: "📄 LeetCode", link: "/tools/questions/leetCode" },
-            { text: "🤖 Cursor AI 应用案例", link: "/tools/questions/cursorApply" },
             { text: "❓ 综合问题", link: "/tools/questions/questions" },
           ],
         }
