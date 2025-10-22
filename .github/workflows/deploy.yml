@@ -1,76 +1,105 @@
-# 构建 VitePress 站点并将其部署到 GitHub Pages 的示例工作流程
+###############################################################################
+# VitePress 站点自动部署到 GitHub Pages
+#
+# 功能说明：
+#   - 自动构建 VitePress 静态站点
+#   - 部署到 GitHub Pages
+#   - 支持手动触发部署
+#
+# 触发条件：
+#   - master 分支代码推送
+#   - 手动触发（Actions 选项卡）
+#
+# 作者: zhangjinxi
+# 最后更新: 2025年
+###############################################################################
+
 name: Deploy VitePress site to Pages
 
 on:
-  # 在针对 `main` 分支的推送上运行。如果你
-  # 使用 `master` 分支作为默认分支，请将其更改为 `master`
+  # 推送到 master 分支时自动触发
   push:
     branches: [master]
-    # branches: [main]
+    # 如果使用 main 分支，请修改为：branches: [main]
 
-  # 允许你从 Actions 选项卡手动运行此工作流程
+  # 允许从 Actions 选项卡手动触发
   workflow_dispatch:
 
-# 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages
+# GitHub Token 权限配置
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read    # 读取仓库内容
+  pages: write      # 写入 GitHub Pages
+  id-token: write   # 写入身份令牌
 
-# 只允许同时进行一次部署，跳过正在运行和最新队列之间的运行队列
-# 但是，不要取消正在进行的运行，因为我们希望允许这些生产部署完成
+# 并发控制：防止多个部署同时进行
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: false  # 不取消正在进行的部署
 
 jobs:
-  # 构建工作
+  # ===== 构建任务 =====
   build:
-    #运行器runner：是在触发工作流程时运行工作流程的服务器
-    runs-on: ubuntu-latest 
-
-    #step要么是要执行的 shell 脚本，要么是要运行的 action
+    name: Build VitePress Site
+    runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4 #要运行的action
+      # 步骤1：检出代码
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # 如果未启用 lastUpdated，则不需要
-      - uses: pnpm/action-setup@v3 # 如果使用 pnpm，请取消注释
-      # - uses: oven-sh/setup-bun@v1 # 如果使用 Bun，请取消注释
+          fetch-depth: 0  # 获取完整的 Git 历史（用于 lastUpdated 功能）
 
-      - name: Setup Node
+      # 步骤2：设置 pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        # 如果使用 Bun，请使用：uses: oven-sh/setup-bun@v1
+
+      # 步骤3：设置 Node.js 环境
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm # 或 pnpm / yarn / npm
+          cache: pnpm  # 或 npm / yarn / bun
 
-      - name: Setup Pages
+      # 步骤4：配置 GitHub Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
 
-        # 安装依赖 或 pnpm install / yarn install
-      - name: Install dependencies
-        run: pnpm install 
+      # 步骤5：安装项目依赖
+      - name: Install Dependencies
+        run: pnpm install
+        # 如果使用其他包管理器：
+        # npm install
+        # yarn install
+        # bun install
 
-        # 运行构建命令
-      - name: Build with VitePress
-        run: pnpm build 
+      # 步骤6：构建 VitePress 站点
+      - name: Build VitePress Site
+        run: pnpm build
+        # 如果使用其他包管理器：
+        # npm run build
+        # yarn build
+        # bun run build
 
-        # 上传构建产物
-      - name: Upload artifact
+      # 步骤7：上传构建产物
+      - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
 
-  # 部署工作
+  # ===== 部署任务 =====
   deploy:
+    name: Deploy to GitHub Pages
+    needs: build  # 依赖构建任务完成
+    runs-on: ubuntu-latest
+    
+    # 部署环境配置
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
-    name: Deploy
+    
     steps:
-      #部署到GitHub Pages
+      # 步骤1：部署到 GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

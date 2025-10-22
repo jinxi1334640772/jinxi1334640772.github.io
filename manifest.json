@@ -1,46 +1,109 @@
 {
-  "name": "HackerWeb",
-  "short_name": "HackerWeb",
+  "name": "VitePress 技术文档站点",
+  "short_name": "技术文档",
+  "description": "专业的前端技术知识库，涵盖前端、后端、网络工程、开发工具等技术领域",
   "start_url": ".",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#fff",
-  "description": "A readable Hacker News app.",
+  "orientation": "any",
+  "theme_color": "#646cff",
+  "background_color": "#ffffff",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "productivity",
+    "reference"
+  ],
   "icons": [
+    {
+      "src": "images/logo-mini.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
     {
       "src": "images/touch/homescreen48.png",
       "sizes": "48x48",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "images/touch/homescreen72.png",
       "sizes": "72x72",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "images/touch/homescreen96.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "images/touch/homescreen144.png",
       "sizes": "144x144",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "images/touch/homescreen168.png",
       "sizes": "168x168",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "images/touch/homescreen192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/touch/homescreen512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "related_applications": [
+  "screenshots": [
     {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=cheeaun.hackerweb"
+      "src": "images/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "images/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "前端技术",
+      "short_name": "前端",
+      "description": "查看前端技术文档",
+      "url": "/frontEnd/",
+      "icons": [
+        {
+          "src": "images/logo-mini.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "开发工具",
+      "short_name": "工具",
+      "description": "查看开发工具文档",
+      "url": "/tools/",
+      "icons": [
+        {
+          "src": "images/logo-mini.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": []
 }

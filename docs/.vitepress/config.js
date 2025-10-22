@@ -50,7 +50,7 @@ export default defineConfig({
           { text: "📝 HTML & CSS", link: "/frontEnd/css/dom", activeMatch: "^/frontEnd/css/" },
           { text: "⚡ JavaScript", link: "/frontEnd/javascript/", activeMatch: "^/frontEnd/javascript/" },
           { text: "🖥️ 浏览器 API", link: "/frontEnd/window/properties", activeMatch: "^/frontEnd/window/" },
-          { text: "🚀 现代框架", link: "/frontEnd/web/vue", activeMatch: "^/frontEnd/web/" },
+          { text: "🚀 现代框架", link: "/frontEnd/web/vue3-advanced", activeMatch: "^/frontEnd/web/" },
         ],
       },
       {
@@ -167,7 +167,7 @@ export default defineConfig({
           items: [
             { text: "⚡ VitePress 静态站点", link: "/frontEnd/web/VitePress" },
             { text: "🔷 TypeScript 语言", link: "/frontEnd/web/TypeScript" },
-            { text: "💚 Vue.js 框架", link: "/frontEnd/web/vue" },
+            { text: "💚 Vue 3 高级开发指南", link: "/frontEnd/web/vue3-advanced" },
             { text: "🎭 Svelte 框架", link: "/frontEnd/web/svelte" },
             { text: "💎 jQuery 库", link: "/frontEnd/web/jQuery" },
             { text: "🚀 Nuxt.js 框架", link: "/frontEnd/web/nuxt" },
@@ -298,6 +298,7 @@ export default defineConfig({
             { text: "🎨 Bootstrap CSS 框架", link: "/tools/package/bootstrap" },
             { text: "🎨 Tailwind CSS 框架", link: "/tools/package/tailwindcss" },
             { text: "🎨 SortableJS 拖拽库", link: "/tools/package/sortablejs" },
+            { text: "📊 vxe-grid 表格", link: "/tools/package/vxe-grid" },
             { text: "🌍 Cesium 地图", link: "/tools/package/Cesium" },
             { text: "📅 Day.js 日期处理", link: "/tools/package/dayjs" },
             { text: "🖼️ DomToImage 截图", link: "/tools/package/DomToImage" },
@@ -317,7 +318,8 @@ export default defineConfig({
             { text: "🎬 animate.css 动画库", link: "/tools/package/animate" },
             { text: "📋 SignalR 实时通信", link: "/tools/package/SignalR使用指南" },
             { text: "📊 Mermaid 教程", link: "/tools/package/mermaid" },
-            { text: "🌲 Cypress 测试框架", link: "/tools/package/test/Cypress" }
+            { text: "🌲 Cypress 测试框架", link: "/tools/package/test/Cypress" },
+            { text: "🔍 FlexSearch 全文搜索", link: "/tools/package/FlexSearch" }
           ],
         },
         {
@@ -325,6 +327,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: "🔄 Git 版本控制", link: "/tools/stardard/git" },
+            { text: "📝 Markdown 语法", link: "/tools/stardard/markdown" },
             { text: "✨ Prettier 代码格式化", link: "/tools/stardard/prettier" },
             { text: "🔍 ESLint 代码规范", link: "/tools/stardard/eslint" },
             { text: "💻 VS Code 编辑器", link: "/tools/stardard/vscode" },

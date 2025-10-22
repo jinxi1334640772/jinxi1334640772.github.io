@@ -7,17 +7,27 @@ editLink: true
 footer: true
 lastUpdated: true
 title: 张进喜 - 个人简历
-description: 高级前端开发工程师，6年经验，专注于Vue.js、React、Node.js等现代前端技术栈
+description: 高级前端开发工程师 · 6年经验 · 专注于 Vue.js/React/Node.js 等现代前端技术栈
 ---
+
+<div class="resume-header">
 
 # 👨‍💻 张进喜 - 个人简历
 
-::: info 联系方式
-📱 **手机**: 17637146575  
-📧 **邮箱**: 1334640772@qq.com  
-🌐 **个人主页**: [https://jinxi1334640772.github.io](https://jinxi1334640772.github.io)  
-⚡ **GitHub**: [https://github.com/jinxi1334640772](https://github.com/jinxi1334640772)  
-🔥 **掘金**: [https://juejin.cn/user/1451011080204040](https://juejin.cn/user/1451011080204040)
+<div class="header-badge">
+  <span class="badge">高级前端开发工程师</span>
+  <span class="badge">6年经验</span>
+  <span class="badge">团队管理</span>
+</div>
+
+</div>
+
+::: info 📞 联系方式
+- 📱 **手机**: 17637146575
+- 📧 **邮箱**: 1334640772@qq.com
+- 🌐 **个人主页**: [jinxi1334640772.github.io](https://jinxi1334640772.github.io)
+- ⚡ **GitHub**: [@jinxi1334640772](https://github.com/jinxi1334640772)
+- 🔥 **掘金**: [个人主页](https://juejin.cn/user/1451011080204040)
 :::
 
 ## 📊 个人信息概览
@@ -41,33 +51,49 @@ description: 高级前端开发工程师，6年经验，专注于Vue.js、React�
 
 ## 💻 专业技能
 
+<div class="skills-section">
+
 ### 🚀 精通技术
 
-- **基础技术**: `HTML5` `CSS3` `JavaScript ES6+` `TypeScript` `jQuery`
-- **网络技术**: `HTTP协议` `Ajax` `Fetch` `Axios` `WebSocket`
-- **模块化**: `ES Module` `CommonJS` `AMD` `UMD`
-- **Vue 生态**: `Vue 2/3` `Vue Router` `Vuex/Pinia` `Vue CLI/Vite`
-- **UI 框架**: `Element UI/Plus` `Ant Design Vue` `Tailwind CSS`
-- **数据可视化**: `ECharts` `AntV` `D3.js`
-- **工程化**: `Webpack` `Vite` `ESLint` `Prettier` `Less/Sass`
+<div class="skill-tags">
+
+- **基础技术**: `HTML5` · `CSS3` · `JavaScript ES6+` · `TypeScript` · `jQuery`
+- **网络技术**: `HTTP协议` · `Ajax` · `Fetch` · `Axios` · `WebSocket`
+- **模块化规范**: `ES Module` · `CommonJS` · `AMD` · `UMD`
+- **Vue 生态系统**: `Vue 2/3` · `Vue Router` · `Vuex/Pinia` · `Vue CLI/Vite`
+- **UI 组件框架**: `Element UI/Plus` · `Ant Design Vue` · `Tailwind CSS`
+- **数据可视化**: `ECharts` · `AntV` · `D3.js`
+- **工程化工具**: `Webpack` · `Vite` · `ESLint` · `Prettier` · `Less/Sass`
+
+</div>
 
 ### 🔧 熟练技术
 
-- **React 生态**: `React` `React Router` `Redux` `React Hooks`
-- **移动端**: `uni-app` `Taro` `Hybrid 混合开发`
-- **桌面端**: `Electron`
-- **静态站点**: `VitePress` `Nuxt.js`
-- **微前端**: `qiankun` `single-spa`
-- **工具库**: `Lodash` `Day.js` `Mockjs`
-- **开发工具**: `Git` `Postman` `Whistle` `Chrome DevTools`
+<div class="skill-tags">
+
+- **React 生态系统**: `React` · `React Router` · `Redux` · `React Hooks`
+- **移动端开发**: `uni-app` · `Taro` · `Hybrid 混合开发`
+- **桌面端开发**: `Electron`
+- **静态站点生成**: `VitePress` · `Nuxt.js`
+- **微前端架构**: `qiankun` · `single-spa`
+- **工具库**: `Lodash` · `Day.js` · `Mockjs`
+- **开发调试工具**: `Git` · `Postman` · `Whistle` · `Chrome DevTools`
+
+</div>
 
 ### 📚 熟悉技术
 
-- **后端技术**: `Node.js` `Express` `Koa`
-- **数据库**: `MongoDB` `MySQL`
-- **测试**: `Jest` `Cypress` `Vitest`
-- **部署**: `Docker` `Jenkins` `GitHub Actions` `Nginx`
-- **团队管理**: 10人左右前端团队，1年+管理经验
+<div class="skill-tags">
+
+- **后端技术**: `Node.js` · `Express` · `Koa`
+- **数据库**: `MongoDB` · `MySQL`
+- **自动化测试**: `Jest` · `Cypress` · `Vitest`
+- **部署运维**: `Docker` · `Jenkins` · `GitHub Actions` · `Nginx`
+- **团队管理**: 10人左右前端团队 · 1年+管理经验
+
+</div>
+
+</div>
 
 ## 💼 工作经历
 
@@ -231,6 +257,191 @@ description: 高级前端开发工程师，6年经验，专注于Vue.js、React�
 目前正在寻找 **高级前端开发工程师** 或 **前端技术专家** 的职位机会，希望能在技术创新和团队建设方面发挥更大价值。
 :::
 
-*感谢您花时间阅读我的简历，期待与您的进一步交流！* 🙏
+---
 
+<div class="resume-footer">
+  <p class="thank-you">感谢您花时间阅读我的简历，期待与您的进一步交流！🙏</p>
+  <p class="update-time">最后更新时间: 2025年</p>
+</div>
 
+<style scoped>
+/* 简历头部样式 */
+.resume-header {
+  text-align: center;
+  padding: 2rem 0;
+  border-bottom: 2px solid var(--vp-c-divider);
+  margin-bottom: 2rem;
+}
+
+.header-badge {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.badge:hover {
+  transform: translateY(-2px);
+}
+
+/* 技能标签优化 */
+.skills-section {
+  margin: 2rem 0;
+}
+
+.skill-tags code {
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border: 1px solid var(--vp-c-brand);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.skill-tags code:hover {
+  background: linear-gradient(135deg, #667eea25 0%, #764ba225 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+/* 项目经历增强 */
+.vp-doc h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--vp-c-divider);
+  margin-top: 2rem;
+}
+
+/* 公司简介样式 */
+.vp-doc details {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--vp-c-bg-soft);
+  border-radius: 8px;
+  border-left: 3px solid var(--vp-c-brand);
+}
+
+/* 列表项优化 */
+.vp-doc li {
+  margin: 0.5rem 0;
+  line-height: 1.8;
+}
+
+/* 表格美化 */
+.vp-doc table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.vp-doc table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.vp-doc table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc table tr:hover td {
+  background: var(--vp-c-bg-soft);
+}
+
+/* 简历底部样式 */
+.resume-footer {
+  text-align: center;
+  padding: 2rem 0;
+  margin-top: 3rem;
+  border-top: 2px solid var(--vp-c-divider);
+}
+
+.thank-you {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--vp-c-text-1);
+  margin-bottom: 0.5rem;
+}
+
+.update-time {
+  font-size: 0.9rem;
+  color: var(--vp-c-text-2);
+  opacity: 0.7;
+}
+
+/* 信息容器增强 */
+.vp-doc .info.custom-block {
+  border-left: 4px solid var(--vp-c-brand);
+  background: var(--vp-c-bg-soft);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.vp-doc .tip.custom-block {
+  border-left: 4px solid #42b983;
+  background: rgba(66, 185, 131, 0.1);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .resume-header {
+    padding: 1rem 0;
+  }
+  
+  .header-badge {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .badge {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+  }
+  
+  .vp-doc table {
+    font-size: 0.9rem;
+  }
+  
+  .vp-doc table th,
+  .vp-doc table td {
+    padding: 0.6rem 0.8rem;
+  }
+}
+
+/* 打印样式优化 */
+@media print {
+  .resume-header,
+  .resume-footer {
+    page-break-inside: avoid;
+  }
+  
+  .badge {
+    background: #667eea !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+</style>

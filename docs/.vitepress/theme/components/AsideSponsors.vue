@@ -1,30 +1,31 @@
 
 <template>
-  <VPDocAsideSponsors :data="data" />
+  <VPDocAsideSponsors :data="sponsorData" />
 </template>
 
 <script setup>
-import { computed } from "vue";
 import { VPDocAsideSponsors } from "vitepress/theme";
 
-const data = [
+/**
+ * 侧边栏赞助商配置
+ * @type {Array<{tier: string, size: string, items: Array<{name: string, url: string, img: string}>}>}
+ */
+const sponsorData = [
   {
     tier: "我的主页",
-    // tier: "长期赞助商",
-    size: "big", // big   xmini
+    size: "big", // 可选值: big | medium | small | xmini
     items: [
       {
-        name: "我的主页",
-        url: "/",
+        name: "个人主页",
+        url: "/home",
         img: "/images/logo-mini.svg",
       },
       {
-        name: "我的主页",
-        url: "/",
+        name: "GitHub 主页",
+        url: "https://github.com/jinxi1334640772",
         img: "/images/logo-mini.svg",
       },
     ],
   },
 ];
 </script>
-

@@ -1,7 +1,7 @@
 {
   "name": "vitepress-doc",
   "version": "1.0.6",
-  "description": "基于vitepress + vite的项目开发文档，静态网站生成",
+  "description": "基于 VitePress + Vite 的前端技术文档站点，提供静态网站生成、专业知识库和现代化开发实践。",
   "main": "index.js",
   "type": "module",
   "packageManager": "pnpm@9.15.1",
@@ -18,10 +18,15 @@
     "url": "git@github.com:jinxi1334640772/jinxi1334640772.github.io.git"
   },
   "keywords": [
-    "项目文档doc",
     "vitepress",
+    "技术文档",
+    "前端开发",
+    "vue3",
     "vite",
-    "vue3"
+    "静态网站",
+    "知识库",
+    "markdown",
+    "documentation"
   ],
   "author": "zhangjinxi",
   "license": "MIT",
